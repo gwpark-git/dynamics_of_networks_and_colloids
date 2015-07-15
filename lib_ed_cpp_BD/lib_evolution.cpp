@@ -10,7 +10,7 @@ MKL_LONG ANALYSIS::GET_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTI
   // MATRIX vec_boost[TRAJ.Np];
   // for(MKL_LONG i=0; i<TRAJ.Np; i++)
   //   vec_boost[i].initial(TRAJ.dimension, 1, 0.);
-#pragma omp parallel for shared(TRAJ, INDEX_PDF_U, PDF_U, POTs, index_t, index_particle, vec_boost_ordered_pdf)
+#pragma omp parallel for default(none) shared(TRAJ, INDEX_PDF_U, PDF_U, POTs, index_t, index_particle, vec_boost_ordered_pdf) schedule(static)
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       // if(i!= index_particle) // itself should be counted as natural
@@ -51,7 +51,7 @@ MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TR
 {
   given_vec.set_value(0.);
   // MATRIX tmp_vec(TRAJ.Np, 1, 0.);
-#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, given_vec, index_t, given_index, vec_boost_Nd)
+#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, given_vec, index_t, given_index, vec_boost_Nd) schedule(dynamic)
   for (MKL_LONG j=1; j<CONNECT.TOKEN(given_index); j++)
     {
       MKL_LONG target_index = CONNECT.HASH(given_index, j);
@@ -114,7 +114,7 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIA
   given_vec.set_value(0.);
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
 
-#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t, index_i, given_vec, vec_boost_Nd) 
+#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t, index_i, given_vec, vec_boost_Nd) schedule(static)
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, index_i, i, vec_boost_Nd[i]);
@@ -158,7 +158,7 @@ MKL_LONG INTEGRATOR::EULER::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, 
   MATRIX force_random(TRAJ.dimension, 1, 0.);
 
 
-#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next) firstprivate(force_spring, force_repulsion, force_random) // firstprivate called copy-constructor while private called default constructor
+#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next) firstprivate(force_spring, force_repulsion, force_random) schedule(static) // firstprivate called copy-constructor while private called default constructor
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
 
@@ -233,7 +233,7 @@ double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_boost(TRAJECTORY& TRAJ, 
   double energy = 0.;
 
   // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
-#pragma omp parallel for default(none) shared(energy, TRAJ, POTs, CONNECT, index_t, vec_boost_Nd)
+#pragma omp parallel for default(none) shared(energy, TRAJ, POTs, CONNECT, index_t, vec_boost_Nd) schedule(static)
   for(MKL_LONG i=0; i<CONNECT.Np; i++)
     {
       for(MKL_LONG j=0; j<CONNECT.TOKEN(i); j++)
@@ -250,7 +250,7 @@ double ANALYSIS::cal_repulsion_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
 
   // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
 // #pragma omp parallel for default(none) shared(energy, TRAJ, POTs, index_t) firstprivate(tmp_vec)
-#pragma omp parallel for default(none) shared(energy, TRAJ, POTs, index_t, vec_boost_Nd)
+#pragma omp parallel for default(none) shared(energy, TRAJ, POTs, index_t, vec_boost_Nd) schedule(static)
   for(MKL_LONG i=0; i<TRAJ.Np - 1; i++)
     {
       for(MKL_LONG j=i+1; j<TRAJ.Np; j++)

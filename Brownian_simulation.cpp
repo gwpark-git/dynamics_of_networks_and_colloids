@@ -375,7 +375,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       // MATRIX force_random(TRAJ.dimension, 1, 0.);
 
 // #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next) firstprivate(force_spring, force_repulsion, force_random) // firstprivate called copy-constructor while private called default constructor
-#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, vec_boost_Nd_Np_parallel_connector, vec_boost_Nd_Np_parallel_repulsion, force_spring, force_repulsion, force_random)
+#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, vec_boost_Nd_Np_parallel_connector, vec_boost_Nd_Np_parallel_repulsion, force_spring, force_repulsion, force_random) schedule(static)
       for (MKL_LONG i=0; i<TRAJ.Np; i++)
         {
           force_spring[i].set_value(0);
