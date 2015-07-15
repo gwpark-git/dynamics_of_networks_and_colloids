@@ -86,7 +86,7 @@ bool TRUTH_MAP::MOV_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, MKL_LONG index_itse
 MKL_LONG ASSOCIATION::N_TOTAL_ASSOCIATION()
 {
   MKL_LONG total_association = 0;
-#pragma omp parallel for default(none) shared(total_association)
+// #pragma omp parallel for default(none) shared(total_association)
   for(MKL_LONG i=0; i<Np; i++)
     {
       for(MKL_LONG j=1; j<TOKEN(i); j++)
@@ -328,6 +328,8 @@ double CONNECTIVITY_update_dPDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_pa
 {
   // double sum = 0.;
   // CONNECT.dPDF(index_particle, 0) = 0.;
+
+// #pragma omp parallel for default(none) shared(CONNECT, index_particle)
   for(MKL_LONG k=0; k<CONNECT.TOKEN(index_particle); k++)
     {
       CONNECT.dPDF(index_particle, k) = (double)CONNECT.weight(index_particle, k)*CONNECT.CASE(index_particle, k)/CONNECT.Z(index_particle);
@@ -348,22 +350,3 @@ double CONNECTIVITY_update_dCDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_pa
 }
 
 
-// MKL_LONG CONNECTIVITY_update_information_particle(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle)
-// {
-//   CONNECTIVITY_update_CASE_particle(CONNECT, POTs, index_particle);
-//   CONNECTIVITY_update_Z_particle(CONNECT, index_particle);
-//   CONNECTIVITY_update_dPDF_particle(CONNECT, index_particle);
-//   CONNECTIVITY_update_dCDF_particle(CONNECT, index_particle);
-//   return 0;
-// }
-
-// MKL_LONG CONNECTIVITY_update_information(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs)
-// {
-//   MKL_LONG i=0;
-// #pragma omp parallel for default(none) shared(CONNECT, POTs) 
-//   for(i=0; i<CONNECT.Np; i++)
-//     {
-//       CONNECTIVITY_update_information_particle(CONNECT, POTs, i);
-//     }
-//   return 0;
-// }

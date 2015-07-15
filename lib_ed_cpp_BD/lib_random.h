@@ -29,7 +29,11 @@ namespace RANDOM
   MKL_LONG unit_random_vector_generator_2D(MATRIX& R_VEC_TRANS);
 
   MKL_LONG return_LONG_INT_rand(MKL_LONG SUP);
+  MKL_LONG return_LONG_INT_rand_boost(gsl_rng* r, MKL_LONG SUP);
+
   double return_double_rand_SUP1();
+  double return_double_rand_SUP1_boost(gsl_rng* r);
+
   
 }
 

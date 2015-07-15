@@ -3,10 +3,14 @@
 
 double GEOMETRY::get_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec)
 {
-  if(given_vec.size != TRAJ.dimension)
-    {
-      given_vec.initial(TRAJ.dimension, 1, 0.);
-    }
+  // this comentation is related with the assumes that
+  // the given dimensionality is properly working
+  // therefore, it is assumed that there is no mistake
+  // and no internal check for the dimensionality.
+  // if(given_vec.size != TRAJ.dimension)
+  //   {
+  //     given_vec.initial(TRAJ.dimension, 1, 0.);
+  //   }
   // printf("--> FLAG_GET_MINIMUM_DISTANCE_1\n");
   GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, index_i, index_j, given_vec);
   // printf("--> FLAG_GET_MINIMUM_DISTANCE_2\n");
@@ -42,10 +46,10 @@ MKL_LONG GEOMETRY::minimum_image_convention(TRAJECTORY& TRAJ, MKL_LONG target_t)
 
 MKL_LONG GEOMETRY::get_minimum_distance_pos_vector(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec)
 {
-  if(given_vec.size != TRAJ.dimension)
-    {
-      given_vec.initial(TRAJ.dimension, 1, 0.);
-    }
+  // if(given_vec.size != TRAJ.dimension)
+  //   {
+  //     given_vec.initial(TRAJ.dimension, 1, 0.);
+  //   }
   for(MKL_LONG k=0; k<TRAJ.dimension; k++)
     {
       // printf("    --> FLAG_GET_MINIMUM_DISTANCE_POS_VECTOR_1\t%ld\t%ld\t%ld\t%6.3e\t%6.3e\n", index_t, given_index, target_index, 0.0, 0.0);

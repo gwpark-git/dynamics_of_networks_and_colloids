@@ -15,6 +15,17 @@ MKL_LONG RANDOM::return_LONG_INT_rand(MKL_LONG SUP)
   return re;  
 }
 
+MKL_LONG RANDOM::return_LONG_INT_rand_boost(gsl_rng* r, MKL_LONG SUP)
+{
+  return gsl_rng_uniform_int(r, SUP);
+}
+
+double RANDOM::return_double_rand_SUP1_boost(gsl_rng* r)
+{
+  return gsl_rng_uniform(r);
+}
+
+
 double RANDOM::return_double_rand_SUP1()
 {
   const gsl_rng_type *T;
