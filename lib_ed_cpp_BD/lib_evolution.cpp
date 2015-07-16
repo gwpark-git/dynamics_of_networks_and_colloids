@@ -47,21 +47,21 @@ MKL_LONG INTEGRATOR::EULER::cal_connector_force(TRAJECTORY& TRAJ, POTENTIAL_SET&
   return 0;
 }
 
-MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG given_index, MATRIX *vec_boost_Nd)
+MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG given_index, MATRIX vec_boost_Nd)
 {
   given_vec.set_value(0.);
   // MATRIX tmp_vec(TRAJ.Np, 1, 0.);
-#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, given_vec, index_t, given_index, vec_boost_Nd) schedule(dynamic)
+// #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, given_vec, index_t, given_index, vec_boost_Nd) schedule(dynamic)
   for (MKL_LONG j=1; j<CONNECT.TOKEN(given_index); j++)
     {
       MKL_LONG target_index = CONNECT.HASH(given_index, j);
-      GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, given_index, target_index, vec_boost_Nd[j]);
-      double distance = vec_boost_Nd[j].norm();
+      GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, given_index, target_index, vec_boost_Nd);
+      double distance = vec_boost_Nd.norm();
       double force = (double)CONNECT.weight(given_index,j)*POTs.f_connector(distance, POTs.force_variables);
       // printf("force = %lf\n", force);
-      make_unit_vector(vec_boost_Nd[j]);
-      matrix_mul(vec_boost_Nd[j], force);
-      given_vec += vec_boost_Nd[j];
+      make_unit_vector(vec_boost_Nd);
+      matrix_mul(vec_boost_Nd, force);
+      given_vec += vec_boost_Nd;
     }
   return 0;
 }
@@ -109,24 +109,24 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET&
   return 0;
 }
 
-MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG index_i, MATRIX *vec_boost_Nd)
+MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG index_i, MATRIX vec_boost_Nd)
 {
   given_vec.set_value(0.);
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
 
-#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t, index_i, given_vec, vec_boost_Nd) schedule(static)
+// #pragma omp parallel for default(none) shared(TRAJ, POTs, index_t, index_i, given_vec, vec_boost_Nd) schedule(static)
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
-      GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, index_i, i, vec_boost_Nd[i]);
-      double distance = vec_boost_Nd[i].norm();
+      GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, index_i, i, vec_boost_Nd);
+      double distance = vec_boost_Nd.norm();
       if (i != index_i)
       // if ((i != index_i) && (i != GEOMETRY::get_connected_bead(TRAJ, index_i))) // this is temporally commented. need reinforcement
         {
           double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
           // printf("repulsion::repulsion(distance(t, i, j)) = r(d(%6.3e, %ld, %ld)) = r(%6.3e) = %6.3e\n", TRAJ(index_t, 0), index_i, i, distance, repulsion);
-          make_unit_vector(vec_boost_Nd[i]);
-          matrix_mul(vec_boost_Nd[i], repulsion);
-          given_vec.add(vec_boost_Nd[i]);
+          make_unit_vector(vec_boost_Nd);
+          matrix_mul(vec_boost_Nd, repulsion);
+          given_vec.add(vec_boost_Nd);
         }
     }
   return 0;

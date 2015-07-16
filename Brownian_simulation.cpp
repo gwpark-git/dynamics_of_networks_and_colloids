@@ -375,7 +375,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       // MATRIX force_random(TRAJ.dimension, 1, 0.);
 
 // #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next) firstprivate(force_spring, force_repulsion, force_random) // firstprivate called copy-constructor while private called default constructor
-#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, vec_boost_Nd_Np_parallel_connector, vec_boost_Nd_Np_parallel_repulsion, force_spring, force_repulsion, force_random) schedule(static)
+#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, vec_boost_Nd_parallel, force_spring, force_repulsion, force_random) schedule(static)
       for (MKL_LONG i=0; i<TRAJ.Np; i++)
         {
           force_spring[i].set_value(0);
@@ -383,8 +383,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           force_random[i].set_value(0);
           // from its print functionality, MATRIX objects are cleary working properly.
           // The reason is that with parallization, all the matrix object showed different address
-          INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJ, POTs, CONNECT, force_spring[i], index_t_now, i, vec_boost_Nd_Np_parallel_connector[i]);
-          INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, vec_boost_Nd_Np_parallel_repulsion[i]);
+          INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJ, POTs, CONNECT, force_spring[i], index_t_now, i, vec_boost_Nd_parallel[i]);
+          INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, vec_boost_Nd_parallel[i]);
           INTEGRATOR::EULER::cal_random_force(TRAJ, POTs, force_random[i], index_t_now);
           for (MKL_LONG k=0; k<TRAJ.dimension; k++)
             {
