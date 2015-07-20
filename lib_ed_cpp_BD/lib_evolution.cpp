@@ -10,19 +10,19 @@ MKL_LONG ANALYSIS::GET_PDF_POTENTIAL_target(TRAJECTORY& TRAJ, MKL_LONG index_t, 
 }
 
 
-MKL_LONG ANALYSIS::GET_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_PDF_U, MATRIX& PDF_U, MATRIX *vec_boost_ordered_pdf)
+MKL_LONG ANALYSIS::GET_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_PDF_U, MATRIX& PDF_U, MATRIX& vec_boost_ordered_pdf)
 {
 // #pragma omp parallel for default(none) shared(TRAJ, INDEX_PDF_U, PDF_U, POTs, index_t, index_particle, vec_boost_ordered_pdf) schedule(static)
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
-      double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, i, vec_boost_ordered_pdf[i]);
+      double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, i, vec_boost_ordered_pdf);
       INDEX_PDF_U(i) = i;
       PDF_U(i) = exp(-POTs.e_connector(distance, POTs.force_variables)); // that gave us probability
     }
   return 0;
 }
 
-MKL_LONG ANALYSIS::GET_ORDERED_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_PDF_U, MATRIX& PDF_U, MATRIX *vec_boost_ordered_pdf, double& time_PDF, double& time_SORT)
+MKL_LONG ANALYSIS::GET_ORDERED_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_PDF_U, MATRIX& PDF_U, MATRIX& vec_boost_ordered_pdf, double& time_PDF, double& time_SORT)
 {
   double time_st = dsecnd();
   GET_PDF_POTENTIAL(TRAJ, index_t, POTs, index_particle, INDEX_PDF_U, PDF_U, vec_boost_ordered_pdf);

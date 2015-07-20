@@ -162,6 +162,7 @@ MKL_LONG main_NAPLE_REPULSION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given
 
 MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, COND& given_condition)
 {
+  double time_st_simulation = dsecnd();
   MKL_LONG N_steps_block = atol(given_condition("N_steps_block").c_str());
   string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_trajectory")).c_str();
   string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_energy")).c_str();
@@ -171,6 +172,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_weight")).c_str();
   string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_MC_LOG")).c_str();
   ofstream FILE_LOG;
+
+  MKL_LONG N_THREADS = atol(given_condition("N_THREADS").c_str());
+  omp_set_num_threads(N_THREADS);
+
   double time_MC = 0.;
   double time_LV = 0.;
   double time_AN = 0.;
@@ -224,13 +229,27 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   double bMSE_tolerance = atof(given_condition("tolerance_MSE_association").c_str());
   MKL_LONG N_max_steps = atol(given_condition("N_max_steps").c_str());
 
-  MATRIX dPDF_U(TRAJ.Np, 1, 0.);
-  MATRIX INDEX_dPDF_U(TRAJ.Np, 1, 0);
+  MATRIX *dPDF_U = new MATRIX [TRAJ.Np];
+  MATRIX *INDEX_dPDF_U = new MATRIX [TRAJ.Np];
+  for(MKL_LONG i=0; i<TRAJ.Np; i++)
+    {
+      dPDF_U[i].initial(TRAJ.Np, 1, 0.);
+      INDEX_dPDF_U[i].initial(TRAJ.Np, 1, 0);
+    }
+  // MATRIX dPDF_U(TRAJ.Np, 1, 0.);
+  // MATRIX INDEX_dPDF_U(TRAJ.Np, 1, 0);
 
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
   CONNECT.initial();
   for(MKL_LONG i=0; i<CONNECT.Np; i++)
     CONNECT.TOKEN(i) = 1;
+
+  double dt_1 = 0., dt_2 = 0., dt_3 = 0., dt_4 = 0., dt_5 = 0., dt_6 = 0., dt_7 = 0.;
+  double dt_det_pdf = 0.;
+  double dt_pdf = 0., dt_sort = 0.;
+  
+  double time_MC_1 = 0., time_MC_2 = 0., time_MC_3 = 0., time_MC_4 = 0., time_MC_5 = 0., time_MC_6 = 0., time_MC_7 = 0., time_MC_8 = 0.;
+  
 
   for(MKL_LONG t=0; t<Nt-1; t++)
     {
@@ -254,15 +273,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           for(MKL_LONG i=0; i<CONNECT.Np; i++)
             CONNECT.TOKEN(i) = 1;
         }
-      dPDF_U.set_value(0.);
-      INDEX_dPDF_U.set_value(0.);
       MKL_LONG cnt_del = 0;
       MKL_LONG cnt_add = 0;
       MKL_LONG cnt_mov = 0;
       MKL_LONG cnt_cancel = 0;
-      double dt_1 = 0., dt_2 = 0., dt_3 = 0., dt_4 = 0., dt_5 = 0., dt_6 = 0., dt_7 = 0.;
-      double dt_pdf = 0., dt_sort = 0.;
-      double time_MC_1 = 0., time_MC_2 = 0., time_MC_3 = 0., time_MC_4 = 0., time_MC_5 = 0., time_MC_6 = 0., time_MC_7 = 0., time_MC_8 = 0.;
       double time_st_MC = dsecnd();
       const gsl_rng_type *T_boost;
       gsl_rng *r_boost;
@@ -270,6 +284,29 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       T_boost = gsl_rng_default;
       r_boost = gsl_rng_alloc(T_boost);
       gsl_rng_set(r_boost, random());
+
+      // computing the distance map between beads for reducing overhead
+      // note that the computing distance map during association spend 80% of computing time
+      // That involve computing map from 1 to 3 beads (with number of Monte-Carlo steps)
+      // In this case, however, we compute all the distance map, once, then uses this information throughout the Monte-Carlo steps since the configurational information does not change during Monte-Carlo stpes.
+      // // Note that NO upper triangle form is generated. All the i-j distance is computed twice. 
+      // // Therefore, further reduce is possible to modify this computing.
+      // // On here, the feature is ignored for convenience.
+      double time_st_det_pdf = dsecnd();
+#pragma omp parallel for shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dPDF_U, dPDF_U, dt_pdf, dt_sort) num_threads(N_THREADS)
+      for(MKL_LONG i=0; i<TRAJ.Np; i++)
+        {
+          double time_st_pdf = dsecnd();
+          ANALYSIS::GET_PDF_POTENTIAL(TRAJ, index_t_now, POTs, i, INDEX_dPDF_U[i], dPDF_U[i], vec_boost_Nd_parallel[i]);
+          double time_end_pdf = dsecnd();
+          dPDF_U[i].sort2(INDEX_dPDF_U[i]);
+          double time_end_sort = dsecnd();
+          dt_pdf += time_end_pdf - time_st_pdf;
+          dt_sort += time_end_sort - time_end_pdf;
+        }
+      double time_end_det_pdf = dsecnd();
+      dt_det_pdf += time_end_det_pdf - time_st_det_pdf;
+
       while(IDENTIFIER_MSE && ++cnt < N_max_steps)
         {
           // choice for visiting bead   
@@ -285,19 +322,19 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           time_MC_3 = dsecnd();
           // choice for behaviour of selected chain end
           double rolling_dPDF_U = RANDOM::return_double_rand_SUP1_boost(r_boost);
-          // ANALYSIS::GET_ORDERED_PDF_POTENTIAL(TRAJ, index_t_now, POTs, index_itself, INDEX_dPDF_U, dPDF_U);
-          ANALYSIS::GET_ORDERED_PDF_POTENTIAL(TRAJ, index_t_now, POTs, index_other_end_of_selected_chain, INDEX_dPDF_U, dPDF_U, vec_boost_Nd_parallel, dt_pdf, dt_sort);
+          // the PDF is already computed in the previous map
+          // ANALYSIS::GET_ORDERED_PDF_POTENTIAL(TRAJ, index_t_now, POTs, index_other_end_of_selected_chain, INDEX_dPDF_U, dPDF_U, vec_boost_Nd_parallel, dt_pdf, dt_sort);
           time_MC_4 = dsecnd();
           MKL_LONG k=CONNECT.Np-1;
           for(k=CONNECT.Np-1; k>=0; k--)
             {
-              if(dPDF_U(k) < rolling_dPDF_U)
+              if(dPDF_U[index_other_end_of_selected_chain](k) < rolling_dPDF_U)
                 {
                   k++;
                   break;
                 }
             }
-          MKL_LONG index_new_end_of_selected_chain = INDEX_dPDF_U(k);
+          MKL_LONG index_new_end_of_selected_chain = INDEX_dPDF_U[index_other_end_of_selected_chain](k);
           time_MC_5 = dsecnd();
           // for(MKL_LONG i=CONNECT.Np-10; i<CONNECT.Np; i++)
           //   {
@@ -329,7 +366,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           // MKL_LONG k=0;
           MKL_LONG index_set[3] = {index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain};
           // for(MKL_LONG k=0; k<CONNECT.Np; k++)
-// #pragma omp parallel for shared(CONNECT, index_set)
           for(MKL_LONG i=0; i<3; i++)
             {
               CONNECTIVITY_update_Z_particle(CONNECT, index_set[i]);
@@ -375,7 +411,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       // MATRIX force_random(TRAJ.dimension, 1, 0.);
 
 // #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next) firstprivate(force_spring, force_repulsion, force_random) // firstprivate called copy-constructor while private called default constructor
-#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, vec_boost_Nd_parallel, force_spring, force_repulsion, force_random) schedule(static)
+#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, vec_boost_Nd_parallel, force_spring, force_repulsion, force_random) schedule(static) num_threads(N_THREADS)
       for (MKL_LONG i=0; i<TRAJ.Np; i++)
         {
           force_spring[i].set_value(0);
@@ -403,9 +439,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           printf("time consuming: MC, LV, AN = %8.6e, %8.6e, %8.6e\n", time_MC, time_LV, time_AN);
           double total_time = time_MC + time_LV + time_AN;
           printf("time fraction:  MC, LV, AN = %6.1f, %6.1f, %6.1f\n", time_MC*100/total_time, time_LV*100/total_time, time_AN*100/total_time);
-          printf("MC step analysis: basic_random = %6.3e, getting_hash = %6.3e, getting_ordered_pdf = %6.3e, new_end = %6.3e, action = %6.3e, update = %6.3e, block_average = %6.3e\n", dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7);
+          printf("MC step analysis: all pdf = %6.3e, basic_random = %6.3e, getting_hash = %6.3e, det_jump = %6.3e, new_end = %6.3e, action = %6.3e, update = %6.3e, block_average = %6.3e\n", dt_det_pdf, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7);
           double total_dt = dt_1 + dt_2 + dt_3 + dt_4 + dt_5 + dt_6 + dt_7;
-          printf("frac MC step analysis: basic_random = %6.1f, getting_hash = %6.1f, getting_ordered_pdf = %6.1f, new_end = %6.1f, action = %6.1f, update = %6.1f, block_average = %6.1f\n", dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
+          printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, action = %6.1f, update = %6.1f, block_average = %6.1f\n", dt_det_pdf*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
           double total_dt_pdf = dt_pdf + dt_sort;
           printf("computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
           TRAJ.fprint_row(filename_trajectory.c_str(), index_t_next);
@@ -425,6 +461,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       time_LV += time_end_LV - time_end_MC;
       time_AN += time_end_AN - time_end_LV;
     }
+
+  double time_simulation = dsecnd() - time_st_simulation;
+  printf("Total simulation time = %6.3e\n", time_simulation);
   if (given_condition("MC_LOG") == "TRUE")
     FILE_LOG.close();
   delete[] vec_boost_Nd_parallel;
@@ -441,7 +480,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   delete[] force_spring;
   delete[] force_repulsion;
   delete[] force_random;
-     
+  delete[] dPDF_U;
+  delete[] INDEX_dPDF_U;
   return 0;
 }
 

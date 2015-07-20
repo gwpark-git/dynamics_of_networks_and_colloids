@@ -39,8 +39,8 @@ namespace ANALYSIS
   double cal_kinetic_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MKL_LONG index_t);
   double cal_total_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MKL_LONG index_t);
   MKL_LONG cal_detail_repulsion(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, const char* fn, MKL_LONG index_t);
-  MKL_LONG GET_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_PDF_U, MATRIX& PDF_U, MATRIX *vec_boost_ordered_pdf);
-  MKL_LONG GET_ORDERED_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_PDF_U, MATRIX& PDF_U, MATRIX *vec_boost_ordered_pdf, double& time_PDF, double& time_SORT);
+  MKL_LONG GET_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_PDF_U, MATRIX& PDF_U, MATRIX& vec_boost_ordered_pdf);
+  MKL_LONG GET_ORDERED_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_PDF_U, MATRIX& PDF_U, MATRIX& vec_boost_ordered_pdf, double& time_PDF, double& time_SORT);
   namespace ANAL_ASSOCIATION
   {
     MKL_LONG CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, MKL_LONG index_t);

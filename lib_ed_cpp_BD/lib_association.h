@@ -35,6 +35,8 @@ class ASSOCIATION : public CONNECTIVITY
 
   MATRIX_LONG weight;
 
+  MATRIX dist_map;
+
   /* MATRIX dPDF_U; // this is for removing potential overhead for computing (ceiling) PDF for potential */
   
 

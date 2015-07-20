@@ -8,6 +8,7 @@ MKL_LONG ASSOCIATION::initial()
   dCDF.initial(Np, N_max, 0.);
   Z.initial(Np, 1, 0.);
   weight.initial(Np, N_max, 0);
+  dist_map.initial(Np, Np, 0);
 
   for(MKL_LONG i=0; i<Np; i++)
     {
