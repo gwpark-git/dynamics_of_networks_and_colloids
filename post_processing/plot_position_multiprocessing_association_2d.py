@@ -1,6 +1,7 @@
 from numpy import *
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as PathEffects
+import mpl_toolkits.axisartist as axisartist
 from pylab import rand
 import sys
 
@@ -70,13 +71,18 @@ else:
         marker_style = 'o'
         plt.clf()
         fig = plt.figure(t)
-        ax = fig.add_subplot(111)
+        # fig.subplots_adjust(wspace=0.4, bottom=0.3)
+        ax = axisartist.Subplot(fig, "111")
+        fig.add_subplot(ax)
         ax.axis([-0.2*box_dimension[0], 1.2*box_dimension[0], -0.2*box_dimension[1], 1.2*box_dimension[1]])
         ax.set_xticks(range(11))
         ax.set_yticks(range(11))
+        ax.axis[:].major_ticks.set_tick_out(True)
+        ax.axis[:].invert_ticklabel_direction()
+        # set_tick
         ax.grid('on')
-        ax.set_xlabel('x dimension')
-        ax.set_ylabel('y dimension')
+        # ax.set_xlabel('x dimension')
+        # ax.set_ylabel('y dimension')
         ax.set_aspect(1)
         marker_unit = (ax.transData.transform((1, 0)) - ax.transData.transform((0, 0)))[0]/1.4
         for i in range(Np):
@@ -118,7 +124,17 @@ else:
         ax.plot(ref_PBC_bottom[:,0], ref_PBC_bottom[:,1], 'k--', linewidth=3)
         ax.plot(ref_PBC_top[:,0], ref_PBC_top[:,1], 'k--', linewidth=3)
 
-        plt.title('(N_association, N_beads, f) = (%ld, %ld, %6.1f)'%(cnt_asso/2, Np, cnt_asso/(2.*Np)))
+        # plt.title('(N_association, N_beads, f) = (%ld, %ld, %6.1f)'%(cnt_asso/2, Np, cnt_asso/Np))
+        # plt.annotate('N_dim=%ld\nN_par=%ld\n\nts=%ld\nN_bri=%ld\nf=%3.1f'%(N_dimension, Np, given_traj[t, 0], cnt_asso/2, cnt_asso/Np), xy=(1.02*box_dimension[0], 1.1*box_dimension[1]), fontsize=6, path_effects=[PathEffects.withStroke(linewidth=1, foreground='w')])
+        annotate_text_left = 'N_dim=%ld'%(N_dimension) + '\n'
+        annotate_text_left += 'N_par=%ld'%(Np) 
+        plt.annotate(annotate_text_left, xy=(-0.18*box_dimension[0], 1.1*box_dimension[1]), fontsize=6, color='b', path_effects=[PathEffects.withStroke(linewidth=1, foreground='w')])
+
+        annotate_text_right = 'ts=%5.3e'%(given_traj[t, 0]) + '\n'
+        annotate_text_right += 'N_bri=%ld'%(cnt_asso/2) + '\n'
+        annotate_text_right += 'f=%3.1f'%(cnt_asso/Np)  
+
+        plt.annotate(annotate_text_right, xy=(1.02*box_dimension[0], 1.1*box_dimension[1]), fontsize=6, color='b', path_effects=[PathEffects.withStroke(linewidth=1, foreground='w')])
         plt.savefig('%s/t%08d.png'%(out_path, ft), dpi=300, bbox_inches='tight')
         plt.close()
     # plt.show()
@@ -132,7 +148,7 @@ else:
         color_map = zeros([Np, 3])
         for i in range(Np):
             color_map[i, :] = rand(3)
-
+        cnt = 0
         with open(fn_traj, 'r') as f:
             with open(fn_connect, 'r') as f_connect:
                 with open(fn_weight, 'r') as f_weight:
@@ -142,6 +158,11 @@ else:
                     c_t = arange(N_proc)
                     connectivity = zeros([N_proc, Np, Np])
                     for line in f:
+                        # # st: temporal stopping
+                        # if cnt > N_proc:
+                        #     break
+                        # cnt += 1
+                        # # end: temporal stopping
                         tmp_str = line.split('\t')
                         for i in range(N_cols):
                             tmp_arr[cnt_line%N_proc, i] = float(tmp_str[i])
