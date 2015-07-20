@@ -9,6 +9,7 @@ MKL_LONG ASSOCIATION::initial()
   Z.initial(Np, 1, 0.);
   weight.initial(Np, N_max, 0);
   dist_map.initial(Np, Np, 0);
+  N_ASSOCIATION = 0;
 
   for(MKL_LONG i=0; i<Np; i++)
     {
@@ -235,7 +236,7 @@ MKL_LONG ASSOCIATION::del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K
 {
   if(weight(index_I, hash_index_K) > 1)
     {
-      
+      weight(index_I, hash_index_K) --;
     }
   else
     {
@@ -324,6 +325,8 @@ double CONNECTIVITY_update_Z_particle(ASSOCIATION& CONNECT, MKL_LONG index_parti
     }
   return CONNECT.Z(index_particle);
 }
+
+
 
 double CONNECTIVITY_update_dPDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_particle)
 {

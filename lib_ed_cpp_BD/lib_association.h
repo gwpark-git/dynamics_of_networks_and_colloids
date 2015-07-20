@@ -25,7 +25,7 @@ class ASSOCIATION : public CONNECTIVITY
   MKL_LONG Tec; // tolerance of end chains
   MKL_LONG N_min; // 2Nc - Tec
   MKL_LONG N_max; // 2Nc + Tec
-  
+  MKL_LONG N_ASSOCIATION;
   /* double *CASE_function_variables; */
   /* double (*CASE_function)(double distance, double* given_variables); */
   MATRIX CASE;

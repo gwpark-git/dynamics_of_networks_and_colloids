@@ -1,35 +1,35 @@
 
 #include "lib_evolution.h"
 
-MKL_LONG ANALYSIS::GET_PDF_POTENTIAL_target(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG& index_particle, MKL_LONG& index_target, double& INDEX_PDF_U_ij, double& PDF_U_ij, MATRIX& vec_boost_ordered_pdf_ij)
+MKL_LONG ANALYSIS::GET_dCDF_POTENTIAL_target(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG& index_particle, MKL_LONG& index_target, double& INDEX_dCDF_U_ij, double& dCDF_U_ij, MATRIX& vec_boost_ordered_pdf_ij)
 {
-  INDEX_PDF_U_ij = (double)index_target;
+  INDEX_dCDF_U_ij = (double)index_target;
   double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, index_target, vec_boost_ordered_pdf_ij);
-  PDF_U_ij = exp(-POTs.e_connector(distance, POTs.force_variables));
-  return PDF_U_ij;
+  dCDF_U_ij = exp(-POTs.e_connector(distance, POTs.force_variables));
+  return dCDF_U_ij;
 }
 
 
-MKL_LONG ANALYSIS::GET_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_PDF_U, MATRIX& PDF_U, MATRIX& vec_boost_ordered_pdf)
+MKL_LONG ANALYSIS::GET_dCDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_dCDF_U, MATRIX& dCDF_U, MATRIX& vec_boost_ordered_pdf)
 {
-// #pragma omp parallel for default(none) shared(TRAJ, INDEX_PDF_U, PDF_U, POTs, index_t, index_particle, vec_boost_ordered_pdf) schedule(static)
+// #pragma omp parallel for default(none) shared(TRAJ, INDEX_dCDF_U, dCDF_U, POTs, index_t, index_particle, vec_boost_ordered_pdf) schedule(static)
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, i, vec_boost_ordered_pdf);
-      INDEX_PDF_U(i) = i;
-      PDF_U(i) = exp(-POTs.e_connector(distance, POTs.force_variables)); // that gave us probability
+      INDEX_dCDF_U(i) = i;
+      dCDF_U(i) = exp(-POTs.e_connector(distance, POTs.force_variables));
     }
   return 0;
 }
 
-MKL_LONG ANALYSIS::GET_ORDERED_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_PDF_U, MATRIX& PDF_U, MATRIX& vec_boost_ordered_pdf, double& time_PDF, double& time_SORT)
+MKL_LONG ANALYSIS::GET_ORDERED_dCDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_dCDF_U, MATRIX& dCDF_U, MATRIX& vec_boost_ordered_pdf, double& time_dCDF, double& time_SORT)
 {
   double time_st = dsecnd();
-  GET_PDF_POTENTIAL(TRAJ, index_t, POTs, index_particle, INDEX_PDF_U, PDF_U, vec_boost_ordered_pdf);
+  GET_dCDF_POTENTIAL(TRAJ, index_t, POTs, index_particle, INDEX_dCDF_U, dCDF_U, vec_boost_ordered_pdf);
   double time_end_pdf = dsecnd();
-  PDF_U.sort2(INDEX_PDF_U);
+  dCDF_U.sort2(INDEX_dCDF_U);
   double time_end_sort = dsecnd();
-  time_PDF += time_end_pdf - time_st;
+  time_dCDF += time_end_pdf - time_st;
   time_SORT += time_end_sort - time_end_pdf;
   return 0;
 }
