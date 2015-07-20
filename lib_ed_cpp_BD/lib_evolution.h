@@ -31,6 +31,7 @@ namespace INTEGRATOR
 
 namespace ANALYSIS
 {
+  MKL_LONG GET_PDF_POTENTIAL_target(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG& index_particle, MKL_LONG& index_target, double& INDEX_PDF_U_ij, double& PDF_U_ij, MATRIX& vec_boost_ordered_pdf_ij);
 
   MKL_LONG CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& mat_energy, MKL_LONG index_t);
   double cal_potential_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MKL_LONG index_t);

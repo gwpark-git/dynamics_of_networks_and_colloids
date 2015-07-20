@@ -1,27 +1,23 @@
 
 #include "lib_evolution.h"
 
+MKL_LONG ANALYSIS::GET_PDF_POTENTIAL_target(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG& index_particle, MKL_LONG& index_target, double& INDEX_PDF_U_ij, double& PDF_U_ij, MATRIX& vec_boost_ordered_pdf_ij)
+{
+  INDEX_PDF_U_ij = (double)index_target;
+  double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, index_target, vec_boost_ordered_pdf_ij);
+  PDF_U_ij = exp(-POTs.e_connector(distance, POTs.force_variables));
+  return PDF_U_ij;
+}
+
+
 MKL_LONG ANALYSIS::GET_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_PDF_U, MATRIX& PDF_U, MATRIX *vec_boost_ordered_pdf)
 {
-  // INDEX_PDF_U(0) = index_particle;
-  // PDF_U(0) = 1.;
-  // MKL_LONG cnt = 0;
-  // MATRIX vec_boost(TRAJ.dimension, 1, 0.);
-  // MATRIX vec_boost[TRAJ.Np];
-  // for(MKL_LONG i=0; i<TRAJ.Np; i++)
-  //   vec_boost[i].initial(TRAJ.dimension, 1, 0.);
-#pragma omp parallel for default(none) shared(TRAJ, INDEX_PDF_U, PDF_U, POTs, index_t, index_particle, vec_boost_ordered_pdf) schedule(static)
+// #pragma omp parallel for default(none) shared(TRAJ, INDEX_PDF_U, PDF_U, POTs, index_t, index_particle, vec_boost_ordered_pdf) schedule(static)
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
-      // if(i!= index_particle) // itself should be counted as natural
-      //   {
-      // cnt++;
       double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, i, vec_boost_ordered_pdf[i]);
       INDEX_PDF_U(i) = i;
       PDF_U(i) = exp(-POTs.e_connector(distance, POTs.force_variables)); // that gave us probability
-      // printf("%ld\t%ld\t%lf\t%lf\t%lf\n", index_particle, i, distance, INDEX_PDF_U(i), PDF_U(i));
-      // printf("(%lf, %lf)\n", TRAJ(index_t, index_particle, 0), TRAJ(index_t, i, 0));
-      // }
     }
   return 0;
 }
@@ -35,9 +31,6 @@ MKL_LONG ANALYSIS::GET_ORDERED_PDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t,
   double time_end_sort = dsecnd();
   time_PDF += time_end_pdf - time_st;
   time_SORT += time_end_sort - time_end_pdf;
-  // for(MKL_LONG i=0; i<TRAJ.Np; i++)
-  //   printf("tmp out: (itself, i, p) = (%ld, %ld, %6.3lf)\n", index_particle, (MKL_LONG)INDEX_PDF_U(i), PDF_U(i));
-
   return 0;
 }
 
