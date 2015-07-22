@@ -7,6 +7,7 @@ MKL_LONG ASSOCIATION::initial()
   dPDF.initial(Np, N_max, 0.);
   dCDF.initial(Np, N_max, 0.);
   Z.initial(Np, 1, 0.);
+  HASH.initial(Np, N_max, -1);
   weight.initial(Np, N_max, 0);
   dist_map.initial(Np, Np, 0);
   N_ASSOCIATION = 0;
@@ -16,6 +17,7 @@ MKL_LONG ASSOCIATION::initial()
       dPDF(i, 0) = 1.0;
       dCDF(i, 0) = 1.0;
       Z(i, 0) = 2*Nc;
+      HASH(i, 0) = i;
       CASE(i, 0) = 1.0;
       weight(i, 0) = 2*Nc;
     }
@@ -131,7 +133,7 @@ MKL_LONG ASSOCIATION::FIND_HASH_INDEX(MKL_LONG index_A, MKL_LONG index_B)
         return i;
     }
   // printf("CANNOT FOUND THE HASH\n");
-  return i;
+  return TOKEN(index_A);
 }
 
 // bool ASSOCIATION::CHECK_NC_ADD_BTA(MKL_LONG index_A, MKL_LONG index_B)
@@ -197,22 +199,23 @@ MKL_LONG ASSOCIATION::add_association(MKL_LONG index_particle, MKL_LONG index_ta
 {
   // HASH(index_particle, TOKEN(index_particle)) = index_target;
   MKL_LONG hash_index_target = FIND_HASH_INDEX(index_particle, index_target); // if there is no connection, it will return TOKEN(index_particle)
-  HASH(index_particle, hash_index_target) = index_target;
 
   weight(index_particle, 0) --;
   weight(index_particle, hash_index_target) ++;
-  // CASE(index_particle, 0) -= 1.0;
+
   if (hash_index_target == TOKEN(index_particle))
-    TOKEN(index_particle) += 1;
+    {
+      HASH(index_particle, hash_index_target) = index_target;
+      TOKEN(index_particle) += 1;
+    }
 
   MKL_LONG hash_index_particle = FIND_HASH_INDEX(index_target, index_particle);
-  HASH(index_target, hash_index_particle) = index_particle;
   weight(index_target, hash_index_particle) ++ ;
-  // CASE(index_target, 0) += 1.0;
   if (hash_index_particle == TOKEN(index_target))
+    {
+      HASH(index_target, hash_index_particle) = index_particle;
       TOKEN(index_target) += 1;
-  // N_CHAIN_ENDS(index_particle) -= 1.0;
-
+    }
   return 0;
 }
 
@@ -234,18 +237,22 @@ MKL_LONG ASSOCIATION::add_association_INFO(POTENTIAL_SET& POTs, MKL_LONG index_p
 // for further implementation, the infrastructure for the interface should be refined.
 MKL_LONG ASSOCIATION::del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K)
 {
-  if(weight(index_I, hash_index_K) > 1)
-    {
-      weight(index_I, hash_index_K) --;
-    }
-  else
+  // if(weight(index_I, hash_index_K) > 1)
+  //   {
+  //     weight(index_I, hash_index_K) --;
+  //   }
+  // else
+  //   {
+  if(--weight(index_I, hash_index_K) == 0)
     {
       for(MKL_LONG j=hash_index_K; j<TOKEN(index_I) - 1; j++)
         {
+          // draw for deleted hash position
           HASH(index_I, j) = HASH(index_I, j+1);
           CASE(index_I, j) = CASE(index_I, j+1);
           weight(index_I, j) = weight(index_I, j+1);
         }
+      // removing end-tail of the hash table
       HASH(index_I, TOKEN(index_I) - 1) = -1;
       weight(index_I, TOKEN(index_I) - 1) = 0;
       CASE(index_I, TOKEN(index_I) - 1) = 0.;
@@ -276,8 +283,9 @@ MKL_LONG ASSOCIATION::del_association_hash(MKL_LONG index_particle, MKL_LONG has
 MKL_LONG ASSOCIATION::del_association(MKL_LONG index_particle, MKL_LONG index_target)
 {
   MKL_LONG hash_index_target = FIND_HASH_INDEX(index_particle, index_target);
-  del_association_grab_IK(index_particle, hash_index_target);
-  del_association_IK(index_target, FIND_HASH_INDEX(index_target, index_particle));
+  del_association_hash(index_particle, hash_index_target);
+  // del_association_grab_IK(index_particle, hash_index_target);
+  // del_association_IK(index_target, FIND_HASH_INDEX(index_target, index_particle));
   // for(MKL_LONG i=1; i<TOKEN(index_particle); i++)
   //   {
   //     if (HASH(index_particle, i) == index_target)
