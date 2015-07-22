@@ -223,7 +223,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, 0);
 
   MKL_LONG Nt = atol(given_condition("Nt").c_str());
-  TRAJ.fprint_row(filename_trajectory.c_str(), 0);
+  // TRAJ.fprint_row(filename_trajectory.c_str(), 0);
 
   MKL_LONG N_basic = TRAJ.rows;
 
@@ -254,11 +254,13 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
   for(MKL_LONG t=0; t<Nt-1; t++)
     {
-      tmp_vec.set_value(0.);
-
       MKL_LONG index_t_now = t % N_basic;
       MKL_LONG index_t_next = (t+1) % N_basic;
       TRAJ(index_t_next) = (++TRAJ.c_t) * TRAJ.dt;
+
+      
+      tmp_vec.set_value(0.);
+
 
       // TRAJ(index_t_next)++;
       
@@ -430,16 +432,15 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
             }
         }
+      GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
       double time_end_LV = dsecnd();
 
-      GEOMETRY::minimum_image_convention(TRAJ, index_t_next);
       // ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, index_t_next);
-      ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJ, POTs, CONNECT, energy, index_t_next);
+      ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJ, POTs, CONNECT, energy, index_t_now);
       double time_end_AN = dsecnd();
-
       if(t%N_skip==0)
         {
-          printf("STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_next), energy(1));
+          printf("STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_now), energy(1));
           printf("time consuming: MC, LV, AN, FILE = %8.6e, %8.6e, %8.6e, %8.6e\n", time_MC, time_LV, time_AN, time_file);
           double total_time = time_MC + time_LV + time_AN + time_file;
           printf("time fraction:  MC, LV, AN, FILE = %6.1f, %6.1f, %6.1f, %6.1f\n", time_MC*100/total_time, time_LV*100/total_time, time_AN*100/total_time, time_file*100/total_time);
@@ -448,7 +449,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, action = %6.1f, update = %6.1f, block_average = %6.1f\n", dt_det_pdf*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
           double total_dt_pdf = dt_pdf + dt_sort;
           printf("computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
-          TRAJ.fprint_row(filename_trajectory.c_str(), index_t_next);
+          TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
           energy.fprint(filename_energy.c_str());
           CONNECT.HASH.fprint(filename_HASH.c_str());
           CONNECT.CASE.fprint(filename_CASE.c_str());
@@ -457,8 +458,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       
       if(t%N_energy_frequency==0)
         {
-          ANALYSIS::cal_detail_repulsion(TRAJ, POTs, filename_energy_info.c_str(), index_t_next);
+          ANALYSIS::cal_detail_repulsion(TRAJ, POTs, filename_energy_info.c_str(), index_t_now);
         }
+
       double time_end_save = dsecnd();
       time_MC += time_end_MC - time_st_MC;
       time_LV += time_end_LV - time_end_MC;
