@@ -23,7 +23,7 @@ class POTENTIAL_SET
     {
     }
   /* POTENTIAL_SET(COND& given_cond); */
-  ~POTENTIAL_SET()
+  virtual ~POTENTIAL_SET()
     {
       if(force_variables)
         delete[] force_variables;

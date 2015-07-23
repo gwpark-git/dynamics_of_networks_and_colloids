@@ -28,7 +28,7 @@ public:
     std::cout << "COND CLASS must be contructed with valid fileformat\n";
   }
   COND(char* fn);
-  ~COND()
+  virtual ~COND()
   {
     if(arg)
       {

@@ -250,6 +250,11 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   double dt_pdf = 0., dt_sort = 0.;
   
   double time_MC_1 = 0., time_MC_2 = 0., time_MC_3 = 0., time_MC_4 = 0., time_MC_5 = 0., time_MC_6 = 0., time_MC_7 = 0., time_MC_8 = 0.;
+  const gsl_rng_type *T_boost;
+  gsl_rng *r_boost;
+  gsl_rng_env_setup();
+  T_boost = gsl_rng_default;
+  r_boost = gsl_rng_alloc(T_boost);
   
 
   for(MKL_LONG t=0; t<Nt-1; t++)
@@ -281,11 +286,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       MKL_LONG cnt_mov = 0;
       MKL_LONG cnt_cancel = 0;
       double time_st_MC = dsecnd();
-      const gsl_rng_type *T_boost;
-      gsl_rng *r_boost;
-      gsl_rng_env_setup();
-      T_boost = gsl_rng_default;
-      r_boost = gsl_rng_alloc(T_boost);
       gsl_rng_set(r_boost, random());
 
       // computing the distance map between beads for reducing overhead
@@ -407,7 +407,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
           //   }
         } // while
-      gsl_rng_free(r_boost); // for boosting
       double time_end_MC = dsecnd();
 
       // MATRIX force_spring(TRAJ.dimension, 1, 0.);
@@ -488,6 +487,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   delete[] force_random;
   delete[] dCDF_U;
   delete[] INDEX_dCDF_U;
+  gsl_rng_free(r_boost); // for boosting
   return 0;
 }
 
