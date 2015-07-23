@@ -285,7 +285,7 @@ MATRIX_LONG::~MATRIX_LONG()
   if (INITIALIZATION)
     {
       data_delete();
-      INITIALIZATION = FALSE;
+      data = NULL;
     }
 }
 
@@ -441,17 +441,29 @@ MKL_LONG MATRIX_LONG::initial()
   rows = 0;
   cols = 0;
   size = 0;
+  data = NULL;
   return 0;
 }
 
 MKL_LONG MATRIX_LONG::initial(MKL_LONG  N_r, MKL_LONG  N_c)
 {
   // std::cout << "CONSTRUCTOR " << this << std::endl;
-  INITIALIZATION = TRUE;
-  rows = N_r;
-  cols = N_c;
-  size = rows*cols;
-  data = new MKL_LONG [size];
+  if (size == N_r*N_c && INITIALIZATION == TRUE)
+    {
+      rows = N_r;
+      cols = N_c;
+      return 0;
+    }
+  else
+    {
+      if (INITIALIZATION == TRUE)
+        data_delete();
+      INITIALIZATION = TRUE;
+      rows = N_r;
+      cols = N_c;
+      size = rows*cols;
+      data = new MKL_LONG [size];
+    }
   return 0;
 }
 
@@ -469,6 +481,7 @@ MKL_LONG MATRIX_LONG::initial(MKL_LONG  N_r, MKL_LONG  N_c, MKL_LONG x)
 MKL_LONG MATRIX_LONG::data_delete()
 {
   delete[] data;
+  INITIALIZATION = FALSE;
   return 0;
 }
 

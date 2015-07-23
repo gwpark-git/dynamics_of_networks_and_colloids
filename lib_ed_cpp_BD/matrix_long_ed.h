@@ -32,7 +32,7 @@ class MATRIX_LONG
   MATRIX_LONG(MKL_LONG  N_r, MKL_LONG  N_c, MKL_LONG x);
   MKL_LONG copy_obj(const MATRIX_LONG& Mat);
   MATRIX_LONG(const MATRIX_LONG& Mat);
-  ~MATRIX_LONG();
+  virtual ~MATRIX_LONG();
   MKL_LONG set_value(MKL_LONG x);
   MKL_LONG print();
   MKL_LONG print(MKL_LONG  n_row, MKL_LONG  n_col);
