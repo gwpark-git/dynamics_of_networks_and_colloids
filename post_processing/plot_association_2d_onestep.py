@@ -83,7 +83,7 @@ else:
         # ax.set_xlabel('x dimension')
         # ax.set_ylabel('y dimension')
         ax.set_aspect(1)
-        marker_unit = (ax.transData.transform((1, 0)) - ax.transData.transform((0, 0)))[0]/1.4
+        marker_unit = (ax.transData.transform((1, 0)) - ax.transData.transform((0, 0)))[0]
         for i in range(Np):
             index_px = i*N_dimension*2 + 1 + 0
             index_py = index_px + 1
@@ -220,11 +220,11 @@ else:
                         c_t = arange(N_proc)
                         connectivity = zeros([N_proc, Np, Np])
                         for line in f:
-                            # st: temporal stopping
-                            if cnt > 5*N_proc:
-                                break
-                            cnt += 1
-                            # end: temporal stopping
+                            # # st: temporal stopping
+                            # if cnt > 5*N_proc:
+                            #     break
+                            # cnt += 1
+                            # # end: temporal stopping
                             tmp_str = line.split('\t')
                             for i in range(N_cols):
                                 tmp_arr[cnt_line%N_proc, i] = float(tmp_str[i])
