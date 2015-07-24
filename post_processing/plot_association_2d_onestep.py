@@ -98,11 +98,11 @@ else:
 
 
         tmp_arr = zeros([2, N_dimension])
-        cnt_asso = 0
+        # cnt_asso = 0
         for i in range(Np):
             for j in range(Np):
                 if connectivity[i,j]:
-                    cnt_asso += connectivity[i,j]
+                    # cnt_asso += connectivity[i,j]
                     for k in range(N_dimension):
                         index_pi_k = i*N_dimension*2 + 1 + k
                         index_pj_k = j*N_dimension*2 + 1 + k
@@ -129,8 +129,10 @@ else:
 
         # annotate_text_right = 'ts=%5.3e'%(given_traj[t, 0]) + '\n'
         annotate_text_right = 'ts=%ld'%((ft - 1)*N_skip) + '\n'
-        annotate_text_right += 'N_bri=%ld'%(cnt_asso/2) + '\n'
-        annotate_text_right += 'f=%3.1f'%(cnt_asso/Np)  
+        annotate_text_right += 'N_bri=%ld'%(dat[ft-1, 1]) + '\n'
+        annotate_text_right += 'f=%3.1f'%(dat[ft-1, 2])  
+        # annotate_text_right += 'N_bri=%ld'%(cnt_asso/2) + '\n'
+        # annotate_text_right += 'f=%3.1f'%(cnt_asso/Np)  
 
         ax.annotate(annotate_text_right, xy=(1.02*box_dimension[0], 1.1*box_dimension[1]), fontsize=6, color='b', path_effects=[PathEffects.withStroke(linewidth=1, foreground='w')])
 
@@ -163,8 +165,7 @@ else:
 
         
         ax01_twin = ax01.twinx()
-        ax01_twin.axis([dat[0, 0], dat[ft-1, 0] + N_skip, 0.9*min(dat[:ft, 1])/float(Np), 1.1*max(dat[:ft, 1])/float(Np)])
-
+        ax01_twin.axis([dat[0, 0], dat[ft-1, 0] + N_skip, 0.9*min(dat[:ft, 1])*2./float(Np), 1.1*max(dat[:ft, 1])*2./float(Np)])
         
         ax11 = axisartist.Subplot(fig, gs[1, 1])
         fig.add_subplot(ax11)
@@ -234,16 +235,17 @@ else:
                                 hash_index.append(f_connect.readline().split('\t')[:-1]) # last one is \n char
                                 weight_index.append(f_weight.readline().split('\t')[:-1])
 
-
+                            cnt_asso = 0
                             for i in range(Np):
                                 index_particle = long(hash_index[i][0])
                                 for j in range(1, token(hash_index, i)):
                                     index_target = long(hash_index[i][j])
                                     connectivity[cnt_line%N_proc, index_particle, index_target] = long(weight_index[i][j])
-                            cnt_asso = 0
-                            for i in range(Np):
-                                for j in range(Np):
-                                    cnt_asso += connectivity[cnt_line%N_proc, i, j]
+                                    cnt_asso += long(weight_index[i][j])
+                            # cnt_asso = 0
+                            # for i in range(Np):
+                            #     for j in range(Np):
+                            #         cnt_asso += connectivity[cnt_line%N_proc, i, j]
                             # tmp_dat_arr = asarray([[tmp_arr[c_t[cnt_line%N_proc], 0], cnt_asso/2., cnt_asso/float(Np)]])
                             ener = f_ener.readline().split('\t')[:-1]
                             tmp_dat_arr = asarray([[c_t[cnt_line%N_proc]*N_skip, cnt_asso/2., cnt_asso/float(Np), float(ener[1])]])
