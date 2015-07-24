@@ -105,7 +105,7 @@ else:
         # cnt_asso = 0
         for i in range(Np):
             for j in range(Np):
-                if connectivity[i,j]:
+                if connectivity[i,j] > 0:
                     # cnt_asso += connectivity[i,j]
                     for k in range(N_dimension):
                         index_pi_k = i*N_dimension*2 + 1 + k
@@ -113,11 +113,11 @@ else:
                         tmp_arr[0, k] = given_traj[t, index_pi_k]
                         tmp_arr[1, k] = get_minimum_distance_k_from_x(given_traj[t, index_pi_k], given_traj[t, index_pj_k], box_dimension[k])
                     # tmp_arr[1, k] = given_traj[t, index_pj_k]
-                    ax.plot(tmp_arr[:,0], tmp_arr[:,1], 'r-', linewidth=0.5)
+                    ax.plot(tmp_arr[:,0], tmp_arr[:,1], 'r-', linewidth=0.2)
+                    ax.plot(tmp_arr[:,0], tmp_arr[:,1], 'k.', markersize=3)
 
                     mean_x = 0.5*(tmp_arr[0, 0] + tmp_arr[1, 0])
                     mean_y = 0.5*(tmp_arr[0, 1] + tmp_arr[1, 1])
-                    ax.plot(tmp_arr[:,0], tmp_arr[:,1], 'k.', markersize=3)
                     if connectivity[i,j] > 1:
                         ax.annotate('%d'%(connectivity[i, j]), xy=(mean_x, mean_y), fontsize=4, color='b', path_effects=[PathEffects.withStroke(linewidth=1, foreground='w')])
 
