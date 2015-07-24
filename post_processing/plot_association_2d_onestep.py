@@ -83,7 +83,7 @@ else:
         # ax.set_xlabel('x dimension')
         # ax.set_ylabel('y dimension')
         ax.set_aspect(1)
-        marker_unit = (ax.transData.transform((1, 0)) - ax.transData.transform((0, 0)))[0]
+        marker_unit = (ax.transData.transform((1, 0)) - ax.transData.transform((0, 0)))[0]/1.1
         for i in range(Np):
             index_px = i*N_dimension*2 + 1 + 0
             index_py = index_px + 1
