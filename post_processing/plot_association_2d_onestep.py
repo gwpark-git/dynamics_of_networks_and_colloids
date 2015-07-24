@@ -20,7 +20,7 @@ def get_minimum_distance_k_from_x(x, k, box_dimension):
     kd = asarray([k-box_dimension-x, k-x, k+box_dimension-x])
     return kd[argmin(abs(kd))] + x;
 
-if size(sys.argv) != 9:
+if size(sys.argv) < 9:
     print "USAGE: Plotting Trajectory Files"
     print "argv[1] == .traj"
     print "argv[2] == .hash"
@@ -30,6 +30,10 @@ if size(sys.argv) != 9:
     print "argv[6] == Number of particles"
     print "argv[7] == Number of skips for trajectory"
     print "argv[8] == Number of processors for parallization"
+    print "If test is needed with limited number of cycle"
+    print "argv[9] == TEST"
+    print "argv[10] == Number of cycles that is multiplied by the N_proc. (Total number of plotting is argv[10]*argv[8]"
+
 else:
     fn_traj = sys.argv[1]
     fn_connect = sys.argv[2]
@@ -221,11 +225,12 @@ else:
                         c_t = arange(N_proc)
                         connectivity = zeros([N_proc, Np, Np])
                         for line in f:
-                            # # st: temporal stopping
-                            # if cnt > 5*N_proc:
-                            #     break
-                            # cnt += 1
-                            # # end: temporal stopping
+                            if argv[9] == "TEST":
+                                # st: temporal stopping
+                                if cnt > 5*N_proc:
+                                    break
+                                cnt += 1
+                                # end: temporal stopping
                             tmp_str = line.split('\t')
                             for i in range(N_cols):
                                 tmp_arr[cnt_line%N_proc, i] = float(tmp_str[i])
