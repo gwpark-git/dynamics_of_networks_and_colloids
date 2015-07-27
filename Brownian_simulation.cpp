@@ -274,13 +274,13 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       double block_MSE_now = 0., block_MSE_next = 10000.;
       double block_MSE_square_mean = 0., block_MSE_mean_square = 0.;
       MKL_LONG cnt = 1;
-
       if(given_condition("MC_renewal")=="TRUE")
         {
           CONNECT.initial();
           for(MKL_LONG i=0; i<CONNECT.Np; i++)
             CONNECT.TOKEN(i) = 1;
         }
+
       MKL_LONG cnt_del = 0;
       MKL_LONG cnt_add = 0;
       MKL_LONG cnt_mov = 0;
@@ -497,7 +497,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
 /*
  * Local variables:
- * compile-command: "icpc -ipo -openmp -Wall -mkl -o Brownian_simulation lib_ed_cpp_BD/lib_traj.cpp lib_ed_cpp_BD/read_file_condition.cpp lib_ed_cpp_BD/lib_evolution.cpp lib_ed_cpp_BD/matrix_ed.cpp lib_ed_cpp_BD/matrix_long_ed.cpp lib_ed_cpp_BD/lib_potential.cpp lib_ed_cpp_BD/lib_connectivity.cpp lib_ed_cpp_BD/lib_association.cpp lib_ed_cpp_BD/lib_geometry.cpp lib_ed_cpp_BD/lib_random.cpp Brownian_simulation.cpp -lgsl -lm"
+ * compile-command: "icpc -O2 -openmp -Wall -mkl -o Brownian_simulation lib_ed_cpp_BD/lib_traj.cpp lib_ed_cpp_BD/read_file_condition.cpp lib_ed_cpp_BD/lib_evolution.cpp lib_ed_cpp_BD/matrix_ed.cpp lib_ed_cpp_BD/matrix_long_ed.cpp lib_ed_cpp_BD/lib_potential.cpp lib_ed_cpp_BD/lib_connectivity.cpp lib_ed_cpp_BD/lib_association.cpp lib_ed_cpp_BD/lib_geometry.cpp lib_ed_cpp_BD/lib_random.cpp Brownian_simulation.cpp -lgsl -lm"
  * End:
  */
 
