@@ -69,7 +69,7 @@ else:
                                [10, 10]])
 
         marker_style = 'o'
-        # plt.clf()
+        plt.clf()
         fig = plt.figure(t, figsize=(10,6))
         # fig = plt.figure(t)
         gs = gridspec.GridSpec(2,2, width_ratios=[2, 1])
@@ -225,9 +225,9 @@ else:
                         c_t = arange(N_proc)
                         connectivity = zeros([N_proc, Np, Np])
                         for line in f:
-                            if argv[9] == "TEST":
+                            if sys.argv[9] == "TEST":
                                 # st: temporal stopping
-                                if cnt > 5*N_proc:
+                                if cnt > long(sys.argv[10])*N_proc:
                                     break
                                 cnt += 1
                                 # end: temporal stopping
