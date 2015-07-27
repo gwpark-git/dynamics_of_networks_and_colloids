@@ -302,8 +302,6 @@ MATRIX::~MATRIX()
   if (INITIALIZATION)
     {
       data_delete();
-      INITIALIZATION = FALSE;
-      data = NULL;
     }
   if (DIAGONALIZATION)
     {
@@ -568,6 +566,7 @@ MKL_LONG  MATRIX::data_delete()
 {
   delete[] data;
   INITIALIZATION = FALSE;
+  data = NULL;
   return 0;
 }
 

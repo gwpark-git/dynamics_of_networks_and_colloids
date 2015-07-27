@@ -285,7 +285,6 @@ MATRIX_LONG::~MATRIX_LONG()
   if (INITIALIZATION)
     {
       data_delete();
-      data = NULL;
     }
 }
 
@@ -482,6 +481,7 @@ MKL_LONG MATRIX_LONG::data_delete()
 {
   delete[] data;
   INITIALIZATION = FALSE;
+  data = NULL;
   return 0;
 }
 
