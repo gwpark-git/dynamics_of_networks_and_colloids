@@ -69,8 +69,8 @@ else:
                                [10, 10]])
 
         marker_style = 'o'
-        plt.clf()
-        fig = plt.figure(t, figsize=(10,6))
+        plt.cla()
+        fig = plt.figure(ft, figsize=(10,6))
         # fig = plt.figure(t)
         gs = gridspec.GridSpec(2,2, width_ratios=[2, 1])
         # fig.subplots_adjust(wspace=0.4, bottom=0.3)
@@ -104,7 +104,7 @@ else:
         tmp_arr = zeros([2, N_dimension])
         # cnt_asso = 0
         for i in range(Np):
-            for j in range(Np):
+            for j in range(i, Np):
                 if connectivity[i,j] > 0:
                     # cnt_asso += connectivity[i,j]
                     for k in range(N_dimension):
@@ -113,6 +113,9 @@ else:
                         tmp_arr[0, k] = given_traj[t, index_pi_k]
                         tmp_arr[1, k] = get_minimum_distance_k_from_x(given_traj[t, index_pi_k], given_traj[t, index_pj_k], box_dimension[k])
                     # tmp_arr[1, k] = given_traj[t, index_pj_k]
+                    # if t==0:
+                    #     print 't = %d, i = %d, j = %d, C[i,j] = %d'%(t, i, j, connectivity[i,j])
+                    # # print tmp_arr
                     ax.plot(tmp_arr[:,0], tmp_arr[:,1], 'r-', linewidth=0.2)
                     ax.plot(tmp_arr[:,0], tmp_arr[:,1], 'k.', markersize=3)
 
@@ -120,7 +123,6 @@ else:
                     mean_y = 0.5*(tmp_arr[0, 1] + tmp_arr[1, 1])
                     if connectivity[i,j] > 1:
                         ax.annotate('%d'%(connectivity[i, j]), xy=(mean_x, mean_y), fontsize=4, color='b', path_effects=[PathEffects.withStroke(linewidth=1, foreground='w')])
-
 
         ax.plot(ref_PBC_left[:,0], ref_PBC_left[:,1], 'k--', linewidth=3)
         ax.plot(ref_PBC_right[:,0], ref_PBC_right[:,1], 'k--', linewidth=3)
@@ -225,12 +227,16 @@ else:
                         c_t = arange(N_proc)
                         connectivity = zeros([N_proc, Np, Np])
                         for line in f:
-                            if sys.argv[9] == "TEST":
-                                # st: temporal stopping
-                                if cnt > long(sys.argv[10])*N_proc:
-                                    break
-                                cnt += 1
-                                # end: temporal stopping
+                            try:
+                                if sys.argv[9] == "TEST":
+                                    # st: temporal stopping
+                                    if cnt > long(sys.argv[10])*N_proc:
+                                        break
+                                    cnt += 1
+                                    # end: temporal stopping
+                            except:
+                                # do nothing
+                                cnt = 0
                             tmp_str = line.split('\t')
                             for i in range(N_cols):
                                 tmp_arr[cnt_line%N_proc, i] = float(tmp_str[i])
