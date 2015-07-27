@@ -20,7 +20,7 @@ def get_minimum_distance_k_from_x(x, k, box_dimension):
     kd = asarray([k-box_dimension-x, k-x, k+box_dimension-x])
     return kd[argmin(abs(kd))] + x;
 
-if size(sys.argv) < 9:
+if size(sys.argv) < 10:
     print "USAGE: Plotting Trajectory Files"
     print "argv[1] == .traj"
     print "argv[2] == .hash"
@@ -30,9 +30,10 @@ if size(sys.argv) < 9:
     print "argv[6] == Number of particles"
     print "argv[7] == Number of skips for trajectory"
     print "argv[8] == Number of processors for parallization"
+    print "argv[9] == box_dimension"
     print "If test is needed with limited number of cycle"
-    print "argv[9] == TEST"
-    print "argv[10] == Number of cycles that is multiplied by the N_proc. (Total number of plotting is argv[10]*argv[8]"
+    print "argv[10] == TEST"
+    print "argv[11] == Number of cycles that is multiplied by the N_proc. (Total number of plotting is argv[10]*argv[8]"
 
 else:
     fn_traj = sys.argv[1]
@@ -44,7 +45,8 @@ else:
     Np = int(sys.argv[6])
     N_skip = int(sys.argv[7])
     N_proc = int(sys.argv[8])
-
+    val_dimension = float(sys.argv[9])
+    
     def token(hash_data, index):
         for i in range(shape(hash_data)[1]):
             if hash_data[index][i] == "-1":
@@ -57,16 +59,16 @@ else:
         t = t%N_proc
         # a_dat = asarray(dat)
         connectivity = connectivity_all[t, :, :]
-        box_dimension = [10.0, 10.0]
+        box_dimension = [val_dimension, val_dimension]
 
         ref_PBC_left = asarray([[0, 0],
-                                [0, 10]])
-        ref_PBC_right = asarray([[10, 0],
-                                 [10, 10]])
+                                [0, val_dimension]])
+        ref_PBC_right = asarray([[val_dimension, 0],
+                                 [val_dimension, val_dimension]])
         ref_PBC_bottom = asarray([[0, 0],
-                                  [10, 0]])
-        ref_PBC_top = asarray([[0, 10],
-                               [10, 10]])
+                                  [val_dimension, 0]])
+        ref_PBC_top = asarray([[0, val_dimension],
+                               [val_dimension, val_dimension]])
 
         marker_style = 'o'
         plt.cla()
@@ -77,8 +79,8 @@ else:
         ax = axisartist.Subplot(fig, gs[:,0])
         fig.add_subplot(ax)
         ax.axis([-0.2*box_dimension[0], 1.2*box_dimension[0], -0.2*box_dimension[1], 1.2*box_dimension[1]])
-        ax.set_xticks(range(11))
-        ax.set_yticks(range(11))
+        ax.set_xticks(range(int(val_dimension)+1))
+        ax.set_yticks(range(int(val_dimension)+1))
         # ax.yaxis.set_ticks_position('left')
         # ax.axis[:].major_ticks.set_tick_out(True)
         # ax.axis[:].invert_ticklabel_direction()
@@ -228,9 +230,9 @@ else:
                         connectivity = zeros([N_proc, Np, Np])
                         for line in f:
                             try:
-                                if sys.argv[9] == "TEST":
+                                if sys.argv[10] == "TEST":
                                     # st: temporal stopping
-                                    if cnt > long(sys.argv[10])*N_proc:
+                                    if cnt > long(sys.argv[11])*N_proc:
                                         break
                                     cnt += 1
                                     # end: temporal stopping
