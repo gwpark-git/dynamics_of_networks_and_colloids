@@ -111,6 +111,16 @@ MKL_LONG ASSOCIATION::N_CONNECTED_ENDS(MKL_LONG given_index)
   return cnt;
 }
 
+MKL_LONG ASSOCIATION::N_TOTAL_CONNECTED_ENDS()
+{
+  MKL_LONG cnt = 0;
+  for(MKL_LONG i=0; i<Np; i++)
+    {
+      cnt += N_CONNECTED_ENDS(i);
+    }
+  return cnt;
+}
+
 bool ASSOCIATION::CHECK_EXIST_1D(MKL_LONG index_A, MKL_LONG index_B)
 {
   if (FIND_HASH_INDEX(index_A, index_B) == TOKEN(index_A))
@@ -201,8 +211,13 @@ MKL_LONG ASSOCIATION::add_association(MKL_LONG index_particle, MKL_LONG index_ta
   // HASH(index_particle, TOKEN(index_particle)) = index_target;
   MKL_LONG hash_index_target = FIND_HASH_INDEX(index_particle, index_target); // if there is no connection, it will return TOKEN(index_particle)
 
-  weight(index_particle, 0) --;
-  weight(index_particle, hash_index_target) ++;
+  // weight(index_particle, 0) --; 
+  // the chain ends attached to itself decreases with number 1
+  // but, one weight should transfer from the itself index, 0, to the other has index
+  // for this reason, the weight(index_particle, 0) is decreases with number 2
+  // basically, it preserver total number of chain ends on the system
+  weight(index_particle, 0) -= 2; 
+  weight(index_particle, hash_index_target) ++; 
 
   if (hash_index_target == TOKEN(index_particle))
     {
@@ -269,7 +284,10 @@ MKL_LONG ASSOCIATION::del_association_grab_IK(MKL_LONG index_I, MKL_LONG hash_in
 {
   del_association_IK(index_I, hash_index_K);
   // CASE(index_I, 0) += 1.0;
-  weight(index_I, 0) ++;
+  // weight(index_I, 0) ++;
+  // The same reason with add_association, the weight on here is increases by number of 2
+  weight(index_I, 0) += 2;
+
   return 0;
 }
 

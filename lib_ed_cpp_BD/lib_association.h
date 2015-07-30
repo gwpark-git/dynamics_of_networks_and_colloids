@@ -50,6 +50,7 @@ class ASSOCIATION : public CONNECTIVITY
 
   MKL_LONG N_TOTAL_ASSOCIATION();
   MKL_LONG N_CONNECTED_ENDS(MKL_LONG given_index);
+  MKL_LONG N_TOTAL_CONNECTED_ENDS();
   bool CHECK_EXIST(MKL_LONG index_A, MKL_LONG index_B);
   bool CHECK_EXIST_1D(MKL_LONG index_A, MKL_LONG index_B);
   MKL_LONG add_association(MKL_LONG index_particle, MKL_LONG index_target);
