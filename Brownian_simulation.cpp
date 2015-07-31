@@ -271,6 +271,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       
       // while(fabs(block_MSE_next - block_MSE_now) > bMSE_tolerance || ++cnt < N_max_steps)
       MKL_LONG IDENTIFIER_MSE = TRUE;
+      double max_block_MSE = bMSE_tolerance;
       double block_MSE_now = 0., block_MSE_next = 10000.;
       double block_MSE_square_mean = 0., block_MSE_mean_square = 0.;
       MKL_LONG cnt = 1;
@@ -313,6 +314,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       while(IDENTIFIER_MSE && ++cnt < N_max_steps)
         {
           // choice for visiting bead   
+          MKL_LONG total_chain_ends = CONNECT.N_TOTAL_CONNECTED_ENDS();
+          // printf("chain ends attached to beads, %ld, per beads, %ld, (add, mov, del) = (%ld, %ld, %ld)\n", total_chain_ends, total_chain_ends/TRAJ.Np, cnt_add, cnt_mov, cnt_del);
           time_MC_1 = dsecnd();
           // MKL_LONG index_itself = RANDOM::return_LONG_INT_rand(TRAJ.Np);
           MKL_LONG index_itself = RANDOM::return_LONG_INT_rand_boost(r_boost, TRAJ.Np);
@@ -406,12 +409,15 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           MKL_LONG N_associations = CONNECT.N_TOTAL_ASSOCIATION()/2.;
           time_MC_7 = dsecnd();
           block_MSE_square_mean += pow(N_associations,2.);
-          block_MSE_mean_square += N_associations/2.;
+          block_MSE_mean_square += N_associations;
           if(cnt%N_steps_block == 0 && cnt != 0)
             {
               block_MSE_now = block_MSE_next;
-              block_MSE_next = (block_MSE_square_mean - pow(block_MSE_mean_square,2.))/(float)N_steps_block;
-              if (fabs(block_MSE_next - block_MSE_now)/(float)N_steps_block < bMSE_tolerance)
+              block_MSE_next = fabs(block_MSE_square_mean - pow(block_MSE_mean_square,2.))/(float)N_steps_block;
+              max_block_MSE = max_block_MSE > block_MSE_next ? max_block_MSE : block_MSE_next;
+              // printf("bMSE = %6.3e\t bMSE/bMSE_max = %6.3e, maximum = %6.3e\n", block_MSE_next, block_MSE_next/max_block_MSE, max_block_MSE);
+              // printf("bMSE_now = %6.3e\tbMSE_next = %6.3e\t diff_bMSE = %6.3e\n", fabs(block_MSE_now), fabs(block_MSE_next), fabs(block_MSE_next - block_MSE_now)/float(N_steps_block));
+              if (block_MSE_next/max_block_MSE < bMSE_tolerance)
                 {
                   IDENTIFIER_MSE = FALSE;
                 }
