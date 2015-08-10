@@ -213,7 +213,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   // MATRIX *vec_boost_Np_parallel_Token = new MATRIX [CONNECT.N_max];
   if (given_condition("MC_LOG") == "TRUE")
     {
-      FILE_LOG.open(filename_MC_LOG, std::ios_base::out);
+      FILE_LOG.open(filename_MC_LOG.c_str(), std::ios_base::out);
       FILE_LOG << "00_cnt"<< '\t'  << "01_index_itself"<< '\t'  << "02_roll_dCDF"<< '\t'  << "03_hash_index_target"<< '\t'  << "04_index_target"<< '\t'  << "05_roll_dCDF_U"<< '\t'  << "06_index_k_new_target"<< '\t'  << "07_index_new_target"<< '\t'  << "08_TOKEN(i_NT)"<< '\t'  << "09_N_CHAIN_ENDS" << '\t'<< "10_N_CHAIN_ITSELF" << '\t' << "11_N_TOTAL_ASSOCIATION*2" << '\t' << "12_cnt_add"<< '\t'  << "13_cnt_mov"<< '\t'  << "14_cnt_del"<< '\t'  << "15_cnt_cancel" << endl;
     }
   MKL_LONG N_skip = atol(given_condition("N_skip").c_str());
