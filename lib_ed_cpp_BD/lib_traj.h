@@ -97,6 +97,9 @@ class TRAJECTORY : public MATRIX
       /*   } */
       // The MATRIX and REF_MATRIX objects are automatically killed-by virtual destructor option of the library. This fact is tested with packages.
     }
+
+ // data loader
+ /* MKL_LONG CONTINUE_TRAJ(char fn[]); */
 };
 
 
@@ -107,8 +110,8 @@ namespace GENERATOR
   MKL_LONG random_position_generator(TRAJECTORY& TRAJ);
   /* MKL_LONG random_vector_generator(MATRIX& R_VEC_TRANS); */
   MKL_LONG random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VEC_TRANS);
-  
 }
+
 
 // namespace GENERATOR include test function for generating position and velocity for making handiful code for testing
 

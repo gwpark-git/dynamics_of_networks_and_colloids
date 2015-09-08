@@ -47,8 +47,17 @@ int main(int argc, char* argv[])
         }
 
       TRAJECTORY TRAJ(given_condition, N_basic);
-      // MATRIX energy_info(Np*((MKL_LONG)Np/2 + 1), 2*TRAJ.dimension + 2, 0.);
       GENERATOR::random_position_generator(TRAJ);
+
+      // // MATRIX energy_info(Np*((MKL_LONG)Np/2 + 1), 2*TRAJ.dimension + 2, 0.);
+      // if (given_condition("INITIAL")=="LOAD")
+      //   {
+      //     // should load trajectory file
+      //   }
+      // else
+      //   {
+      //   }
+      
 
       POTENTIAL_SET POTs;
       if(given_condition("Method") == "NAPLE_REPULSION")
@@ -211,7 +220,31 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
     }
   // MATRIX *vec_boost_Np_parallel_Np = new MATRIX [TRAJ.Np];
   // MATRIX *vec_boost_Np_parallel_Token = new MATRIX [CONNECT.N_max];
-  if (given_condition("MC_LOG") == "TRUE")
+  // if (given_condition("MC_LOG") == "TRUE")
+  //   {
+  //     MKL_LONG cnt_log = 0;
+  //     FILE_LOG.open(filename_MC_LOG.c_str(), std::ios_base::out);
+  //     fprintf(FILE_LOG, "MC_LOG FILE, column information:\n");
+  //     fprintf(FILE_LOG, "%02d, steps: time\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, steps: MC\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, index: itself\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, index: target\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, index: new target\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, hash: itself\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, hash: target\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, hash: new target (k-value)\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, roll: dCDF\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, roll: dCDF_U", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, stat: N_associations\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, stat: functionality (N_association/N_beads)\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, stat: TOKEN (N_diff_connections)\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, stat: N_chain_ends\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, count: add\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, count: del\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, count: move\n", cnt_log++);
+  //     fprintf(FILE_LOG, "%02d, count: cancel\n", cnt_log++);
+  //   }
+  if(given_condition("MC_LOG") == "TRUE")
     {
       FILE_LOG.open(filename_MC_LOG.c_str(), std::ios_base::out);
       FILE_LOG << "00_cnt"<< '\t'  << "01_index_itself"<< '\t'  << "02_roll_dCDF"<< '\t'  << "03_hash_index_target"<< '\t'  << "04_index_target"<< '\t'  << "05_roll_dCDF_U"<< '\t'  << "06_index_k_new_target"<< '\t'  << "07_index_new_target"<< '\t'  << "08_TOKEN(i_NT)"<< '\t'  << "09_N_CHAIN_ENDS" << '\t'<< "10_N_CHAIN_ITSELF" << '\t' << "11_N_TOTAL_ASSOCIATION*2" << '\t' << "12_cnt_add"<< '\t'  << "13_cnt_mov"<< '\t'  << "14_cnt_del"<< '\t'  << "15_cnt_cancel" << endl;
@@ -227,7 +260,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
   MKL_LONG N_basic = TRAJ.rows;
 
-  double bMSE_tolerance = atof(given_condition("tolerance_MSE_association").c_str());
+  // double bMSE_tolerance = atof(given_condition("tolerance_MSE_association").c_str());
+  double tolerance_association = atof(given_condition("tolerance_association").c_str());
   MKL_LONG N_max_steps = atol(given_condition("N_max_steps").c_str());
 
   MATRIX *dCDF_U = new MATRIX [TRAJ.Np];
@@ -266,14 +300,21 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       
       tmp_vec.set_value(0.);
 
-
       // TRAJ(index_t_next)++;
       
       // while(fabs(block_MSE_next - block_MSE_now) > bMSE_tolerance || ++cnt < N_max_steps)
-      MKL_LONG IDENTIFIER_MSE = TRUE;
-      double max_block_MSE = bMSE_tolerance;
-      double block_MSE_now = 0., block_MSE_next = 10000.;
-      double block_MSE_square_mean = 0., block_MSE_mean_square = 0.;
+      MKL_LONG IDENTIFIER_ASSOC = TRUE;
+      double max_try_ASSOC = tolerance_association;
+      double N_diff = 0.;
+      double max_N_diff = 0.;
+      MKL_LONG sum_over_MC_steps = 0;
+      MKL_LONG count_M = 0;
+      MKL_LONG pre_N_associations = 0;
+      MKL_LONG N_associations = 0;
+      // double max_block_MSE = bMSE_tolerance;
+      
+      // double block_MSE_now = 0., block_MSE_next = 10000.;
+      // double block_MSE_square_mean = 0., block_MSE_mean_square = 0.;
       MKL_LONG cnt = 1;
       if(given_condition("MC_renewal")=="TRUE")
         {
@@ -311,7 +352,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       double time_end_det_pdf = dsecnd();
       dt_det_pdf += time_end_det_pdf - time_st_det_pdf;
 
-      while(IDENTIFIER_MSE && ++cnt < N_max_steps)
+      // if (given_condition("STATUS")=="FULL")
+      //   {
+      while(IDENTIFIER_ASSOC && ++cnt < N_max_steps)
         {
           // choice for visiting bead   
           MKL_LONG total_chain_ends = CONNECT.N_TOTAL_CONNECTED_ENDS();
@@ -406,24 +449,45 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               CONNECTIVITY_update_dPDF_particle(CONNECT, index_set[i]);
               CONNECTIVITY_update_dCDF_particle(CONNECT, index_set[i]);
             }
-          MKL_LONG N_associations = CONNECT.N_TOTAL_ASSOCIATION()/2.;
+          
           time_MC_7 = dsecnd();
-          block_MSE_square_mean += pow(N_associations,2.);
-          block_MSE_mean_square += N_associations;
-          if(cnt%N_steps_block == 0 && cnt != 0)
+
+          pre_N_associations = N_associations;
+          N_associations = CONNECT.N_TOTAL_ASSOCIATION()/2.;
+
+          if(N_associations != pre_N_associations)
             {
-              block_MSE_now = block_MSE_next;
-              block_MSE_next = fabs(block_MSE_square_mean - pow(block_MSE_mean_square,2.))/(float)N_steps_block;
-              max_block_MSE = max_block_MSE > block_MSE_next ? max_block_MSE : block_MSE_next;
-              // printf("bMSE = %6.3e\t bMSE/bMSE_max = %6.3e, maximum = %6.3e\n", block_MSE_next, block_MSE_next/max_block_MSE, max_block_MSE);
-              // printf("bMSE_now = %6.3e\tbMSE_next = %6.3e\t diff_bMSE = %6.3e\n", fabs(block_MSE_now), fabs(block_MSE_next), fabs(block_MSE_next - block_MSE_now)/float(N_steps_block));
-              if (block_MSE_next/max_block_MSE < bMSE_tolerance)
+              count_M ++;
+              if (count_M > 1)
                 {
-                  IDENTIFIER_MSE = FALSE;
+                  N_diff = fabs((double)(1./(count_M*(count_M-1)))*((count_M-1)*N_associations - sum_over_MC_steps));
+                  max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
+                  if(N_diff/max_N_diff < tolerance_association)
+                    {
+                      IDENTIFIER_ASSOC = FALSE;
+                    }
+                  // printf("(count, N_ass, sum_pre, N_diff, max_N_diff, ratio) = (%6ld, %6ld, %6ld, %6.4f, %6.4f, %6.4f)\n", count_M, N_associations, sum_over_MC_steps, N_diff, max_N_diff, N_diff/max_N_diff);
                 }
-              block_MSE_square_mean = 0.;
-              block_MSE_mean_square = 0.;
+              sum_over_MC_steps += N_associations;
             }
+
+          
+          // block_MSE_square_mean += pow(N_associations,2.);
+          // block_MSE_mean_square += N_associations;
+          // if(cnt%N_steps_block == 0 && cnt != 0)
+          //   {
+          //     block_MSE_now = block_MSE_next;
+          //     block_MSE_next = fabs(block_MSE_square_mean - pow(block_MSE_mean_square,2.))/(float)N_steps_block;
+          //     max_block_MSE = max_block_MSE > block_MSE_next ? max_block_MSE : block_MSE_next;
+          //     // printf("bMSE = %6.3e\t bMSE/bMSE_max = %6.3e, maximum = %6.3e\n", block_MSE_next, block_MSE_next/max_block_MSE, max_block_MSE);
+          //     // printf("bMSE_now = %6.3e\tbMSE_next = %6.3e\t diff_bMSE = %6.3e\n", fabs(block_MSE_now), fabs(block_MSE_next), fabs(block_MSE_next - block_MSE_now)/float(N_steps_block));
+          //     if (block_MSE_next/max_block_MSE < bMSE_tolerance)
+          //       {
+          //         IDENTIFIER_ASSOC = FALSE;
+          //       }
+          //     block_MSE_square_mean = 0.;
+          //     block_MSE_mean_square = 0.;
+          //   }
           time_MC_8 = dsecnd();
           dt_1 += time_MC_2 - time_MC_1;
           dt_2 += time_MC_3 - time_MC_2;
@@ -436,7 +500,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
             {
               MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
               FILE_LOG << cnt << '\t' << index_itself << '\t' << rolling_dCDF<< '\t'  << index_hash_selected_chain<< '\t'  << index_other_end_of_selected_chain<< '\t'  << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_end_of_selected_chain<< '\t'  << CONNECT.TOKEN(index_itself)<< '\t'<<CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight(index_itself, 0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << endl;
-}
+            }
 
           //   }
         } // while
@@ -476,9 +540,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           printf("time consuming: MC, LV, AN, FILE = %8.6e, %8.6e, %8.6e, %8.6e\n", time_MC, time_LV, time_AN, time_file);
           double total_time = time_MC + time_LV + time_AN + time_file;
           printf("time fraction:  MC, LV, AN, FILE = %6.1f, %6.1f, %6.1f, %6.1f\n", time_MC*100/total_time, time_LV*100/total_time, time_AN*100/total_time, time_file*100/total_time);
-          printf("MC step analysis: all pdf = %6.3e, basic_random = %6.3e, getting_hash = %6.3e, det_jump = %6.3e, new_end = %6.3e, action = %6.3e, update = %6.3e, block_average = %6.3e\n", dt_det_pdf, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7);
+          printf("MC step analysis: all pdf = %6.3e, basic_random = %6.3e, getting_hash = %6.3e, det_jump = %6.3e, new_end = %6.3e, action = %6.3e, update = %6.3e, MC_EQ_ident = %6.3e\n", dt_det_pdf, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7);
           double total_dt = dt_1 + dt_2 + dt_3 + dt_4 + dt_5 + dt_6 + dt_7;
-          printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, action = %6.1f, update = %6.1f, block_average = %6.1f\n", dt_det_pdf*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
+          printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, action = %6.1f, update = %6.1f, MC_EQ_ident = %6.1f\n", dt_det_pdf*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
           double total_dt_pdf = dt_pdf + dt_sort;
           printf("computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
           TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);

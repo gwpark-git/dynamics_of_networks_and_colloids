@@ -144,3 +144,8 @@ MKL_LONG GENERATOR::random_position_generator(TRAJECTORY& TRAJ)
   GENERATOR::random_position_generator_REF(TRAJ, R_VEC_TRANS);
   return 0;
 }
+
+// MKL_LONG TRAJECTORY::CONTINUE_TRAJ(char fn[])
+// {
+
+// }
