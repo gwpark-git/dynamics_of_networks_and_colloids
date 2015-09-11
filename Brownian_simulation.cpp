@@ -458,16 +458,19 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           if(N_associations != pre_N_associations)
             {
               count_M ++;
-              if (count_M > 1)
-                {
-                  N_diff = fabs((double)(1./(count_M*(count_M-1)))*((count_M-1)*N_associations - sum_over_MC_steps));
-                  max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
-                  if(N_diff/max_N_diff < tolerance_association)
-                    {
-                      IDENTIFIER_ASSOC = FALSE;
-                    }
-                  // printf("(count, N_ass, sum_pre, N_diff, max_N_diff, ratio) = (%6ld, %6ld, %6ld, %6.4f, %6.4f, %6.4f)\n", count_M, N_associations, sum_over_MC_steps, N_diff, max_N_diff, N_diff/max_N_diff);
-                }
+	      if (count_M%N_steps_block == 0)
+              // if (count_M > 1)
+		{
+		  {
+		    N_diff = fabs((double)(1./(count_M*(count_M-1)))*((count_M-1)*N_associations - sum_over_MC_steps));
+		    max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
+		    if(N_diff/max_N_diff < tolerance_association)
+		      {
+			IDENTIFIER_ASSOC = FALSE;
+		      }
+		    // printf("(count, N_ass, sum_pre, N_diff, max_N_diff, ratio) = (%6ld, %6ld, %6ld, %6.4f, %6.4f, %6.4f)\n", count_M, N_associations, sum_over_MC_steps, N_diff, max_N_diff, N_diff/max_N_diff);
+		  }
+		}
               sum_over_MC_steps += N_associations;
             }
 
