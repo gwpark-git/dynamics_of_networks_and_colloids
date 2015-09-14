@@ -18,6 +18,7 @@ extern "C" {
 #include "lib_connectivity.h"
 #include "lib_potential.h"
 #include "lib_traj.h"
+#include "read_file_condition.h"
 
 /* class MC_IDENTIFIER */
 /* { */
@@ -107,6 +108,7 @@ class ASSOCIATION : public CONNECTIVITY
     {
     }
 
+  MKL_LONG read_exist_weight(const char* fn_weight);
   
 };
 

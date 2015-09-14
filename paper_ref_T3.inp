@@ -1,5 +1,6 @@
 Method=NAPLE_ASSOCIATION
 Integrator=Euler
+N_THREADS=6
 N_dimension=2
 box_dimension=10.0
 dt=0.001
@@ -26,4 +27,8 @@ l_cap=0.12
 MC_LOG=TRUE
 N_steps_block=100
 MC_renewal=TRUE
-N_THREADS=6
+CONTINUATION_TRAJ=TRUE
+CONTINUATION_CONNECTION=TRUE
+CONTINUATION_TRAJ_FN=data/given.traj
+CONTINUATION_HASH_FN=data/given.hash
+CONTINUATION_WEIGHT_FN=data/given.weight

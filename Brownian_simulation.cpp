@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
         }
 
       TRAJECTORY TRAJ(given_condition, N_basic);
-      GENERATOR::random_position_generator(TRAJ);
+      // GENERATOR::random_position_generator(TRAJ);
 
       // // MATRIX energy_info(Np*((MKL_LONG)Np/2 + 1), 2*TRAJ.dimension + 2, 0.);
       // if (given_condition("INITIAL")=="LOAD")
@@ -291,8 +291,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   T_boost = gsl_rng_default;
   r_boost = gsl_rng_alloc(T_boost);
   
-
-  for(MKL_LONG t=0; t<Nt-1; t++)
+  // MKL_LONG t = 0;
+  // if (given_condition("CONTINUATION_TRAJ") == "TRUE")
+  //   t++;
+  for(MKL_LONG t = 0; t<Nt-1; t++)
     {
       MKL_LONG index_t_now = t % N_basic;
       MKL_LONG index_t_next = (t+1) % N_basic;

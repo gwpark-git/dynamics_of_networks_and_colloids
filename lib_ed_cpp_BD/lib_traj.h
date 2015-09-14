@@ -81,7 +81,8 @@ class TRAJECTORY : public MATRIX
  double& operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k);
  // simple operator for position and velocity. i_RV = 0 for position, i_RV = 1 for velocity
  double& operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k);
-
+ MKL_LONG read_exist_traj(const char* fn_given_traj);
+ 
  virtual ~TRAJECTORY()
     {
       /* if(force_variables) */

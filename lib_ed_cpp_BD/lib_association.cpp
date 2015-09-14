@@ -1,6 +1,35 @@
 
 #include "lib_association.h"
 
+MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
+{
+  ifstream GIVEN_WEIGHT;
+  GIVEN_WEIGHT.open(fn_weight);
+  long cnt = 0;
+  string line;
+  while(getline(GIVEN_WEIGHT, line))
+    {
+      cnt++;
+    }
+  GIVEN_WEIGHT.clear();
+  GIVEN_WEIGHT.seekg(0);
+  for(long i=0; i<cnt-Np; i++)
+    {
+      getline(GIVEN_WEIGHT, line);
+    }
+  for(long i=0; i<Np; i++)
+    {
+      MKL_LONG weight_k = 0;
+      for(long k=0; k<TOKEN(i); k++)
+        {
+          GIVEN_WEIGHT >> weight_k;
+          weight(k) = weight_k;
+        }
+    }
+  GIVEN_WEIGHT.close();
+  return 0;
+}
+
 MKL_LONG ASSOCIATION::initial()
 {
   CASE.initial(Np, N_max, 0.);
@@ -24,14 +53,19 @@ MKL_LONG ASSOCIATION::initial()
   return 0;
 }
 
-ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY(TRAJ.Np, 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str()))
+// ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY(TRAJ.Np, 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str()))
+ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY(given_condition)
 {
   Nc = atol(given_condition("N_chains_per_particle").c_str());
   Tec = atol(given_condition("tolerance_allowing_connections").c_str());
   N_min = 2*Nc - Tec;
   N_max = 2*Nc + Tec;
   initial();
-  
+
+  if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
+    {
+      read_exist_weight(given_condition("CONTINUATION_WEIGHT_FN").c_str());
+    }
   if (given_condition("allowing_multiple_connections") == "TRUE")
     {
       NEW_ASSOCIATION = TRUTH_MAP::NEW_ASSOCIATION_BASIC;
