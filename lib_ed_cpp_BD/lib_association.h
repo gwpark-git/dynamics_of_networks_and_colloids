@@ -17,6 +17,35 @@ extern "C" {
 #include "matrix_long_ed.h"
 #include "lib_connectivity.h"
 #include "lib_potential.h"
+#include "lib_traj.h"
+
+/* class MC_IDENTIFIER */
+/* { */
+/*  public: */
+/*   double IDENTIFIER; */
+/*   double FACTOR_PRE, FACTOR_NOW; */
+/*   double TOLERANCE; */
+/*   MC_IDENTIFIER() */
+/*     { */
+/*       BASIC_INIT(); */
+/*       TOLERANCE = 0.01; */
+/*     } */
+/*   MC_IDENTIFIER(double given_tolerance) */
+/*     { */
+/*       BASIC_INIT(); */
+/*       TOLERANCE = given_tolerance; */
+/*     } */
+/*   MKL_LONG BASIC_INIT() */
+/*     { */
+/*       IDENTIFIER=1.; */
+/*       FACTOR_PRE=0.; */
+/*       FACTOR_NOW=0.; */
+/*       return 0; */
+/*     } */
+/*   ~MC_IDENTIFIER(){} */
+   
+/* }; */
+
 
 class ASSOCIATION : public CONNECTIVITY
 {
@@ -26,6 +55,7 @@ class ASSOCIATION : public CONNECTIVITY
   MKL_LONG N_min; // 2Nc - Tec
   MKL_LONG N_max; // 2Nc + Tec
   MKL_LONG N_ASSOCIATION;
+  /* MC_IDENTIFIER IDENT; */
   /* double *CASE_function_variables; */
   /* double (*CASE_function)(double distance, double* given_variables); */
   MATRIX CASE;
@@ -69,7 +99,8 @@ class ASSOCIATION : public CONNECTIVITY
   /* bool CHECK_NC_DEL_BFA(MKL_LONG index_A, MKL_LONG index_B); */
   /* bool CHECK_NC_DEL_BFA_1D(MKL_LONG index_A, MKL_LONG index_B); */
  ASSOCIATION() : CONNECTIVITY(){}
-  
+
+  ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition);
   ASSOCIATION(MKL_LONG number_of_particles, MKL_LONG number_of_chains_per_particles, MKL_LONG tolerance_connection, bool ALLOWING_MULTIPLE_CONNECTIONS);
   MKL_LONG initial();
   virtual ~ASSOCIATION()
@@ -78,6 +109,7 @@ class ASSOCIATION : public CONNECTIVITY
 
   
 };
+
 
 
 namespace TRUTH_MAP
@@ -91,6 +123,7 @@ namespace TRUTH_MAP
   bool MOV_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
   bool MOV_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
 }
+
 
 double CONNECTIVITY_update_CASE_particle_hash_target(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance);
 

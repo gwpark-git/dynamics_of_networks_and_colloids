@@ -79,13 +79,14 @@ int main(int argc, char* argv[])
       //   }
       else if(given_condition("Method") == "NAPLE_ASSOCIATION")
         {
-          MKL_LONG Np = atol(given_condition("Np").c_str());
-          MKL_LONG N_chains_per_particle = atol(given_condition("N_chains_per_particle").c_str());
-          MKL_LONG TOL_connection = atol(given_condition("tolerance_allowing_connections").c_str());
-          bool allowing_multiple_connections = FALSE;
-          if (given_condition("allowing_multiple_connections") == "TRUE")
-            allowing_multiple_connections = TRUE;
-          ASSOCIATION CONNECT(Np, N_chains_per_particle, TOL_connection, allowing_multiple_connections);
+          // MKL_LONG Np = atol(given_condition("Np").c_str());
+          // MKL_LONG N_chains_per_particle = atol(given_condition("N_chains_per_particle").c_str());
+          // MKL_LONG TOL_connection = atol(given_condition("tolerance_allowing_connections").c_str());
+          // bool allowing_multiple_connections = FALSE;
+          // if (given_condition("allowing_multiple_connections") == "TRUE")
+          //   allowing_multiple_connections = TRUE;
+          // ASSOCIATION CONNECT(Np, N_chains_per_particle, TOL_connection, allowing_multiple_connections);
+          ASSOCIATION CONNECT(TRAJ, given_condition);
           FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
           main_NAPLE_ASSOCIATION(TRAJ, POTs, CONNECT, given_condition);
         }
@@ -458,19 +459,19 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           if(N_associations != pre_N_associations)
             {
               count_M ++;
-	      if (count_M%N_steps_block == 0)
-              // if (count_M > 1)
-		{
-		  {
-		    N_diff = fabs((double)(1./(count_M*(count_M-1)))*((count_M-1)*N_associations - sum_over_MC_steps));
-		    max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
-		    if(N_diff/max_N_diff < tolerance_association)
-		      {
-			IDENTIFIER_ASSOC = FALSE;
-		      }
-		    // printf("(count, N_ass, sum_pre, N_diff, max_N_diff, ratio) = (%6ld, %6ld, %6ld, %6.4f, %6.4f, %6.4f)\n", count_M, N_associations, sum_over_MC_steps, N_diff, max_N_diff, N_diff/max_N_diff);
-		  }
-		}
+              if (count_M%N_steps_block == 0)
+                // if (count_M > 1)
+                {
+                  {
+                    N_diff = fabs((double)(1./(count_M*(count_M-1)))*((count_M-1)*N_associations - sum_over_MC_steps));
+                    max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
+                    if(N_diff/max_N_diff < tolerance_association)
+                      {
+                        IDENTIFIER_ASSOC = FALSE;
+                      }
+                    // printf("(count, N_ass, sum_pre, N_diff, max_N_diff, ratio) = (%6ld, %6ld, %6ld, %6.4f, %6.4f, %6.4f)\n", count_M, N_associations, sum_over_MC_steps, N_diff, max_N_diff, N_diff/max_N_diff);
+                  }
+                }
               sum_over_MC_steps += N_associations;
             }
 

@@ -24,6 +24,29 @@ MKL_LONG ASSOCIATION::initial()
   return 0;
 }
 
+ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY(TRAJ.Np, 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str()))
+{
+  Nc = atol(given_condition("N_chains_per_particle").c_str());
+  Tec = atol(given_condition("tolerance_allowing_connections").c_str());
+  N_min = 2*Nc - Tec;
+  N_max = 2*Nc + Tec;
+  initial();
+  
+  if (given_condition("allowing_multiple_connections") == "TRUE")
+    {
+      NEW_ASSOCIATION = TRUTH_MAP::NEW_ASSOCIATION_BASIC;
+      MOV_ASSOCIATION = TRUTH_MAP::MOV_ASSOCIATION_BASIC;
+    }
+  else
+    {
+      NEW_ASSOCIATION = TRUTH_MAP::NEW_ASSOCIATION_SINGLE;
+      MOV_ASSOCIATION = TRUTH_MAP::MOV_ASSOCIATION_SINGLE;
+    }
+  DEL_ASSOCIATION = TRUTH_MAP::DEL_ASSOCIATION_BASIC;
+}
+
+
+
 ASSOCIATION::ASSOCIATION(MKL_LONG number_of_particles, MKL_LONG number_of_chains_per_particles, MKL_LONG tolerance_connection, bool ALLOWING_MULTIPLE_CONNECTIONS) : CONNECTIVITY(number_of_particles, 2*number_of_chains_per_particles + tolerance_connection)
 {
   Nc = number_of_chains_per_particles;
