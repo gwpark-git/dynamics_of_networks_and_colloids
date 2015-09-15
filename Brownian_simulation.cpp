@@ -357,159 +357,162 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
       // if (given_condition("STATUS")=="FULL")
       //   {
-      while(IDENTIFIER_ASSOC && ++cnt < N_max_steps)
+      if(given_condition("Step")!="EQUILIBRATION")
         {
-          // choice for visiting bead   
-          MKL_LONG total_chain_ends = CONNECT.N_TOTAL_CONNECTED_ENDS();
-          // printf("chain ends attached to beads, %ld, per beads, %ld, (add, mov, del) = (%ld, %ld, %ld)\n", total_chain_ends, total_chain_ends/TRAJ.Np, cnt_add, cnt_mov, cnt_del);
-          time_MC_1 = dsecnd();
-          // MKL_LONG index_itself = RANDOM::return_LONG_INT_rand(TRAJ.Np);
-          MKL_LONG index_itself = RANDOM::return_LONG_INT_rand_boost(r_boost, TRAJ.Np);
-          // choice for selected chain end
-          double rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(r_boost);
-          time_MC_2 = dsecnd();
-          // MKL_LONG HASH_INDEX = CONNECT.GET_HASH_FROM_ROLL(index_itself, rolling_P);
-          MKL_LONG index_hash_selected_chain = CONNECT.GET_INDEX_HASH_FROM_ROLL(index_itself, rolling_dCDF);
-          MKL_LONG index_other_end_of_selected_chain = CONNECT.HASH(index_itself, index_hash_selected_chain);
-          time_MC_3 = dsecnd();
-          // choice for behaviour of selected chain end
-          double rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(r_boost);
-          // the PDF is already computed in the previous map
-          // ANALYSIS::GET_ORDERED_PDF_POTENTIAL(TRAJ, index_t_now, POTs, index_other_end_of_selected_chain, INDEX_dCDF_U, dCDF_U, vec_boost_Nd_parallel, dt_pdf, dt_sort);
-          time_MC_4 = dsecnd();
-          MKL_LONG k=CONNECT.Np-1;
-          for(k=CONNECT.Np-1; k>=0; k--)
+          while(IDENTIFIER_ASSOC && ++cnt < N_max_steps)
             {
-              // printf("(i, k, P) = (%ld, %ld, %lf)\n", index_other_end_of_selected_chain, k, dCDF_U[index_other_end_of_selected_chain](k));
-              if(dCDF_U[index_other_end_of_selected_chain](k) < rolling_dCDF_U)
+              // choice for visiting bead   
+              MKL_LONG total_chain_ends = CONNECT.N_TOTAL_CONNECTED_ENDS();
+              // printf("chain ends attached to beads, %ld, per beads, %ld, (add, mov, del) = (%ld, %ld, %ld)\n", total_chain_ends, total_chain_ends/TRAJ.Np, cnt_add, cnt_mov, cnt_del);
+              time_MC_1 = dsecnd();
+              // MKL_LONG index_itself = RANDOM::return_LONG_INT_rand(TRAJ.Np);
+              MKL_LONG index_itself = RANDOM::return_LONG_INT_rand_boost(r_boost, TRAJ.Np);
+              // choice for selected chain end
+              double rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(r_boost);
+              time_MC_2 = dsecnd();
+              // MKL_LONG HASH_INDEX = CONNECT.GET_HASH_FROM_ROLL(index_itself, rolling_P);
+              MKL_LONG index_hash_selected_chain = CONNECT.GET_INDEX_HASH_FROM_ROLL(index_itself, rolling_dCDF);
+              MKL_LONG index_other_end_of_selected_chain = CONNECT.HASH(index_itself, index_hash_selected_chain);
+              time_MC_3 = dsecnd();
+              // choice for behaviour of selected chain end
+              double rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(r_boost);
+              // the PDF is already computed in the previous map
+              // ANALYSIS::GET_ORDERED_PDF_POTENTIAL(TRAJ, index_t_now, POTs, index_other_end_of_selected_chain, INDEX_dCDF_U, dCDF_U, vec_boost_Nd_parallel, dt_pdf, dt_sort);
+              time_MC_4 = dsecnd();
+              MKL_LONG k=CONNECT.Np-1;
+              for(k=CONNECT.Np-1; k>=0; k--)
                 {
-                  k++;
-                  break;
+                  // printf("(i, k, P) = (%ld, %ld, %lf)\n", index_other_end_of_selected_chain, k, dCDF_U[index_other_end_of_selected_chain](k));
+                  if(dCDF_U[index_other_end_of_selected_chain](k) < rolling_dCDF_U)
+                    {
+                      k++;
+                      break;
+                    }
                 }
-            }
-          MKL_LONG index_new_end_of_selected_chain = INDEX_dCDF_U[index_other_end_of_selected_chain](k);
-          time_MC_5 = dsecnd();
-          // for(MKL_LONG i=CONNECT.Np-10; i<CONNECT.Np; i++)
-          //   {
-          //     printf("(i, I(i), dPDF(i)) = (%ld, %ld, %6.3f), (k, roll) = (%ld, %6.3f)\n", i, (MKL_LONG) INDEX_dCDF_U(i), dCDF_U(i), k, rolling_dCDF_U);
-          //   }
+              MKL_LONG index_new_end_of_selected_chain = INDEX_dCDF_U[index_other_end_of_selected_chain](k);
+              time_MC_5 = dsecnd();
+              // for(MKL_LONG i=CONNECT.Np-10; i<CONNECT.Np; i++)
+              //   {
+              //     printf("(i, I(i), dPDF(i)) = (%ld, %ld, %6.3f), (k, roll) = (%ld, %6.3f)\n", i, (MKL_LONG) INDEX_dCDF_U(i), dCDF_U(i), k, rolling_dCDF_U);
+              //   }
 
-          // printf("(cnt, i_V, i_H, i_T) = (%ld, %ld, %ld, %ld),\t (k, i_k, N_c, TOKEN, CASE) = (%ld, %ld, %ld, %ld, %6.3e)\t(TOL=%lf)\n", cnt, index_itself, index_hash_selected_chain, index_other_end_of_selected_chain, k, index_new_end_of_selected_chain, (MKL_LONG)CONNECT.CASE(index_itself, 0), CONNECT.TOKEN(index_itself), CONNECT.CASE(index_itself, CONNECT.TOKEN(index_itself)-1), fabs(block_MSE_next-block_MSE_now));
-          // The following codes are of importance to modification
-          // the subject and object for the action is replaced
-          // if(CONNECT.DEL_ASSOCIATION(CONNECT, index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain))
-          //   {
-          //     CONNECT.del_association_hash(index_itself, index_hash_selected_chain);
-          //     cnt_del ++;
-          //   }
-          // else if (CONNECT.NEW_ASSOCIATION(CONNECT, index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain))
-          //   {
-          //     CONNECT.add_association_INFO(POTs, index_itself, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_itself, index_new_end_of_selected_chain, tmp_vec));
-          //     cnt_add ++;
-          //   }
-          // else if (CONNECT.MOV_ASSOCIATION(CONNECT, index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain))
-          //   {
-          //     CONNECT.del_association_hash(index_itself, index_hash_selected_chain);
-          //     CONNECT.add_association_INFO(POTs, index_itself, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_itself, index_new_end_of_selected_chain, tmp_vec));
-          //     cnt_mov ++;
-          //   }
-          // else
-          //   {
-          //     cnt_cancel ++;
-          //   }
-          MKL_LONG index_hash_itself_from_other_end = CONNECT.FIND_HASH_INDEX(index_other_end_of_selected_chain, index_itself);
-          if(CONNECT.DEL_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
-            {
-              // CONNECT.del_association_hash(index_itself, index_hash_selected_chain);
-              CONNECT.del_association_hash(index_other_end_of_selected_chain, index_hash_itself_from_other_end);
-              cnt_del ++;
-            }
-          else if (CONNECT.NEW_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
-            {
-              // CONNECT.add_association_INFO(POTs, index_itself, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_itself, index_new_end_of_selected_chain, tmp_vec));
-              CONNECT.add_association_INFO(POTs, index_other_end_of_selected_chain, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_other_end_of_selected_chain, index_new_end_of_selected_chain, tmp_vec));
+              // printf("(cnt, i_V, i_H, i_T) = (%ld, %ld, %ld, %ld),\t (k, i_k, N_c, TOKEN, CASE) = (%ld, %ld, %ld, %ld, %6.3e)\t(TOL=%lf)\n", cnt, index_itself, index_hash_selected_chain, index_other_end_of_selected_chain, k, index_new_end_of_selected_chain, (MKL_LONG)CONNECT.CASE(index_itself, 0), CONNECT.TOKEN(index_itself), CONNECT.CASE(index_itself, CONNECT.TOKEN(index_itself)-1), fabs(block_MSE_next-block_MSE_now));
+              // The following codes are of importance to modification
+              // the subject and object for the action is replaced
+              // if(CONNECT.DEL_ASSOCIATION(CONNECT, index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain))
+              //   {
+              //     CONNECT.del_association_hash(index_itself, index_hash_selected_chain);
+              //     cnt_del ++;
+              //   }
+              // else if (CONNECT.NEW_ASSOCIATION(CONNECT, index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain))
+              //   {
+              //     CONNECT.add_association_INFO(POTs, index_itself, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_itself, index_new_end_of_selected_chain, tmp_vec));
+              //     cnt_add ++;
+              //   }
+              // else if (CONNECT.MOV_ASSOCIATION(CONNECT, index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain))
+              //   {
+              //     CONNECT.del_association_hash(index_itself, index_hash_selected_chain);
+              //     CONNECT.add_association_INFO(POTs, index_itself, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_itself, index_new_end_of_selected_chain, tmp_vec));
+              //     cnt_mov ++;
+              //   }
+              // else
+              //   {
+              //     cnt_cancel ++;
+              //   }
+              MKL_LONG index_hash_itself_from_other_end = CONNECT.FIND_HASH_INDEX(index_other_end_of_selected_chain, index_itself);
+              if(CONNECT.DEL_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
+                {
+                  // CONNECT.del_association_hash(index_itself, index_hash_selected_chain);
+                  CONNECT.del_association_hash(index_other_end_of_selected_chain, index_hash_itself_from_other_end);
+                  cnt_del ++;
+                }
+              else if (CONNECT.NEW_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
+                {
+                  // CONNECT.add_association_INFO(POTs, index_itself, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_itself, index_new_end_of_selected_chain, tmp_vec));
+                  CONNECT.add_association_INFO(POTs, index_other_end_of_selected_chain, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_other_end_of_selected_chain, index_new_end_of_selected_chain, tmp_vec));
               
-              cnt_add ++;
-            }
-          else if (CONNECT.MOV_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
-            {
-              CONNECT.del_association_hash(index_other_end_of_selected_chain, index_hash_itself_from_other_end);
-              CONNECT.add_association_INFO(POTs, index_other_end_of_selected_chain, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_other_end_of_selected_chain, index_new_end_of_selected_chain, tmp_vec));
-              cnt_mov ++;
-            }
-          else
-            {
-              cnt_cancel ++;
-            }
-          
-          time_MC_6 = dsecnd();
-          // MKL_LONG k=0;
-          MKL_LONG index_set[3] = {index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain};
-          // for(MKL_LONG k=0; k<CONNECT.Np; k++)
-          for(MKL_LONG i=0; i<3; i++)
-            {
-              CONNECTIVITY_update_Z_particle(CONNECT, index_set[i]);
-              CONNECTIVITY_update_dPDF_particle(CONNECT, index_set[i]);
-              CONNECTIVITY_update_dCDF_particle(CONNECT, index_set[i]);
-            }
-          
-          time_MC_7 = dsecnd();
-
-          pre_N_associations = N_associations;
-          N_associations = CONNECT.N_TOTAL_ASSOCIATION()/2.;
-
-          if(N_associations != pre_N_associations)
-            {
-              count_M ++;
-              if (count_M%N_steps_block == 0)
-                // if (count_M > 1)
-                {
-                  {
-                    N_diff = fabs((double)(1./(count_M*(count_M-1)))*((count_M-1)*N_associations - sum_over_MC_steps));
-                    max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
-                    if(N_diff/max_N_diff < tolerance_association)
-                      {
-                        IDENTIFIER_ASSOC = FALSE;
-                      }
-                    // printf("(count, N_ass, sum_pre, N_diff, max_N_diff, ratio) = (%6ld, %6ld, %6ld, %6.4f, %6.4f, %6.4f)\n", count_M, N_associations, sum_over_MC_steps, N_diff, max_N_diff, N_diff/max_N_diff);
-                  }
+                  cnt_add ++;
                 }
-              sum_over_MC_steps += N_associations;
-            }
+              else if (CONNECT.MOV_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
+                {
+                  CONNECT.del_association_hash(index_other_end_of_selected_chain, index_hash_itself_from_other_end);
+                  CONNECT.add_association_INFO(POTs, index_other_end_of_selected_chain, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_other_end_of_selected_chain, index_new_end_of_selected_chain, tmp_vec));
+                  cnt_mov ++;
+                }
+              else
+                {
+                  cnt_cancel ++;
+                }
+          
+              time_MC_6 = dsecnd();
+              // MKL_LONG k=0;
+              MKL_LONG index_set[3] = {index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain};
+              // for(MKL_LONG k=0; k<CONNECT.Np; k++)
+              for(MKL_LONG i=0; i<3; i++)
+                {
+                  CONNECTIVITY_update_Z_particle(CONNECT, index_set[i]);
+                  CONNECTIVITY_update_dPDF_particle(CONNECT, index_set[i]);
+                  CONNECTIVITY_update_dCDF_particle(CONNECT, index_set[i]);
+                }
+          
+              time_MC_7 = dsecnd();
+
+              pre_N_associations = N_associations;
+              N_associations = CONNECT.N_TOTAL_ASSOCIATION()/2.;
+
+              if(N_associations != pre_N_associations)
+                {
+                  count_M ++;
+                  if (count_M%N_steps_block == 0)
+                    // if (count_M > 1)
+                    {
+                      {
+                        N_diff = fabs((double)(1./(count_M*(count_M-1)))*((count_M-1)*N_associations - sum_over_MC_steps));
+                        max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
+                        if(N_diff/max_N_diff < tolerance_association)
+                          {
+                            IDENTIFIER_ASSOC = FALSE;
+                          }
+                        // printf("(count, N_ass, sum_pre, N_diff, max_N_diff, ratio) = (%6ld, %6ld, %6ld, %6.4f, %6.4f, %6.4f)\n", count_M, N_associations, sum_over_MC_steps, N_diff, max_N_diff, N_diff/max_N_diff);
+                      }
+                    }
+                  sum_over_MC_steps += N_associations;
+                }
 
           
-          // block_MSE_square_mean += pow(N_associations,2.);
-          // block_MSE_mean_square += N_associations;
-          // if(cnt%N_steps_block == 0 && cnt != 0)
-          //   {
-          //     block_MSE_now = block_MSE_next;
-          //     block_MSE_next = fabs(block_MSE_square_mean - pow(block_MSE_mean_square,2.))/(float)N_steps_block;
-          //     max_block_MSE = max_block_MSE > block_MSE_next ? max_block_MSE : block_MSE_next;
-          //     // printf("bMSE = %6.3e\t bMSE/bMSE_max = %6.3e, maximum = %6.3e\n", block_MSE_next, block_MSE_next/max_block_MSE, max_block_MSE);
-          //     // printf("bMSE_now = %6.3e\tbMSE_next = %6.3e\t diff_bMSE = %6.3e\n", fabs(block_MSE_now), fabs(block_MSE_next), fabs(block_MSE_next - block_MSE_now)/float(N_steps_block));
-          //     if (block_MSE_next/max_block_MSE < bMSE_tolerance)
-          //       {
-          //         IDENTIFIER_ASSOC = FALSE;
-          //       }
-          //     block_MSE_square_mean = 0.;
-          //     block_MSE_mean_square = 0.;
-          //   }
-          time_MC_8 = dsecnd();
-          dt_1 += time_MC_2 - time_MC_1;
-          dt_2 += time_MC_3 - time_MC_2;
-          dt_3 += time_MC_4 - time_MC_3;
-          dt_4 += time_MC_5 - time_MC_4;
-          dt_5 += time_MC_6 - time_MC_5;
-          dt_6 += time_MC_7 - time_MC_6;
-          dt_7 += time_MC_8 - time_MC_7;
-          if (given_condition("MC_LOG") == "TRUE")
-            {
-              MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
-              FILE_LOG << cnt << '\t' << index_itself << '\t' << rolling_dCDF<< '\t'  << index_hash_selected_chain<< '\t'  << index_other_end_of_selected_chain<< '\t'  << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_end_of_selected_chain<< '\t'  << CONNECT.TOKEN(index_itself)<< '\t'<<CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight(index_itself, 0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << endl;
-            }
+              // block_MSE_square_mean += pow(N_associations,2.);
+              // block_MSE_mean_square += N_associations;
+              // if(cnt%N_steps_block == 0 && cnt != 0)
+              //   {
+              //     block_MSE_now = block_MSE_next;
+              //     block_MSE_next = fabs(block_MSE_square_mean - pow(block_MSE_mean_square,2.))/(float)N_steps_block;
+              //     max_block_MSE = max_block_MSE > block_MSE_next ? max_block_MSE : block_MSE_next;
+              //     // printf("bMSE = %6.3e\t bMSE/bMSE_max = %6.3e, maximum = %6.3e\n", block_MSE_next, block_MSE_next/max_block_MSE, max_block_MSE);
+              //     // printf("bMSE_now = %6.3e\tbMSE_next = %6.3e\t diff_bMSE = %6.3e\n", fabs(block_MSE_now), fabs(block_MSE_next), fabs(block_MSE_next - block_MSE_now)/float(N_steps_block));
+              //     if (block_MSE_next/max_block_MSE < bMSE_tolerance)
+              //       {
+              //         IDENTIFIER_ASSOC = FALSE;
+              //       }
+              //     block_MSE_square_mean = 0.;
+              //     block_MSE_mean_square = 0.;
+              //   }
+              time_MC_8 = dsecnd();
+              dt_1 += time_MC_2 - time_MC_1;
+              dt_2 += time_MC_3 - time_MC_2;
+              dt_3 += time_MC_4 - time_MC_3;
+              dt_4 += time_MC_5 - time_MC_4;
+              dt_5 += time_MC_6 - time_MC_5;
+              dt_6 += time_MC_7 - time_MC_6;
+              dt_7 += time_MC_8 - time_MC_7;
+              if (given_condition("MC_LOG") == "TRUE")
+                {
+                  MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
+                  FILE_LOG << cnt << '\t' << index_itself << '\t' << rolling_dCDF<< '\t'  << index_hash_selected_chain<< '\t'  << index_other_end_of_selected_chain<< '\t'  << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_end_of_selected_chain<< '\t'  << CONNECT.TOKEN(index_itself)<< '\t'<<CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight(index_itself, 0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << endl;
+                }
 
-          //   }
-        } // while
+              //   }
+            } // while
+        } // equilibration condition check
       double time_end_MC = dsecnd();
 
       // MATRIX force_spring(TRAJ.dimension, 1, 0.);
