@@ -85,7 +85,9 @@ else:
         # ax.axis[:].major_ticks.set_tick_out(True)
         # ax.axis[:].invert_ticklabel_direction()
         # set_tick
-        ax.grid('on')
+        ax.grid('on', which='both')
+        # ax.grid('on', which='major', color='gray', linestyle='-')
+        # ax.grid('on', which='minor', color='gray', linestyle='--')
         # ax.set_xlabel('x dimension')
         # ax.set_ylabel('y dimension')
         ax.set_aspect(1)
