@@ -155,7 +155,7 @@ else:
         mean_N_bridge = mean(dat[:ft,1])
         ref_ax01 = asarray([[dat[0, 0], mean_N_bridge],
                            [dat[ft-1, 0] + N_skip, mean_N_bridge]])
-        ax01.plot(dat[:ft, 0], dat[:ft, 1], 'b.-', label = 'N_asso')
+        ax01.plot(dat[:ft, 0], dat[:ft, 1], 'b-', label = 'N_asso')
         ax01.plot(ref_ax01[:,0], ref_ax01[:,1], 'k:', linewidth=3, label = 'av.=%6.3f'%(mean_N_bridge))
         ax01.grid('on')
         ax01.axis([dat[0, 0], dat[ft-1, 0] + N_skip, 0.9*min(dat[:ft, 1]), 1.1*max(dat[:ft, 1])])
@@ -185,7 +185,7 @@ else:
         ref_ax11 = asarray([[dat[0, 0], mean_ener],
                            [dat[ft-1, 0] + N_skip, mean_ener]])
         
-        ax11.plot(dat[:ft, 0], dat[:ft, 3], 'b.-', label = 'ener')
+        ax11.plot(dat[:ft, 0], dat[:ft, 3], 'b-', label = 'ener')
         ax11.plot(ref_ax11[:,0], ref_ax11[:,1], 'k:', linewidth=3, label = 'av.=%6.3f'%(mean_ener))
         ax11.grid('on')
         ax11.axis([dat[0, 0], dat[ft-1, 0] + N_skip, 0.9*min(dat[:ft, 3]), 1.1*max(dat[:ft, 3])])
