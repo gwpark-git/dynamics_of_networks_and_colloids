@@ -20,32 +20,32 @@ def get_minimum_distance_k_from_x(x, k, box_dimension):
     kd = asarray([k-box_dimension-x, k-x, k+box_dimension-x])
     return kd[argmin(abs(kd))] + x;
 
-if size(sys.argv) < 10:
+if size(sys.argv) < 7:
     print "USAGE: Plotting Trajectory Files"
-    print "argv[1] == .traj"
-    print "argv[2] == .hash"
-    print "argv[3] == .weight"
-    print "argv[4] == .ener"
-    print "argv[5] == output path for figures"
-    print "argv[6] == Number of particles"
-    print "argv[7] == Number of skips for trajectory"
-    print "argv[8] == Number of processors for parallization"
-    print "argv[9] == box_dimension"
+    print "argv[1] == base_filename"
+    # print "argv[2] == .hash"
+    # print "argv[3] == .weight"
+    # print "argv[4] == .ener"
+    print "argv[2] == output path for figures"
+    print "argv[3] == Number of particles"
+    print "argv[4] == Number of skips for trajectory"
+    print "argv[5] == Number of processors for parallization"
+    print "argv[6] == box_dimension"
     print "If test is needed with limited number of cycle"
-    print "argv[10] == TEST"
-    print "argv[11] == Number of cycles that is multiplied by the N_proc. (Total number of plotting is argv[10]*argv[8]"
+    print "argv[7] == TEST"
+    print "argv[8] == Number of cycles that is multiplied by the N_proc. (Total number of plotting is argv[10]*argv[8]"
 
 else:
-    fn_traj = sys.argv[1]
-    fn_connect = sys.argv[2]
-    fn_weight = sys.argv[3]
-    fn_ener = sys.argv[4]
-    out_path = sys.argv[5]
+    fn_traj = sys.argv[1] + '.traj'
+    fn_connect = sys.argv[1] + '.hash'
+    fn_weight = sys.argv[1] + '.weight'
+    fn_ener = sys.argv[1] + '.ener'
+    out_path = sys.argv[2]
     N_dimension = 2
-    Np = int(sys.argv[6])
-    N_skip = int(sys.argv[7])
-    N_proc = int(sys.argv[8])
-    val_dimension = float(sys.argv[9])
+    Np = int(sys.argv[3])
+    N_skip = int(sys.argv[4])
+    N_proc = int(sys.argv[5])
+    val_dimension = float(sys.argv[6])
     
     def token(hash_data, index):
         for i in range(shape(hash_data)[1]):
@@ -79,13 +79,15 @@ else:
         ax = axisartist.Subplot(fig, gs[:,0])
         fig.add_subplot(ax)
         ax.axis([-0.2*box_dimension[0], 1.2*box_dimension[0], -0.2*box_dimension[1], 1.2*box_dimension[1]])
-        ax.set_xticks(range(int(val_dimension)+1))
-        ax.set_yticks(range(int(val_dimension)+1))
+        ax.set_xticks(range(int(val_dimension)+1), 2)
+        ax.set_yticks(range(int(val_dimension)+1), 2)
         # ax.yaxis.set_ticks_position('left')
         # ax.axis[:].major_ticks.set_tick_out(True)
         # ax.axis[:].invert_ticklabel_direction()
         # set_tick
-        ax.grid('on')
+        ax.grid('on', which='both')
+        # ax.grid('on', which='major', color='gray', linestyle='-')
+        # ax.grid('on', which='minor', color='gray', linestyle='--')
         # ax.set_xlabel('x dimension')
         # ax.set_ylabel('y dimension')
         ax.set_aspect(1)
@@ -153,7 +155,7 @@ else:
         mean_N_bridge = mean(dat[:ft,1])
         ref_ax01 = asarray([[dat[0, 0], mean_N_bridge],
                            [dat[ft-1, 0] + N_skip, mean_N_bridge]])
-        ax01.plot(dat[:ft, 0], dat[:ft, 1], 'b.-', label = 'N_asso')
+        ax01.plot(dat[:ft, 0], dat[:ft, 1], 'b-', label = 'N_asso')
         ax01.plot(ref_ax01[:,0], ref_ax01[:,1], 'k:', linewidth=3, label = 'av.=%6.3f'%(mean_N_bridge))
         ax01.grid('on')
         ax01.axis([dat[0, 0], dat[ft-1, 0] + N_skip, 0.9*min(dat[:ft, 1]), 1.1*max(dat[:ft, 1])])
@@ -183,7 +185,7 @@ else:
         ref_ax11 = asarray([[dat[0, 0], mean_ener],
                            [dat[ft-1, 0] + N_skip, mean_ener]])
         
-        ax11.plot(dat[:ft, 0], dat[:ft, 3], 'b.-', label = 'ener')
+        ax11.plot(dat[:ft, 0], dat[:ft, 3], 'b-', label = 'ener')
         ax11.plot(ref_ax11[:,0], ref_ax11[:,1], 'k:', linewidth=3, label = 'av.=%6.3f'%(mean_ener))
         ax11.grid('on')
         ax11.axis([dat[0, 0], dat[ft-1, 0] + N_skip, 0.9*min(dat[:ft, 3]), 1.1*max(dat[:ft, 3])])
@@ -230,9 +232,9 @@ else:
                         connectivity = zeros([N_proc, Np, Np])
                         for line in f:
                             try:
-                                if sys.argv[10] == "TEST":
+                                if sys.argv[7] == "TEST":
                                     # st: temporal stopping
-                                    if cnt > long(sys.argv[11])*N_proc:
+                                    if cnt > long(sys.argv[8])*N_proc:
                                         break
                                     cnt += 1
                                     # end: temporal stopping
