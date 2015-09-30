@@ -71,7 +71,7 @@ else:
                                [val_dimension, val_dimension]])
 
         marker_style = 'o'
-        plt.cla()
+        # plt.cla()
         fig = plt.figure(ft, figsize=(10,6))
         # fig = plt.figure(t)
         gs = gridspec.GridSpec(2,2, width_ratios=[2, 1])
@@ -120,13 +120,13 @@ else:
                     # if t==0:
                     #     print 't = %d, i = %d, j = %d, C[i,j] = %d'%(t, i, j, connectivity[i,j])
                     # # print tmp_arr
-                    ax.plot(tmp_arr[:,0], tmp_arr[:,1], 'r-', linewidth=0.2)
+                    ax.plot(tmp_arr[:,0], tmp_arr[:,1], 'r-', linewidth=0.2, alpha=0.5)
                     ax.plot(tmp_arr[:,0], tmp_arr[:,1], 'k.', markersize=3)
 
                     mean_x = 0.5*(tmp_arr[0, 0] + tmp_arr[1, 0])
                     mean_y = 0.5*(tmp_arr[0, 1] + tmp_arr[1, 1])
                     if connectivity[i,j] > 1:
-                        ax.annotate('%d'%(connectivity[i, j]), xy=(mean_x, mean_y), fontsize=4, color='b', path_effects=[PathEffects.withStroke(linewidth=1, foreground='w')])
+                        ax.annotate('%d'%(connectivity[i, j]), xy=(mean_x, mean_y), fontsize=3, color='b', path_effects=[PathEffects.withStroke(linewidth=1, foreground='w')], alpha=0.5)
 
         ax.plot(ref_PBC_left[:,0], ref_PBC_left[:,1], 'k--', linewidth=3)
         ax.plot(ref_PBC_right[:,0], ref_PBC_right[:,1], 'k--', linewidth=3)
