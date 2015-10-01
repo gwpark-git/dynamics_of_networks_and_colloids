@@ -86,29 +86,56 @@ MKL_LONG FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTENTIAL_SET& given_
 }
 
 
-double FORCE::DEFAULT::Gaussian_spring_force(double distance, double N_dimension)
+double FORCE::GAUSSIAN::spring_force(double distance, double N_dimension)
 {
   return N_dimension*distance;
 }
 
-double FORCE::DEFAULT::Gaussian_spring_potential(double distance, double N_dimension)
+double FORCE::GAUSSIAN::spring_potential(double distance, double N_dimension)
 {
   return (0.5)*N_dimension*distance*distance;
 }
 
+double FORCE::FENE::non_Gaussian_factor(double distance, double N_dimension, double ratio_RM_R0)
+{
+  return 1.0/(1.0 - pow(distance, 2.0)/pow(ratio_RM_R0, 2.0));
+}
+
+double FORCE::FENE::spring_force(double distance, double N_dimension, double ratio_RM_R0)
+{
+  return non_Gaussian_factor(distance, N_dimension, ratio_RM_R0)*FORCE::GAUSSIAN::spring_force(distance, N_dimension);
+}
+
+double FORCE::FENE::spring_potential(double distance, double N_dimension, double ratio_RM_R0)
+{
+  return (-(double)N_dimension/2.0)*pow(ratio_RM_R0, 2.0)*log(1.0 - pow(distance, 2.0)/pow(ratio_RM_R0, 2.0));
+}
+
+
 double FORCE::NAPLE::MC_ASSOCIATION::MAP_Gaussian_spring_force(double distance, double* given_variables)
 {
-  return FORCE::DEFAULT::Gaussian_spring_force(distance, given_variables[3]);
+  return FORCE::GAUSSIAN::spring_force(distance, given_variables[3]);
 }
 
 double FORCE::NAPLE::MC_ASSOCIATION::MAP_Gaussian_spring_potential(double distance, double* given_variables)
 {
-  return FORCE::DEFAULT::Gaussian_spring_potential(distance, given_variables[3]);
+  return FORCE::GAUSSIAN::spring_potential(distance, given_variables[3]);
 }
+
+double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_spring_force(double distance, double* given_variables)
+{
+  return FORCE::FENE::spring_force(distance, given_variables[3], given_variables[5]);
+}
+
+double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_spring_potential(double distance, double* given_variables)
+{
+  return FORCE::FENE::spring_potential(distance, given_variables[3], given_variables[5]);
+}
+
 
 MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
 {
-  given_POT.force_variables = new double [5];
+  given_POT.force_variables = new double [6];
   given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
   given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
   given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
@@ -121,9 +148,18 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
 
   // given_POT.f_repulsion = FORCE::DEFAULT::EMPTY_force_contribution;
   // given_POT.e_repulsion = FORCE::DEFAULT::EMPTY_force_contribution;
-  
-  given_POT.f_connector = MAP_Gaussian_spring_force;
-  given_POT.e_connector = MAP_Gaussian_spring_potential;
+
+  if(given_cond("FENE")=="TRUE")
+    {
+      given_POT.force_variables[5] = atof(given_cond("ratio_RM_R0").c_str());
+      given_POT.f_connector = MAP_FENE_spring_force;
+      given_POT.e_connector = MAP_FENE_spring_force;
+    }
+  else
+    {
+      given_POT.f_connector = MAP_Gaussian_spring_force;
+      given_POT.e_connector = MAP_Gaussian_spring_potential;
+    }
 
   given_POT.w_function = Detachment_weight;
   given_POT.scale_random = MAP_time_scaling_random;
