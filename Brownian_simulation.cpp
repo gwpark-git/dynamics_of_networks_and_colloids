@@ -193,6 +193,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
   // the following are the boosting the allocation and dislocation of the MATRIX classes
   MKL_LONG cond_longer = TRAJ.Np > CONNECT.N_max ? TRAJ.Np : CONNECT.N_max;
+  printf("N_max = %ld\n", CONNECT.N_max);
   MATRIX *vec_boost_Nd_parallel = new MATRIX [cond_longer];
   MATRIX *vec_boost_Np_parallel = new MATRIX [cond_longer];
   MATRIX **vec_boost_Nd_Np_parallel_connector = new MATRIX* [cond_longer];
