@@ -37,6 +37,6 @@ def get_rdf(traj, ts, dr, Np, N_dimension, box_dimension):
     ddf = get_ddf(traj, ts, Np, N_dimension, box_dimension)
     for r in ddf:
         rdf[int(r/dr), 1] += 1
-    rdf[:,1] /= float(dr*size(ts))
+    rdf[:,1] /= float(dr*size(ts)*Np)
     rdf[:,2] = rdf[:,1]/(4.*pi*rdf[:,0]**2.0)
     return rdf
