@@ -42,4 +42,7 @@ def get_rdf(traj, ts, dr, Np, N_dimension, box_dimension):
         rdf[:,2] = rdf[:,1]/(4.*pi*rdf[:,0]**2.0)
     elif (N_dimension == 2):
         rdf[:,2] = rdf[:,1]/(2.*pi*rdf[:,0])
+    fac = size(ddf)/(0.5*(Np-1)*pi*(0.5*box_dimension)**2.0)
+    print fac
+    rdf[:,2] /= fac
     return rdf
