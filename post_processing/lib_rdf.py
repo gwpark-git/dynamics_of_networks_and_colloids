@@ -37,12 +37,34 @@ def get_rdf(traj, ts, dr, Np, N_dimension, box_dimension):
     ddf = get_ddf(traj, ts, Np, N_dimension, box_dimension)
     for r in ddf:
         rdf[int(r/dr), 1] += 1
-    rdf[:,1] /= float(dr*size(ts))
     if (N_dimension == 3):
         rdf[:,2] = rdf[:,1]/(4.*pi*rdf[:,0]**2.0)
     elif (N_dimension == 2):
         rdf[:,2] = rdf[:,1]/(2.*pi*rdf[:,0])
-    fac = size(ddf)/(0.5*(Np-1)*pi*(0.5*box_dimension)**2.0)
-    print fac
-    rdf[:,2] /= fac
+    rho_local = size(ddf)/(0.5*(Np-1)*pi*(0.5*box_dimension)**2.0)
+    normal_fac = dr*size(ts)
+    rdf[:,2] /= rho_local*normal_fac
+    return rdf
+
+
+def get_rdf_ref(traj, ts, dr, Np, N_dimension, box_dimension):
+    Nr = int(0.5*box_dimension/dr)
+    rdf = zeros([Nr, 3])
+    rdf[:,0] = arange(0, 0.5*box_dimension, dr)
+    ddf = get_ddf(traj, ts, Np, N_dimension, box_dimension)
+    N_tot = size(ddf)
+    Nt = size(ts)
+    for r in ddf:
+        rdf[int(r/dr), 1] += 1
+    if (N_dimension == 3):
+        Vr = (4./3.)*pi*((rdf[:,0]+dr)**3.0 - rdf[:,0]**3.0)
+        Vrmax = (4./3.)*pi*(0.5*box_dimension)**3.0
+        rho_local = N_tot/(Nt*0.5*(Np-1)*Vrmax)
+    elif (N_dimension == 2):
+        Vr = pi*((rdf[:,0]+dr)**2.0 - rdf[:,0]**2.0)
+        Vrmax = pi*(0.5*box_dimension)**2.0
+        rho_local = N_tot/(Nt*0.5*(Np-1)*Vrmax)
+    print 'rho_local = ', rho_local
+    rdf[:,2] = rdf[:,1]/(Vr*0.5*(Np-1)*Nt*rho_local)
+    rdf[0, 2] = 0. #removing the first term as zero because it is given by nan (division was 0)
     return rdf
