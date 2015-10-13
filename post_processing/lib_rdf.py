@@ -65,7 +65,6 @@ def get_rdf_ref(traj, ts, dr, Np, N_dimension, box_dimension, cut_ratio):
         Vr = pi*((rdf[:,0]+dr)**2.0 - rdf[:,0]**2.0)
         Vrmax = pi*(cut_ratio*box_dimension)**2.0
         rho_local = N_tot/(Nt*0.5*(Np-1)*Vrmax)
-    print 'rho_local = ', rho_local
     rdf[:,2] = rdf[:,1]/(Vr*0.5*(Np-1)*Nt*rho_local)
     rdf[0, 2] = 0. #removing the first term as zero because it is given by nan (division was 0)
-    return rdf
+    return rdf, rho_local

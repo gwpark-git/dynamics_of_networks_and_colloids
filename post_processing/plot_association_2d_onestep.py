@@ -6,9 +6,10 @@ import matplotlib.gridspec as gridspec
 from matplotlib.font_manager import FontProperties
 from pylab import rand
 import sys
-
 from multiprocessing import Pool
 from functools import partial
+
+from lib_rdf import *
 
 font_side = FontProperties()
 font_side.set_size('x-small')
@@ -167,20 +168,26 @@ else:
         
         ax11 = axisartist.Subplot(fig, gs[1, 1])
         fig.add_subplot(ax11)
-        ax11.imshow(connectivity, cmap='Greys')
-        # # mean_functionality = mean(dat[:ft, 2])
-        # mean_ener = mean(dat[:ft, 3])
-        # ref_ax11 = asarray([[dat[0, 0], mean_ener],
-        #                    [dat[ft-1, 0] + N_skip, mean_ener]])
-        
-        # ax11.plot(dat[:ft, 0], dat[:ft, 3], 'b-', label = 'ener')
-        # ax11.plot(ref_ax11[:,0], ref_ax11[:,1], 'k:', linewidth=3, label = 'av.=%6.3f'%(mean_ener))
-        # ax11.grid('on')
-        # ax11.axis([dat[0, 0], dat[ft-1, 0] + N_skip, 0.9*min(dat[:ft, 3]), 1.1*max(dat[:ft, 3])])
+        cut_ratio = 0.5
+        dr = cut_ratio*box_dimension[0]/float(Np)
+        rdf, rho_local = get_rdf_ref(given_traj, [t], dr, Np, N_dimension, box_dimension[0], cut_ratio)
+        rho = Np/box_dimension[0]**N_dimension
+        ref_unity = asarray([[0, 1], [cut_ratio*box_dimension[0], 1]])
+        ref_max = 3.5
+        ax11.plot(rdf[:,0], rdf[:,2], 'b.-', label = r'RDF, ts=%d, dr=%4.3f'%((ft-1)*N_skip, dr), markerfacecolor='white', markeredgecolor='blue')
+        if(max(rdf[:,2]) > ref_max):
+            peak_arg = argmax(rdf[:,2])
+            max_r = rdf[peak_arg, 0]
+            max_gr = rdf[peak_arg, 2]
+            ref_peak = asarray([[max_r, 0], [max_r, max_gr]])
+            ax11.plot(ref_peak[:,0], ref_peak[:,1], 'r--', linewidth=2, label = r'max peak exceed. max($g(r)$)=%4.1f'%(max_gr))
+        ax11.plot(ref_unity[:,0], ref_unity[:,1], 'k--', linewidth=2, label = r'unity, $\rho_D\approx$%4.3f ($\rho_D/\rho\approx$ %4.3f)'%(rho_local, rho_local/rho))
+        ax11.legend(loc = 'upper right', prop=font_side)
+        ax11.set_xlabel('dimensionless distance')
+        ax11.set_ylabel(r'RDF, $g(r)$')
+        ax11.grid()
+        ax11.axis([0, cut_ratio*box_dimension[0], -0.1, ref_max])
 
-        # if ft <> 1:
-        #     ax11.set_xticks(linspace(0, (ft-1)*N_skip, 3))
-        # ax11.legend(loc = 'upper left', prop=font_side)
 
         plt.savefig('%s/t%08d.png'%(out_path, ft-1), dpi=300, bbox_inches='tight')
         plt.close()
