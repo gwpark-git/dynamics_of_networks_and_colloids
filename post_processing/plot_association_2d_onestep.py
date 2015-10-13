@@ -32,10 +32,12 @@ if size(sys.argv) < 7:
     print "argv[4] == Number of skips for trajectory"
     print "argv[5] == Number of processors for parallization"
     print "argv[6] == box_dimension"
+    print "argv[7] == rdf_max_distance"
+    print "argv[8] == dr for rdf"
     print "If test is needed with limited number of cycle"
-    print "argv[7] == TEST"
-    print "argv[8] == Number of cycles that is multiplied by the N_proc. (Total number of plotting is argv[10]*argv[8]"
-
+    print "argv[9] == TEST"
+    print "argv[10] == Number of cycles that is multiplied by the N_proc. (Total number of plotting is argv[10]*argv[8]"
+    
 else:
     fn_traj = sys.argv[1] + '.traj'
     fn_connect = sys.argv[1] + '.hash'
@@ -47,6 +49,8 @@ else:
     N_skip = int(sys.argv[4])
     N_proc = int(sys.argv[5])
     val_dimension = float(sys.argv[6])
+    rdf_max_distance = float(sys.argv[7])
+    dr = float(sys.argv[7])
     
     def token(hash_data, index):
         for i in range(shape(hash_data)[1]):
@@ -168,10 +172,11 @@ else:
         
         ax11 = axisartist.Subplot(fig, gs[1, 1])
         fig.add_subplot(ax11)
-        cut_ratio = 0.5
-        dr = cut_ratio*box_dimension[0]/float(Np)
-        if dr < 0.1:
-            dr = 0.1
+        cut_ratio = rdf_max_distance/box_dimension[0]
+        # cut_ratio = 0.5
+        # dr = cut_ratio*box_dimension[0]/float(Np)
+        # if dr < 0.1:
+        #     dr = 0.1
         rdf, rho_local = get_rdf_ref(given_traj, [t], dr, Np, N_dimension, box_dimension[0], cut_ratio)
         rho = Np/box_dimension[0]**N_dimension
         ref_unity = asarray([[0, 1], [cut_ratio*box_dimension[0], 1]])
@@ -216,9 +221,9 @@ else:
                                 connectivity = zeros([N_proc, Np, Np])
                                 tmp_arr = zeros([N_proc, N_cols])
                             try:
-                                if sys.argv[7] == "TEST":
+                                if sys.argv[9] == "TEST":
                                     # st: temporal stopping
-                                    if cnt > long(sys.argv[8])*N_proc:
+                                    if cnt > long(sys.argv[10])*N_proc:
                                         break
                                     cnt += 1
                                     # end: temporal stopping
