@@ -170,11 +170,13 @@ else:
         fig.add_subplot(ax11)
         cut_ratio = 0.5
         dr = cut_ratio*box_dimension[0]/float(Np)
+        if dr < 0.1:
+            dr = 0.1
         rdf, rho_local = get_rdf_ref(given_traj, [t], dr, Np, N_dimension, box_dimension[0], cut_ratio)
         rho = Np/box_dimension[0]**N_dimension
         ref_unity = asarray([[0, 1], [cut_ratio*box_dimension[0], 1]])
         ref_max = 3.5
-        ax11.plot(rdf[:,0], rdf[:,2], 'b.-', label = r'RDF, ts=%d, dr=%4.3f'%((ft-1)*N_skip, dr), markerfacecolor='white', markeredgecolor='blue')
+        ax11.plot(rdf[:,0], rdf[:,2], 'b-', label = r'RDF, ts=%d, dr=%4.3f'%((ft-1)*N_skip, dr))
         if(max(rdf[:,2]) > ref_max):
             peak_arg = argmax(rdf[:,2])
             max_r = rdf[peak_arg, 0]
