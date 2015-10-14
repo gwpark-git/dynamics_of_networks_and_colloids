@@ -50,7 +50,7 @@ else:
     N_proc = int(sys.argv[5])
     val_dimension = float(sys.argv[6])
     rdf_max_distance = float(sys.argv[7])
-    dr = float(sys.argv[7])
+    dr = float(sys.argv[8])
     
     def token(hash_data, index):
         for i in range(shape(hash_data)[1]):
