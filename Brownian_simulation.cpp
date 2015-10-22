@@ -459,7 +459,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               time_MC_7 = dsecnd();
 
               pre_N_associations = N_associations;
-              N_associations = CONNECT.N_TOTAL_ASSOCIATION()/2.;
+              N_associations = cnt_add - cnt_del;
+              // N_associations = CONNECT.N_TOTAL_ASSOCIATION()/2.;
 
               if(N_associations != pre_N_associations)
                 {
