@@ -1,4 +1,4 @@
-#include <iostream>
+#Include <iostream>
 #include "lib_ed_cpp_BD/matrix_ed.h"
 #include "lib_ed_cpp_BD/lib_traj.h"
 #include "lib_ed_cpp_BD/lib_evolution.h"
@@ -315,7 +315,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       double time_st_MC = dsecnd();
       gsl_rng_set(r_boost, random());
 
-      MKL_LONG log2_Np = log2(CONNECT.Np); // this is for boosting the bisection algorithm during MC steps
       
       // computing the distance map between beads for reducing overhead
       // note that the computing distance map during association spend 80% of computing time
@@ -367,44 +366,14 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               MKL_LONG index_new_end_of_selected_chain = INDEX_dCDF_U[index_other_end_of_selected_chain](k);
               
               time_MC_5 = dsecnd();
-              // for(MKL_LONG i=CONNECT.Np-10; i<CONNECT.Np; i++)
-              //   {
-              //     printf("(i, I(i), dPDF(i)) = (%ld, %ld, %6.3f), (k, roll) = (%ld, %6.3f)\n", i, (MKL_LONG) INDEX_dCDF_U(i), dCDF_U(i), k, rolling_dCDF_U);
-              //   }
-
-              // printf("(cnt, i_V, i_H, i_T) = (%ld, %ld, %ld, %ld),\t (k, i_k, N_c, TOKEN, CASE) = (%ld, %ld, %ld, %ld, %6.3e)\t(TOL=%lf)\n", cnt, index_itself, index_hash_selected_chain, index_other_end_of_selected_chain, k, index_new_end_of_selected_chain, (MKL_LONG)CONNECT.CASE(index_itself, 0), CONNECT.TOKEN(index_itself), CONNECT.CASE(index_itself, CONNECT.TOKEN(index_itself)-1), fabs(block_MSE_next-block_MSE_now));
-              // The following codes are of importance to modification
-              // the subject and object for the action is replaced
-              // if(CONNECT.DEL_ASSOCIATION(CONNECT, index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain))
-              //   {
-              //     CONNECT.del_association_hash(index_itself, index_hash_selected_chain);
-              //     cnt_del ++;
-              //   }
-              // else if (CONNECT.NEW_ASSOCIATION(CONNECT, index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain))
-              //   {
-              //     CONNECT.add_association_INFO(POTs, index_itself, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_itself, index_new_end_of_selected_chain, tmp_vec));
-              //     cnt_add ++;
-              //   }
-              // else if (CONNECT.MOV_ASSOCIATION(CONNECT, index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain))
-              //   {
-              //     CONNECT.del_association_hash(index_itself, index_hash_selected_chain);
-              //     CONNECT.add_association_INFO(POTs, index_itself, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_itself, index_new_end_of_selected_chain, tmp_vec));
-              //     cnt_mov ++;
-              //   }
-              // else
-              //   {
-              //     cnt_cancel ++;
-              //   }
               MKL_LONG index_hash_itself_from_other_end = CONNECT.FIND_HASH_INDEX(index_other_end_of_selected_chain, index_itself);
               if(CONNECT.DEL_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
                 {
-                  // CONNECT.del_association_hash(index_itself, index_hash_selected_chain);
                   CONNECT.del_association_hash(index_other_end_of_selected_chain, index_hash_itself_from_other_end);
                   cnt_del ++;
                 }
               else if (CONNECT.NEW_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
                 {
-                  // CONNECT.add_association_INFO(POTs, index_itself, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_itself, index_new_end_of_selected_chain, tmp_vec));
                   CONNECT.add_association_INFO(POTs, index_other_end_of_selected_chain, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_other_end_of_selected_chain, index_new_end_of_selected_chain, tmp_vec));
               
                   cnt_add ++;
@@ -421,9 +390,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                 }
           
               time_MC_6 = dsecnd();
-              // MKL_LONG k=0;
               MKL_LONG index_set[3] = {index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain};
-              // for(MKL_LONG k=0; k<CONNECT.Np; k++)
               for(MKL_LONG i=0; i<3; i++)
                 {
                   CONNECTIVITY_update_Z_particle(CONNECT, index_set[i]);
@@ -435,7 +402,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
               pre_N_associations = N_associations;
               N_associations = cnt_add - cnt_del;
-              // N_associations = CONNECT.N_TOTAL_ASSOCIATION()/2.;
 
               if(N_associations != pre_N_associations)
                 {
@@ -456,23 +422,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                   sum_over_MC_steps += N_associations;
                 }
 
-          
-              // block_MSE_square_mean += pow(N_associations,2.);
-              // block_MSE_mean_square += N_associations;
-              // if(cnt%N_steps_block == 0 && cnt != 0)
-              //   {
-              //     block_MSE_now = block_MSE_next;
-              //     block_MSE_next = fabs(block_MSE_square_mean - pow(block_MSE_mean_square,2.))/(float)N_steps_block;
-              //     max_block_MSE = max_block_MSE > block_MSE_next ? max_block_MSE : block_MSE_next;
-              //     // printf("bMSE = %6.3e\t bMSE/bMSE_max = %6.3e, maximum = %6.3e\n", block_MSE_next, block_MSE_next/max_block_MSE, max_block_MSE);
-              //     // printf("bMSE_now = %6.3e\tbMSE_next = %6.3e\t diff_bMSE = %6.3e\n", fabs(block_MSE_now), fabs(block_MSE_next), fabs(block_MSE_next - block_MSE_now)/float(N_steps_block));
-              //     if (block_MSE_next/max_block_MSE < bMSE_tolerance)
-              //       {
-              //         IDENTIFIER_ASSOC = FALSE;
-              //       }
-              //     block_MSE_square_mean = 0.;
-              //     block_MSE_mean_square = 0.;
-              //   }
+
               time_MC_8 = dsecnd();
               dt_1 += time_MC_2 - time_MC_1;
               dt_2 += time_MC_3 - time_MC_2;
@@ -492,9 +442,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
         } // equilibration condition check
       double time_end_MC = dsecnd();
 
-      // MATRIX force_spring(TRAJ.dimension, 1, 0.);
-      // MATRIX force_repulsion(TRAJ.dimension, 1, 0.);
-      // MATRIX force_random(TRAJ.dimension, 1, 0.);
 
 // #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next) firstprivate(force_spring, force_repulsion, force_random) // firstprivate called copy-constructor while private called default constructor
 #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, vec_boost_Nd_parallel, force_spring, force_repulsion, force_random) schedule(static) num_threads(N_THREADS)
@@ -510,14 +457,12 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           INTEGRATOR::EULER::cal_random_force(TRAJ, POTs, force_random[i], index_t_now);
           for (MKL_LONG k=0; k<TRAJ.dimension; k++)
             {
-              // printf("fc = %6.3e, fr = %6.3e, fR = %6.3e\n", force_spring(k), force_repulsion(k), force_random(k));
               TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
             }
         }
       GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
       double time_end_LV = dsecnd();
 
-      // ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, index_t_next);
       ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJ, POTs, CONNECT, energy, index_t_now);
       double time_end_AN = dsecnd();
       if(t%N_skip==0)

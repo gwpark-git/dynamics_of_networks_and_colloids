@@ -1,26 +1,6 @@
 
 #include "lib_association.h"
 
-MKL_LONG bisection_search_log2Np(MATRIX& given_arr, double p, MKL_LONG log2_Np)
-{
-  MKL_LONG N = given_arr.size;
-  MKL_LONG k = N/2;
-  double dk = N/2.;
-  for(MKL_LONG i=0; i<=log2_Np; i++)
-    {
-      dk /= 2.;
-      if (given_arr(k) < p)
-        k += (MKL_LONG)dk;
-      else if (given_arr(k) > p)
-        k -= (MKL_LONG)dk;
-      else
-        return k;
-    }
-  if (given_arr(k) < p)
-    k+= 1;
-  return k;
-}
-
 MKL_LONG bisection_search(MATRIX& given_arr, double p)
 {
   MKL_LONG N = given_arr.size;
