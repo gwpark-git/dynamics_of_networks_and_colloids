@@ -54,7 +54,8 @@ MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TR
       // printf("force = %lf\n", force);
       make_unit_vector(vec_boost_Nd);
       matrix_mul(vec_boost_Nd, force);
-      given_vec += vec_boost_Nd;
+      cblas_daxpy(given_vec.size, 1.0, vec_boost_Nd.data, 1, given_vec.data, 1);
+      // given_vec += vec_boost_Nd;
     }
   return 0;
 }
@@ -95,7 +96,7 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET&
           double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
           // printf("repulsion::repulsion(distance(t, i, j)) = r(d(%6.3e, %ld, %ld)) = r(%6.3e) = %6.3e\n", TRAJ(index_t, 0), index_i, i, distance, repulsion);
           make_unit_vector(tmp_vec);
-          matrix_mul(tmp_vec, repulsion);
+          matrix_mul(tmp_vec, repulsion); 
           given_vec.add(tmp_vec);
         }
     }

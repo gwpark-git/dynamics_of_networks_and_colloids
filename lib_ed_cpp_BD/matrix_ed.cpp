@@ -74,7 +74,16 @@ MATRIX& MATRIX::operator=(const MATRIX &Mat)
 
 MATRIX& MATRIX::operator+=(const MATRIX &Mat)
 {
-  copy_obj(Mat);
+  // std::cout << "the operator += for MATRIX class is in buggy status\n";
+  // std::cout << "if this operator is called, to check the internal problems\n";
+  if (size != Mat.size)
+    std::cout << "The += operator must happen when two size are the same\n";
+  // copy_obj(Mat);
+  // for(MKL_LONG i=0; i<size; i++)
+  //   {
+  //     data[i] += Mat.data[i];
+  //   }
+  cblas_daxpy(size, 1.0, Mat.data, 1, data, 1);
   return *this;
 }
 
@@ -82,6 +91,7 @@ MATRIX& MATRIX::operator+=(const MATRIX &Mat)
 // #### Unary Operator
 MATRIX operator-(const MATRIX &A)
 {
+  std::cout << "Unary operator - has overhead. Avoiding this operator for performance\n";
   double x = -1.0;
   MATRIX C = x*A;
   return C;
@@ -546,7 +556,8 @@ MKL_LONG  MATRIX::initial(MKL_LONG  N_r, MKL_LONG  N_c)
       rows = N_r;
       cols = N_c;
       size = rows*cols;
-      data = new double [size];
+      data = (double*) mkl_malloc(size*sizeof(double), BIT);
+      // data = new double [size];
     }
   return 0;
 }
@@ -564,7 +575,8 @@ MKL_LONG  MATRIX::initial(MKL_LONG  N_r, MKL_LONG  N_c, double x)
 
 MKL_LONG  MATRIX::data_delete()
 {
-  delete[] data;
+  // delete[] data;
+  mkl_free(data);
   INITIALIZATION = FALSE;
   data = NULL;
   return 0;
@@ -680,25 +692,29 @@ MATRIX return_unit_vector(MATRIX& given_vec)
 
 
 
-MKL_LONG  matrix_mul(MATRIX& given_vec, double val)
+MKL_LONG matrix_mul(MATRIX& given_vec, double val)
 {
-  for(MKL_LONG  k=0; k<given_vec.size; k++)
-    {
-      given_vec.data[k] *= val;
-    }
+  cblas_dscal(given_vec.size, val, given_vec.data, 1);
+  // for(MKL_LONG  k=0; k<given_vec.size; k++)
+  //   {
+  //     given_vec.data[k] *= val;
+  //   }
   return 0;
 }
 
 
-MKL_LONG  MATRIX::add(MATRIX& given_MAT)
+MKL_LONG MATRIX::add(MATRIX& given_MAT)
 {
-  if (size == given_MAT.size)
+  if (size != given_MAT.size)
     {
-      for(MKL_LONG  k=0; k<size; k++)
-        {
-          data[k] += given_MAT.data[k];
-        }
+      std::cout << "ERR: MATRIX::add different size\n";
+      return -1;
     }
+  cblas_daxpy(size, 1.0, given_MAT.data, 1, data, 1);
+  // for(MKL_LONG  k=0; k<size; k++)
+  //   {
+  //     data[k] += given_MAT.data[k];
+  //   }
   return 0;
 }
 

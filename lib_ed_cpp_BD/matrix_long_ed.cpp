@@ -55,11 +55,11 @@ MATRIX_LONG& MATRIX_LONG::operator=(const MATRIX_LONG &Mat)
   return *this;
 }
 
-MATRIX_LONG& MATRIX_LONG::operator+=(const MATRIX_LONG &Mat)
-{
-  copy_obj(Mat);
-  return *this;
-}
+// MATRIX_LONG& MATRIX_LONG::operator+=(const MATRIX_LONG &Mat)
+// {
+//   copy_obj(Mat);
+//   return *this;
+// }
 
 
 // #### Unary Operator
@@ -461,7 +461,9 @@ MKL_LONG MATRIX_LONG::initial(MKL_LONG  N_r, MKL_LONG  N_c)
       rows = N_r;
       cols = N_c;
       size = rows*cols;
-      data = new MKL_LONG [size];
+      data = (MKL_LONG*) malloc(size*sizeof(MKL_LONG)); 
+      // data = (long*) malloc(size*sizeof(long), BIT); // BIT is not usable for this case
+      // data = new MKL_LONG [size];
     }
   return 0;
 }
@@ -479,7 +481,8 @@ MKL_LONG MATRIX_LONG::initial(MKL_LONG  N_r, MKL_LONG  N_c, MKL_LONG x)
 
 MKL_LONG MATRIX_LONG::data_delete()
 {
-  delete[] data;
+  mkl_free(data);
+  // delete[] data;
   INITIALIZATION = FALSE;
   data = NULL;
   return 0;

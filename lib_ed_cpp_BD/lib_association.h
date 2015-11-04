@@ -138,4 +138,9 @@ double CONNECTIVITY_update_dCDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_pa
 /* MKL_LONG CONNECTIVITY_update_information(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs); */
 
 
+MKL_LONG backsearch(MATRIX& given_arr, double p);
+MKL_LONG bisection_search(MATRIX& given_arr, double p);
+MKL_LONG bisection_search_log2Np(MATRIX& given_arr, double p, MKL_LONG log2_Np);
+  
+
 #endif

@@ -1,6 +1,66 @@
 
 #include "lib_association.h"
 
+MKL_LONG bisection_search_log2Np(MATRIX& given_arr, double p, MKL_LONG log2_Np)
+{
+  MKL_LONG N = given_arr.size;
+  MKL_LONG k = N/2;
+  double dk = N/2.;
+  for(MKL_LONG i=0; i<=log2_Np; i++)
+    {
+      dk /= 2.;
+      if (given_arr(k) < p)
+        k += (MKL_LONG)dk;
+      else if (given_arr(k) > p)
+        k -= (MKL_LONG)dk;
+      else
+        return k;
+    }
+  if (given_arr(k) < p)
+    k+= 1;
+  return k;
+}
+
+MKL_LONG bisection_search(MATRIX& given_arr, double p)
+{
+  MKL_LONG N = given_arr.size;
+  MKL_LONG k = N/2;
+  // double dk = N/2.;
+  MKL_LONG dk = N/2;
+
+  do
+    {
+      // dk /= 2;
+      // the conditional phrase (dk%2 != 0) will return 0 or 1 when the modulo is zero or not, respectively
+      // this compensate the loss of approaching because of given domain is in integer rather than real number
+      // because of it, the convergence rate is slower than the previous one (log2(Np))
+      dk = dk/2 + (dk%2 != 0);
+      if (given_arr(k) < p)
+        k += dk;
+      else if (given_arr(k) > p)
+        k -= dk;
+      else
+        return k;
+    } while (dk > 1);
+    
+  if (given_arr(k) < p)
+    k += 1;
+  return k;
+}
+
+MKL_LONG backsearch(MATRIX& given_arr, double p)
+{
+  for(MKL_LONG k= given_arr.size - 1; k >=0; k--)
+    {
+      if(given_arr(k) < p)
+        {
+          return k+1;
+        }
+    }
+  return 0;
+}
+
+
 MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
 {
   ifstream GIVEN_WEIGHT;

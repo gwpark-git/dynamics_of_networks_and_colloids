@@ -20,7 +20,7 @@ class MATRIX_LONG
   bool INITIALIZATION;
 
   MATRIX_LONG& operator=(const MATRIX_LONG &Mat);
-  MATRIX_LONG& operator+=(const MATRIX_LONG &Mat);
+  /* MATRIX_LONG& operator+=(const MATRIX_LONG &Mat); */ // deleted because of bug
   MKL_LONG& operator()(MKL_LONG i, MKL_LONG j);
   MKL_LONG& operator()(MKL_LONG i);
   MATRIX_LONG ROW(MKL_LONG i);

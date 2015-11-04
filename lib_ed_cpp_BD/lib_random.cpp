@@ -128,11 +128,12 @@ MKL_LONG RANDOM::single_unit_random_vector_generator(MATRIX& given_vec)
       single_random_vector_generator(given_vec);
       norm = given_vec.norm();
     } while (norm > 1.);
-  
-  for(MKL_LONG k=0; k<given_vec.size; k++)
-    {
-      given_vec(k) /= norm;
-    }
+
+  matrix_mul(given_vec, 1./norm);
+  // for(MKL_LONG k=0; k<given_vec.size; k++)
+  //   {
+  //     given_vec(k) /= norm;
+  //   }
 
   return 0;
 }
