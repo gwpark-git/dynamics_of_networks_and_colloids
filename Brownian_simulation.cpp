@@ -1,4 +1,5 @@
-#Include <iostream>
+
+#include <iostream>
 #include "lib_ed_cpp_BD/matrix_ed.h"
 #include "lib_ed_cpp_BD/lib_traj.h"
 #include "lib_ed_cpp_BD/lib_evolution.h"
@@ -195,17 +196,24 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   // the following are the boosting the allocation and dislocation of the MATRIX classes
   MKL_LONG cond_longer = TRAJ.Np > CONNECT.N_max ? TRAJ.Np : CONNECT.N_max;
   printf("BOOSTING VECTORS GENERATING WITH %ld COLS ... ", cond_longer); // ERR_TEST
-  MATRIX *vec_boost_Nd_parallel = new MATRIX [cond_longer];
-  MATRIX *vec_boost_Np_parallel = new MATRIX [cond_longer];
-  MATRIX **vec_boost_Nd_Np_parallel_connector = new MATRIX* [cond_longer];
-  MATRIX **vec_boost_Nd_Np_parallel_repulsion = new MATRIX* [cond_longer];
+  MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(cond_longer*sizeof(MATRIX), BIT);
+  MATRIX *vec_boost_Np_parallel = (MATRIX*) mkl_malloc(cond_longer*sizeof(MATRIX), BIT);
+  MATRIX **vec_boost_Nd_Np_parallel_connector = (MATRIX**) mkl_malloc(cond_longer*sizeof(MATRIX*), BIT);
+  MATRIX **vec_boost_Nd_Np_parallel_repulsion = (MATRIX**) mkl_malloc(cond_longer*sizeof(MATRIX*), BIT);
+  
+  // MATRIX *vec_boost_Nd_parallel = new MATRIX [cond_longer];
+  // MATRIX *vec_boost_Np_parallel = new MATRIX [cond_longer];
+  // MATRIX **vec_boost_Nd_Np_parallel_connector = new MATRIX* [cond_longer];
+  // MATRIX **vec_boost_Nd_Np_parallel_repulsion = new MATRIX* [cond_longer];
 
   for(MKL_LONG i=0; i<cond_longer; i++)
     {
       vec_boost_Nd_parallel[i].initial(TRAJ.dimension, 1, 0.);
       vec_boost_Np_parallel[i].initial(TRAJ.Np, 1, 0.);
-      vec_boost_Nd_Np_parallel_connector[i] = new MATRIX [TRAJ.Np];
-      vec_boost_Nd_Np_parallel_repulsion[i] = new MATRIX [TRAJ.Np];
+      vec_boost_Nd_Np_parallel_connector[i] = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+      vec_boost_Nd_Np_parallel_repulsion[i] = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+      // vec_boost_Nd_Np_parallel_connector[i] = new MATRIX [TRAJ.Np];
+      // vec_boost_Nd_Np_parallel_repulsion[i] = new MATRIX [TRAJ.Np];
       for(MKL_LONG j=0; j<TRAJ.Np; j++)
         {
           vec_boost_Nd_Np_parallel_connector[i][j].initial(TRAJ.dimension, 1, 0.);
@@ -214,9 +222,12 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
     }
   printf("DONE\n"); // ERR_TEST
   printf("FORCE VECTOR GENERATING ... "); // ERR_TEST
-  MATRIX *force_spring = new MATRIX [TRAJ.Np];
-  MATRIX *force_repulsion = new MATRIX [TRAJ.Np];
-  MATRIX *force_random = new MATRIX [TRAJ.Np];
+  // MATRIX *force_spring = new MATRIX [TRAJ.Np];
+  // MATRIX *force_repulsion = new MATRIX [TRAJ.Np];
+  // MATRIX *force_random = new MATRIX [TRAJ.Np];
+  MATRIX *force_spring = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+  MATRIX *force_repulsion = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+  MATRIX *force_random = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       force_spring[i].initial(TRAJ.dimension, 1, 0.);
@@ -246,8 +257,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   MKL_LONG N_max_steps = atol(given_condition("N_max_steps").c_str());
   printf("DONE\n");
   printf("GENERATING CDF and INDEX_CDF VECTORS ...");
-  MATRIX *dCDF_U = new MATRIX [TRAJ.Np];
-  MATRIX *INDEX_dCDF_U = new MATRIX [TRAJ.Np];
+  // MATRIX *dCDF_U = new MATRIX [TRAJ.Np];
+  // MATRIX *INDEX_dCDF_U = new MATRIX [TRAJ.Np];
+  MATRIX *dCDF_U = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+  MATRIX *INDEX_dCDF_U = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       dCDF_U[i].initial(TRAJ.Np, 1, 0.);
@@ -257,7 +270,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
   CONNECT.initial();
   for(MKL_LONG i=0; i<CONNECT.Np; i++)
-    CONNECT.TOKEN(i) = 1;
+    CONNECT.TOKEN[i] = 1;
 
   double dt_1 = 0., dt_2 = 0., dt_3 = 0., dt_4 = 0., dt_5 = 0., dt_6 = 0., dt_7 = 0.;
   double dt_det_pdf = 0.;
@@ -305,7 +318,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
         {
           CONNECT.initial();
           for(MKL_LONG i=0; i<CONNECT.Np; i++)
-            CONNECT.TOKEN(i) = 1;
+            CONNECT.TOKEN[i] = 1;
         }
 
       MKL_LONG cnt_del = 0;
@@ -355,7 +368,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               time_MC_2 = dsecnd();
               // MKL_LONG HASH_INDEX = CONNECT.GET_HASH_FROM_ROLL(index_itself, rolling_P);
               MKL_LONG index_hash_selected_chain = CONNECT.GET_INDEX_HASH_FROM_ROLL(index_itself, rolling_dCDF); 
-              MKL_LONG index_other_end_of_selected_chain = CONNECT.HASH(index_itself, index_hash_selected_chain); 
+              MKL_LONG index_other_end_of_selected_chain = CONNECT.HASH[index_itself](index_hash_selected_chain); 
               time_MC_3 = dsecnd();
               // choice for behaviour of selected chain end
               double rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(r_boost);
@@ -364,9 +377,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               time_MC_4 = dsecnd();
               MKL_LONG k = bisection_search(dCDF_U[index_other_end_of_selected_chain], rolling_dCDF_U);
               MKL_LONG index_new_end_of_selected_chain = INDEX_dCDF_U[index_other_end_of_selected_chain](k);
-              
               time_MC_5 = dsecnd();
               MKL_LONG index_hash_itself_from_other_end = CONNECT.FIND_HASH_INDEX(index_other_end_of_selected_chain, index_itself);
+              // printf("BASIC INFO: index_itself = %ld, index_hash_selected_chain = %ld, index_other_end_of_selected_chain = %ld, k = %ld, index_new_end_of_selected_chain = %ld, index_hash_itself_from_other_end = %ld\n", index_itself, index_hash_selected_chain, index_other_end_of_selected_chain, k, index_new_end_of_selected_chain, index_hash_itself_from_other_end);
               if(CONNECT.DEL_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
                 {
                   CONNECT.del_association_hash(index_other_end_of_selected_chain, index_hash_itself_from_other_end);
@@ -434,7 +447,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               if (given_condition("MC_LOG") == "TRUE")
                 {
                   MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
-                  FILE_LOG << cnt << '\t' << index_itself << '\t' << rolling_dCDF<< '\t'  << index_hash_selected_chain<< '\t'  << index_other_end_of_selected_chain<< '\t'  << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_end_of_selected_chain<< '\t'  << CONNECT.TOKEN(index_itself)<< '\t'<<CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight(index_itself, 0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << endl;
+                  FILE_LOG << cnt << '\t' << index_itself << '\t' << rolling_dCDF<< '\t'  << index_hash_selected_chain<< '\t'  << index_other_end_of_selected_chain<< '\t'  << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_end_of_selected_chain<< '\t'  << CONNECT.TOKEN[index_itself]<< '\t'<<CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight[index_itself](0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << endl;
                 }
 
               //   }
@@ -442,9 +455,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
         } // equilibration condition check
       double time_end_MC = dsecnd();
 
-
+      // printf("STARTING MD\n");
 // #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next) firstprivate(force_spring, force_repulsion, force_random) // firstprivate called copy-constructor while private called default constructor
-#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, vec_boost_Nd_parallel, force_spring, force_repulsion, force_random) schedule(static) num_threads(N_THREADS)
+// #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, vec_boost_Nd_parallel, force_spring, force_repulsion, force_random) schedule(dynamic) num_threads(N_THREADS)
       for (MKL_LONG i=0; i<TRAJ.Np; i++)
         {
           force_spring[i].set_value(0);
@@ -460,11 +473,13 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
             }
         }
+      // printf("STARTING ANALYSIS\n");
       GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
       double time_end_LV = dsecnd();
 
       ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJ, POTs, CONNECT, energy, index_t_now);
       double time_end_AN = dsecnd();
+      // printf("WRITING DATA\n");
       if(t%N_skip==0)
         {
           printf("STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_now), energy(1));
@@ -478,9 +493,15 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           printf("computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
           TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
           energy.fprint(filename_energy.c_str());
-          CONNECT.HASH.fprint(filename_HASH.c_str());
-          CONNECT.CASE.fprint(filename_CASE.c_str());
-          CONNECT.weight.fprint(filename_weight.c_str());
+          for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
+            {
+              CONNECT.HASH[ip].fprint_LONG_transpose(filename_HASH.c_str());
+              CONNECT.CASE[ip].fprint_transpose(filename_CASE.c_str());
+              CONNECT.weight[ip].fprint_LONG_transpose(filename_weight.c_str());
+            }
+          // CONNECT.HASH.fprint(filename_HASH.c_str());
+          // CONNECT.CASE.fprint(filename_CASE.c_str());
+          // CONNECT.weight.fprint(filename_weight.c_str());
         }
       
       if(t%N_energy_frequency==0)
@@ -499,22 +520,36 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   printf("Total simulation time = %6.3e\n", time_simulation);
   if (given_condition("MC_LOG") == "TRUE")
     FILE_LOG.close();
-  delete[] vec_boost_Nd_parallel;
-  delete[] vec_boost_Np_parallel;
+  // delete[] vec_boost_Nd_parallel;
+  // delete[] vec_boost_Np_parallel;
+  // for(MKL_LONG i=0; i<cond_longer; i++)
+  //   {
+  //     // delete[] vec_boost_Nd_Np_parallel[i];
+  //     delete[] vec_boost_Nd_Np_parallel_connector[i];
+  //     delete[] vec_boost_Nd_Np_parallel_repulsion[i];
+  //   }
+  // // delete[] vec_boost_Nd_Np_parallel;
+  // delete[] vec_boost_Nd_Np_parallel_connector;
+  // delete[] vec_boost_Nd_Np_parallel_repulsion;
+  // delete[] force_spring;
+  // delete[] force_repulsion;
+  // delete[] force_random;
+  // delete[] dCDF_U;
+  // delete[] INDEX_dCDF_U;
+  mkl_free(vec_boost_Nd_parallel);
+  mkl_free(vec_boost_Np_parallel);
   for(MKL_LONG i=0; i<cond_longer; i++)
     {
-      // delete[] vec_boost_Nd_Np_parallel[i];
-      delete[] vec_boost_Nd_Np_parallel_connector[i];
-      delete[] vec_boost_Nd_Np_parallel_repulsion[i];
+      mkl_free(vec_boost_Nd_Np_parallel_connector[i]);
+      mkl_free(vec_boost_Nd_Np_parallel_repulsion[i]);
     }
-  // delete[] vec_boost_Nd_Np_parallel;
-  delete[] vec_boost_Nd_Np_parallel_connector;
-  delete[] vec_boost_Nd_Np_parallel_repulsion;
-  delete[] force_spring;
-  delete[] force_repulsion;
-  delete[] force_random;
-  delete[] dCDF_U;
-  delete[] INDEX_dCDF_U;
+  mkl_free(vec_boost_Nd_Np_parallel_connector);
+  mkl_free(vec_boost_Nd_Np_parallel_repulsion);
+  mkl_free(force_spring);
+  mkl_free(force_repulsion);
+  mkl_free(force_random);
+  mkl_free(dCDF_U);
+  mkl_free(INDEX_dCDF_U);
   gsl_rng_free(r_boost); // for boosting
   return 0;
 }
