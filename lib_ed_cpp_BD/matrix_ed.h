@@ -45,8 +45,9 @@ bool DIAGONALIZATION;
 double *eigen_value;
 MKL_LONG DIAGONALIZATION_INITIAL()                     //@ 
 {
-eigen_value = new double [rows];
-DIAGONALIZATION = TRUE;
+/* eigen_value = new double [rows]; */
+  eigen_value = (double*) mkl_malloc(rows*sizeof(double), BIT);
+  DIAGONALIZATION = TRUE;
 return 0;
 }
 MKL_LONG print_eigen();
@@ -60,9 +61,13 @@ MKL_LONG set_value(double x);                          //@
 MKL_LONG print();                                      //@                     
 MKL_LONG print(MKL_LONG n_row, MKL_LONG n_col);                  //@
 MKL_LONG fprint_skip(const char *fn, MKL_LONG N_skip);
-MKL_LONG fprint_skip_LONG(const char *fn, MKL_LONG N_skip);
+MKL_LONG fprint_skip_transpose(const char *fn, MKL_LONG N_skip);
+MKL_LONG fprint_LONG_skip(const char *fn, MKL_LONG N_skip);
+MKL_LONG fprint_LONG_skip_transpose(const char *fn, MKL_LONG N_skip);
 MKL_LONG fprint(const char *fn);                             // ???
-MKL_LONG fprint_LONG(const char *fn);                             // ??? 
+MKL_LONG fprint_transpose(const char *fn);                             // ???
+MKL_LONG fprint_LONG(const char *fn);                             // ???
+MKL_LONG fprint_LONG_transpose(const char *fn);                             // ??? 
 MKL_LONG fprint_row(const char *fn, MKL_LONG given_row);
 MKL_LONG fprint_out_skip(const char *fn, MKL_LONG N_skip);
 MKL_LONG fprint_out(const char *fn);                             // ??? 

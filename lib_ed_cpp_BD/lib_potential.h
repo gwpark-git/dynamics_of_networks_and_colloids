@@ -7,6 +7,7 @@
 #include "read_file_condition.h"
 #include "matrix_ed.h"
 #include <string>
+#define BIT 64
 
 class POTENTIAL_SET
 {
@@ -26,7 +27,8 @@ class POTENTIAL_SET
   virtual ~POTENTIAL_SET()
     {
       if(force_variables)
-        delete[] force_variables;
+        mkl_free(force_variables);
+        /* delete[] force_variables; */
     }
 };
 

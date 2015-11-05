@@ -8,14 +8,17 @@
 
 #include <iostream>
 #include <mkl.h>
-#include "matrix_long_ed.h"
+#include "matrix_ed.h"
 #include "read_file_condition.h"
 
 class CONNECTIVITY
 {
  public:
-  MATRIX_LONG HASH;
-  MATRIX_LONG TOKEN;
+  /* MATRIX_LONG HASH; */
+  /* MATRIX_LONG TOKEN; */
+  /* MATRIX_LONG *HASH; */
+  MATRIX *HASH;
+  MKL_LONG *TOKEN;
   
   MKL_LONG Np; // number of particles (particle == bead == micelle)
   MKL_LONG Mc; // maximally avaliable connections
@@ -26,7 +29,11 @@ class CONNECTIVITY
     }
   CONNECTIVITY(MKL_LONG number_of_particles, MKL_LONG maximum_connections);
   CONNECTIVITY(COND& given_condition);
-  virtual ~CONNECTIVITY(){}
+  virtual ~CONNECTIVITY()
+    {
+      mkl_free(HASH);
+      mkl_free(TOKEN);
+    }
 
   MKL_LONG read_exist_hash(const char* fn_hash);
   

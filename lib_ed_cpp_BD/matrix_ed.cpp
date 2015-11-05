@@ -315,7 +315,8 @@ MATRIX::~MATRIX()
     }
   if (DIAGONALIZATION)
     {
-      delete[] eigen_value;
+      mkl_free(eigen_value);
+      // delete[] eigen_value;
     }
 }
 
@@ -385,7 +386,7 @@ MKL_LONG  MATRIX::print(MKL_LONG  n_row, MKL_LONG  n_col)
   return 0;
 }
 
-MKL_LONG  MATRIX::fprint_skip(const char *fn, MKL_LONG  N_skip)
+MKL_LONG MATRIX::fprint_skip(const char *fn, MKL_LONG  N_skip)
 {
   std::ofstream FILE1;
   FILE1.open(fn, std::ios_base::app);
@@ -399,7 +400,7 @@ MKL_LONG  MATRIX::fprint_skip(const char *fn, MKL_LONG  N_skip)
     {
       for(MKL_LONG  j=0; j<cols; j++)
         {
-          FILE1 << std::scientific << data[index(i, j)] << '\t';
+          FILE1 << std::scientific << data[index(j, i)] << '\t';
         }
       FILE1 << std::endl;
     } // i
@@ -413,7 +414,36 @@ MKL_LONG  MATRIX::fprint(const char *fn)
   return 0;
 }
 
-MKL_LONG  MATRIX::fprint_skip_LONG(const char *fn, MKL_LONG  N_skip)
+MKL_LONG MATRIX::fprint_skip_transpose(const char *fn, MKL_LONG  N_skip)
+{
+  std::ofstream FILE1;
+  FILE1.open(fn, std::ios_base::app);
+  if(!FILE1)
+    {
+      std::cout << "ERROR OCCURS DURING FILE OUT\n";
+      return -1;
+    }
+  MKL_LONG  cnt = 0;
+  for(MKL_LONG  j=0; j<cols; j++)
+    {
+      for(MKL_LONG  i=0; i<rows; i+=N_skip)
+        {
+          FILE1 << std::scientific << data[index(i, j)] << '\t';
+        }
+      FILE1 << std::endl;
+    } // i
+  FILE1.close();
+  return 0;
+}
+
+MKL_LONG  MATRIX::fprint_transpose(const char *fn)
+{
+  fprint_skip_transpose(fn, 1);
+  return 0;
+}
+
+
+MKL_LONG  MATRIX::fprint_LONG_skip(const char *fn, MKL_LONG  N_skip)
 {
   std::ofstream FILE1;
   FILE1.open(fn, std::ios_base::app);
@@ -437,7 +467,35 @@ MKL_LONG  MATRIX::fprint_skip_LONG(const char *fn, MKL_LONG  N_skip)
 
 MKL_LONG  MATRIX::fprint_LONG(const char *fn)
 {
-  fprint_skip_LONG(fn, 1);
+  fprint_LONG_skip(fn, 1);
+  return 0;
+}
+
+MKL_LONG  MATRIX::fprint_LONG_skip_transpose(const char *fn, MKL_LONG  N_skip)
+{
+  std::ofstream FILE1;
+  FILE1.open(fn, std::ios_base::app);
+  if(!FILE1)
+    {
+      std::cout << "ERROR OCCURS DURING FILE OUT\n";
+      return -1;
+    }
+  MKL_LONG  cnt = 0;
+  for(MKL_LONG  j=0; j<cols; j++)
+    {
+      for(MKL_LONG  i=0; i<rows; i+=N_skip)
+        {
+          FILE1 << (MKL_LONG)data[index(i, j)] << '\t';
+        }
+      FILE1 << std::endl;
+    } // i
+  FILE1.close();
+  return 0;
+}
+
+MKL_LONG  MATRIX::fprint_LONG_transpose(const char *fn)
+{
+  fprint_LONG_skip_transpose(fn, 1);
   return 0;
 }
 

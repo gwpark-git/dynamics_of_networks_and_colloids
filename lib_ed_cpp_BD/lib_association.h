@@ -56,18 +56,22 @@ class ASSOCIATION : public CONNECTIVITY
   MKL_LONG N_min; // 2Nc - Tec
   MKL_LONG N_max; // 2Nc + Tec
   MKL_LONG N_ASSOCIATION;
-  /* MC_IDENTIFIER IDENT; */
-  /* double *CASE_function_variables; */
-  /* double (*CASE_function)(double distance, double* given_variables); */
-  MATRIX CASE;
-  MATRIX dPDF;
-  MATRIX dCDF;
-  MATRIX Z;
 
-  MATRIX_LONG weight;
+  /* MATRIX CASE; */
+  /* MATRIX dPDF; */
+  /* MATRIX dCDF; */
+  /* MATRIX Z; */
 
-  MATRIX dist_map;
+  MATRIX *CASE;
+  MATRIX *dPDF;
+  MATRIX *dCDF;
+  double *Z;
 
+  /* MATRIX_LONG weight; */
+  /* MATRIX_LONG * weight; */
+  MATRIX *weight;
+  /* MATRIX dist_map; */
+  /* MATRIX *dist_map; */
   /* MATRIX dPDF_U; // this is for removing potential overhead for computing (ceiling) PDF for potential */
   
 
@@ -106,6 +110,11 @@ class ASSOCIATION : public CONNECTIVITY
   MKL_LONG initial();
   virtual ~ASSOCIATION()
     {
+      mkl_free(CASE);
+      mkl_free(dPDF);
+      mkl_free(dCDF);
+      mkl_free(Z);
+      mkl_free(weight);
     }
 
   MKL_LONG read_exist_weight(const char* fn_weight);

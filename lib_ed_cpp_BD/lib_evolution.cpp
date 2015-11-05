@@ -12,7 +12,6 @@ MKL_LONG ANALYSIS::GET_dCDF_POTENTIAL_target(TRAJECTORY& TRAJ, MKL_LONG index_t,
 
 MKL_LONG ANALYSIS::GET_dCDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_dCDF_U, MATRIX& dCDF_U, MATRIX& vec_boost_ordered_pdf)
 {
-// #pragma omp parallel for default(none) shared(TRAJ, INDEX_dCDF_U, dCDF_U, POTs, index_t, index_particle, vec_boost_ordered_pdf) schedule(static)
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, i, vec_boost_ordered_pdf);
@@ -44,13 +43,12 @@ MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TR
 {
   given_vec.set_value(0.);
   // MATRIX tmp_vec(TRAJ.Np, 1, 0.);
-// #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, given_vec, index_t, given_index, vec_boost_Nd) schedule(dynamic)
-  for (MKL_LONG j=1; j<CONNECT.TOKEN(given_index); j++)
+  for (MKL_LONG j=1; j<CONNECT.TOKEN[given_index]; j++)
     {
-      MKL_LONG target_index = CONNECT.HASH(given_index, j);
+      MKL_LONG target_index = CONNECT.HASH[given_index](j);
       GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, given_index, target_index, vec_boost_Nd);
       double distance = vec_boost_Nd.norm();
-      double force = (double)CONNECT.weight(given_index,j)*POTs.f_connector(distance, POTs.force_variables);
+      double force = (double)CONNECT.weight[given_index](j)*POTs.f_connector(distance, POTs.force_variables);
       // printf("force = %lf\n", force);
       make_unit_vector(vec_boost_Nd);
       matrix_mul(vec_boost_Nd, force);
@@ -65,13 +63,12 @@ MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force(TRAJECTORY& TRAJ, PO
 {
   given_vec.set_value(0.);
   MATRIX tmp_vec(TRAJ.Np, 1, 0.);
-// #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, given_vec, index_t, given_index) firstprivate(tmp_vec) 
-  for (MKL_LONG j=1; j<CONNECT.TOKEN(given_index); j++)
+  for (MKL_LONG j=1; j<CONNECT.TOKEN[given_index]; j++)
     {
-      MKL_LONG target_index = CONNECT.HASH(given_index, j);
+      MKL_LONG target_index = CONNECT.HASH[given_index](j);
       GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, given_index, target_index, tmp_vec);
       double distance = tmp_vec.norm();
-      double force = (double)CONNECT.weight(given_index,j)*POTs.f_connector(distance, POTs.force_variables);
+      double force = (double)CONNECT.weight[given_index](j)*POTs.f_connector(distance, POTs.force_variables);
       // printf("force = %lf\n", force);
       make_unit_vector(tmp_vec);
       matrix_mul(tmp_vec, force);
@@ -85,7 +82,6 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET&
   given_vec.set_value(0.);
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
 
-// #pragma omp parallel for default(none) shared(TRAJ, POTs, index_t, index_i, given_vec) firstprivate(tmp_vec)
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, index_i, i, tmp_vec);
@@ -108,7 +104,6 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIA
   given_vec.set_value(0.);
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
 
-// #pragma omp parallel for default(none) shared(TRAJ, POTs, index_t, index_i, given_vec, vec_boost_Nd) schedule(static)
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, index_i, i, vec_boost_Nd);
@@ -152,7 +147,7 @@ MKL_LONG INTEGRATOR::EULER::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, 
   MATRIX force_random(TRAJ.dimension, 1, 0.);
 
 
-#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next) firstprivate(force_spring, force_repulsion, force_random) schedule(static) // firstprivate called copy-constructor while private called default constructor
+// #pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next) firstprivate(force_spring, force_repulsion, force_random) schedule(dynamic) // firstprivate called copy-constructor while private called default constructor
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
 
@@ -180,7 +175,6 @@ MKL_LONG INTEGRATOR::EULER::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, 
 //   MATRIX force_repulsion(TRAJ.dimension, 1, 0.);
 //   MATRIX force_random(TRAJ.dimension, 1, 0.);
 
-// #pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, vec_boost_Nd_connector, vec_boost_Nd_repulsion, vec_boost_Nd_random)
 //   // note that becase of overhead for the firstprivate, everything included on the shared
 //   // // firstprivate called copy-constructor while private called default constructor
 //   for (MKL_LONG i=0; i<TRAJ.Np; i++)
@@ -214,9 +208,9 @@ double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy(TRAJECTORY& TRAJ, POTENT
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
   for(MKL_LONG i=0; i<CONNECT.Np; i++)
     {
-      for(MKL_LONG j=0; j<CONNECT.TOKEN(i); j++)
+      for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
         {
-          energy += (double)CONNECT.weight(i,j)*POTs.e_connector(GEOMETRY::get_minimum_distance(TRAJ, index_t, i, CONNECT.HASH(i,j), tmp_vec), POTs.force_variables);
+          energy += (double)CONNECT.weight[i](j)*POTs.e_connector(GEOMETRY::get_minimum_distance(TRAJ, index_t, i, (MKL_LONG)CONNECT.HASH[i](j), tmp_vec), POTs.force_variables);
         }
     }
   return energy + ANALYSIS::cal_potential_energy(TRAJ, POTs, index_t);
@@ -227,12 +221,12 @@ double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_boost(TRAJECTORY& TRAJ, 
   double energy = 0.;
 
   // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
-#pragma omp parallel for default(none) shared(energy, TRAJ, POTs, CONNECT, index_t, vec_boost_Nd) schedule(static)
+// #pragma omp parallel for default(none) shared(energy, TRAJ, POTs, CONNECT, index_t, vec_boost_Nd) schedule(dynamic)
   for(MKL_LONG i=0; i<CONNECT.Np; i++)
     {
-      for(MKL_LONG j=0; j<CONNECT.TOKEN(i); j++)
+      for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
         {
-          energy += (double)CONNECT.weight(i,j)*POTs.e_connector(GEOMETRY::get_minimum_distance(TRAJ, index_t, i, CONNECT.HASH(i,j), vec_boost_Nd[i]), POTs.force_variables);
+          energy += (double)CONNECT.weight[i](j)*POTs.e_connector(GEOMETRY::get_minimum_distance(TRAJ, index_t, i, (MKL_LONG)CONNECT.HASH[i](j), vec_boost_Nd[i]), POTs.force_variables);
         }
     }
   return energy + ANALYSIS::cal_repulsion_energy_boost(TRAJ, POTs, index_t, vec_boost_Nd);
@@ -243,8 +237,7 @@ double ANALYSIS::cal_repulsion_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
   double energy = 0.;
 
   // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
-// #pragma omp parallel for default(none) shared(energy, TRAJ, POTs, index_t) firstprivate(tmp_vec)
-#pragma omp parallel for default(none) shared(energy, TRAJ, POTs, index_t, vec_boost_Nd) schedule(static)
+// #pragma omp parallel for default(none) shared(energy, TRAJ, POTs, index_t, vec_boost_Nd) schedule(dynamic)
   for(MKL_LONG i=0; i<TRAJ.Np - 1; i++)
     {
       for(MKL_LONG j=i+1; j<TRAJ.Np; j++)
@@ -263,7 +256,6 @@ double ANALYSIS::cal_potential_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MKL
   double energy = 0.;
 
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
-// #pragma omp parallel for default(none) shared(energy, TRAJ, POTs, index_t) firstprivate(tmp_vec)
   for(MKL_LONG i=0; i<TRAJ.Np - 1; i++)
     {
       for(MKL_LONG j=i+1; j<TRAJ.Np; j++)
