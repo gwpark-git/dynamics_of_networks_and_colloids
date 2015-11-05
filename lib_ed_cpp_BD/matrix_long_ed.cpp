@@ -1,10 +1,10 @@
 
 #include "matrix_long_ed.h"
 
-// MKL_LONG nonzero(const MATRIX_LONG &A)
+// long nonzero(const MATRIX_LONG &A)
 // {
-//   MKL_LONG  cnt=0;
-//   for(MKL_LONG  i=0; i<A.size; i++)
+//   long  cnt=0;
+//   for(long  i=0; i<A.size; i++)
 //     {
 //       if(A.data[i] != 0)
 //         {
@@ -15,20 +15,20 @@
 // }
 
 
-// MATRIX_LONG identity(MKL_LONG RANK)
+// MATRIX_LONG identity(long RANK)
 // {
 //   MATRIX_LONG C(RANK, RANK, 0);
-//   for(MKL_LONG  i=0; i<RANK; i++)
+//   for(long  i=0; i<RANK; i++)
 //     {
 //       C(i,i) = 1.0;
 //     }
 //   return C;
 // }
 
-// MATRIX_LONG diagonal(double *vals, MKL_LONG  RANK)
+// MATRIX_LONG diagonal(double *vals, long  RANK)
 // {
 //   MATRIX_LONG C(RANK, RANK, 0);
-//   for(MKL_LONG  i=0; i<RANK; i++)
+//   for(long  i=0; i<RANK; i++)
 //     {
 //       C(i,i) = vals[i];
 //     }
@@ -38,9 +38,9 @@
 MATRIX_LONG transpose(const MATRIX_LONG &A)
 {
   MATRIX_LONG C(A.cols, A.rows);
-  for(MKL_LONG  i=0; i<A.rows; i++)
+  for(long  i=0; i<A.rows; i++)
     {
-      for(MKL_LONG  j=0; j < A.cols; j++)
+      for(long  j=0; j < A.cols; j++)
         {
           C.data[j*A.rows+i] = A.data[i*A.cols+j];
         } // j
@@ -83,7 +83,7 @@ MATRIX_LONG operator+(const MATRIX_LONG &A, const MATRIX_LONG &B)
   else
     {
       C.initial(A.rows, A.cols);
-      for(MKL_LONG  i=0; i<A.size; i++)
+      for(long  i=0; i<A.size; i++)
         {
           C.data[i] = A.data[i] + B.data[i];
         } // i 
@@ -101,7 +101,7 @@ MATRIX_LONG operator-(const MATRIX_LONG& A, const MATRIX_LONG &B)
   else
     {
       C.initial(A.rows, A.cols);
-      for(MKL_LONG  i=0; i<A.size; i++)
+      for(long  i=0; i<A.size; i++)
         {
           C.data[i] = A.data[i] - B.data[i];
         } // i
@@ -110,10 +110,10 @@ MATRIX_LONG operator-(const MATRIX_LONG& A, const MATRIX_LONG &B)
 }
 
 // Scalar Multiplification
-MATRIX_LONG operator*(const MKL_LONG a, const MATRIX_LONG &A)
+MATRIX_LONG operator*(const long a, const MATRIX_LONG &A)
 {
   MATRIX_LONG C = A;
-  for(MKL_LONG  i=0; i<C.size; i++)
+  for(long  i=0; i<C.size; i++)
     {
       C.data[i] *= a;
     }
@@ -123,13 +123,13 @@ MATRIX_LONG operator*(const MKL_LONG a, const MATRIX_LONG &A)
 // MATRIX_LONG Multiplification
 MATRIX_LONG operator*(const MATRIX_LONG &A, const MATRIX_LONG &B)
 {
-  MKL_LONG  C_rows = A.rows;
-  MKL_LONG  C_cols = B.cols;
-  MKL_LONG  cal_index = A.cols;
+  long  C_rows = A.rows;
+  long  C_cols = B.cols;
+  long  cal_index = A.cols;
   MATRIX_LONG C(C_rows, C_cols, 0);
   if(A.cols == B.rows)
     {
-      MKL_LONG  i, j, k;
+      long  i, j, k;
       //  // here // #pragma omp parallel for private(i,j,k) schedule(guided)
       for(i=0; i<A.rows; i++)
         {
@@ -152,34 +152,34 @@ MATRIX_LONG operator*(const MATRIX_LONG &A, const MATRIX_LONG &B)
 // From Here. CLASS MATRIX_LONG
 
 // Operator Overloading
-MKL_LONG& MATRIX_LONG::operator()(MKL_LONG i, MKL_LONG j)
+long& MATRIX_LONG::operator()(long i, long j)
 {
   return data[i*cols+j];
 }
 
-MKL_LONG& MATRIX_LONG::operator()(MKL_LONG i)
+long& MATRIX_LONG::operator()(long i)
 {
   return data[i];
 }
 
 
 // Matrix Operator
-MATRIX_LONG MATRIX_LONG::ROW(MKL_LONG i)
+MATRIX_LONG MATRIX_LONG::ROW(long i)
 {
   MATRIX_LONG C;
   C.initial(1, cols);
-  for(MKL_LONG  j=0; j<cols; j++)
+  for(long  j=0; j<cols; j++)
     {
       C.data[j] = data[i*cols+j];
     }
   return C;
 }
 
-MATRIX_LONG MATRIX_LONG::COL(MKL_LONG j)
+MATRIX_LONG MATRIX_LONG::COL(long j)
 {
   MATRIX_LONG C;
   C.initial(rows, 1);
-  for(MKL_LONG  i=0; i<rows; i++)
+  for(long  i=0; i<rows; i++)
     {
       C.data[i] = data[i*cols+j];
     }
@@ -187,11 +187,11 @@ MATRIX_LONG MATRIX_LONG::COL(MKL_LONG j)
 }
 
 
-MKL_LONG MATRIX_LONG::ROW(const MATRIX_LONG &ROW_A, MKL_LONG i)
+long MATRIX_LONG::ROW(const MATRIX_LONG &ROW_A, long i)
 {
   if(INITIALIZATION)
     {
-      for(MKL_LONG j=0; j<ROW_A.cols; j++)
+      for(long j=0; j<ROW_A.cols; j++)
         {
           data[i*cols + j] = ROW_A.data[j];
         }
@@ -199,7 +199,7 @@ MKL_LONG MATRIX_LONG::ROW(const MATRIX_LONG &ROW_A, MKL_LONG i)
   else
     {
       initial(1,ROW_A.cols);
-      for(MKL_LONG j=0; j<ROW_A.cols; j++)
+      for(long j=0; j<ROW_A.cols; j++)
         {
           data[j] = ROW_A.data[j];
         }
@@ -207,11 +207,11 @@ MKL_LONG MATRIX_LONG::ROW(const MATRIX_LONG &ROW_A, MKL_LONG i)
   return 0;
 }
 
-MKL_LONG MATRIX_LONG::COL(const MATRIX_LONG &COL_A, MKL_LONG j)
+long MATRIX_LONG::COL(const MATRIX_LONG &COL_A, long j)
 {
   if(INITIALIZATION)
     {
-      for(MKL_LONG  i=0; i<COL_A.rows; i++)
+      for(long  i=0; i<COL_A.rows; i++)
         {
           data[i*cols + j] = COL_A.data[i];
         }
@@ -219,7 +219,7 @@ MKL_LONG MATRIX_LONG::COL(const MATRIX_LONG &COL_A, MKL_LONG j)
   else
     {
       initial(COL_A.rows, 1);
-      for(MKL_LONG  i=0; i<COL_A.rows; i++)
+      for(long  i=0; i<COL_A.rows; i++)
         {
           data[i] = COL_A.data[i];
         }
@@ -235,23 +235,23 @@ MATRIX_LONG::MATRIX_LONG()
   //std::cout << "Undefined dimension\n";
 }
 
-MATRIX_LONG::MATRIX_LONG(MKL_LONG  N_r, MKL_LONG  N_c)
+MATRIX_LONG::MATRIX_LONG(long  N_r, long  N_c)
 {
   initial(N_r, N_c);
 }
 
 
-MATRIX_LONG::MATRIX_LONG(MKL_LONG  N_r, MKL_LONG  N_c, MKL_LONG x) // initilization with value x
+MATRIX_LONG::MATRIX_LONG(long  N_r, long  N_c, long x) // initilization with value x
 {
   initial(N_r, N_c);
   set_value(x);
 }
 
 // Copy-Constructor
-MKL_LONG MATRIX_LONG::copy_obj(const MATRIX_LONG& Mat)
+long MATRIX_LONG::copy_obj(const MATRIX_LONG& Mat)
 {
   initial(Mat.rows, Mat.cols);
-  for(MKL_LONG i=0; i<size; i++)
+  for(long i=0; i<size; i++)
     {
       data[i] = Mat.data[i];
     }
@@ -264,7 +264,7 @@ MATRIX_LONG::MATRIX_LONG(const MATRIX_LONG& Mat)
 }
 //std::cout << "COPY\n";
 // initial(Mat.rows, Mat.cols);
-// for(MKL_LONG  i=0; i<Mat.size; i++)
+// for(long  i=0; i<Mat.size; i++)
 //   {
 //     data[i] = Mat.data[i];
 //   }    
@@ -291,11 +291,11 @@ MATRIX_LONG::~MATRIX_LONG()
 
 // Public Member Function
 
-MKL_LONG MATRIX_LONG::set_value(MKL_LONG x)
+long MATRIX_LONG::set_value(long x)
 {
   if(INITIALIZATION)
     {
-      for(MKL_LONG  i=0; i<size; i++)
+      for(long  i=0; i<size; i++)
         {
           data[i] = x;
         } // i
@@ -307,19 +307,19 @@ MKL_LONG MATRIX_LONG::set_value(MKL_LONG x)
   return 0;
 }
 
-MKL_LONG  MATRIX_LONG::print()
+long  MATRIX_LONG::print()
 {
   print(rows, cols);
   return 0;
 }
 
-MKL_LONG  MATRIX_LONG::print(MKL_LONG  n_row, MKL_LONG  n_col)
+long  MATRIX_LONG::print(long  n_row, long  n_col)
 {
-  MKL_LONG  cnt = 0;
+  long  cnt = 0;
   //std::cout << "MATRIX_LONG " << this << std::endl;
-  for(MKL_LONG  i=0; i<n_row; i++)
+  for(long  i=0; i<n_row; i++)
     {
-      for(MKL_LONG  j=0; j<n_col; j++)
+      for(long  j=0; j<n_col; j++)
         {
           printf("%16ld\t", data[i*cols+j]);
         }
@@ -329,7 +329,7 @@ MKL_LONG  MATRIX_LONG::print(MKL_LONG  n_row, MKL_LONG  n_col)
   return 0;
 }
 
-MKL_LONG  MATRIX_LONG::fprint_skip(const char *fn, MKL_LONG  N_skip)
+long  MATRIX_LONG::fprint_skip(const char *fn, long  N_skip)
 {
   std::ofstream FILE1;
   FILE1.open(fn, std::ios_base::app);
@@ -338,10 +338,10 @@ MKL_LONG  MATRIX_LONG::fprint_skip(const char *fn, MKL_LONG  N_skip)
       std::cout << "ERROR OCCURS DURING FILE OUT\n";
       return -1;
     }
-  MKL_LONG  cnt = 0;
-  for(MKL_LONG  i=0; i<rows; i+=N_skip)
+  long  cnt = 0;
+  for(long  i=0; i<rows; i+=N_skip)
     {
-      for(MKL_LONG  j=0; j<cols; j++)
+      for(long  j=0; j<cols; j++)
         {
           FILE1 << data[index(i, j)] << '\t';
         }
@@ -351,13 +351,13 @@ MKL_LONG  MATRIX_LONG::fprint_skip(const char *fn, MKL_LONG  N_skip)
   return 0;
 }
 
-MKL_LONG  MATRIX_LONG::fprint(const char *fn)
+long  MATRIX_LONG::fprint(const char *fn)
 {
   fprint_skip(fn, 1);
   return 0;
 }
 
-MKL_LONG  MATRIX_LONG::fprint_row(const char *fn, MKL_LONG  given_row)
+long  MATRIX_LONG::fprint_row(const char *fn, long  given_row)
 {
   std::ofstream FILE1;
   FILE1.open(fn, std::ios_base::app);
@@ -366,9 +366,9 @@ MKL_LONG  MATRIX_LONG::fprint_row(const char *fn, MKL_LONG  given_row)
       std::cout << "ERROR OCCURS DURING FILE OUT\n";
       return -1;
     }
-  MKL_LONG  cnt = 0;
-  MKL_LONG  i=given_row;
-  for(MKL_LONG  j=0; j<cols; j++)
+  long  cnt = 0;
+  long  i=given_row;
+  for(long  j=0; j<cols; j++)
     {
       FILE1 << data[index(i, j)] << '\t';
     }
@@ -377,7 +377,7 @@ MKL_LONG  MATRIX_LONG::fprint_row(const char *fn, MKL_LONG  given_row)
   return 0;
 }
 
-MKL_LONG  MATRIX_LONG::fprint_out_skip(const char *fn, MKL_LONG  N_skip)
+long  MATRIX_LONG::fprint_out_skip(const char *fn, long  N_skip)
 {
   std::ofstream FILE1;
   FILE1.open(fn, std::ios_base::out);
@@ -386,10 +386,10 @@ MKL_LONG  MATRIX_LONG::fprint_out_skip(const char *fn, MKL_LONG  N_skip)
       std::cout << "ERROR OCCURS DURING FILE OUT\n";
       return -1;
     }
-  MKL_LONG  cnt = 0;
-  for(MKL_LONG  i=0; i<rows; i+=N_skip)
+  long  cnt = 0;
+  for(long  i=0; i<rows; i+=N_skip)
     {
-      for(MKL_LONG  j=0; j<cols; j++)
+      for(long  j=0; j<cols; j++)
         {
           FILE1 << data[cnt++] << '\t';
         }
@@ -401,16 +401,16 @@ MKL_LONG  MATRIX_LONG::fprint_out_skip(const char *fn, MKL_LONG  N_skip)
 
 }
 
-MKL_LONG MATRIX_LONG::fprint_out(const char *fn)
+long MATRIX_LONG::fprint_out(const char *fn)
 {
   fprint_out_skip(fn, 1);
   return 0;
 }
 
 
-// MKL_LONG MATRIX_LONG::nonzero()
+// long MATRIX_LONG::nonzero()
 // {
-//   for(MKL_LONG  i=0; i<size; i++)
+//   for(long  i=0; i<size; i++)
 //     {
 //       if(data[i]!=0)
 //         {
@@ -420,9 +420,9 @@ MKL_LONG MATRIX_LONG::fprint_out(const char *fn)
 //   return 0;
 // }
 
-// MKL_LONG MATRIX_LONG::ABS_cond(double x)
+// long MATRIX_LONG::ABS_cond(double x)
 // {
-//   for(MKL_LONG  i=0; i<size; i++)
+//   for(long  i=0; i<size; i++)
 //     {
 //       if(fabs(data[i]) > fabs(x))
 //         {
@@ -434,7 +434,7 @@ MKL_LONG MATRIX_LONG::fprint_out(const char *fn)
 
 
 // Private Member Function
-MKL_LONG MATRIX_LONG::initial()
+long MATRIX_LONG::initial()
 {
   INITIALIZATION = FALSE;
   rows = 0;
@@ -444,7 +444,7 @@ MKL_LONG MATRIX_LONG::initial()
   return 0;
 }
 
-MKL_LONG MATRIX_LONG::initial(MKL_LONG  N_r, MKL_LONG  N_c)
+long MATRIX_LONG::initial(long  N_r, long  N_c)
 {
   // std::cout << "CONSTRUCTOR " << this << std::endl;
   if (size == N_r*N_c && INITIALIZATION == TRUE)
@@ -461,17 +461,17 @@ MKL_LONG MATRIX_LONG::initial(MKL_LONG  N_r, MKL_LONG  N_c)
       rows = N_r;
       cols = N_c;
       size = rows*cols;
-      data = (MKL_LONG*) malloc(size*sizeof(MKL_LONG)); 
+      data = (long*) malloc(size*sizeof(long)); 
       // data = (long*) malloc(size*sizeof(long), BIT); // BIT is not usable for this case
-      // data = new MKL_LONG [size];
+      // data = new long [size];
     }
   return 0;
 }
 
-MKL_LONG MATRIX_LONG::initial(MKL_LONG  N_r, MKL_LONG  N_c, MKL_LONG x)
+long MATRIX_LONG::initial(long  N_r, long  N_c, long x)
 {
   initial(N_r, N_c);
-  for(MKL_LONG  i=0; i<size; i++)
+  for(long  i=0; i<size; i++)
     {
       data[i] = x;
     }
@@ -479,7 +479,7 @@ MKL_LONG MATRIX_LONG::initial(MKL_LONG  N_r, MKL_LONG  N_c, MKL_LONG x)
 }
 
 
-MKL_LONG MATRIX_LONG::data_delete()
+long MATRIX_LONG::data_delete()
 {
   mkl_free(data);
   // delete[] data;
@@ -488,23 +488,23 @@ MKL_LONG MATRIX_LONG::data_delete()
   return 0;
 }
 
-MKL_LONG MATRIX_LONG::undefined_error()
+long MATRIX_LONG::undefined_error()
 {
   std::cout << "MATRIX_LONG is NOT constructed\n" << std::endl;
   return -1;
 }
 
 
-MKL_LONG  MATRIX_LONG::index(MKL_LONG  i, MKL_LONG  j)
+long  MATRIX_LONG::index(long  i, long  j)
 {
   return i*cols+j;
 }
 
 
-MKL_LONG MATRIX_LONG::norm()
+long MATRIX_LONG::norm()
 {
-  MKL_LONG result = 0;
-  for(MKL_LONG  i=0; i<size; i++)
+  long result = 0;
+  for(long  i=0; i<size; i++)
     {
       result += pow(data[i],2);
     }
@@ -513,10 +513,10 @@ MKL_LONG MATRIX_LONG::norm()
 
 
 
-MKL_LONG MATRIX_LONG::sum()
+long MATRIX_LONG::sum()
 {
-  MKL_LONG result = 0;
-  for(MKL_LONG  i=0; i<size; i++)
+  long result = 0;
+  for(long  i=0; i<size; i++)
     {
       result += data[i];
     }
@@ -530,9 +530,9 @@ double MATRIX_LONG::average()
 }
 
 
-// MKL_LONG matrix_mul(MATRIX_LONG& given_vec, double val)
+// long matrix_mul(MATRIX_LONG& given_vec, double val)
 // {
-//   for(MKL_LONG  k=0; k<given_vec.size; k++)
+//   for(long  k=0; k<given_vec.size; k++)
 //     {
 //       given_vec.data[k] *= val;
 //     }
@@ -540,11 +540,11 @@ double MATRIX_LONG::average()
 // }
 
 
-// MKL_LONG MATRIX_LONG::add(MATRIX_LONG& given_MAT)
+// long MATRIX_LONG::add(MATRIX_LONG& given_MAT)
 // {
 //   if (size == given_MAT.size)
 //     {
-//       for(MKL_LONG  k=0; k<size; k++)
+//       for(long  k=0; k<size; k++)
 //         {
 //           data[k] += given_MAT.data[k];
 //         }

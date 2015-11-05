@@ -16,20 +16,20 @@ extern "C" {
 
 namespace RANDOM
 {
-  /* MKL_LONG dumbbell_connectivity(TRAJECTORY& TRAJ); */
-  /* MKL_LONG random_position_dumbbell_generator(TRAJECTORY& TRAJ); */
+  /* long dumbbell_connectivity(TRAJECTORY& TRAJ); */
+  /* long random_position_dumbbell_generator(TRAJECTORY& TRAJ); */
 
-  /* MKL_LONG fill_time(TRAJECTORY& TRAJ, double dt); */
-  MKL_LONG random_vector_generator(MATRIX& R_VEC_TRANS);
-  MKL_LONG single_random_vector_generator(MATRIX& given_vec);
-  MKL_LONG single_random_vector_generator_variance(MATRIX& given_vec, double s_2);
-  /* MKL_LONG random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VEC_TRANS); */
-  MKL_LONG single_unit_random_vector_generator(MATRIX& given_vec);
-  MKL_LONG unit_random_vector_generator(MATRIX& R_VEC_TRANS);
-  MKL_LONG unit_random_vector_generator_2D(MATRIX& R_VEC_TRANS);
+  /* long fill_time(TRAJECTORY& TRAJ, double dt); */
+  long random_vector_generator(MATRIX& R_VEC_TRANS);
+  long single_random_vector_generator(MATRIX& given_vec);
+  long single_random_vector_generator_variance(MATRIX& given_vec, double s_2);
+  /* long random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VEC_TRANS); */
+  long single_unit_random_vector_generator(MATRIX& given_vec);
+  long unit_random_vector_generator(MATRIX& R_VEC_TRANS);
+  long unit_random_vector_generator_2D(MATRIX& R_VEC_TRANS);
 
-  MKL_LONG return_LONG_INT_rand(MKL_LONG SUP);
-  MKL_LONG return_LONG_INT_rand_boost(gsl_rng* r, MKL_LONG SUP);
+  long return_LONG_INT_rand(long SUP);
+  long return_LONG_INT_rand_boost(gsl_rng* r, long SUP);
 
   double return_double_rand_SUP1();
   double return_double_rand_SUP1_boost(gsl_rng* r);

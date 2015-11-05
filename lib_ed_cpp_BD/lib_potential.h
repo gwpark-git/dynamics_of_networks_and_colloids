@@ -50,7 +50,7 @@ namespace FORCE
     double EMPTY_force_contribution(double distance, double *given_variables);
     double basic_random(MATRIX& given_basic_random, double* given_variables);
     double time_scaling_random(MATRIX& given_basic_random, double scale_factor);
-    MKL_LONG EMPTY_force_set(POTENTIAL_SET& given_POT, COND& given_condition);
+    long EMPTY_force_set(POTENTIAL_SET& given_POT, COND& given_condition);
 
   }
   namespace NAPLE
@@ -63,7 +63,7 @@ namespace FORCE
       double MAP_excluded_volume_force(double distance, double* given_variables);
       double MAP_excluded_volume_potential(double distance, double* given_variables);
       double MAP_time_scaling_random(MATRIX& given_basic_random, double* given_variables);
-      MKL_LONG MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond);
+      long MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond);
     }
     namespace MC_ASSOCIATION
     {
@@ -72,7 +72,7 @@ namespace FORCE
       double MAP_FENE_spring_force(double distance, double* given_variables);
       double MAP_FENE_spring_potential(double distance, double* given_variables);
       double MAP_time_scaling_random(MATRIX& given_basic_random, double* given_variables);
-      MKL_LONG MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond);
+      long MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond);
       double Detachment_weight(double distance, double tension, double* force_variables);
       
     }

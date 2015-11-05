@@ -18,16 +18,16 @@ class CONNECTIVITY
   /* MATRIX_LONG TOKEN; */
   /* MATRIX_LONG *HASH; */
   MATRIX *HASH;
-  MKL_LONG *TOKEN;
+  long *TOKEN;
   
-  MKL_LONG Np; // number of particles (particle == bead == micelle)
-  MKL_LONG Mc; // maximally avaliable connections
+  long Np; // number of particles (particle == bead == micelle)
+  long Mc; // maximally avaliable connections
   
   CONNECTIVITY()
     {
       std::cout << "ERR:: Class CONNECTIVITY must have argument\n";
     }
-  CONNECTIVITY(MKL_LONG number_of_particles, MKL_LONG maximum_connections);
+  CONNECTIVITY(long number_of_particles, long maximum_connections);
   CONNECTIVITY(COND& given_condition);
   virtual ~CONNECTIVITY()
     {
@@ -35,13 +35,13 @@ class CONNECTIVITY
       mkl_free(TOKEN);
     }
 
-  MKL_LONG read_exist_hash(const char* fn_hash);
+  long read_exist_hash(const char* fn_hash);
   
-  MKL_LONG check_valid(MKL_LONG index_particle, MKL_LONG index_target);
-  /* MKL_LONG& operator()(MKL_LONG index_particle); // return TOKEN for particle */
-  /* MKL_LONG& operator()(MKL_LONG index_particle, MKL_LONG index_target); // return target index */
+  long check_valid(long index_particle, long index_target);
+  /* long& operator()(long index_particle); // return TOKEN for particle */
+  /* long& operator()(long index_particle, long index_target); // return target index */
 };
 
-  /* MKL_LONG get_connected_bead(TRAJECTORY& TRAJ, MKL_LONG given_index); */
+  /* long get_connected_bead(TRAJECTORY& TRAJ, long given_index); */
 
 #endif

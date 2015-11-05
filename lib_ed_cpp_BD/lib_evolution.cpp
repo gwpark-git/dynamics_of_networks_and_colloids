@@ -1,7 +1,7 @@
 
 #include "lib_evolution.h"
 
-MKL_LONG ANALYSIS::GET_dCDF_POTENTIAL_target(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG& index_particle, MKL_LONG& index_target, double& INDEX_dCDF_U_ij, double& dCDF_U_ij, MATRIX& vec_boost_ordered_pdf_ij)
+long ANALYSIS::GET_dCDF_POTENTIAL_target(TRAJECTORY& TRAJ, long index_t, POTENTIAL_SET& POTs, long& index_particle, long& index_target, double& INDEX_dCDF_U_ij, double& dCDF_U_ij, MATRIX& vec_boost_ordered_pdf_ij)
 {
   INDEX_dCDF_U_ij = (double)index_target;
   double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, index_target, vec_boost_ordered_pdf_ij);
@@ -10,9 +10,9 @@ MKL_LONG ANALYSIS::GET_dCDF_POTENTIAL_target(TRAJECTORY& TRAJ, MKL_LONG index_t,
 }
 
 
-MKL_LONG ANALYSIS::GET_dCDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_dCDF_U, MATRIX& dCDF_U, MATRIX& vec_boost_ordered_pdf)
+long ANALYSIS::GET_dCDF_POTENTIAL(TRAJECTORY& TRAJ, long index_t, POTENTIAL_SET& POTs, long index_particle, MATRIX& INDEX_dCDF_U, MATRIX& dCDF_U, MATRIX& vec_boost_ordered_pdf)
 {
-  for(MKL_LONG i=0; i<TRAJ.Np; i++)
+  for(long i=0; i<TRAJ.Np; i++)
     {
       double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, i, vec_boost_ordered_pdf);
       INDEX_dCDF_U(i) = i;
@@ -21,7 +21,7 @@ MKL_LONG ANALYSIS::GET_dCDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENT
   return 0;
 }
 
-MKL_LONG ANALYSIS::GET_ORDERED_dCDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_dCDF_U, MATRIX& dCDF_U, MATRIX& vec_boost_ordered_pdf, double& time_dCDF, double& time_SORT)
+long ANALYSIS::GET_ORDERED_dCDF_POTENTIAL(TRAJECTORY& TRAJ, long index_t, POTENTIAL_SET& POTs, long index_particle, MATRIX& INDEX_dCDF_U, MATRIX& dCDF_U, MATRIX& vec_boost_ordered_pdf, double& time_dCDF, double& time_SORT)
 {
   double time_st = dsecnd();
   GET_dCDF_POTENTIAL(TRAJ, index_t, POTs, index_particle, INDEX_dCDF_U, dCDF_U, vec_boost_ordered_pdf);
@@ -33,42 +33,52 @@ MKL_LONG ANALYSIS::GET_ORDERED_dCDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t
   return 0;
 }
 
-MKL_LONG INTEGRATOR::EULER::cal_connector_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG given_index)
+long INTEGRATOR::EULER::cal_connector_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, long index_t, long given_index)
 {
   given_vec.set_value(0.);
   return 0;
 }
 
-MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG given_index, MATRIX& vec_boost_Nd)
+long INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, long index_t, long given_index, MATRIX& vec_boost_Nd)
 {
   given_vec.set_value(0.);
   // MATRIX tmp_vec(TRAJ.Np, 1, 0.);
-  for (MKL_LONG j=1; j<CONNECT.TOKEN[given_index]; j++)
+  for (long j=1; j<CONNECT.TOKEN[given_index]; j++)
     {
-      MKL_LONG target_index = CONNECT.HASH[given_index](j);
+      long target_index = (long)CONNECT.HASH[given_index](j);
       GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, given_index, target_index, vec_boost_Nd);
-      double distance = vec_boost_Nd.norm();
-      double force = (double)CONNECT.weight[given_index](j)*POTs.f_connector(distance, POTs.force_variables);
+      // double distance = vec_boost_Nd.norm();
+      double distance = cblas_dnrm2(vec_boost_Nd.size,
+                                    vec_boost_Nd.data, // given vec
+                                    1);
+      double force = CONNECT.weight[given_index](j)*POTs.f_connector(distance, POTs.force_variables);
       // printf("force = %lf\n", force);
-      make_unit_vector(vec_boost_Nd);
-      matrix_mul(vec_boost_Nd, force);
-      cblas_daxpy(given_vec.size, 1.0, vec_boost_Nd.data, 1, given_vec.data, 1);
+      // make_unit_vector(vec_boost_Nd);
+      // matrix_mul(vec_boost_Nd, force);
+      // cblas_daxpy(given_vec.size, 1.0, vec_boost_Nd.data, 1, given_vec.data, 1);
+      // y = a*x + y
+      cblas_daxpy(given_vec.size,
+                  force/distance, // a
+                  vec_boost_Nd.data, // x
+                  1,
+                  given_vec.data, // y
+                  1);
       // given_vec += vec_boost_Nd;
     }
   return 0;
 }
 
 
-MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG given_index)
+long INTEGRATOR::EULER_ASSOCIATION::cal_connector_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, long index_t, long given_index)
 {
   given_vec.set_value(0.);
   MATRIX tmp_vec(TRAJ.Np, 1, 0.);
-  for (MKL_LONG j=1; j<CONNECT.TOKEN[given_index]; j++)
+  for (long j=1; j<CONNECT.TOKEN[given_index]; j++)
     {
-      MKL_LONG target_index = CONNECT.HASH[given_index](j);
+      long target_index = (long)CONNECT.HASH[given_index](j);
       GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, given_index, target_index, tmp_vec);
       double distance = tmp_vec.norm();
-      double force = (double)CONNECT.weight[given_index](j)*POTs.f_connector(distance, POTs.force_variables);
+      double force = CONNECT.weight[given_index](j)*POTs.f_connector(distance, POTs.force_variables);
       // printf("force = %lf\n", force);
       make_unit_vector(tmp_vec);
       matrix_mul(tmp_vec, force);
@@ -77,12 +87,12 @@ MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force(TRAJECTORY& TRAJ, PO
   return 0;
 }
 
-MKL_LONG INTEGRATOR::EULER::cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG index_i)
+long INTEGRATOR::EULER::cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, long index_t, long index_i)
 {
   given_vec.set_value(0.);
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
 
-  for(MKL_LONG i=0; i<TRAJ.Np; i++)
+  for(long i=0; i<TRAJ.Np; i++)
     {
       GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, index_i, i, tmp_vec);
       double distance = tmp_vec.norm();
@@ -99,12 +109,12 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET&
   return 0;
 }
 
-MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG index_i, MATRIX& vec_boost_Nd)
+long INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, long index_t, long index_i, MATRIX& vec_boost_Nd)
 {
   given_vec.set_value(0.);
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
 
-  for(MKL_LONG i=0; i<TRAJ.Np; i++)
+  for(long i=0; i<TRAJ.Np; i++)
     {
       GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, index_i, i, vec_boost_Nd);
       double distance = vec_boost_Nd.norm();
@@ -122,7 +132,7 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIA
 }
 
 
-MKL_LONG INTEGRATOR::EULER::cal_random_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t)
+long INTEGRATOR::EULER::cal_random_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, long index_t)
 {
   RANDOM::single_random_vector_generator_variance(given_vec, 1.0);
   matrix_mul(given_vec, sqrt(2.0));
@@ -130,15 +140,15 @@ MKL_LONG INTEGRATOR::EULER::cal_random_force(TRAJECTORY& TRAJ, POTENTIAL_SET& PO
   return 0;
 }
 
-// MKL_LONG INTEGRATOR::EULER_ASSOCIATION::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG index_t_now)
+// long INTEGRATOR::EULER_ASSOCIATION::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t_now)
 // {
   
 
 // }
 
-MKL_LONG INTEGRATOR::EULER::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MKL_LONG index_t_now)
+long INTEGRATOR::EULER::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t_now)
 {
-  MKL_LONG index_t_next = (index_t_now + 1)%TRAJ.Nt;
+  long index_t_next = (index_t_now + 1)%TRAJ.Nt;
   TRAJ(index_t_next) = (++TRAJ.c_t)*TRAJ.dt;
   // std::cout << TRAJ(index_t_next) << std::endl;
   // TRAJ(index_t_next) = (++TRAJ.c_t)*TRAJ.dt;
@@ -148,7 +158,7 @@ MKL_LONG INTEGRATOR::EULER::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, 
 
 
 // #pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next) firstprivate(force_spring, force_repulsion, force_random) schedule(dynamic) // firstprivate called copy-constructor while private called default constructor
-  for (MKL_LONG i=0; i<TRAJ.Np; i++)
+  for (long i=0; i<TRAJ.Np; i++)
     {
 
       // from its print functionality, MATRIX objects are cleary working properly.
@@ -156,7 +166,7 @@ MKL_LONG INTEGRATOR::EULER::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, 
       cal_connector_force(TRAJ, POTs, force_spring, index_t_now, i);
       cal_repulsion_force(TRAJ, POTs, force_repulsion, index_t_now, i);
       cal_random_force(TRAJ, POTs, force_random, index_t_now);
-      for (MKL_LONG k=0; k<TRAJ.dimension; k++)
+      for (long k=0; k<TRAJ.dimension; k++)
         {
           // printf("fc = %6.3e, fr = %6.3e, fR = %6.3e\n", force_spring(k), force_repulsion(k), force_random(k));
           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*(force_spring(k) + force_repulsion(k)) + sqrt(TRAJ.dt)*force_random(k);
@@ -165,9 +175,9 @@ MKL_LONG INTEGRATOR::EULER::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, 
   return 0;
 }
 
-// MKL_LONG INTEGRATOR::EULER::simple_Euler_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MKL_LONG index_t_now, MATRIX *vec_boost_Nd_connector, MATRIX *vec_boost_Nd_repulsion, MATRIX *vec_boost_Nd_random)
+// long INTEGRATOR::EULER::simple_Euler_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t_now, MATRIX *vec_boost_Nd_connector, MATRIX *vec_boost_Nd_repulsion, MATRIX *vec_boost_Nd_random)
 // {
-//   MKL_LONG index_t_next = (index_t_now + 1)%TRAJ.Nt;
+//   long index_t_next = (index_t_now + 1)%TRAJ.Nt;
 //   TRAJ(index_t_next) = (++TRAJ.c_t)*TRAJ.dt;
 //   // std::cout << TRAJ(index_t_next) << std::endl;
 //   // TRAJ(index_t_next) = (++TRAJ.c_t)*TRAJ.dt;
@@ -177,14 +187,14 @@ MKL_LONG INTEGRATOR::EULER::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, 
 
 //   // note that becase of overhead for the firstprivate, everything included on the shared
 //   // // firstprivate called copy-constructor while private called default constructor
-//   for (MKL_LONG i=0; i<TRAJ.Np; i++)
+//   for (long i=0; i<TRAJ.Np; i++)
 //     {
 //       // from its print functionality, MATRIX objects are cleary working properly.
 //       // The reason is that with parallization, all the matrix object showed different address
 //       cal_connector_force(TRAJ, POTs, force_spring, index_t_now, i);
 //       cal_repulsion_force(TRAJ, POTs, force_repulsion, index_t_now, i);
 //       cal_random_force(TRAJ, POTs, force_random, index_t_now);
-//       for (MKL_LONG k=0; k<TRAJ.dimension; k++)
+//       for (long k=0; k<TRAJ.dimension; k++)
 //         {
 //           // printf("fc = %6.3e, fr = %6.3e, fR = %6.3e\n", force_spring(k), force_repulsion(k), force_random(k));
 //           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*(force_spring(k) + force_repulsion(k)) + sqrt(TRAJ.dt)*force_random(k);
@@ -196,69 +206,69 @@ MKL_LONG INTEGRATOR::EULER::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, 
 
 
 
-double ANALYSIS::cal_total_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MKL_LONG index_t)
+double ANALYSIS::cal_total_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t)
 {
   return cal_potential_energy(TRAJ, POTs, index_t);// + cal_kinetic_energy(TRAJ, POTs, index_t);
 }
 
-double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG index_t)
+double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t)
 {
   double energy = 0.;
 
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
-  for(MKL_LONG i=0; i<CONNECT.Np; i++)
+  for(long i=0; i<CONNECT.Np; i++)
     {
-      for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
+      for(long j=0; j<CONNECT.TOKEN[i]; j++)
         {
-          energy += (double)CONNECT.weight[i](j)*POTs.e_connector(GEOMETRY::get_minimum_distance(TRAJ, index_t, i, (MKL_LONG)CONNECT.HASH[i](j), tmp_vec), POTs.force_variables);
+          energy += CONNECT.weight[i](j)*POTs.e_connector(GEOMETRY::get_minimum_distance(TRAJ, index_t, i, (long)CONNECT.HASH[i](j), tmp_vec), POTs.force_variables);
         }
     }
   return energy + ANALYSIS::cal_potential_energy(TRAJ, POTs, index_t);
 }
 
-double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG index_t, MATRIX *vec_boost_Nd)
-{
-  double energy = 0.;
+// double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t, MATRIX* vec_boost_Nd)
+// {
+//   double energy = 0.;
 
-  // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
-// #pragma omp parallel for default(none) shared(energy, TRAJ, POTs, CONNECT, index_t, vec_boost_Nd) schedule(dynamic)
-  for(MKL_LONG i=0; i<CONNECT.Np; i++)
-    {
-      for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
-        {
-          energy += (double)CONNECT.weight[i](j)*POTs.e_connector(GEOMETRY::get_minimum_distance(TRAJ, index_t, i, (MKL_LONG)CONNECT.HASH[i](j), vec_boost_Nd[i]), POTs.force_variables);
-        }
-    }
-  return energy + ANALYSIS::cal_repulsion_energy_boost(TRAJ, POTs, index_t, vec_boost_Nd);
-}
+//   // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
+// // #pragma omp parallel for default(none) shared(energy, TRAJ, POTs, CONNECT, index_t, vec_boost_Nd) schedule(dynamic)
+//   for(long i=0; i<CONNECT.Np; i++)
+//     {
+//       for(long j=0; j<CONNECT.TOKEN[i]; j++)
+//         {
+//           energy += (double)CONNECT.weight[i](j)*POTs.e_connector(GEOMETRY::get_minimum_distance(TRAJ, index_t, i, (long)CONNECT.HASH[i](j), vec_boost_Nd[i]), POTs.force_variables);
+//         }
+//     }
+//   return energy + ANALYSIS::cal_repulsion_energy_boost(TRAJ, POTs, index_t, vec_boost_Nd);
+// }
 
-double ANALYSIS::cal_repulsion_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MKL_LONG index_t, MATRIX *vec_boost_Nd)
-{
-  double energy = 0.;
+// double ANALYSIS::cal_repulsion_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t, MATRIX *vec_boost_Nd)
+// {
+//   double energy = 0.;
 
-  // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
-// #pragma omp parallel for default(none) shared(energy, TRAJ, POTs, index_t, vec_boost_Nd) schedule(dynamic)
-  for(MKL_LONG i=0; i<TRAJ.Np - 1; i++)
-    {
-      for(MKL_LONG j=i+1; j<TRAJ.Np; j++)
-        {
-          double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, i, j, vec_boost_Nd[i]);
-          double U_ij = POTs.e_repulsion(distance, POTs.force_variables);
-          energy += U_ij;
-        }
-    }
-  return energy;
-}
+//   // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
+// // #pragma omp parallel for default(none) shared(energy, TRAJ, POTs, index_t, vec_boost_Nd) schedule(dynamic)
+//   for(long i=0; i<TRAJ.Np - 1; i++)
+//     {
+//       for(long j=i+1; j<TRAJ.Np; j++)
+//         {
+//           double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, i, j, vec_boost_Nd[i]);
+//           double U_ij = POTs.e_repulsion(distance, POTs.force_variables);
+//           energy += U_ij;
+//         }
+//     }
+//   return energy;
+// }
 
 
-double ANALYSIS::cal_potential_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MKL_LONG index_t)
+double ANALYSIS::cal_potential_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t)
 {
   double energy = 0.;
 
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
-  for(MKL_LONG i=0; i<TRAJ.Np - 1; i++)
+  for(long i=0; i<TRAJ.Np - 1; i++)
     {
-      for(MKL_LONG j=i+1; j<TRAJ.Np; j++)
+      for(long j=i+1; j<TRAJ.Np; j++)
         {
           double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, i, j, tmp_vec);
           double U_ij = POTs.e_repulsion(distance, POTs.force_variables);
@@ -268,16 +278,16 @@ double ANALYSIS::cal_potential_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MKL
   return energy;
 }
 
-MKL_LONG ANALYSIS::cal_detail_repulsion(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, const char* fn, MKL_LONG index_t)
+long ANALYSIS::cal_detail_repulsion(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, const char* fn, long index_t)
 {
   ofstream FILE_ENERGY_INFO(fn, std::ios_base::app);
   // double effective_range = TRAJ.force_variables[1];
   double range_limit = 3.;
-  for(MKL_LONG i=0; i<TRAJ.Np -1; i++)
+  for(long i=0; i<TRAJ.Np -1; i++)
     {
       MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
       
-      for(MKL_LONG j=i+1; j<TRAJ.Np; j++)
+      for(long j=i+1; j<TRAJ.Np; j++)
         {
           double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, i, j, tmp_vec);
           double U_ij = POTs.e_repulsion(distance, POTs.force_variables);
@@ -301,7 +311,7 @@ MKL_LONG ANALYSIS::cal_detail_repulsion(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, c
 }
 
  
-MKL_LONG ANALYSIS::CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& mat_energy, MKL_LONG index_t)
+long ANALYSIS::CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& mat_energy, long index_t)
 {
   // index_t = index_t%TRAJ.Nt; // no more needed
   mat_energy(0) = (TRAJ.c_t - 1)*TRAJ.dt;
@@ -312,7 +322,7 @@ MKL_LONG ANALYSIS::CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& mat
   return 0;
 }
 
-MKL_LONG ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, MKL_LONG index_t)
+long ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, long index_t)
 {
   // index_t = index_t%TRAJ.Nt; // no more needed
   mat_energy(0) = (TRAJ.c_t - 1)*TRAJ.dt;

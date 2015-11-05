@@ -12,7 +12,7 @@ double FORCE::DEFAULT::basic_random(MATRIX& given_basic_random, double* given_va
   return 0;
 }
 
-MKL_LONG FORCE::DEFAULT::EMPTY_force_set(POTENTIAL_SET& given_POT, COND& given_condition)
+long FORCE::DEFAULT::EMPTY_force_set(POTENTIAL_SET& given_POT, COND& given_condition)
 {
   given_POT.f_repulsion = FORCE::DEFAULT::EMPTY_force_contribution;
   given_POT.e_repulsion = FORCE::DEFAULT::EMPTY_force_contribution;
@@ -65,7 +65,7 @@ double FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_potential(double dist
   return FORCE::NAPLE::excluded_volume_potential(distance, given_variables[1]);
 }
 
-MKL_LONG FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
+long FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
 {
   // given_POT.force_variables = new double [3];
   given_POT.force_variables = (double*) mkl_malloc(3*sizeof(double), BIT);
@@ -134,7 +134,7 @@ double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_spring_potential(double distance, 
 }
 
 
-MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
+long FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
 {
   given_POT.force_variables = new double [6];
   given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
