@@ -112,7 +112,7 @@ long INTEGRATOR::EULER::cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
 long INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, long index_t, long index_i, MATRIX& vec_boost_Nd)
 {
   given_vec.set_value(0.);
-  MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
+  // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
 
   for(long i=0; i<TRAJ.Np; i++)
     {
@@ -226,6 +226,22 @@ double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy(TRAJECTORY& TRAJ, POTENT
   return energy + ANALYSIS::cal_potential_energy(TRAJ, POTs, index_t);
 }
 
+double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t, MATRIX& tmp_vec)
+{
+  double energy = 0.;
+
+  // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
+  for(long i=0; i<CONNECT.Np; i++)
+    {
+      for(long j=0; j<CONNECT.TOKEN[i]; j++)
+        {
+          energy += CONNECT.weight[i](j)*POTs.e_connector(GEOMETRY::get_minimum_distance(TRAJ, index_t, i, (long)CONNECT.HASH[i](j), tmp_vec), POTs.force_variables);
+        }
+    }
+  return energy + ANALYSIS::cal_potential_energy(TRAJ, POTs, index_t);
+}
+
+
 // double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t, MATRIX* vec_boost_Nd)
 // {
 //   double energy = 0.;
@@ -322,11 +338,11 @@ long ANALYSIS::CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& mat_ene
   return 0;
 }
 
-long ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, long index_t)
+long ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, long index_t, MATRIX& tmp_vec)
 {
   // index_t = index_t%TRAJ.Nt; // no more needed
   mat_energy(0) = (TRAJ.c_t - 1)*TRAJ.dt;
-  mat_energy(2) = ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy(TRAJ, POTs, CONNECT, index_t);
+  mat_energy(2) = ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_boost(TRAJ, POTs, CONNECT, index_t, tmp_vec);
   // the functionality for kinetic energy is disabled since the evolution equation on this code is using Weiner process that does not support differentiability for the position. On this regards, measuring the velocity cannot be obtained by this environment. For further detail, see the documents.
   // mat_energy(3) = cal_kinetic_energy(TRAJ, index_t);
   mat_energy(1) = mat_energy(2) + mat_energy(3);

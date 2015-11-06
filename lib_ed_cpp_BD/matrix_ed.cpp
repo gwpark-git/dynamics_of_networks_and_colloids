@@ -16,54 +16,54 @@ long nonzero(const MATRIX &A)
   return cnt;
 }
 
-MATRIX partition(const MATRIX &A, long  st_row, long  end_row, long  st_col, long  end_col)
-{
-  MATRIX C(end_row-st_row, end_col-st_col);
-  long  index_i, index_j;
-  for(long  i=st_row; i<end_row; i++)
-    {
-      index_i = i-st_row;
-      for(long  j=st_col; j<end_col; j++)
-	{
-	  index_j = j-st_col;
-	  C(index_i,index_j) = A.data[i*A.cols+j];
-	} // j
-    } // i
-  return C;
-}
+// MATRIX partition(const MATRIX &A, long  st_row, long  end_row, long  st_col, long  end_col)
+// {
+//   MATRIX C(end_row-st_row, end_col-st_col);
+//   long  index_i, index_j;
+//   for(long  i=st_row; i<end_row; i++)
+//     {
+//       index_i = i-st_row;
+//       for(long  j=st_col; j<end_col; j++)
+// 	{
+// 	  index_j = j-st_col;
+// 	  C(index_i,index_j) = A.data[i*A.cols+j];
+// 	} // j
+//     } // i
+//   return C;
+// }
 
-MATRIX identity(long  RANK)
-{
-  MATRIX C(RANK, RANK, 0.0);
-  for(long  i=0; i<RANK; i++)
-    {
-      C(i,i) = 1.0;
-    }
-  return C;
-}
+// MATRIX identity(long  RANK)
+// {
+//   MATRIX C(RANK, RANK, 0.0);
+//   for(long  i=0; i<RANK; i++)
+//     {
+//       C(i,i) = 1.0;
+//     }
+//   return C;
+// }
 
-MATRIX diagonal(double *vals, long  RANK)
-{
-  MATRIX C(RANK, RANK, 0.0);
-  for(long  i=0; i<RANK; i++)
-    {
-      C(i,i) = vals[i];
-    }
-  return C;
-}
+// MATRIX diagonal(double *vals, long  RANK)
+// {
+//   MATRIX C(RANK, RANK, 0.0);
+//   for(long  i=0; i<RANK; i++)
+//     {
+//       C(i,i) = vals[i];
+//     }
+//   return C;
+// }
 
-MATRIX transpose(const MATRIX &A)
-{
-  MATRIX C(A.cols, A.rows);
-  for(long  i=0; i<A.rows; i++)
-    {
-      for(long  j=0; j < A.cols; j++)
-	{
-	  C.data[j*A.rows+i] = A.data[i*A.cols+j];
-	} // j
-    } // i
-  return C;
-}
+// MATRIX transpose(const MATRIX &A)
+// {
+//   MATRIX C(A.cols, A.rows);
+//   for(long  i=0; i<A.rows; i++)
+//     {
+//       for(long  j=0; j < A.cols; j++)
+// 	{
+// 	  C.data[j*A.rows+i] = A.data[i*A.cols+j];
+// 	} // j
+//     } // i
+//   return C;
+// }
 
 
 MATRIX& MATRIX::operator=(const MATRIX &Mat)
@@ -89,93 +89,93 @@ MATRIX& MATRIX::operator+=(const MATRIX &Mat)
 
 
 // #### Unary Operator
-MATRIX operator-(const MATRIX &A)
-{
-  std::cout << "Unary operator - has overhead. Avoiding this operator for performance\n";
-  double x = -1.0;
-  MATRIX C = x*A;
-  return C;
-}
+// MATRIX operator-(const MATRIX &A)
+// {
+//   std::cout << "Unary operator - has overhead. Avoiding this operator for performance\n";
+//   double x = -1.0;
+//   MATRIX C = x*A;
+//   return C;
+// }
 
 
 // #### Binary Operator
 // MATRIX Addition
-MATRIX operator+(const MATRIX &A, const MATRIX &B)
-{
-  MATRIX C;
-  if(!(A.rows == B.rows && A.cols == B.cols))
-    {
-      std::cout << "Dimension does NOT match.\n";
-    }
-  else
-    {
-      C.initial(A.rows, A.cols);
-      for(long  i=0; i<A.size; i++)
-	{
-	  C.data[i] = A.data[i] + B.data[i];
-	} // i 
-    } 
-  return C;
-}
+// MATRIX operator+(const MATRIX &A, const MATRIX &B)
+// {
+//   MATRIX C;
+//   if(!(A.rows == B.rows && A.cols == B.cols))
+//     {
+//       std::cout << "Dimension does NOT match.\n";
+//     }
+//   else
+//     {
+//       C.initial(A.rows, A.cols);
+//       for(long  i=0; i<A.size; i++)
+// 	{
+// 	  C.data[i] = A.data[i] + B.data[i];
+// 	} // i 
+//     } 
+//   return C;
+// }
 
-MATRIX operator-(const MATRIX& A, const MATRIX &B)
-{
-  MATRIX C;
-  if(!(A.rows == B.rows && A.cols == B.cols))
-    {
-      std::cout << "Dimension does NOT match.\n";
-    }
-  else
-    {
-      C.initial(A.rows, A.cols);
-      for(long  i=0; i<A.size; i++)
-	{
-	  C.data[i] = A.data[i] - B.data[i];
-	} // i
-    }
-  return C;
-}
+// MATRIX operator-(const MATRIX& A, const MATRIX &B)
+// {
+//   MATRIX C;
+//   if(!(A.rows == B.rows && A.cols == B.cols))
+//     {
+//       std::cout << "Dimension does NOT match.\n";
+//     }
+//   else
+//     {
+//       C.initial(A.rows, A.cols);
+//       for(long  i=0; i<A.size; i++)
+// 	{
+// 	  C.data[i] = A.data[i] - B.data[i];
+// 	} // i
+//     }
+//   return C;
+// }
 
 // Scalar Multiplification
-MATRIX operator*(const double a, const MATRIX &A)
-{
-  MATRIX C = A;
-  for(long  i=0; i<C.size; i++)
-    {
-      C.data[i] *= a;
-    }
-  return C;
-}
+// MATRIX operator*(const double a, const MATRIX &A)
+// {
+//   MATRIX C = A;
+//   for(long  i=0; i<C.size; i++)
+//     {
+//       C.data[i] *= a;
+//     }
+//   return C;
+// }
 
 // MATRIX Multiplification
-MATRIX operator*(const MATRIX &A, const MATRIX &B)
-{
-  long  C_rows = A.rows;
-  long  C_cols = B.cols;
-  long  cal_index = A.cols;
-  MATRIX C(C_rows, C_cols, 0.0);
-  if(A.cols == B.rows)
-    {
-      long  i, j, k;
-      //  // here // #pragma omp parallel for private(i,j,k) schedule(guided)
-      for(i=0; i<A.rows; i++)
-	{
-	  for(j=0; j<B.cols; j++)
-	    {
-	      for(k=0; k<A.cols; k++)
-		{
-		  C.data[i*C.cols+j] += A.data[i*A.cols+k]*B.data[k*B.cols+j];
-		  //	      C(i,j) += A(i,k)*B(k,j);
-		} // k
-	    }// j
-	} // i
-    }
-  else
-    {
-      std::cout << "DIMENSION NOT MATCHED DURING MATRIX MULTIPLIFICATION\n";
-    }
-  return C;
-}
+// MATRIX operator*(const MATRIX &A, const MATRIX &B)
+// {
+//   long  C_rows = A.rows;
+//   long  C_cols = B.cols;
+//   long  cal_index = A.cols;
+//   MATRIX C(C_rows, C_cols, 0.0);
+//   if(A.cols == B.rows)
+//     {
+//       long  i, j, k;
+//       //  // here // #pragma omp parallel for private(i,j,k) schedule(guided)
+//       for(i=0; i<A.rows; i++)
+// 	{
+// 	  for(j=0; j<B.cols; j++)
+// 	    {
+// 	      for(k=0; k<A.cols; k++)
+// 		{
+// 		  C.data[i*C.cols+j] += A.data[i*A.cols+k]*B.data[k*B.cols+j];
+// 		  //	      C(i,j) += A(i,k)*B(k,j);
+// 		} // k
+// 	    }// j
+// 	} // i
+//     }
+//   else
+//     {
+//       std::cout << "DIMENSION NOT MATCHED DURING MATRIX MULTIPLIFICATION\n";
+//     }
+//   return C;
+// }
 // From Here. CLASS MATRIX
 
 // Operator Overloading
@@ -191,68 +191,68 @@ double& MATRIX::operator()(long  i)
 
 
 // Matrix Operator
-MATRIX MATRIX::ROW(long  i)
-{
-  MATRIX C;
-  C.initial(1, cols);
-  for(long  j=0; j<cols; j++)
-    {
-      C.data[j] = data[i*cols+j];
-    }
-  return C;
-}
+// MATRIX MATRIX::ROW(long  i)
+// {
+//   MATRIX C;
+//   C.initial(1, cols);
+//   for(long  j=0; j<cols; j++)
+//     {
+//       C.data[j] = data[i*cols+j];
+//     }
+//   return C;
+// }
 
-MATRIX MATRIX::COL(long  j)
-{
-  MATRIX C;
-  C.initial(rows, 1);
-  for(long  i=0; i<rows; i++)
-    {
-      C.data[i] = data[i*cols+j];
-    }
-  return C;
-}
+// MATRIX MATRIX::COL(long  j)
+// {
+//   MATRIX C;
+//   C.initial(rows, 1);
+//   for(long  i=0; i<rows; i++)
+//     {
+//       C.data[i] = data[i*cols+j];
+//     }
+//   return C;
+// }
 
 
-long  MATRIX::ROW(const MATRIX &ROW_A, long  i)
-{
-  if(INITIALIZATION)
-    {
-      for(long  j=0; j<ROW_A.cols; j++)
-	{
-	  data[i*cols + j] = ROW_A.data[j];
-	}
-    }
-  else
-    {
-      initial(1,ROW_A.cols);
-      for(long   j=0; j<ROW_A.cols; j++)
-	{
-	  data[j] = ROW_A.data[j];
-	}
-    }
-  return 0;
-}
+// long  MATRIX::ROW(const MATRIX &ROW_A, long  i)
+// {
+//   if(INITIALIZATION)
+//     {
+//       for(long  j=0; j<ROW_A.cols; j++)
+// 	{
+// 	  data[i*cols + j] = ROW_A.data[j];
+// 	}
+//     }
+//   else
+//     {
+//       initial(1,ROW_A.cols);
+//       for(long   j=0; j<ROW_A.cols; j++)
+// 	{
+// 	  data[j] = ROW_A.data[j];
+// 	}
+//     }
+//   return 0;
+// }
 
-long  MATRIX::COL(const MATRIX &COL_A, long  j)
-{
-  if(INITIALIZATION)
-    {
-      for(long  i=0; i<COL_A.rows; i++)
-	{
-	  data[i*cols + j] = COL_A.data[i];
-	}
-    }
-  else
-    {
-      initial(COL_A.rows, 1);
-      for(long  i=0; i<COL_A.rows; i++)
-	{
-	  data[i] = COL_A.data[i];
-	}
-    }
-  return 0;
-}
+// long  MATRIX::COL(const MATRIX &COL_A, long  j)
+// {
+//   if(INITIALIZATION)
+//     {
+//       for(long  i=0; i<COL_A.rows; i++)
+// 	{
+// 	  data[i*cols + j] = COL_A.data[i];
+// 	}
+//     }
+//   else
+//     {
+//       initial(COL_A.rows, 1);
+//       for(long  i=0; i<COL_A.rows; i++)
+// 	{
+// 	  data[i] = COL_A.data[i];
+// 	}
+//     }
+//   return 0;
+// }
 
 
 // Constructor
@@ -329,9 +329,9 @@ long  MATRIX::set_value(double x)
   if(INITIALIZATION)
     {
       for(long  i=0; i<size; i++)
-	{
-	  data[i] = x;
-	} // i
+        {
+          data[i] = x;
+        } // i
     }
   else
     {
@@ -634,7 +634,7 @@ long  MATRIX::initial(long  N_r, long  N_c, double x)
 }
 
 
-long  MATRIX::data_delete()
+long MATRIX::data_delete()
 {
   // delete[] data;
   mkl_free(data);
@@ -735,21 +735,21 @@ long  make_unit_vector(MATRIX& given_vec)
   return norm;
 }
 
-MATRIX return_unit_vector(MATRIX& given_vec)
-{
-  MATRIX re = given_vec;
-  double norm = 0.;
-  for(long  i=0; i<given_vec.size; i++)
-    {
-      norm += pow(given_vec.data[i], 2.0);
-    }
-  norm = sqrt(norm);
-  for(long  i=0; i<given_vec.size; i++)
-    {
-      re.data[i] /= norm;
-    }
-  return re;
-}
+// MATRIX return_unit_vector(MATRIX& given_vec)
+// {
+//   MATRIX re = given_vec;
+//   double norm = 0.;
+//   for(long  i=0; i<given_vec.size; i++)
+//     {
+//       norm += pow(given_vec.data[i], 2.0);
+//     }
+//   norm = sqrt(norm);
+//   for(long  i=0; i<given_vec.size; i++)
+//     {
+//       re.data[i] /= norm;
+//     }
+//   return re;
+// }
 
 
 

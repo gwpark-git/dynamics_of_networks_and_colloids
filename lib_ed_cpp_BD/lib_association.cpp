@@ -433,11 +433,14 @@ double CONNECTIVITY_update_Z_particle(ASSOCIATION& CONNECT, long index_particle)
                                          1);
   // note that the previous code is already checked with the below code,
   // CONNECT.Z[index_particle] = 0.;
-  // for(long k=0; k<CONNECT.TOKEN[index_particle]; k++)
+  // double result = 0.;
+  // for(long k=0; k<CONNECT.HASH[index_particle].size; k++)
   //   {
-  //     CONNECT.Z[index_particle] += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
+  //     // CONNECT.Z[index_particle] += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
+  //     result += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
   //   }
-  
+  // if (fabs(CONNECT.Z[index_particle] - result) > 0.0001)
+  //   printf("Z err %lf, %lf\n", CONNECT.Z[index_particle], result);
   return CONNECT.Z[index_particle];
 }
 
@@ -457,7 +460,7 @@ double CONNECTIVITY_update_dPDF_particle(ASSOCIATION& CONNECT, long index_partic
               0, // k is related with band. 0 for diagonal (or super-diagonal)
               1./CONNECT.Z[index_particle], // alpha
               CONNECT.weight[index_particle].data, // A (here is array for diagonal components)
-              1,  // lda
+              1,  // lda this is leading dimension which inc A. here is set as 1 because the A is only contained diagonal components
               CONNECT.CASE[index_particle].data, // x
               1, // incx
               0., // beta. 0 is removing the previous history because 0*y
@@ -467,9 +470,10 @@ double CONNECTIVITY_update_dPDF_particle(ASSOCIATION& CONNECT, long index_partic
   // for(long k=0; k<CONNECT.TOKEN[index_particle]; k++)
   //   {
   //     double tmp = (double)CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k)/CONNECT.Z[index_particle];
-      // if (fabs(tmp - CONNECT.dPDF[index_particle](k)) > 0.00001 )
-      //   printf("UPDATE: k=%ld, tmp=%lf, dPDF[index_particle](k)=%lf\n", k, tmp, CONNECT.dPDF[index_particle](k));
-    // }
+  //     // this is testing fcn
+  //     if (fabs(tmp - CONNECT.dPDF[index_particle](k)) > 0.00001 )
+  //       printf("UPDATE: k=%ld, tmp=%lf, dPDF[index_particle](k)=%lf\n", k, tmp, CONNECT.dPDF[index_particle](k));
+  //   }
   return 0;
 }
 

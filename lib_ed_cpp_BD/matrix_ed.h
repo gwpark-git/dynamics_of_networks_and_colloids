@@ -88,8 +88,8 @@ double& operator()(long i);
 MATRIX& operator=(const MATRIX &Mat);
 MATRIX& operator+=(const MATRIX &Mat);
 // Matrix Operator
-MATRIX ROW(long i);                                //@ 
-MATRIX COL(long j);                                //@
+/* MATRIX ROW(long i);                                //@  */
+/* MATRIX COL(long j);                                //@ */
 long ROW(const MATRIX &ROW_A, long i);
 long COL(const MATRIX &COL_A, long j);
 
@@ -114,28 +114,28 @@ long sort2(MATRIX& index);
 
 long nonzero(const MATRIX &A);
 
-MATRIX partition(const MATRIX &A, long st_row, long end_row, long st_col, long end_col);
-MATRIX identity(long RANK);                          //@
-MATRIX diagonal(double *vals, long RANK);            //@ 
+/* MATRIX partition(const MATRIX &A, long st_row, long end_row, long st_col, long end_col); */
+/* MATRIX identity(long RANK);                          //@ */
+/* MATRIX diagonal(double *vals, long RANK);            //@  */
 // Basic MATRIX Operation
 
 long make_unit_vector(MATRIX& given_vec);
 /* long get_unit_vector(MATRIX& given_vec); */
-MATRIX return_unit_vector(MATRIX& given_vec);
+/* MATRIX return_unit_vector(MATRIX& given_vec); */
 
 long matrix_mul(MATRIX& given_vec, double val);
 
 // MATRIX Addition : C = A+B
-MATRIX operator+(const MATRIX &A, const MATRIX &B); //@
+/* MATRIX operator+(const MATRIX &A, const MATRIX &B); //@ */
 
-MATRIX operator-(const MATRIX &A, const MATRIX &B); //@
+/* MATRIX operator-(const MATRIX &A, const MATRIX &B); //@ */
 // Scalar Multiplification : C = a*A
-MATRIX operator*(const double a, const MATRIX &A);  //@
+/* MATRIX operator*(const double a, const MATRIX &A);  //@ */
 // MATRIX Multiplification : C = A*B
-MATRIX operator*(const MATRIX &A, const MATRIX &B); //@
+/* MATRIX operator*(const MATRIX &A, const MATRIX &B); //@ */
 
 // Unary operator
-MATRIX operator-(const MATRIX &A);                        //@
+/* MATRIX operator-(const MATRIX &A);                        //@ */
 
 
 #endif 

@@ -24,8 +24,6 @@ double GEOMETRY::return_minimum_distance(TRAJECTORY& TRAJ, long index_t, long in
   return rel_vec.norm();
 }
 
-
-
 long GEOMETRY::minimum_image_convention(TRAJECTORY& TRAJ, long target_t)
 {
   // target_t = target_t%TRAJ.Nt;

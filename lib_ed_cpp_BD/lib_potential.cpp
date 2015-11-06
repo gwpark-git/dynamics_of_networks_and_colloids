@@ -68,7 +68,7 @@ double FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_potential(double dist
 long FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
 {
   // given_POT.force_variables = new double [3];
-  given_POT.force_variables = (double*) mkl_malloc(3*sizeof(double), BIT);
+  given_POT.force_variables = (double*) mkl_calloc(3, sizeof(double), BIT);
   given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
   given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
   given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
@@ -136,7 +136,8 @@ double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_spring_potential(double distance, 
 
 long FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
 {
-  given_POT.force_variables = new double [6];
+  // given_POT.force_variables = new double [6];
+  given_POT.force_variables = (double*) mkl_calloc(6, sizeof(double), BIT);
   given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
   given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
   given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);

@@ -46,8 +46,11 @@ namespace ANALYSIS
   long GET_ORDERED_dCDF_POTENTIAL(TRAJECTORY& TRAJ, long index_t, POTENTIAL_SET& POTs, long index_particle, MATRIX& INDEX_dCDF_U, MATRIX& dCDF_U, MATRIX& vec_boost_ordered_pdf, double& time_dCDF, double& time_SORT);
   namespace ANAL_ASSOCIATION
   {
-    long CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, long index_t);
+    long CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, long index_t, MATRIX& tmp_vec);
     double cal_potential_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t);
+    double cal_potential_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t, MATRIX& tmp_vec);
+    
+    
     /* double cal_potential_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t, MATRIX& vec_boost_Nd); */
 
 
