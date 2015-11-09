@@ -21,7 +21,7 @@ long RANDOM::return_LONG_INT_rand_boost(gsl_rng* r, long SUP)
   return gsl_rng_uniform_int(r, SUP);
 }
 
-long RANDOM::get_LONG_ARR_rand_boost(gsl_rng* r, long SUP, long* given_long_arr, long N_arr);
+long RANDOM::get_LONG_ARR_rand_boost(gsl_rng* r, long SUP, long* given_long_arr, long N_arr)
 {
   for(long i=0; i<N_arr; i++)
     {
@@ -36,7 +36,7 @@ double RANDOM::return_double_rand_SUP1_boost(gsl_rng* r)
   return gsl_rng_uniform(r);
 }
 
-double RANDOM::get_DOUBLE_ARR_rand_boost(gsl_rng* r, double* given_double_arr, long N_arr);
+long RANDOM::get_DOUBLE_ARR_rand_boost(gsl_rng* r, double* given_double_arr, long N_arr)
 {
   for(long i=0; i<N_arr; i++)
     {

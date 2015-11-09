@@ -259,9 +259,9 @@ long main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& 
   gsl_rng_env_setup();
   T_boost = gsl_rng_default;
   r_boost = gsl_rng_alloc(T_boost);
-  long *rand_index_boost = (long*) mkl_malloc(N_steps_block*sizeof(long));
-  double *rolled_dCDF_boost = (double*) mkl_calloc(N_steps_block, sizeof(double), BIT);
-  double *rolled_dCDFU_boost = (double*) mkl_calloc(N_steps_block, sizeof(double), BIT);
+  // long *rand_index_boost = (long*) mkl_malloc(N_steps_block*sizeof(long));
+  // double *rolled_dCDF_boost = (double*) mkl_calloc(N_steps_block, sizeof(double), BIT);
+  // double *rolled_dCDFU_boost = (double*) mkl_calloc(N_steps_block, sizeof(double), BIT);
   
   printf("DONE\n");
   printf("START SIMULATION\n");
@@ -351,15 +351,15 @@ long main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& 
                   CONNECT.del_association_hash(index_other_end_of_selected_chain, index_hash_itself_from_other_end);
                   cnt_del ++;
                   N_index = 2;
-                  index_set[0] = index_other_end_of_selected_chain;
-                  index_set[1] = index_hash_itself_from_other_end;
+                  index_set[0] = index_itself;
+                  index_set[1] = index_other_end_of_selected_chain;
                 }
               else if (CONNECT.NEW_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
                 {
                   CONNECT.add_association_INFO(POTs, index_other_end_of_selected_chain, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_other_end_of_selected_chain, index_new_end_of_selected_chain, tmp_vec));
                   cnt_add ++;
                   N_index = 2;
-                  index_set[0] = index_other_end_of_selected_chain;
+                  index_set[0] = index_itself;
                   index_set[1] = index_new_end_of_selected_chain;
                 }
               else if (CONNECT.MOV_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
@@ -368,8 +368,8 @@ long main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& 
                   CONNECT.add_association_INFO(POTs, index_other_end_of_selected_chain, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_other_end_of_selected_chain, index_new_end_of_selected_chain, tmp_vec));
                   cnt_mov ++;
                   N_index = 3;
-                  index_set[0] = index_other_end_of_selected_chain;
-                  index_set[1] = index_hash_itself_from_other_end;
+                  index_set[0] = index_itself;
+                  index_set[1] = index_other_end_of_selected_chain;
                   index_set[2] = index_new_end_of_selected_chain;
                 }
               else
@@ -379,18 +379,12 @@ long main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& 
                 }
           
               time_MC_6 = dsecnd();
-              // long index_set[3] = {index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain};
               for(long i=0; i<N_index; i++)
                 {
                   CONNECTIVITY_update_Z_particle(CONNECT, index_set[i]);
                   CONNECTIVITY_update_dPDF_particle(CONNECT, index_set[i]);
                   CONNECTIVITY_update_dCDF_particle(CONNECT, index_set[i]);
                 }
-              // long TOKEN_N = CONNECT.N_TOTAL_ASSOCIATION()/2;
-              // if (TOKEN_N != N_associations)
-              //   {
-              //     printf("token computing = %ld, counted = %ld\n", TOKEN_N, N_associations);
-              //   }
               time_MC_7 = dsecnd();
 
               pre_N_associations = N_associations;
@@ -535,9 +529,9 @@ long main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& 
   mkl_free(dCDF_U);
   mkl_free(INDEX_dCDF_U);
   gsl_rng_free(r_boost); // for boosting
-  mkl_free(rand_index_boost);
-  mkl_free(rolled_dCDF_boost);
-  mkl_free(rolled_dCDFU_boost);
+  // mkl_free(rand_index_boost);
+  // mkl_free(rolled_dCDF_boost);
+  // mkl_free(rolled_dCDFU_boost);
 
   return 0;
 }
