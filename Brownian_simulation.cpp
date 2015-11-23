@@ -194,31 +194,33 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   double time_file = 0.;
   printf("DONE\n"); // ERR_TEST
   // the following are the boosting the allocation and dislocation of the MATRIX classes
-  MKL_LONG cond_longer = TRAJ.Np > CONNECT.N_max ? TRAJ.Np : CONNECT.N_max;
-  printf("BOOSTING VECTORS GENERATING WITH %ld COLS ... ", cond_longer); // ERR_TEST
-  MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(cond_longer*sizeof(MATRIX), BIT);
-  MATRIX *vec_boost_Np_parallel = (MATRIX*) mkl_malloc(cond_longer*sizeof(MATRIX), BIT);
-  MATRIX **vec_boost_Nd_Np_parallel_connector = (MATRIX**) mkl_malloc(cond_longer*sizeof(MATRIX*), BIT);
-  MATRIX **vec_boost_Nd_Np_parallel_repulsion = (MATRIX**) mkl_malloc(cond_longer*sizeof(MATRIX*), BIT);
-  
+  // MKL_LONG cond_longer = TRAJ.Np > CONNECT.N_max ? TRAJ.Np : CONNECT.N_max;
+  // printf("BOOSTING VECTORS GENERATING WITH %ld COLS ... ", cond_longer); // ERR_TEST
+  // MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(cond_longer*sizeof(MATRIX), BIT);
+  // MATRIX *vec_boost_Np_parallel = (MATRIX*) mkl_malloc(cond_longer*sizeof(MATRIX), BIT);
+  // MATRIX **vec_boost_Nd_Np_parallel_connector = (MATRIX**) mkl_malloc(cond_longer*sizeof(MATRIX*), BIT);
+  // MATRIX **vec_boost_Nd_Np_parallel_repulsion = (MATRIX**) mkl_malloc(cond_longer*sizeof(MATRIX*), BIT);
+
   // MATRIX *vec_boost_Nd_parallel = new MATRIX [cond_longer];
   // MATRIX *vec_boost_Np_parallel = new MATRIX [cond_longer];
   // MATRIX **vec_boost_Nd_Np_parallel_connector = new MATRIX* [cond_longer];
   // MATRIX **vec_boost_Nd_Np_parallel_repulsion = new MATRIX* [cond_longer];
 
-  for(MKL_LONG i=0; i<cond_longer; i++)
+  MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+  
+  for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       vec_boost_Nd_parallel[i].initial(TRAJ.dimension, 1, 0.);
-      vec_boost_Np_parallel[i].initial(TRAJ.Np, 1, 0.);
-      vec_boost_Nd_Np_parallel_connector[i] = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
-      vec_boost_Nd_Np_parallel_repulsion[i] = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+      // vec_boost_Np_parallel[i].initial(TRAJ.Np, 1, 0.);
+      // vec_boost_Nd_Np_parallel_connector[i] = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+      // vec_boost_Nd_Np_parallel_repulsion[i] = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
       // vec_boost_Nd_Np_parallel_connector[i] = new MATRIX [TRAJ.Np];
       // vec_boost_Nd_Np_parallel_repulsion[i] = new MATRIX [TRAJ.Np];
-      for(MKL_LONG j=0; j<TRAJ.Np; j++)
-        {
-          vec_boost_Nd_Np_parallel_connector[i][j].initial(TRAJ.dimension, 1, 0.);
-          vec_boost_Nd_Np_parallel_repulsion[i][j].initial(TRAJ.dimension, 1, 0.);
-        }
+      // for(MKL_LONG j=0; j<TRAJ.Np; j++)
+      //   {
+      //     vec_boost_Nd_Np_parallel_connector[i][j].initial(TRAJ.dimension, 1, 0.);
+      //     vec_boost_Nd_Np_parallel_repulsion[i][j].initial(TRAJ.dimension, 1, 0.);
+      //   }
     }
   printf("DONE\n"); // ERR_TEST
   printf("FORCE VECTOR GENERATING ... "); // ERR_TEST
@@ -538,14 +540,14 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   // delete[] dCDF_U;
   // delete[] INDEX_dCDF_U;
   mkl_free(vec_boost_Nd_parallel);
-  mkl_free(vec_boost_Np_parallel);
-  for(MKL_LONG i=0; i<cond_longer; i++)
-    {
-      mkl_free(vec_boost_Nd_Np_parallel_connector[i]);
-      mkl_free(vec_boost_Nd_Np_parallel_repulsion[i]);
-    }
-  mkl_free(vec_boost_Nd_Np_parallel_connector);
-  mkl_free(vec_boost_Nd_Np_parallel_repulsion);
+  // mkl_free(vec_boost_Np_parallel);
+  // for(MKL_LONG i=0; i<cond_longer; i++)
+  //   {
+  //     mkl_free(vec_boost_Nd_Np_parallel_connector[i]);
+  //     mkl_free(vec_boost_Nd_Np_parallel_repulsion[i]);
+  //   }
+  // mkl_free(vec_boost_Nd_Np_parallel_connector);
+  // mkl_free(vec_boost_Nd_Np_parallel_repulsion);
   mkl_free(force_spring);
   mkl_free(force_repulsion);
   mkl_free(force_random);
