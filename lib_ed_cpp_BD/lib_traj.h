@@ -17,8 +17,6 @@
 #include <sstream>
 #include "matrix_ed.h"
 #include "lib_random.h"
-/* #include "lib_ed_cpp_BD/matrix_mem_ref_ed.h" */
-/* #include "lib_evolution.h" */
 #include <omp.h>
 
 #include "read_file_condition.h"
@@ -85,22 +83,11 @@ class TRAJECTORY : public MATRIX
  
  virtual ~TRAJECTORY()
     {
-      /* if(force_variables) */
-      /*   delete force_variables; */
       mkl_free(box_dimension);
-      /* if(FILE_ENERGY_INFO) */
-      /*   { */
-      /*     FILE_ENERGY_INFO.close(); */
-      /*   } */
-      /* if(FILE_TRAJECTORY) */
-      /*   { */
-      /*     FILE_TRAJECTORY.close(); */
-      /*   } */
       // The MATRIX and REF_MATRIX objects are automatically killed-by virtual destructor option of the library. This fact is tested with packages.
     }
 
  // data loader
- /* long CONTINUE_TRAJ(char fn[]); */
 };
 
 

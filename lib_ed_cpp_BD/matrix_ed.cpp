@@ -16,56 +16,6 @@ long nonzero(const MATRIX &A)
   return cnt;
 }
 
-// MATRIX partition(const MATRIX &A, long  st_row, long  end_row, long  st_col, long  end_col)
-// {
-//   MATRIX C(end_row-st_row, end_col-st_col);
-//   long  index_i, index_j;
-//   for(long  i=st_row; i<end_row; i++)
-//     {
-//       index_i = i-st_row;
-//       for(long  j=st_col; j<end_col; j++)
-// 	{
-// 	  index_j = j-st_col;
-// 	  C(index_i,index_j) = A.data[i*A.cols+j];
-// 	} // j
-//     } // i
-//   return C;
-// }
-
-// MATRIX identity(long  RANK)
-// {
-//   MATRIX C(RANK, RANK, 0.0);
-//   for(long  i=0; i<RANK; i++)
-//     {
-//       C(i,i) = 1.0;
-//     }
-//   return C;
-// }
-
-// MATRIX diagonal(double *vals, long  RANK)
-// {
-//   MATRIX C(RANK, RANK, 0.0);
-//   for(long  i=0; i<RANK; i++)
-//     {
-//       C(i,i) = vals[i];
-//     }
-//   return C;
-// }
-
-// MATRIX transpose(const MATRIX &A)
-// {
-//   MATRIX C(A.cols, A.rows);
-//   for(long  i=0; i<A.rows; i++)
-//     {
-//       for(long  j=0; j < A.cols; j++)
-// 	{
-// 	  C.data[j*A.rows+i] = A.data[i*A.cols+j];
-// 	} // j
-//     } // i
-//   return C;
-// }
-
-
 MATRIX& MATRIX::operator=(const MATRIX &Mat)
 {
   copy_obj(Mat);

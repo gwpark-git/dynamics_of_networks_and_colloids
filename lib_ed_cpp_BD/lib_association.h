@@ -14,38 +14,10 @@ extern "C" {
 #include <gsl/gsl_const_mksa.h>
 }
 #include "matrix_ed.h"
-#include "matrix_long_ed.h"
 #include "lib_connectivity.h"
 #include "lib_potential.h"
 #include "lib_traj.h"
 #include "read_file_condition.h"
-
-/* class MC_IDENTIFIER */
-/* { */
-/*  public: */
-/*   double IDENTIFIER; */
-/*   double FACTOR_PRE, FACTOR_NOW; */
-/*   double TOLERANCE; */
-/*   MC_IDENTIFIER() */
-/*     { */
-/*       BASIC_INIT(); */
-/*       TOLERANCE = 0.01; */
-/*     } */
-/*   MC_IDENTIFIER(double given_tolerance) */
-/*     { */
-/*       BASIC_INIT(); */
-/*       TOLERANCE = given_tolerance; */
-/*     } */
-/*   long BASIC_INIT() */
-/*     { */
-/*       IDENTIFIER=1.; */
-/*       FACTOR_PRE=0.; */
-/*       FACTOR_NOW=0.; */
-/*       return 0; */
-/*     } */
-/*   ~MC_IDENTIFIER(){} */
-   
-/* }; */
 
 
 class ASSOCIATION : public CONNECTIVITY
@@ -56,18 +28,12 @@ class ASSOCIATION : public CONNECTIVITY
   long N_min; // 2Nc - Tec
   long N_max; // 2Nc + Tec
   long N_ASSOCIATION;
-  /* MATRIX CASE; */
-  /* MATRIX dPDF; */
-  /* MATRIX dCDF; */
-  /* MATRIX Z; */
 
   MATRIX *CASE;
   MATRIX *dPDF;
   MATRIX *dCDF;
   double *Z;
 
-  /* MATRIX_LONG weight; */
-  /* MATRIX_LONG * weight; */
   MATRIX *weight;
   /* MATRIX dist_map; */
   /* MATRIX *dist_map; */
@@ -76,8 +42,6 @@ class ASSOCIATION : public CONNECTIVITY
 
   // member variables
   
-  /* double& N_CHAIN_ENDS(long index_particle); */
-
   bool (*NEW_ASSOCIATION)(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new);
   bool (*MOV_ASSOCIATION)(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new);
   bool (*DEL_ASSOCIATION)(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new);
@@ -97,11 +61,6 @@ class ASSOCIATION : public CONNECTIVITY
   long GET_INDEX_HASH_FROM_ROLL(long index_particle, double rolled_p);
   long GET_HASH_FROM_ROLL(long index_particle, double rolled_p);
   long FIND_HASH_INDEX(long index_A, long index_B);
-  /* bool CHECK_NC_ADD_BTA_1D(long index_A, long index_B); */
-  /* bool CHECK_NC_ADD_BTA(long index_A, long index_B); */
-  /* bool CHECK_NC_DEL_hBFA(long index_A, long index_hash_B); */
-  /* bool CHECK_NC_DEL_BFA(long index_A, long index_B); */
-  /* bool CHECK_NC_DEL_BFA_1D(long index_A, long index_B); */
  ASSOCIATION() : CONNECTIVITY(){}
 
   ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition);
@@ -143,9 +102,6 @@ double CONNECTIVITY_update_CASE_particle_target(ASSOCIATION& CONNECT, POTENTIAL_
 double CONNECTIVITY_update_Z_particle(ASSOCIATION& CONNECT, long index_particle);
 double CONNECTIVITY_update_dPDF_particle(ASSOCIATION& CONNECT, long index_particle);
 double CONNECTIVITY_update_dCDF_particle(ASSOCIATION& CONNECT, long index_particle);
-/* long CONNECTIVITY_update_information_particle(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, long index_particle); */
-/* long CONNECTIVITY_update_information(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs); */
-
 
 long backsearch(MATRIX& given_arr, double p);
 long bisection_search(MATRIX& given_arr, double p);

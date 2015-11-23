@@ -14,9 +14,6 @@
 class CONNECTIVITY
 {
  public:
-  /* MATRIX_LONG HASH; */
-  /* MATRIX_LONG TOKEN; */
-  /* MATRIX_LONG *HASH; */
   MATRIX *HASH;
   long *TOKEN;
   
@@ -42,6 +39,5 @@ class CONNECTIVITY
   /* long& operator()(long index_particle, long index_target); // return target index */
 };
 
-  /* long get_connected_bead(TRAJECTORY& TRAJ, long given_index); */
 
 #endif

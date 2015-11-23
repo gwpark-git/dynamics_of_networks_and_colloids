@@ -4,9 +4,7 @@
 #include "lib_traj.h"
 #include "lib_geometry.h"
 #include "lib_potential.h"
-/* #include "mkl_vsl.h" */
 #include "fstream"
-/* #include "potential_definition.h" */
 #include "lib_association.h"
 #include <mkl.h>
 
@@ -25,7 +23,6 @@ namespace INTEGRATOR
   }
   namespace EULER_ASSOCIATION
   {
-    /* long simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t); */
     long cal_connector_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, long index_t, long given_index);
     long cal_connector_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, long index_t, long given_index, MATRIX& vec_boost_Nd);
   }
@@ -40,7 +37,6 @@ namespace ANALYSIS
   
   double cal_potential_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t);
   
-  /* double cal_repulsion_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t, MATRIX* vec_boost_Nd); */
   double cal_kinetic_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t);
   double cal_total_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t);
   long cal_detail_repulsion(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, const char* fn, long index_t);
@@ -53,8 +49,6 @@ namespace ANALYSIS
     double cal_potential_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t);
     double cal_potential_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t, MATRIX& tmp_vec);
     
-    /* double cal_potential_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t, MATRIX& vec_boost_Nd); */
-
 
   }
   

@@ -24,12 +24,10 @@ class POTENTIAL_SET
   POTENTIAL_SET()
     {
     }
-  /* POTENTIAL_SET(COND& given_cond); */
   virtual ~POTENTIAL_SET()
     {
       if(force_variables)
         mkl_free(force_variables);
-        /* delete[] force_variables; */
     }
 };
 

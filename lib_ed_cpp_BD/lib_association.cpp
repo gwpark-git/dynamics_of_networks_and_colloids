@@ -103,13 +103,11 @@ long ASSOCIATION::initial() // it should not be called by outside
   dCDF = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   Z = (double*) mkl_malloc(Np*sizeof(double), BIT);
 
-  // weight = (MATRIX_LONG*) mkl_malloc(Np*sizeof(MATRIX_LONG), BIT);
   weight = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   set_initial_condition();
   return 0;
 }
 
-// ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY(TRAJ.Np, 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str()))
 ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY(given_condition)
 {
   Nc = atol(given_condition("N_chains_per_particle").c_str());
@@ -157,13 +155,6 @@ ASSOCIATION::ASSOCIATION(long number_of_particles, long number_of_chains_per_par
   DEL_ASSOCIATION = TRUTH_MAP::DEL_ASSOCIATION_BASIC;
 }
 
-// long ASSOCIATION::TEST_VALID()
-// {
-//   for(long i=0; i<TOKEN(index_A); i++)
-//     {
-
-//     }
-// }
 
 bool TRUTH_MAP::DEL_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new)
 {
@@ -204,14 +195,12 @@ bool TRUTH_MAP::MOV_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, long index_itself, 
 long ASSOCIATION::N_TOTAL_ASSOCIATION()
 {
   long total_association = 0;
-// #pragma omp parallel for default(none) shared(total_association)
   for(long i=0; i<Np; i++)
     {
       for(long j=1; j<TOKEN[i]; j++)
         {
           total_association += (long)weight[i](j);
         }
-      // total_association += TOKEN(i) - 1;
     }
   return total_association;
 }
@@ -251,13 +240,11 @@ bool ASSOCIATION::CHECK_EXIST(long index_A, long index_B)
 long ASSOCIATION::FIND_HASH_INDEX(long index_A, long index_B)
 {
   long i=1;
-  // printf("FIND_HASH_INDEX(%ld, %ld)\n", index_A, index_B);
   for(i=1; i<TOKEN[index_A]; i++)
     {
       if ((long)HASH[index_A](i) == index_B)
         return i;
     }
-  // printf("CANNOT FOUND THE HASH\n");
   return TOKEN[index_A];
 }
 
@@ -265,13 +252,11 @@ long ASSOCIATION::FIND_HASH_INDEX(long index_A, long index_B)
 long ASSOCIATION::GET_INDEX_HASH_FROM_ROLL(long index_particle, double rolled_p)
 {
   long i=0;
-  // bool IDENTIFIER = TRUE;
   for(i=0; i<TOKEN[index_particle]; i++)
     {
       if (dCDF[index_particle](i) > rolled_p)
         return i;
     }
-  // printf("GET_INDEX_HASH_FROM_ROLL: index_particle = %ld, rolled_p = %lf, TOKEN[index_particle] = %ld, dCDF[index_particle](TOKEN[index_particle]) = %lf\n", index_particle, rolled_p, TOKEN[index_particle], dCDF[index_particle](TOKEN[index_particle]));
   return -1;
 }
 
@@ -281,24 +266,9 @@ long ASSOCIATION::GET_HASH_FROM_ROLL(long index_particle, double rolled_p)
 }
 
 
-// double& ASSOCIATION::N_CHAIN_ENDS(long index_particle)
-// {
-//   return CASE(index_particle, 0);
-// }
 
 long ASSOCIATION::add_association(long index_particle, long index_target)
 {
-  // for (long j=TOKEN[index_particle]; j<HASH[index_particle].size; j++)
-  //   {
-  //     if ((long)HASH[index_particle](j) != -1)
-  //       {
-  //         printf("(ADD) index_particle=%ld, index_target=%ld, TOKEN[index_particle]=%ld, HASH[index_particle](%ld)=%ld, float=%lf\n", index_particle, index_target, TOKEN[index_particle], j, (long)HASH[index_particle](j), HASH[index_particle](j));
-  //         // printf("sizeof long=%ld, double=%ld\n", sizeof((long)HASH[index_particle](j)), sizeof(HASH[index_particle](j)));
-  //       }
-  //   }
-
-  // HASH(index_particle, TOKEN(index_particle)) = index_target;
-  
   long hash_index_target = FIND_HASH_INDEX(index_particle, index_target); // if there is no connection, it will return TOKEN(index_particle)
 
   // weight(index_particle, 0) --; 
@@ -395,7 +365,6 @@ long ASSOCIATION::del_association_grab_IK(long index_I, long hash_index_K)
 long ASSOCIATION::del_association_hash(long index_particle, long hash_index_target)
 {
   long index_target = (long)HASH[index_particle](hash_index_target);
-  // printf("DEL_ASSOCIATION_HASH: (%ld, %ld, %ld)\n", index_particle, hash_index_target, index_target);
   del_association_grab_IK(index_particle, hash_index_target);
   del_association_IK(index_target, FIND_HASH_INDEX(index_target, index_particle));
   return 0;
@@ -417,7 +386,6 @@ double CONNECTIVITY_update_CASE_particle_hash_target(ASSOCIATION& CONNECT, POTEN
 
 double CONNECTIVITY_update_CASE_particle_target(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, long index_particle, long index_target, double distance)
 {
-  // double distance = GEOMETRY::return_minimum_distance(TRAJ, index_t, index_particle, CONNECT.HASH(index_particle, k));
   long hash_index_target = CONNECT.FIND_HASH_INDEX(index_particle, index_target);
   return CONNECTIVITY_update_CASE_particle_hash_target(CONNECT, POTs, index_particle, hash_index_target, distance);
 }

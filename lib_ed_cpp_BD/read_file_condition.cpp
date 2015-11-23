@@ -64,39 +64,3 @@ int COND::cond_print()
 }
 
 
-// long main(long argc, char* argv[])
-// {
-//   // string fn(argv[1]);
-//   COND given_condition(argv[1]);
-//   cout << "###READ_TEST###\n";
-//   // cout << type(given_condition.arg[0][0]) << endl;
-//   // printf("%s\n", given_condition.arg[0][0]);
-//   cout << given_condition.arg[0][0] << '\t' << given_condition.arg[0][1] << endl;
-//   // cout << "dt = " << given_condition("dt") << endl;
-//   // cout << "Np = " << given_condition("Np") << endl;
-//   // string data_condition[6][2] = {};
-//   // string cond, line, val;
-//   // ifstream FILE(argv[1]);
-//   // // ifstream FILE.open(argv[1], 'rt');
-//   // long cnt = 0;
-//   // while(getline(FILE,line))
-//   //   {
-//   //     stringstream iss(line);
-//   //     getline(iss, cond, '=');
-//   //     getline(iss, val, '\n');
-//   //     data_condition[cnt][0] = cond;
-//   //     data_condition[cnt][1] = val;
-//   //     cnt++;
-//   //     // cout << cond << '\t' << val << endl;
-//   //   }
-//   // FILE.close();
-
-
-//   // for(long i=0; i<6; i++)
-//   //   {
-//   //     // cout << data_condition[i][0] << '\t' << data_condition[i][1] << endl;
-//   //     cout << data_condition[i][1] << '\t' << atof(data_condition[i][1].c_str()) << endl;
-
-//   //   }
-//   return 0;
-// }

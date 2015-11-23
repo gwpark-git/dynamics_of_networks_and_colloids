@@ -11,11 +11,9 @@ namespace GEOMETRY
   double return_minimum_distance(TRAJECTORY& TRAJ, long index_t, long index_i, long index_j);
   long minimum_image_convention(TRAJECTORY& TRAJ, long target_t);
   long get_minimum_distance_pos_vector(TRAJECTORY& TRAJ, long index_t, long given_index, long target_index, MATRIX& given_vec);
-  /* MATRIX return_minimum_distance_pos_vector(TRAJECTORY& TRAJ, long index_t, long given_index, long target_index); */
   long get_minimum_distance_pos_vector(TRAJECTORY& TRAJ, long index_t, long given_index, long target_index, MATRIX& given_vec);
   long get_minimum_distance_rel_vector(TRAJECTORY& TRAJ, long index_t, long given_index, long target_index, MATRIX& given_vec);
 
-  /* MATRIX return_minimum_distance_rel_vector(TRAJECTORY& TRAJ, long index_t, long given_index, long target_index); */
   double get_simple_distance(TRAJECTORY& TRAJ, long index_t, long index_i, long i);
 }
 

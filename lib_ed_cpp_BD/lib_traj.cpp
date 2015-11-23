@@ -19,8 +19,6 @@ long TRAJECTORY::read_exist_traj(const char* fn_given_traj)
       getline(GIVEN_FILE, line);
     }
   // then, flag has set for the last line
-  // GIVEN_FILE >> Nt;
-  // cout << Nt << endl;
   GIVEN_FILE >> (*this)(0); // time recording
   for(long i=0; i<Np; i++)
     {
@@ -69,37 +67,7 @@ TRAJECTORY::TRAJECTORY(const TRAJECTORY& TRAJ)// this is copy constructor
 TRAJECTORY::TRAJECTORY(COND& given_condition, long N_basic) : MATRIX(N_basic, atol(given_condition("N_dimension").c_str())*2*atol(given_condition("Np").c_str()) + 1, 0.)
 {
   initialization_COND(given_condition);
-  // function_set(*this, given_condition);
 }
-
-// long traj_count_line(char fn[])
-// {
-//   std::ifstream f(fn);
-//   string line;
-//   long cnt = 0;
-//   for (cnt = 0; std::getline(f, line); ++cnt);
-//   return cnt;
-// }
-
-// long TRAJECTORY::traj_read(char fn[])
-// {
-//   long Nt = traj_count_line(fn);
-//   FILE *file = fopen(fn, "rt");
-//   if(!file)
-//     {
-//       printf("Error occurs during modulus file open\n");
-//       return -1;
-//     }
-//   for(long i=0; i<Nt; i++)
-//     {
-//       for(long k=0; k<cols; k++)
-//         {
-//           fscanf(file, "%lf", &(data[index(i, k)]));
-//         }
-//     }
-//   fclose(file);
-//   return Nt;
-// }
 
 
 long TRAJECTORY::initialization(long N_time, long N_particle, double given_dt)
@@ -133,20 +101,12 @@ long TRAJECTORY::initialization_COND(COND& given_condition)
     }
   dt = atof(given_condition("dt").c_str());
 
-  // FN_ENERGY_INFO = given_condition("filename_energy_info");
-  // FILE_TRAJECTORY.open(given_condition("filename_trajectory"), std::ios_base::out);
-  // FILE_ENERGY_INFO.open(given_condition("filename_energy_info").c_str(), std::ios_base::out);
   N_energy_frequency = atol(given_condition("N_energy_frequency").c_str());
   srandom(0);
 
   if (given_condition("CONTINUATION_TRAJ")=="TRUE")
     {
       read_exist_traj(given_condition("CONTINUATION_TRAJ_FN").c_str());
-      // if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
-      //   {
-      //     CONNECT.read_exist_hash(given_condition("CONTINUATION_HASH_FN").c_str(), given_condition("CONTINUATION_WEIGHT_FN").c_str());
-      //     CONNECT.read_exist_weight(given_condition("CONTINUATION_WEIGHT_FN").c_str());
-      //   }
     }
   else
     {
@@ -172,7 +132,6 @@ double& TRAJECTORY::operator()(long time_t, long bead_i, long dimension_k)
 double& TRAJECTORY::operator()(long i_RV, long time_t, long bead_i, long dimension_k)
 {
   long index_position = 2*dimension*bead_i + 1 + dimension_k + 2*i_RV;
-  // long index_position = dimension*(2*bead_i + i_RV)+ 1 + dimension_k;
   return data[index(time_t, index_position)];
 }
 
@@ -190,7 +149,6 @@ long GENERATOR::random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VEC_TR
       for (long i=0; i<TRAJ.Np; i++)
         {
           TRAJ(0, i, k) = (R_VEC_TRANS(i, k) + 0.5)*TRAJ.box_dimension[k];
-          // *(TRAJ.R_ref[0](i, k)) = (R_VEC_TRANS(i, k) + 0.5)*TRAJ.box_dimension[k];
         }
     }
   return 0;
@@ -204,7 +162,3 @@ long GENERATOR::random_position_generator(TRAJECTORY& TRAJ)
   return 0;
 }
 
-// long TRAJECTORY::CONTINUE_TRAJ(char fn[])
-// {
-
-// }

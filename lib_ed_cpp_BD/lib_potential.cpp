@@ -67,13 +67,10 @@ double FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_potential(double dist
 
 long FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
 {
-  // given_POT.force_variables = new double [3];
   given_POT.force_variables = (double*) mkl_calloc(3, sizeof(double), BIT);
   given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
   given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
   given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
-  // cout << "======== NAPLE_repulsion_set =========\n";
-  // cout << given_POT.force_variables[0] << '\t' << given_POT.force_variables[1] << '\t' << given_POT.force_variables[2] << endl;
 
   given_POT.f_repulsion = MAP_excluded_volume_force;
   given_POT.e_repulsion = MAP_excluded_volume_potential;
@@ -161,20 +158,14 @@ double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_Boltzmann(double distance, double*
 
 long FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
 {
-  // given_POT.force_variables = new double [6];
   given_POT.force_variables = (double*) mkl_calloc(6, sizeof(double), BIT);
   given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
   given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
   given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
   given_POT.force_variables[3] = atol(given_cond("N_dimension").c_str());
   given_POT.force_variables[4] = atof(given_cond("l_cap").c_str());
-  // cout << "======== NAPLE_repulsion_set =========\n";
-  // cout << given_POT.force_variables[0] << '\t' << given_POT.force_variables[1] << '\t' << given_POT.force_variables[2] << endl;
   given_POT.f_repulsion = FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_force;
   given_POT.e_repulsion = FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_potential;
-
-  // given_POT.f_repulsion = FORCE::DEFAULT::EMPTY_force_contribution;
-  // given_POT.e_repulsion = FORCE::DEFAULT::EMPTY_force_contribution;
 
   if(given_cond("FENE")=="TRUE")
     {

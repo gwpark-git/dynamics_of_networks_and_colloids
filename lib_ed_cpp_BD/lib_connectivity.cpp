@@ -5,9 +5,6 @@ CONNECTIVITY::CONNECTIVITY(COND& given_condition)
 {
   Np = atol(given_condition("Np").c_str());
   Mc = 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str());
-  // HASH.initial(Np, Mc, -1);
-  // TOKEN.initial(Np, 1, 1);
-  // HASH = (MATRIX_LONG*) mkl_malloc(Np*sizeof(MATRIX_LONG), BIT);
   HASH = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   for(long i=0; i<Np; i++)
     {
@@ -34,7 +31,6 @@ CONNECTIVITY::CONNECTIVITY(long number_of_particles, long maximum_connections)
 {
   Np = number_of_particles;
   Mc = maximum_connections;
-  // HASH = (MATRIX_LONG*) mkl_malloc(Np*sizeof(MATRIX_LONG), BIT);
   HASH = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   TOKEN = (long*) mkl_malloc(Np*sizeof(long), BIT);
   for(long i=0; i<Np; i++)
@@ -43,15 +39,7 @@ CONNECTIVITY::CONNECTIVITY(long number_of_particles, long maximum_connections)
       TOKEN[i] = 1;
     }
 
-  // HASH.initial(Np, maximum_connections, -1);
-  // for(long i=0; i<Np; i++)
-  //   {
-  //     HASH(i, 0) = i;
-  //   }
-  // TOKEN.initial(Np, 1, 1);
 }
-  // TOKEN = (long*) mkl_calloc(Np, sizeof(long), BIT);
-  // HASH = (long**) mkl_calloc(Np, sizeof(long), BIT);
 
 long CONNECTIVITY::read_exist_hash(const char* fn_hash)
 {
