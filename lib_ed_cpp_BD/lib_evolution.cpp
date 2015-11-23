@@ -16,7 +16,9 @@ long ANALYSIS::GET_dCDF_POTENTIAL(TRAJECTORY& TRAJ, long index_t, POTENTIAL_SET&
     {
       double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, i, vec_boost_ordered_pdf);
       INDEX_dCDF_U(i) = i;
-      dCDF_U(i) = exp(-POTs.e_connector(distance, POTs.force_variables));
+      dCDF_U(i) = 0.;
+      if (distance < POTs.force_variables[5])
+        dCDF_U(i) = exp(-POTs.e_connector(distance, POTs.force_variables));
     }
   return 0;
 }
@@ -112,7 +114,7 @@ long INTEGRATOR::EULER::cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
 long INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, long index_t, long index_i, MATRIX& vec_boost_Nd)
 {
   given_vec.set_value(0.);
-  // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
+  MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
 
   for(long i=0; i<TRAJ.Np; i++)
     {
@@ -225,6 +227,7 @@ double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy(TRAJECTORY& TRAJ, POTENT
     }
   return energy + ANALYSIS::cal_potential_energy(TRAJ, POTs, index_t);
 }
+
 
 double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t, MATRIX& tmp_vec)
 {
@@ -342,7 +345,9 @@ long ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
 {
   // index_t = index_t%TRAJ.Nt; // no more needed
   mat_energy(0) = (TRAJ.c_t - 1)*TRAJ.dt;
+  // mat_energy(2) = ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy(TRAJ, POTs, CONNECT, index_t);
   mat_energy(2) = ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_boost(TRAJ, POTs, CONNECT, index_t, tmp_vec);
+  
   // the functionality for kinetic energy is disabled since the evolution equation on this code is using Weiner process that does not support differentiability for the position. On this regards, measuring the velocity cannot be obtained by this environment. For further detail, see the documents.
   // mat_energy(3) = cal_kinetic_energy(TRAJ, index_t);
   mat_energy(1) = mat_energy(2) + mat_energy(3);

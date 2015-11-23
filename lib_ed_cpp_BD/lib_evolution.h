@@ -37,7 +37,9 @@ namespace ANALYSIS
   long GET_dCDF_POTENTIAL_target(TRAJECTORY& TRAJ, long index_t, POTENTIAL_SET& POTs, long& index_particle, long& index_target, double& INDEX_dCDF_U_ij, double& dCDF_U_ij, MATRIX& vec_boost_ordered_pdf_ij);
 
   long CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& mat_energy, long index_t);
+  
   double cal_potential_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t);
+  
   /* double cal_repulsion_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t, MATRIX* vec_boost_Nd); */
   double cal_kinetic_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t);
   double cal_total_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, long index_t);
@@ -47,9 +49,9 @@ namespace ANALYSIS
   namespace ANAL_ASSOCIATION
   {
     long CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, long index_t, MATRIX& tmp_vec);
+    
     double cal_potential_energy(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t);
     double cal_potential_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t, MATRIX& tmp_vec);
-    
     
     /* double cal_potential_energy_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, long index_t, MATRIX& vec_boost_Nd); */
 
