@@ -5,7 +5,8 @@ long ANALYSIS::GET_dCDF_POTENTIAL_target(TRAJECTORY& TRAJ, long index_t, POTENTI
 {
   INDEX_dCDF_U_ij = (double)index_target;
   double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, index_target, vec_boost_ordered_pdf_ij);
-  dCDF_U_ij = exp(-POTs.e_connector(distance, POTs.force_variables));
+  // dCDF_U_ij = exp(-POTs.e_connector(distance, POTs.force_variables));
+  dCDF_U_ij = POTs.PDF_connector(distance, POTs.force_variables);
   return dCDF_U_ij;
 }
 
@@ -16,9 +17,13 @@ long ANALYSIS::GET_dCDF_POTENTIAL(TRAJECTORY& TRAJ, long index_t, POTENTIAL_SET&
     {
       double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, i, vec_boost_ordered_pdf);
       INDEX_dCDF_U(i) = i;
-      dCDF_U(i) = 0.;
-      if (distance < POTs.force_variables[5])
-        dCDF_U(i) = exp(-POTs.e_connector(distance, POTs.force_variables));
+      dCDF_U(i) = POTs.PDF_connector(distance, POTs.force_variables);
+      // dCDF_U(i) = 0.;
+      // double tmp = 0.;
+      // if (distance < POTs.force_variables[5])
+      //   tmp = exp(-POTs.e_connector(distance, POTs.force_variables));
+      // if (fabs(dCDF_U(i) - tmp) > 0.0001)
+      //   printf("ERR, %ld, tmp = %lf, dCDF_U = %lf\n", i, tmp, dCDF_U(i));
     }
   return 0;
 }

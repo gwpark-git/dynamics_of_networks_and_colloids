@@ -97,6 +97,12 @@ double FORCE::GAUSSIAN::spring_potential(double distance, double N_dimension)
   return (0.5)*N_dimension*distance*distance;
 }
 
+double FORCE::GAUSSIAN::Boltzmann_distribution(double distance, double N_dimension)
+{
+  return exp(-spring_potential(distance, N_dimension));
+}
+
+
 double FORCE::FENE::non_Gaussian_factor(double distance, double N_dimension, double ratio_RM_R0)
 {
   return 1.0/(1.0 - pow(distance, 2.0)/pow(ratio_RM_R0, 2.0));
@@ -112,6 +118,15 @@ double FORCE::FENE::spring_potential(double distance, double N_dimension, double
   return (-(double)N_dimension/2.0)*pow(ratio_RM_R0, 2.0)*log(1.0 - pow(distance, 2.0)/pow(ratio_RM_R0, 2.0));
 }
 
+double FORCE::FENE::Boltzmann_distribution(double distance, double N_dimension, double ratio_RM_R0)
+{
+  // Note that even without cut-off range based on the ratio_RM_R0, the code is properly working.
+  // However, when we applied this scheme, the sorting procedure is more stable and normalized in naturally.
+  if (distance < ratio_RM_R0)
+    return exp(-FORCE::FENE::spring_potential(distance, N_dimension, ratio_RM_R0));
+  return 0.;
+}
+
 
 double FORCE::NAPLE::MC_ASSOCIATION::MAP_Gaussian_spring_force(double distance, double* given_variables)
 {
@@ -123,6 +138,12 @@ double FORCE::NAPLE::MC_ASSOCIATION::MAP_Gaussian_spring_potential(double distan
   return FORCE::GAUSSIAN::spring_potential(distance, given_variables[3]);
 }
 
+double FORCE::NAPLE::MC_ASSOCIATION::MAP_Gaussian_Boltzmann(double distance, double* given_variables)
+{
+  return FORCE::GAUSSIAN::Boltzmann_distribution(distance, given_variables[3]);
+}
+
+
 double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_spring_force(double distance, double* given_variables)
 {
   return FORCE::FENE::spring_force(distance, given_variables[3], given_variables[5]);
@@ -133,6 +154,10 @@ double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_spring_potential(double distance, 
   return FORCE::FENE::spring_potential(distance, given_variables[3], given_variables[5]);
 }
 
+double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_Boltzmann(double distance, double* given_variables)
+{
+  return FORCE::FENE::Boltzmann_distribution(distance, given_variables[3], given_variables[5]);
+}
 
 long FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
 {
@@ -155,12 +180,14 @@ long FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_POT, C
     {
       given_POT.force_variables[5] = atof(given_cond("ratio_RM_R0").c_str());
       given_POT.f_connector = MAP_FENE_spring_force;
-      given_POT.e_connector = MAP_FENE_spring_force;
+      given_POT.e_connector = MAP_FENE_spring_potential;
+      given_POT.PDF_connector = MAP_FENE_Boltzmann;
     }
   else
     {
       given_POT.f_connector = MAP_Gaussian_spring_force;
       given_POT.e_connector = MAP_Gaussian_spring_potential;
+      given_POT.PDF_connector = MAP_Gaussian_Boltzmann;
     }
 
   given_POT.w_function = Detachment_weight;

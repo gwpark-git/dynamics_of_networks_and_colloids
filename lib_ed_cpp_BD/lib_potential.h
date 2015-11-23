@@ -15,6 +15,7 @@ class POTENTIAL_SET
   double *force_variables;
   double (*f_connector)(double distance, double* given_variables);
   double (*e_connector)(double distance, double* given_variables);
+  double (*PDF_connector)(double distance, double* given_variables);
   double (*f_repulsion)(double distance, double* given_variables);
   double (*e_repulsion)(double distance, double* given_variables);
   double (*scale_random)(MATRIX& basic_random_var_unity, double* given_variables);
@@ -38,12 +39,14 @@ namespace FORCE
   {
     double spring_force(double distance, double N_dimension);
     double spring_potential(double distance, double N_dimension);
+    double Boltzmann_distribution(double distance, double N_dimension);
   }
   namespace FENE
   {
     double non_Gaussian_factor(double distance, double N_dimension, double ratio_RM_R0);
     double spring_force(double distance, double N_dimension, double ratio_RM_R0);
     double spring_potential(double distance, double N_dimension, double ratio_RM_R0);
+    double Boltzmann_distribution(double distance, double N_dimension, double ratio_RM_R0);
   }
   namespace DEFAULT
   {
@@ -69,8 +72,10 @@ namespace FORCE
     {
       double MAP_Gaussian_spring_force(double distance, double* given_variables);
       double MAP_Gaussian_spring_potential(double distance, double* given_variables);
+      double MAP_Gaussian_Boltzmann(double distance, double* given_variables);
       double MAP_FENE_spring_force(double distance, double* given_variables);
       double MAP_FENE_spring_potential(double distance, double* given_variables);
+      double MAP_FENE_Boltzmann(double distance, double* given_variables);
       double MAP_time_scaling_random(MATRIX& given_basic_random, double* given_variables);
       long MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond);
       double Detachment_weight(double distance, double tension, double* force_variables);
