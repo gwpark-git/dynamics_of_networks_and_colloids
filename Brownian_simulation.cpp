@@ -164,13 +164,14 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   double time_file = 0.;
   printf("DONE\n"); // ERR_TEST
   // the following are the boosting the allocation and dislocation of the MATRIX classes
-
+  printf("GENERATING BOOSTING VECTORS\n");
   MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
-  
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       vec_boost_Nd_parallel[i].initial(TRAJ.dimension, 1, 0.);
     }
+  MKL_LONG index_set[3] = {0};
+  
   printf("DONE\n"); // ERR_TEST
   printf("FORCE VECTOR GENERATING ... "); // ERR_TEST
   MATRIX *force_spring = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
@@ -310,22 +311,35 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               MKL_LONG index_new_end_of_selected_chain = INDEX_dCDF_U[index_other_end_of_selected_chain](k);
               time_MC_5 = dsecnd();
               MKL_LONG index_hash_itself_from_other_end = CONNECT.FIND_HASH_INDEX(index_other_end_of_selected_chain, index_itself);
+              MKL_LONG N_index_boost = 0; // 3 means the all the information will be updated
+
+              // index_set[0] = index_other_end_of_selected_chain; 
+              // index_set[1] = index_new_end_of_selected_chain;
+              // index_set[2] = index_itself;
+              
               if(CONNECT.DEL_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
                 {
                   CONNECT.del_association_hash(index_other_end_of_selected_chain, index_hash_itself_from_other_end);
                   cnt_del ++;
+                  index_set[N_index_boost++] = index_itself;
+                  index_set[N_index_boost++] = index_other_end_of_selected_chain;
                 }
               else if (CONNECT.NEW_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
                 {
                   CONNECT.add_association_INFO(POTs, index_other_end_of_selected_chain, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_other_end_of_selected_chain, index_new_end_of_selected_chain, tmp_vec));
               
                   cnt_add ++;
+                  index_set[N_index_boost++] = index_itself;
+                  index_set[N_index_boost++] = index_new_end_of_selected_chain;
                 }
               else if (CONNECT.MOV_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
                 {
                   CONNECT.del_association_hash(index_other_end_of_selected_chain, index_hash_itself_from_other_end);
                   CONNECT.add_association_INFO(POTs, index_other_end_of_selected_chain, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_other_end_of_selected_chain, index_new_end_of_selected_chain, tmp_vec));
                   cnt_mov ++;
+                  index_set[N_index_boost++] = index_itself;
+                  index_set[N_index_boost++] = index_other_end_of_selected_chain;
+                  index_set[N_index_boost++] = index_new_end_of_selected_chain;
                 }
               else
                 {
@@ -333,8 +347,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                 }
           
               time_MC_6 = dsecnd();
-              MKL_LONG index_set[3] = {index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain};
-              for(MKL_LONG i=0; i<3; i++)
+              // N_index_boost = 3;
+              for(MKL_LONG i=0; i<N_index_boost; i++)
                 {
                   CONNECTIVITY_update_Z_particle(CONNECT, index_set[i]);
                   CONNECTIVITY_update_dPDF_particle(CONNECT, index_set[i]);
