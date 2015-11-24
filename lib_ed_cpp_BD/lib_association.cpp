@@ -105,6 +105,34 @@ long ASSOCIATION::initial() // it should not be called by outside
 
   weight = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   set_initial_condition();
+  flag_itself = 2;
+  flag_other = 0;
+  flag_hash_other = 3;
+  flag_new = 1;
+
+  if(MULTIPLE_CONNECTIONS)
+    {
+      CHECK_N_ADD_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_ADD_BOOST;
+      CHECK_N_MOV_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_MOV_BOOST;
+      CHECK_N_DEL_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_DEL_BOOST;
+    }
+  else
+    {
+      CHECK_N_ADD_ASSOCIATION = TRUTH_MAP::SINGLE::CHECK_N_ADD_BOOST;
+      CHECK_N_MOV_ASSOCIATION = TRUTH_MAP::SINGLE::CHECK_N_MOV_BOOST;
+      CHECK_N_DEL_ASSOCIATION = TRUTH_MAP::SINGLE::CHECK_N_DEL_BOOST;
+    }
+  ADD_ASSOCIATION = TRUTH_MAP::ADD_ASSOCIATION_BOOST;
+  DEL_ASSOCIATION = TRUTH_MAP::DEL_ASSOCIATION_BOOST;
+  // MOV_ASSOCIATION = TRUTH_MAP::MOV_ASSOCIATION_BOOST;
+  CANCEL_ASSOCIATION = TRUTH_MAP::CANCEL_ASSOCIATION_BOOST;
+
+  // ACT = mkl_malloc(4*sizeof(long (*)(ASSOCIATION&, long*, MATRIX&)), BIT); // IMPORTANCE CHECK
+  // // ACT = mkl_malloc(4*sizeof(ACTION::MOV));
+  // ACT[0] = ACTION::CANCEL;
+  // ACT[1] = ACTION::ADD;
+  // ACT[2] = ACTION::DEL;
+  // ACT[3] = ACTION::MOV;
   return 0;
 }
 
@@ -114,23 +142,15 @@ ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY
   Tec = atol(given_condition("tolerance_allowing_connections").c_str());
   N_min = 2*Nc - Tec;
   N_max = 2*Nc + Tec;
+  if(given_condition("allowing_multiple_connections") == "TRUE")
+      MULTIPLE_CONNECTIONS = TRUE;
+  
   initial();
 
   if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
     {
       read_exist_weight(given_condition("CONTINUATION_WEIGHT_FN").c_str());
     }
-  if (given_condition("allowing_multiple_connections") == "TRUE")
-    {
-      NEW_ASSOCIATION = TRUTH_MAP::NEW_ASSOCIATION_BASIC;
-      MOV_ASSOCIATION = TRUTH_MAP::MOV_ASSOCIATION_BASIC;
-    }
-  else
-    {
-      NEW_ASSOCIATION = TRUTH_MAP::NEW_ASSOCIATION_SINGLE;
-      MOV_ASSOCIATION = TRUTH_MAP::MOV_ASSOCIATION_SINGLE;
-    }
-  DEL_ASSOCIATION = TRUTH_MAP::DEL_ASSOCIATION_BASIC;
 }
 
 
@@ -141,20 +161,110 @@ ASSOCIATION::ASSOCIATION(long number_of_particles, long number_of_chains_per_par
   Tec = tolerance_connection;
   N_min = 2*Nc - Tec;
   N_max = 2*Nc + Tec;
+  MULTIPLE_CONNECTIONS = ALLOWING_MULTIPLE_CONNECTIONS;
   initial();
-  if(ALLOWING_MULTIPLE_CONNECTIONS)
-    {
-      NEW_ASSOCIATION = TRUTH_MAP::NEW_ASSOCIATION_BASIC;
-      MOV_ASSOCIATION = TRUTH_MAP::MOV_ASSOCIATION_BASIC;
-    }
-  else
-    {
-      NEW_ASSOCIATION = TRUTH_MAP::NEW_ASSOCIATION_SINGLE;
-      MOV_ASSOCIATION = TRUTH_MAP::MOV_ASSOCIATION_SINGLE;
-    }
-  DEL_ASSOCIATION = TRUTH_MAP::DEL_ASSOCIATION_BASIC;
 }
 
+// index_set[0] == index_other_end_of_selected_chain;
+// index_set[1] == index_new_end_of_selected_chain;
+// index_set[2] == index_itself;
+
+
+long TRUTH_MAP::IDENTIFIER_ACTION_BOOLEAN_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+{
+  // MKL_LONG &index_itself = index_set[2], &index_other = index_set[0], &index_new = index_set[1];
+  // check index_other == index_new
+  if (CONNECT.CANCEL_ASSOCIATION(CONNECT, index_set))
+    {
+      // this is the most probable case for canceling
+      return 0;
+    }
+  // check index_itself == index_new
+  else if (CONNECT.ADD_ASSOCIATION(CONNECT, index_set))
+    {
+      if (CONNECT.CHECK_N_ADD_ASSOCIATION(CONNECT, index_set))
+        return 1;
+      else
+        return 0;
+    }
+  // check index_itself == index_other
+  else if (CONNECT.DEL_ASSOCIATION(CONNECT, index_set))
+    {
+      if (CONNECT.CHECK_N_DEL_ASSOCIATION(CONNECT, index_set))
+        return 2;
+      else return 0;
+    }
+  // with nested case, this is only the case of MOV
+  else
+    {
+      if (CONNECT.CHECK_N_MOV_ASSOCIATION(CONNECT, index_set))
+        return 3;
+      return 0;
+    }
+  printf("ERR:TRUTH_MAP::NO SPECIFIED ACTION CASE\n");
+  return 0;
+}
+
+
+bool TRUTH_MAP::MULTIPLE::CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+{
+  if (CONNECT.N_CONNECTED_ENDS(index_set[CONNECT.flag_itself]) > CONNECT.N_min && CONNECT.N_CONNECTED_ENDS(index_set[CONNECT.flag_new]) < CONNECT.N_max )
+    return TRUE;
+  return FALSE;
+}
+
+bool TRUTH_MAP::MULTIPLE::CHECK_N_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+{
+  if (CONNECT.N_CONNECTED_ENDS(index_set[CONNECT.flag_itself]) < CONNECT.N_max && CONNECT.N_CONNECTED_ENDS(index_set[CONNECT.flag_other]) > CONNECT.N_min)
+    return TRUE;
+  return FALSE;
+}
+
+bool TRUTH_MAP::MULTIPLE::CHECK_N_MOV_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+{
+  if (CONNECT.N_CONNECTED_ENDS(index_set[CONNECT.flag_other]) > CONNECT.N_min && CONNECT.N_CONNECTED_ENDS(index_set[CONNECT.flag_new]) < CONNECT.N_max)
+    return TRUE;
+  return FALSE;
+}
+
+bool TRUTH_MAP::SINGLE::CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+{
+  if(!CONNECT.CHECK_EXIST(index_set[CONNECT.flag_itself], index_set[CONNECT.flag_new]))
+    return TRUE;
+  return FALSE;
+}
+
+bool TRUTH_MAP::SINGLE::CHECK_N_MOV_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+{
+  return TRUTH_MAP::SINGLE::CHECK_N_ADD_BOOST(CONNECT, index_set); // it has same condition
+}
+
+bool TRUTH_MAP::SINGLE::CHECK_N_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+{
+  return TRUE; // this is because the single connection case
+}
+
+bool TRUTH_MAP::CANCEL_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+{
+  if (index_set[CONNECT.flag_other] == index_set[CONNECT.flag_new])
+    return TRUE;
+  return FALSE;
+}
+
+bool TRUTH_MAP::ADD_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+{
+  if (index_set[CONNECT.flag_itself] == index_set[CONNECT.flag_other])
+    return TRUE;
+  return FALSE;
+}
+
+
+bool TRUTH_MAP::DEL_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+{
+  if (index_set[CONNECT.flag_itself] == index_set[CONNECT.flag_new])
+    return TRUE;
+  return FALSE;
+}
 
 bool TRUTH_MAP::DEL_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new)
 {
@@ -179,6 +289,8 @@ bool TRUTH_MAP::MOV_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, long index_itself, l
 }
 
 
+
+
 bool TRUTH_MAP::NEW_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new)
 {
   if (NEW_ASSOCIATION_BASIC(CONNECT, index_itself, index_target, index_new) && !CONNECT.CHECK_EXIST(index_itself, index_new))
@@ -193,6 +305,48 @@ bool TRUTH_MAP::MOV_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, long index_itself, 
     return TRUE;
   return FALSE;
 }
+
+
+// bool TRUTH_MAP::DEL_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new)
+// {
+//   if (index_new == index_itself && index_target != index_itself && CONNECT.N_CONNECTED_ENDS(index_itself) < CONNECT.N_max && CONNECT.N_CONNECTED_ENDS(index_target) > CONNECT.N_min)
+//     return TRUE;
+//   return FALSE;
+// }
+
+// bool TRUTH_MAP::NEW_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new)
+// {
+//   if (index_new != index_itself && index_target == index_itself && CONNECT.N_CONNECTED_ENDS(index_itself) > CONNECT.N_min && CONNECT.N_CONNECTED_ENDS(index_new) < CONNECT.N_max)
+//     return TRUE;
+//   return FALSE;
+// }
+
+// bool TRUTH_MAP::MOV_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new)
+// {
+//   // importance update:: index_new != index_itself => index_target
+//   if(index_new != index_target && index_target != index_itself && CONNECT.N_CONNECTED_ENDS(index_target) > CONNECT.N_min && CONNECT.N_CONNECTED_ENDS(index_new) < CONNECT.N_max)
+//     return TRUE;
+//   return FALSE;
+// }
+
+
+
+
+// bool TRUTH_MAP::NEW_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new)
+// {
+//   if (NEW_ASSOCIATION_BASIC(CONNECT, index_itself, index_target, index_new) && !CONNECT.CHECK_EXIST(index_itself, index_new))
+//     return TRUE;
+//   return FALSE;
+// }
+
+
+// bool TRUTH_MAP::MOV_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new)
+// {
+//   if (TRUTH_MAP::MOV_ASSOCIATION_BASIC(CONNECT, index_itself, index_target, index_new) && !CONNECT.CHECK_EXIST(index_itself, index_new))
+//     return TRUE;
+//   return FALSE;
+// }
+
 
 long ASSOCIATION::N_TOTAL_ASSOCIATION()
 {

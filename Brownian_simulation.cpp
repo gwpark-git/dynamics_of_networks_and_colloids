@@ -4,6 +4,7 @@
 #include "lib_ed_cpp_BD/lib_traj.h"
 #include "lib_ed_cpp_BD/lib_evolution.h"
 #include "lib_ed_cpp_BD/lib_association.h"
+#include "lib_ed_cpp_BD/lib_handle_association.h"
 #include "lib_ed_cpp_BD/lib_potential.h"
 // #include "lib_ed_cpp_BD/potential_definition.h"
 #include <string>
@@ -170,8 +171,11 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
     {
       vec_boost_Nd_parallel[i].initial(TRAJ.dimension, 1, 0.);
     }
-  MKL_LONG index_set[3] = {0};
-  
+  MKL_LONG index_set[4] = {0};
+  MKL_LONG &index_itself = index_set[2], &index_other_end_of_selected_chain = index_set[0], &index_new_end_of_selected_chain = index_set[1]; // this make identify the system
+  MKL_LONG &index_hash_selected_chain = index_set[3];
+  MKL_LONG (*ACTION_ARR[4])(TRAJECTORY&, MKL_LONG, POTENTIAL_SET&, ASSOCIATION&, MKL_LONG[], MATRIX&);
+  ACTION_ARR[0] = ACTION::CANCEL; ACTION_ARR[1] = ACTION::ADD; ACTION_ARR[2] = ACTION::DEL; ACTION_ARR[3] = ACTION::MOV;
   printf("DONE\n"); // ERR_TEST
   printf("FORCE VECTOR GENERATING ... "); // ERR_TEST
   MATRIX *force_spring = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
@@ -257,11 +261,13 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           for(MKL_LONG i=0; i<CONNECT.Np; i++)
             CONNECT.TOKEN[i] = 1;
         }
+      // MKL_LONG IDENT_CANCEL = 0, IDENT_ADD = 1, IDENT_DEL = 2, IDENT_MOV = 3;
+      MKL_LONG cnt_arr[4] = {0};
+      MKL_LONG &cnt_cancel = cnt_arr[ACTION::IDX_CANCEL], &cnt_add = cnt_arr[ACTION::IDX_ADD], &cnt_del = cnt_arr[ACTION::IDX_DEL], &cnt_mov = cnt_arr[ACTION::IDX_MOV];
 
-      MKL_LONG cnt_del = 0;
-      MKL_LONG cnt_add = 0;
-      MKL_LONG cnt_mov = 0;
-      MKL_LONG cnt_cancel = 0;
+      MKL_LONG N_index_boost_arr[4];
+      N_index_boost_arr[ACTION::IDX_CANCEL] = 0; N_index_boost_arr[ACTION::IDX_ADD] = 2; N_index_boost_arr[ACTION::IDX_DEL] = 2; N_index_boost_arr[ACTION::IDX_MOV] = 3;
+        
       double time_st_MC = dsecnd();
       gsl_rng_set(r_boost, random());
 
@@ -296,12 +302,12 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               // MKL_LONG total_chain_ends = CONNECT.N_TOTAL_CONNECTED_ENDS(); // this is no more importance
               // printf("chain ends attached to beads, %ld, per beads, %ld, (add, mov, del) = (%ld, %ld, %ld)\n", total_chain_ends, total_chain_ends/TRAJ.Np, cnt_add, cnt_mov, cnt_del);
               time_MC_1 = dsecnd();
-              MKL_LONG index_itself = RANDOM::return_LONG_INT_rand_boost(r_boost, TRAJ.Np);
+              index_itself = RANDOM::return_LONG_INT_rand_boost(r_boost, TRAJ.Np);
               // choice for selected chain end
               double rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(r_boost);
               time_MC_2 = dsecnd();
-              MKL_LONG index_hash_selected_chain = CONNECT.GET_INDEX_HASH_FROM_ROLL(index_itself, rolling_dCDF); 
-              MKL_LONG index_other_end_of_selected_chain = CONNECT.HASH[index_itself](index_hash_selected_chain); 
+              index_hash_selected_chain = CONNECT.GET_INDEX_HASH_FROM_ROLL(index_itself, rolling_dCDF); 
+              index_other_end_of_selected_chain = CONNECT.HASH[index_itself](index_hash_selected_chain); 
               time_MC_3 = dsecnd();
               // choice for behaviour of selected chain end
               double rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(r_boost);
@@ -312,93 +318,19 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               // MKL_LONG index_hash_itself_from_other_end = CONNECT.FIND_HASH_INDEX(index_other_end_of_selected_chain, index_itself);
               
               MKL_LONG k = backsearch(dCDF_U[index_itself], rolling_dCDF_U);
-              MKL_LONG index_new_end_of_selected_chain = INDEX_dCDF_U[index_itself](k);
+              index_new_end_of_selected_chain = INDEX_dCDF_U[index_itself](k);
               time_MC_5 = dsecnd();
-              MKL_LONG N_index_boost = 3; // 3 means the all the information will be updated
 
-              index_set[0] = index_other_end_of_selected_chain; 
-              index_set[1] = index_new_end_of_selected_chain;
-              index_set[2] = index_itself;
+              // these are alread set to index_set since index_blah is reference variable of the components for the index_set
+              // index_set[0] = index_other_end_of_selected_chain; 
+              // index_set[1] = index_new_end_of_selected_chain;
+              // index_set[2] = index_itself;
 
-              if(CONNECT.DEL_ASSOCIATION(CONNECT, index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain))
-                {
-                  CONNECT.del_association_hash(index_itself, index_hash_selected_chain);
-                  cnt_del ++;
-                  N_index_boost = 2; // index_new == index_itself
-                  // index_set[N_index_boost++] = index_itself;
-                  // index_set[N_index_boost++] = index_other_end_of_selected_chain;
-                  // if (index_itself != index_new_end_of_selected_chain)
-                  //   {
-                  //     printf("ERR: DEL, itself=%ld, other=%ld, new=%ld\n", index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain);
-                  //     printf("\tweight(index_itself)[0] = %ld -> %ld, weight(other)[0] = %ld -> %ld\n", weight_itself_0, weight_itself_1, weight_other_0, weight_other_1);
-
-                  //   }
-                }
-              else if (CONNECT.NEW_ASSOCIATION(CONNECT, index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain))
-                {
-                  CONNECT.add_association_INFO(POTs, index_itself, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_itself, index_new_end_of_selected_chain, tmp_vec));
-                  cnt_add ++;
-                  N_index_boost = 2; // index_other == index_itself
-                  // index_set[N_index_boost++] = index_itself;
-                  // index_set[N_index_boost++] = index_new_end_of_selected_chain;
-                  // if (index_itself != index_other_end_of_selected_chain)
-                  //   printf("ERR: DEL\n");
-                }
-              else if (CONNECT.MOV_ASSOCIATION(CONNECT, index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain))
-                {
-                  CONNECT.del_association_hash(index_itself, index_hash_selected_chain);
-                  CONNECT.add_association_INFO(POTs, index_itself, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_other_end_of_selected_chain, index_new_end_of_selected_chain, tmp_vec));
-                  cnt_mov ++;
-                  N_index_boost = 3;
-                  // index_set[N_index_boost++] = index_itself;
-                  // index_set[N_index_boost++] = index_other_end_of_selected_chain;
-                  // index_set[N_index_boost++] = index_new_end_of_selected_chain;
-                }
-              else
-                {
-                  cnt_cancel ++;
-                  N_index_boost = 0;
-                }
-              // if(CONNECT.DEL_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
-              //   {
-              //     // MKL_LONG weight_itself_0 = CONNECT.weight[index_itself](0), weight_other_0 = CONNECT.weight[index_other_end_of_selected_chain](0);
-              //     CONNECT.del_association_hash(index_other_end_of_selected_chain, index_hash_itself_from_other_end);
-              //     // MKL_LONG weight_itself_1 = CONNECT.weight[index_itself](0), weight_other_1 = CONNECT.weight[index_other_end_of_selected_chain](0);
-              //     cnt_del ++;
-              //     index_set[N_index_boost++] = index_itself;
-              //     index_set[N_index_boost++] = index_other_end_of_selected_chain;
-              //     if (index_itself != index_new_end_of_selected_chain)
-              //       {
-              //         printf("ERR: DEL, itself=%ld, other=%ld, new=%ld\n", index_itself, index_other_end_of_selected_chain, index_new_end_of_selected_chain);
-              //         printf("\tweight(index_itself)[0] = %ld -> %ld, weight(other)[0] = %ld -> %ld\n", weight_itself_0, weight_itself_1, weight_other_0, weight_other_1);
-
-
-              //       }
-              //   }
-              // else if (CONNECT.NEW_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
-              //   {
-              //     CONNECT.add_association_INFO(POTs, index_other_end_of_selected_chain, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_other_end_of_selected_chain, index_new_end_of_selected_chain, tmp_vec));
+              MKL_LONG IDENTIFIER_ACTION = TRUTH_MAP::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, index_set);
+              ACTION_ARR[IDENTIFIER_ACTION](TRAJ, index_t_now, POTs, CONNECT, index_set, tmp_vec);
+              cnt_arr[IDENTIFIER_ACTION] ++;
+              MKL_LONG N_index_boost = N_index_boost_arr[IDENTIFIER_ACTION];
               
-              //     cnt_add ++;
-              //     index_set[N_index_boost++] = index_itself;
-              //     index_set[N_index_boost++] = index_new_end_of_selected_chain;
-              //     if (index_itself != index_other_end_of_selected_chain)
-              //       printf("ERR: DEL\n");
-              //   }
-              // else if (CONNECT.MOV_ASSOCIATION(CONNECT, index_other_end_of_selected_chain, index_itself, index_new_end_of_selected_chain))
-              //   {
-              //     CONNECT.del_association_hash(index_other_end_of_selected_chain, index_hash_itself_from_other_end);
-              //     CONNECT.add_association_INFO(POTs, index_other_end_of_selected_chain, index_new_end_of_selected_chain, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_other_end_of_selected_chain, index_new_end_of_selected_chain, tmp_vec));
-              //     cnt_mov ++;
-              //     index_set[N_index_boost++] = index_itself;
-              //     index_set[N_index_boost++] = index_other_end_of_selected_chain;
-              //     index_set[N_index_boost++] = index_new_end_of_selected_chain;
-              //   }
-              // else
-              //   {
-              //     cnt_cancel ++;
-              //   }
-          
               time_MC_6 = dsecnd();
               // N_index_boost = 3;
               
@@ -430,7 +362,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                     }
                   sum_over_MC_steps += N_associations;
                 }
-
 
               time_MC_8 = dsecnd();
               dt_1 += time_MC_2 - time_MC_1;
@@ -529,7 +460,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
 /*
  * Local variables:
- * compile-command: "icpc -O2 -openmp -Wall -mkl -o Brownian_simulation lib_ed_cpp_BD/lib_traj.cpp lib_ed_cpp_BD/read_file_condition.cpp lib_ed_cpp_BD/lib_evolution.cpp lib_ed_cpp_BD/matrix_ed.cpp lib_ed_cpp_BD/lib_potential.cpp lib_ed_cpp_BD/lib_connectivity.cpp lib_ed_cpp_BD/lib_association.cpp lib_ed_cpp_BD/lib_geometry.cpp lib_ed_cpp_BD/lib_random.cpp Brownian_simulation.cpp -lgsl -lm"
+ * compile-command: "icpc -O2 -openmp -Wall -mkl -o Brownian_simulation lib_ed_cpp_BD/lib_traj.cpp lib_ed_cpp_BD/read_file_condition.cpp lib_ed_cpp_BD/lib_evolution.cpp lib_ed_cpp_BD/matrix_ed.cpp lib_ed_cpp_BD/lib_potential.cpp lib_ed_cpp_BD/lib_connectivity.cpp lib_ed_cpp_BD/lib_association.cpp lib_ed_cpp_BD/lib_handle_association.cpp lib_ed_cpp_BD/lib_geometry.cpp lib_ed_cpp_BD/lib_random.cpp Brownian_simulation.cpp -lgsl -lm"
  * End:
  */
 
