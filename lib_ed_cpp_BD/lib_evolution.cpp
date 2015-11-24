@@ -12,6 +12,10 @@ long ANALYSIS::GET_dCDF_POTENTIAL_target(TRAJECTORY& TRAJ, long index_t, POTENTI
 
 long ANALYSIS::GET_dCDF_POTENTIAL(TRAJECTORY& TRAJ, long index_t, POTENTIAL_SET& POTs, long index_particle, MATRIX& INDEX_dCDF_U, MATRIX& dCDF_U, MATRIX& vec_boost_ordered_pdf)
 {
+  // note that the index_itself is not extracted in order to avoid if-phrase
+  // even if it is not the case, the given distance will be zero
+  // that gave us the potential as zero
+  // then, Boltzmann distribution becomes unity, which is the maximum value
   for(long i=0; i<TRAJ.Np; i++)
     {
       double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, i, vec_boost_ordered_pdf);

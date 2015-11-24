@@ -170,13 +170,6 @@ bool TRUTH_MAP::NEW_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, long index_itself, l
   return FALSE;
 }
 
-bool TRUTH_MAP::NEW_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new)
-{
-  if (NEW_ASSOCIATION_BASIC(CONNECT, index_itself, index_target, index_new) && !CONNECT.CHECK_EXIST(index_itself, index_new))
-    return TRUE;
-  return FALSE;
-}
-
 bool TRUTH_MAP::MOV_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new)
 {
   // importance update:: index_new != index_itself => index_target
@@ -184,6 +177,15 @@ bool TRUTH_MAP::MOV_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, long index_itself, l
     return TRUE;
   return FALSE;
 }
+
+
+bool TRUTH_MAP::NEW_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new)
+{
+  if (NEW_ASSOCIATION_BASIC(CONNECT, index_itself, index_target, index_new) && !CONNECT.CHECK_EXIST(index_itself, index_new))
+    return TRUE;
+  return FALSE;
+}
+
 
 bool TRUTH_MAP::MOV_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new)
 {
@@ -275,7 +277,7 @@ long ASSOCIATION::add_association(long index_particle, long index_target)
   // the chain ends attached to itself decreases with number 1
   // but, one weight should transfer from the itself index, 0, to the other has index
   // for this reason, the weight(index_particle, 0) is decreases with number 2
-  // basically, it preserver total number of chain ends on the system
+  // basically, it preserve total number of chain ends on the system
   weight[index_particle](0) -= 2; 
   weight[index_particle](hash_index_target) += 1; 
 
