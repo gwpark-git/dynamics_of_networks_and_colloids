@@ -1,45 +1,6 @@
 
 #include "lib_association.h"
 
-MKL_LONG bisection_search(MATRIX& given_arr, double p)
-{
-  MKL_LONG N = given_arr.size;
-  MKL_LONG k = N/2;
-  // double dk = N/2.;
-  MKL_LONG dk = N/2;
-
-  do
-    {
-      // dk /= 2;
-      // the conditional phrase (dk%2 != 0) will return 0 or 1 when the modulo is zero or not, respectively
-      // this compensate the loss of approaching because of given domain is in integer rather than real number
-      // because of it, the convergence rate is slower than the previous one (log2(Np))
-      dk = dk/2 + (dk%2 != 0);
-      if (given_arr(k) < p)
-        k += dk;
-      else if (given_arr(k) > p)
-        k -= dk;
-      else
-        return k;
-    } while (dk > 1);
-    
-  if (given_arr(k) < p)
-    k += 1;
-  return k;
-}
-
-MKL_LONG backsearch(MATRIX& given_arr, double p)
-{
-  for(MKL_LONG k= given_arr.size - 1; k >=0; k--)
-    {
-      if(given_arr(k) < p)
-        {
-          return k+1;
-        }
-    }
-  return 0;
-}
-
 
 MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
 {
@@ -106,10 +67,10 @@ MKL_LONG ASSOCIATION::initial() // it should not be called by outside
 
   weight = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   set_initial_condition();
-  flag_itself = 2;
-  flag_other = 0;
-  flag_hash_other = 3;
-  flag_new = 1;
+  // flag_itself = 2;
+  // flag_other = 0;
+  // flag_hash_other = 3;
+  // flag_new = 1;
 
   if(MULTIPLE_CONNECTIONS)
     {
@@ -171,40 +132,6 @@ ASSOCIATION::ASSOCIATION(MKL_LONG number_of_particles, MKL_LONG number_of_chains
 // index_set[2] == index_itself;
 
 
-MKL_LONG TRUTH_MAP::IDENTIFIER_ACTION_BOOLEAN_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
-{
-  // MKL_LONG &index_itself = index_set[2], &index_other = index_set[0], &index_new = index_set[1];
-  // check index_other == index_new
-  if (CONNECT.CANCEL_ASSOCIATION(CONNECT, index_set))
-    {
-      // this is the most probable case for canceling
-      return 0;
-    }
-  // check index_itself == index_new
-  else if (CONNECT.ADD_ASSOCIATION(CONNECT, index_set))
-    {
-      if (CONNECT.CHECK_N_ADD_ASSOCIATION(CONNECT, index_set))
-        return 1;
-      else
-        return 0;
-    }
-  // check index_itself == index_other
-  else if (CONNECT.DEL_ASSOCIATION(CONNECT, index_set))
-    {
-      if (CONNECT.CHECK_N_DEL_ASSOCIATION(CONNECT, index_set))
-        return 2;
-      else return 0;
-    }
-  // with nested case, this is only the case of MOV
-  else
-    {
-      if (CONNECT.CHECK_N_MOV_ASSOCIATION(CONNECT, index_set))
-        return 3;
-      return 0;
-    }
-  printf("ERR:TRUTH_MAP::NO SPECIFIED ACTION CASE\n");
-  return 0;
-}
 
 
 bool TRUTH_MAP::MULTIPLE::CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
@@ -610,6 +537,85 @@ double CONNECTIVITY_update_dCDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_pa
       CONNECT.dCDF[index_particle](k) = CONNECT.dCDF[index_particle](k-1) + CONNECT.dPDF[index_particle](k);
     }
   return CONNECT.dCDF[index_particle](CONNECT.TOKEN[index_particle]);
+}
+
+
+
+double ASSOCIATION::update_CASE_particle_hash_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance)
+{
+  CASE[index_particle](hash_index_target) = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
+  return CASE[index_particle](hash_index_target);
+}
+
+double ASSOCIATION::update_CASE_particle_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance)
+{
+  MKL_LONG hash_index_target = FIND_HASH_INDEX(index_particle, index_target);
+  return update_CASE_particle_hash_target(POTs, index_particle, hash_index_target, distance);
+}
+
+double ASSOCIATION::update_Z_particle(MKL_LONG index_particle)
+{
+  
+  // result = dot(x, y)
+  Z[index_particle] = cblas_ddot(TOKEN[index_particle], // N
+                                 weight[index_particle].data, // x
+                                 1,
+                                 CASE[index_particle].data, // y
+                                 1);
+  // note that the previous code is already checked with the below code,
+  // CONNECT.Z[index_particle] = 0.;
+  // double result = 0.;
+  // for(MKL_LONG k=0; k<CONNECT.HASH[index_particle].size; k++)
+  //   {
+  //     // CONNECT.Z[index_particle] += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
+  //     result += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
+  //   }
+  // if (fabs(CONNECT.Z[index_particle] - result) > 0.0001)
+  //   printf("Z err %lf, %lf\n", CONNECT.Z[index_particle], result);
+  return Z[index_particle];
+}
+
+
+
+double ASSOCIATION::update_dPDF_particle(MKL_LONG index_particle)
+{
+  // Note that the element-wise multiplication can be done to make diagonalization. BLAS has good aspect for this functionality.
+  // DSBMV which gave us y = alpha*A*x + beta*y,
+  // which is designed for symmetric banded matrix for A
+  // In this case, we can set the third argument, k, set to 0
+
+  // y = alpha*dot(A, x) + beta*y
+  cblas_dsbmv(CblasRowMajor,
+              CblasUpper,
+              TOKEN[index_particle], // number of accounting
+              0, // k is related with band. 0 for diagonal (or super-diagonal)
+              1./Z[index_particle], // alpha
+              weight[index_particle].data, // A (here is array for diagonal components)
+              1,  // lda this is leading dimension which inc A. here is set as 1 because the A is only contained diagonal components
+              CASE[index_particle].data, // x
+              1, // incx
+              0., // beta. 0 is removing the previous history because 0*y
+              dPDF[index_particle].data, // y
+              1); // incy
+  // Note that the previous computation has been tested with the below code (the original one)
+  // for(MKL_LONG k=0; k<CONNECT.TOKEN[index_particle]; k++)
+  //   {
+  //     double tmp = (double)CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k)/CONNECT.Z[index_particle];
+  //     // this is testing fcn
+  //     if (fabs(tmp - CONNECT.dPDF[index_particle](k)) > 0.00001 )
+  //       printf("UPDATE: k=%ld, tmp=%lf, dPDF[index_particle](k)=%lf\n", k, tmp, CONNECT.dPDF[index_particle](k));
+  //   }
+  return 0;
+}
+
+double ASSOCIATION::update_dCDF_particle(MKL_LONG index_particle)
+{
+  dCDF[index_particle](0) = dPDF[index_particle](0);
+  for(MKL_LONG k=1; k<TOKEN[index_particle]; k++)
+    {
+      dCDF[index_particle](k) = dCDF[index_particle](k-1) + dPDF[index_particle](k);
+    }
+  return dCDF[index_particle](TOKEN[index_particle]);
 }
 
 

@@ -170,11 +170,14 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
     {
       vec_boost_Nd_parallel[i].initial(TRAJ.dimension, 1, 0.);
     }
-  MKL_LONG index_set[4] = {0};
-  MKL_LONG &index_itself = index_set[2], &index_other_end_of_selected_chain = index_set[0], &index_new_end_of_selected_chain = index_set[1]; // this make identify the system
-  MKL_LONG &index_hash_selected_chain = index_set[3];
-  MKL_LONG (*ACTION_ARR[4])(TRAJECTORY&, MKL_LONG, POTENTIAL_SET&, ASSOCIATION&, MKL_LONG[], MATRIX&);
-  ACTION_ARR[0] = ACTION::CANCEL; ACTION_ARR[1] = ACTION::ADD; ACTION_ARR[2] = ACTION::DEL; ACTION_ARR[3] = ACTION::MOV;
+  // ACTION::IDX IDX_SET;
+  INDEX_MC IDX;
+  // MKL_LONG &index_itself = IDX.beads[2], &index_other_end_of_selected_chain = IDX.beads[0], &index_new_end_of_selected_chain = IDX.beads[1], &index_hash_selected_chain = IDX.beads[3];
+  // MKL_LONG index_set[4] = {0};
+  // MKL_LONG &index_itself = index_set[2], &index_other_end_of_selected_chain = index_set[0], &index_new_end_of_selected_chain = index_set[1]; // this make identify the system
+  // MKL_LONG &index_hash_selected_chain = index_set[3];
+  // MKL_LONG (*ACTION_ARR[4])(TRAJECTORY&, MKL_LONG, POTENTIAL_SET&, ASSOCIATION&, MKL_LONG[], MATRIX&);
+  // ACTION_ARR[0] = ACTION::CANCEL; ACTION_ARR[1] = ACTION::ADD; ACTION_ARR[2] = ACTION::DEL; ACTION_ARR[3] = ACTION::MOV;
   printf("DONE\n"); // ERR_TEST
   printf("FORCE VECTOR GENERATING ... "); // ERR_TEST
   MATRIX *force_spring = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
@@ -241,7 +244,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       MKL_LONG index_t_next = (t+1) % N_basic;
       TRAJ(index_t_next) = (++TRAJ.c_t) * TRAJ.dt;
 
-      
       tmp_vec.set_value(0.);
 
       MKL_LONG IDENTIFIER_ASSOC = TRUE;
@@ -262,10 +264,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
         }
       // MKL_LONG IDENT_CANCEL = 0, IDENT_ADD = 1, IDENT_DEL = 2, IDENT_MOV = 3;
       MKL_LONG cnt_arr[4] = {0};
-      MKL_LONG &cnt_cancel = cnt_arr[ACTION::IDX_CANCEL], &cnt_add = cnt_arr[ACTION::IDX_ADD], &cnt_del = cnt_arr[ACTION::IDX_DEL], &cnt_mov = cnt_arr[ACTION::IDX_MOV];
+      MKL_LONG &cnt_cancel = cnt_arr[IDX.CANCEL], &cnt_add = cnt_arr[IDX.ADD], &cnt_del = cnt_arr[IDX.DEL], &cnt_mov = cnt_arr[IDX.MOV];
 
-      MKL_LONG N_index_boost_arr[4];
-      N_index_boost_arr[ACTION::IDX_CANCEL] = 0; N_index_boost_arr[ACTION::IDX_ADD] = 2; N_index_boost_arr[ACTION::IDX_DEL] = 2; N_index_boost_arr[ACTION::IDX_MOV] = 3;
+      // MKL_LONG N_index_boost_arr[4];
+      // N_index_boost_arr[IDX.CANCEL] = 0; N_index_boost_arr[IDX.ADD] = 2; N_index_boost_arr[IDX.DEL] = 2; N_index_boost_arr[IDX.MOV] = 3;
         
       double time_st_MC = dsecnd();
       gsl_rng_set(r_boost, random());
@@ -301,35 +303,36 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               // MKL_LONG total_chain_ends = CONNECT.N_TOTAL_CONNECTED_ENDS(); // this is no more importance
               // printf("chain ends attached to beads, %ld, per beads, %ld, (add, mov, del) = (%ld, %ld, %ld)\n", total_chain_ends, total_chain_ends/TRAJ.Np, cnt_add, cnt_mov, cnt_del);
               time_MC_1 = dsecnd();
-              index_itself = RANDOM::return_LONG_INT_rand_boost(r_boost, TRAJ.Np);
+              IDX.itself = RANDOM::return_LONG_INT_rand_boost(r_boost, TRAJ.Np);
               // choice for selected chain end
               double rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(r_boost);
               time_MC_2 = dsecnd();
-              index_hash_selected_chain = CONNECT.GET_INDEX_HASH_FROM_ROLL(index_itself, rolling_dCDF); 
-              index_other_end_of_selected_chain = CONNECT.HASH[index_itself](index_hash_selected_chain); 
+              IDX.hash_attached_bead = CONNECT.GET_INDEX_HASH_FROM_ROLL(IDX.itself, rolling_dCDF); 
+              IDX.attached_bead = CONNECT.HASH[IDX.itself](IDX.hash_attached_bead); 
               time_MC_3 = dsecnd();
               // choice for behaviour of selected chain end
               double rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(r_boost);
               // the PDF is already computed in the previous map
               time_MC_4 = dsecnd();
               
-              MKL_LONG k = backsearch(dCDF_U[index_itself], rolling_dCDF_U);
-              index_new_end_of_selected_chain = INDEX_dCDF_U[index_itself](k);
+              MKL_LONG k = SEARCHING::backtrace(dCDF_U[IDX.itself], rolling_dCDF_U);
+              IDX.new_attached_bead = INDEX_dCDF_U[IDX.itself](k);
               time_MC_5 = dsecnd();
 
-              MKL_LONG IDENTIFIER_ACTION = TRUTH_MAP::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, index_set);
-              ACTION_ARR[IDENTIFIER_ACTION](TRAJ, index_t_now, POTs, CONNECT, index_set, tmp_vec);
-              cnt_arr[IDENTIFIER_ACTION] ++;
-              MKL_LONG N_index_boost = N_index_boost_arr[IDENTIFIER_ACTION];
+              MKL_LONG IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);
+              ACTION::ACT(TRAJ, index_t_now, POTs, CONNECT, IDX, tmp_vec, IDENTIFIER_ACTION);
+              // IDX.ACTION_ARR[IDENTIFIER_ACTION](TRAJ, index_t_now, POTs, CONNECT, index_set, tmp_vec);
+              // cnt_arr[IDENTIFIER_ACTION] ++;
+              // MKL_LONG N_index_boost = N_index_boost_arr[IDENTIFIER_ACTION];
               
               time_MC_6 = dsecnd();
-              
-              for(MKL_LONG i=0; i<N_index_boost; i++)
-                {
-                  CONNECTIVITY_update_Z_particle(CONNECT, index_set[i]);
-                  CONNECTIVITY_update_dPDF_particle(CONNECT, index_set[i]);
-                  CONNECTIVITY_update_dCDF_particle(CONNECT, index_set[i]);
-                }
+              ACTION::UPDATE_INFORMATION(CONNECT, IDX, cnt_arr, IDENTIFIER_ACTION);
+              // for(MKL_LONG i=0; i<N_index_boost; i++)
+              //   {
+              //     CONNECT.update_Z_particle(index_set[i]);
+              //     CONNECT.update_dPDF_particle(index_set[i]);
+              //     CONNECT.update_dCDF_particle(index_set[i]);
+              //   }
           
               time_MC_7 = dsecnd();
 
@@ -364,7 +367,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               if (given_condition("MC_LOG") == "TRUE")
                 {
                   MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
-                  FILE_LOG << cnt << '\t' << index_itself << '\t' << rolling_dCDF<< '\t'  << index_hash_selected_chain<< '\t'  << index_other_end_of_selected_chain<< '\t'  << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_end_of_selected_chain<< '\t'  << CONNECT.TOKEN[index_itself]<< '\t'<<CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight[index_itself](0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << endl;
+                  FILE_LOG << cnt << '\t' << IDX.itself << '\t' << rolling_dCDF<< '\t'  << IDX.attached_bead << '\t'  << IDX.new_attached_bead<< '\t'  << rolling_dCDF_U<< '\t'  << k<< '\t'  << IDX.new_attached_bead << '\t'  << CONNECT.TOKEN[IDX.itself]<< '\t'<<CONNECT.N_CONNECTED_ENDS(IDX.itself) << '\t' << CONNECT.weight[IDX.itself](0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << endl;
                 }
 
               //   }

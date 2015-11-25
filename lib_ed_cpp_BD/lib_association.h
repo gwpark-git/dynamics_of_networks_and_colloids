@@ -45,7 +45,11 @@ class ASSOCIATION : public CONNECTIVITY
   /* bool (*ADD_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new); */
   /* bool (*MOV_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new); */
   /* bool (*DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new); */
-  MKL_LONG flag_other, flag_new, flag_itself, flag_hash_other;
+  /* MKL_LONG flag_other, flag_new, flag_itself, flag_hash_other; */
+  static const MKL_LONG flag_other = 0;
+  static const MKL_LONG flag_new = 1;
+  static const MKL_LONG flag_itself = 2;
+  static const MKL_LONG flag_hash_other = 3;
   bool (*ADD_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   /* bool (*MOV_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]); */
   bool (*DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
@@ -70,6 +74,18 @@ class ASSOCIATION : public CONNECTIVITY
   MKL_LONG GET_INDEX_HASH_FROM_ROLL(MKL_LONG index_particle, double rolled_p);
   MKL_LONG GET_HASH_FROM_ROLL(MKL_LONG index_particle, double rolled_p);
   MKL_LONG FIND_HASH_INDEX(MKL_LONG index_A, MKL_LONG index_B);
+
+
+  double update_CASE_particle_hash_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance);
+
+  double update_CASE_particle_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance);
+  /* MKL_LONG CONNECTIVITY_update_CASE_particle(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, double distance); */
+  double update_Z_particle(MKL_LONG index_particle);
+  double update_dPDF_particle(MKL_LONG index_particle);
+  double update_dCDF_particle(MKL_LONG index_particle);
+
+
+  
  ASSOCIATION() : CONNECTIVITY(){}
 
   ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition);
@@ -92,7 +108,6 @@ class ASSOCIATION : public CONNECTIVITY
 
 namespace TRUTH_MAP
 {
-  MKL_LONG IDENTIFIER_ACTION_BOOLEAN_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);  
   namespace MULTIPLE
   {
     bool CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
@@ -119,6 +134,8 @@ namespace TRUTH_MAP
 }
 
 
+
+
 double CONNECTIVITY_update_CASE_particle_hash_target(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance);
 
 double CONNECTIVITY_update_CASE_particle_target(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance);
@@ -127,8 +144,6 @@ double CONNECTIVITY_update_Z_particle(ASSOCIATION& CONNECT, MKL_LONG index_parti
 double CONNECTIVITY_update_dPDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_particle);
 double CONNECTIVITY_update_dCDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_particle);
 
-MKL_LONG backsearch(MATRIX& given_arr, double p);
-MKL_LONG bisection_search(MATRIX& given_arr, double p);
   
 
 #endif
