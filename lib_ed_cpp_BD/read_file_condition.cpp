@@ -5,7 +5,7 @@
 COND::COND(char* fn)
   {
     GIVEN_FILE.open(fn);
-    long cnt = 0;
+    MKL_LONG cnt = 0;
     string line;
     string cond, val;
     while(getline(GIVEN_FILE, line))
@@ -17,7 +17,7 @@ COND::COND(char* fn)
     N_arg = cnt; 
 
     arg = (string**) new string* [N_arg];
-    for(long i=0; i<N_arg; i++)
+    for(MKL_LONG i=0; i<N_arg; i++)
       {
         arg[i] = (string*) new string [2];
       }
@@ -36,7 +36,7 @@ COND::COND(char* fn)
 
 string& COND::operator()(string option_type)
 {
-  for(long i=0; i<N_arg; i++)
+  for(MKL_LONG i=0; i<N_arg; i++)
     {
       if(arg[i][0] == option_type)
         {
@@ -54,7 +54,7 @@ int COND::cond_print()
   if (arg)
     {
       cout << "### PRINTING ARGUMENTS ###\n";
-      for(long i=0; i<N_arg; i++)
+      for(MKL_LONG i=0; i<N_arg; i++)
         {
           cout << arg[i][0] << '\t' << arg[i][1] << endl;
         }

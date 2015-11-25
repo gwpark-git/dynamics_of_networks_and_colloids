@@ -23,11 +23,11 @@ extern "C" {
 class ASSOCIATION : public CONNECTIVITY
 {
  public:
-  long Nc; // number of chains per micelle
-  long Tec; // tolerance of end chains
-  long N_min; // 2Nc - Tec
-  long N_max; // 2Nc + Tec
-  long N_ASSOCIATION;
+  MKL_LONG Nc; // number of chains per micelle
+  MKL_LONG Tec; // tolerance of end chains
+  MKL_LONG N_min; // 2Nc - Tec
+  MKL_LONG N_max; // 2Nc + Tec
+  MKL_LONG N_ASSOCIATION;
   bool MULTIPLE_CONNECTIONS;
   MATRIX *CASE;
   MATRIX *dPDF;
@@ -42,10 +42,10 @@ class ASSOCIATION : public CONNECTIVITY
 
   // member variables
   
-  /* bool (*ADD_ASSOCIATION)(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new); */
-  /* bool (*MOV_ASSOCIATION)(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new); */
-  /* bool (*DEL_ASSOCIATION)(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new); */
-  long flag_other, flag_new, flag_itself, flag_hash_other;
+  /* bool (*ADD_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new); */
+  /* bool (*MOV_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new); */
+  /* bool (*DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new); */
+  MKL_LONG flag_other, flag_new, flag_itself, flag_hash_other;
   bool (*ADD_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   /* bool (*MOV_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]); */
   bool (*DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
@@ -55,27 +55,27 @@ class ASSOCIATION : public CONNECTIVITY
   bool (*CHECK_N_DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
 
   
-  long N_TOTAL_ASSOCIATION();
-  long N_CONNECTED_ENDS(long given_index);
-  long N_TOTAL_CONNECTED_ENDS();
-  bool CHECK_EXIST(long index_A, long index_B);
-  bool CHECK_EXIST_1D(long index_A, long index_B);
-  long add_association(long index_particle, long index_target);
-  long add_association_INFO(POTENTIAL_SET& POTs, long index_particle, long index_target, double distance);
-  long del_association(long index_particle, long index_target);
-  long del_association_hash(long index_particle, long hash_index_target);
-  long del_association_IK(long index_I, long hash_index_K);
-  long del_association_grab_IK(long index_I, long hash_index_K);
+  MKL_LONG N_TOTAL_ASSOCIATION();
+  MKL_LONG N_CONNECTED_ENDS(MKL_LONG given_index);
+  MKL_LONG N_TOTAL_CONNECTED_ENDS();
+  bool CHECK_EXIST(MKL_LONG index_A, MKL_LONG index_B);
+  bool CHECK_EXIST_1D(MKL_LONG index_A, MKL_LONG index_B);
+  MKL_LONG add_association(MKL_LONG index_particle, MKL_LONG index_target);
+  MKL_LONG add_association_INFO(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance);
+  MKL_LONG del_association(MKL_LONG index_particle, MKL_LONG index_target);
+  MKL_LONG del_association_hash(MKL_LONG index_particle, MKL_LONG hash_index_target);
+  MKL_LONG del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K);
+  MKL_LONG del_association_grab_IK(MKL_LONG index_I, MKL_LONG hash_index_K);
   
-  long GET_INDEX_HASH_FROM_ROLL(long index_particle, double rolled_p);
-  long GET_HASH_FROM_ROLL(long index_particle, double rolled_p);
-  long FIND_HASH_INDEX(long index_A, long index_B);
+  MKL_LONG GET_INDEX_HASH_FROM_ROLL(MKL_LONG index_particle, double rolled_p);
+  MKL_LONG GET_HASH_FROM_ROLL(MKL_LONG index_particle, double rolled_p);
+  MKL_LONG FIND_HASH_INDEX(MKL_LONG index_A, MKL_LONG index_B);
  ASSOCIATION() : CONNECTIVITY(){}
 
   ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition);
-  ASSOCIATION(long number_of_particles, long number_of_chains_per_particles, long tolerance_connection, bool ALLOWING_MULTIPLE_CONNECTIONS);
-  long set_initial_condition();
-  long initial();
+  ASSOCIATION(MKL_LONG number_of_particles, MKL_LONG number_of_chains_per_particles, MKL_LONG tolerance_connection, bool ALLOWING_MULTIPLE_CONNECTIONS);
+  MKL_LONG set_initial_condition();
+  MKL_LONG initial();
   virtual ~ASSOCIATION()
     {
       mkl_free(CASE);
@@ -85,14 +85,14 @@ class ASSOCIATION : public CONNECTIVITY
       mkl_free(weight);
     }
 
-  long read_exist_weight(const char* fn_weight);
+  MKL_LONG read_exist_weight(const char* fn_weight);
   
 };
 
 
 namespace TRUTH_MAP
 {
-  long IDENTIFIER_ACTION_BOOLEAN_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);  
+  MKL_LONG IDENTIFIER_ACTION_BOOLEAN_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);  
   namespace MULTIPLE
   {
     bool CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
@@ -109,26 +109,26 @@ namespace TRUTH_MAP
   bool ADD_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   bool DEL_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   
-  bool DEL_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new);
+  bool DEL_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
   
-  bool NEW_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new);
-  bool NEW_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new);
+  bool NEW_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
+  bool NEW_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
   
-  bool MOV_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new);
-  bool MOV_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, long index_itself, long index_target, long index_new);
+  bool MOV_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
+  bool MOV_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
 }
 
 
-double CONNECTIVITY_update_CASE_particle_hash_target(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, long index_particle, long hash_index_target, double distance);
+double CONNECTIVITY_update_CASE_particle_hash_target(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance);
 
-double CONNECTIVITY_update_CASE_particle_target(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, long index_particle, long index_target, double distance);
-/* long CONNECTIVITY_update_CASE_particle(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, long index_particle, double distance); */
-double CONNECTIVITY_update_Z_particle(ASSOCIATION& CONNECT, long index_particle);
-double CONNECTIVITY_update_dPDF_particle(ASSOCIATION& CONNECT, long index_particle);
-double CONNECTIVITY_update_dCDF_particle(ASSOCIATION& CONNECT, long index_particle);
+double CONNECTIVITY_update_CASE_particle_target(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance);
+/* MKL_LONG CONNECTIVITY_update_CASE_particle(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, double distance); */
+double CONNECTIVITY_update_Z_particle(ASSOCIATION& CONNECT, MKL_LONG index_particle);
+double CONNECTIVITY_update_dPDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_particle);
+double CONNECTIVITY_update_dCDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_particle);
 
-long backsearch(MATRIX& given_arr, double p);
-long bisection_search(MATRIX& given_arr, double p);
+MKL_LONG backsearch(MATRIX& given_arr, double p);
+MKL_LONG bisection_search(MATRIX& given_arr, double p);
   
 
 #endif

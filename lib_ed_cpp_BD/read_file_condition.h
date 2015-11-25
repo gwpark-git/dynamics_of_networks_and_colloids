@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <mkl.h>
 /* #include <stdlib.h> */
 using namespace std;
 
@@ -13,12 +14,12 @@ using namespace std;
 class COND
 {
 public:
-  /* long N_dimension, Np, Nt; */
+  /* MKL_LONG N_dimension, Np, Nt; */
   /* double dt; */
   
   string** arg;
   string ERR;
-  long N_arg;
+  MKL_LONG N_arg;
   ifstream GIVEN_FILE;
 
   int cond_print();
@@ -32,7 +33,7 @@ public:
   {
     if(arg)
       {
-        for(long i=0; i<N_arg; i++)
+        for(MKL_LONG i=0; i<N_arg; i++)
           {
             delete[] arg[i];
           }

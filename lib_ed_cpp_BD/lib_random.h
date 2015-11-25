@@ -16,19 +16,19 @@ extern "C" {
 
 namespace RANDOM
 {
-  long random_vector_generator(MATRIX& R_VEC_TRANS);
-  long single_random_vector_generator(MATRIX& given_vec);
-  long single_random_vector_generator_variance(MATRIX& given_vec, double s_2);
-  long single_unit_random_vector_generator(MATRIX& given_vec);
-  long unit_random_vector_generator(MATRIX& R_VEC_TRANS);
-  long unit_random_vector_generator_2D(MATRIX& R_VEC_TRANS);
+  MKL_LONG random_vector_generator(MATRIX& R_VEC_TRANS);
+  MKL_LONG single_random_vector_generator(MATRIX& given_vec);
+  MKL_LONG single_random_vector_generator_variance(MATRIX& given_vec, double s_2);
+  MKL_LONG single_unit_random_vector_generator(MATRIX& given_vec);
+  MKL_LONG unit_random_vector_generator(MATRIX& R_VEC_TRANS);
+  MKL_LONG unit_random_vector_generator_2D(MATRIX& R_VEC_TRANS);
 
-  long return_LONG_INT_rand(long SUP);
-  long return_LONG_INT_rand_boost(gsl_rng* r, long SUP);
+  MKL_LONG return_LONG_INT_rand(MKL_LONG SUP);
+  MKL_LONG return_LONG_INT_rand_boost(gsl_rng* r, MKL_LONG SUP);
   double return_double_rand_SUP1();
   double return_double_rand_SUP1_boost(gsl_rng* r);
-  long get_LONG_ARR_rand_boost(gsl_rng* r, long SUP, long* given_long_arr, long N_arr);
-  long get_DOUBLE_ARR_rand_boost(gsl_rng* r, double* given_double_arr, long N_arr);
+  MKL_LONG get_LONG_ARR_rand_boost(gsl_rng* r, MKL_LONG SUP, MKL_LONG* given_long_arr, MKL_LONG N_arr);
+  MKL_LONG get_DOUBLE_ARR_rand_boost(gsl_rng* r, double* given_double_arr, MKL_LONG N_arr);
   
 }
 

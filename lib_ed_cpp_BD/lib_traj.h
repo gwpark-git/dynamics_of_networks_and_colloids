@@ -29,57 +29,57 @@ class TRAJECTORY : public MATRIX
 
  public:
 
-  long init_ref();
+  MKL_LONG init_ref();
   enum {N_t_test = 10, N_p_test = 3};
   // as mentioned in previously, the dimensionality on this class is set to 2 for testing purpose. In order to make generalized code, it will changed and implemented into initiator of this class, later.
 
   string Method;
-  long N_energy_frequency;
+  MKL_LONG N_energy_frequency;
   
-  long Nt;
-  long Np;
+  MKL_LONG Nt;
+  MKL_LONG Np;
   // geometry. Note that all the proposed scheme should be defined in dimensionless scheme.
-  long dimension;
+  MKL_LONG dimension;
   double *box_dimension;
 
   // time step
-  long c_t;
+  MKL_LONG c_t;
   double dt;
 
 
   // member function
-  long Rt_i(long t, long i_bead, long direction)
+  MKL_LONG Rt_i(MKL_LONG t, MKL_LONG i_bead, MKL_LONG direction)
   {
     return index(t, i_bead*2*dimension + 1 + direction);
   }
   
-  long Vt_i(long t, long i_bead, long direction)
+  MKL_LONG Vt_i(MKL_LONG t, MKL_LONG i_bead, MKL_LONG direction)
   {
     return index(t, i_bead*2*dimension + 1 + dimension + direction);
   }
   
-  long traj_read(char fn[]);
-  long traj_write(char fn[])
+  MKL_LONG traj_read(char fn[]);
+  MKL_LONG traj_write(char fn[])
   {
     fprint_out(fn);
     return 0;
   }
 
   // initiator
-  long initialization(long N_time, long N_particle, double given_dt);
-  long initialization_COND(COND& given_condition);
+  MKL_LONG initialization(MKL_LONG N_time, MKL_LONG N_particle, double given_dt);
+  MKL_LONG initialization_COND(COND& given_condition);
 
  TRAJECTORY() ;
  TRAJECTORY(const TRAJECTORY& TRAJ); // its for copy-constructor. It must be classified for openmp variable
- TRAJECTORY(COND& given_condition, long N_basic);
+ TRAJECTORY(COND& given_condition, MKL_LONG N_basic);
  // operator overloading
  // simple operator for time
- double& operator()(long time_t);
+ double& operator()(MKL_LONG time_t);
  // simple operator for position
- double& operator()(long time_t, long bead_i, long dimension_k);
+ double& operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k);
  // simple operator for position and velocity. i_RV = 0 for position, i_RV = 1 for velocity
- double& operator()(long i_RV, long time_t, long bead_i, long dimension_k);
- long read_exist_traj(const char* fn_given_traj);
+ double& operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k);
+ MKL_LONG read_exist_traj(const char* fn_given_traj);
  
  virtual ~TRAJECTORY()
     {
@@ -91,13 +91,13 @@ class TRAJECTORY : public MATRIX
 };
 
 
-long traj_count_line(char fn[]);
+MKL_LONG traj_count_line(char fn[]);
 
 namespace GENERATOR
 {
-  long random_position_generator(TRAJECTORY& TRAJ);
-  /* long random_vector_generator(MATRIX& R_VEC_TRANS); */
-  long random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VEC_TRANS);
+  MKL_LONG random_position_generator(TRAJECTORY& TRAJ);
+  /* MKL_LONG random_vector_generator(MATRIX& R_VEC_TRANS); */
+  MKL_LONG random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VEC_TRANS);
 }
 
 
