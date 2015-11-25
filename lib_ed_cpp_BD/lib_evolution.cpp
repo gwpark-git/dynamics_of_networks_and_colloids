@@ -114,7 +114,7 @@ long INTEGRATOR::EULER::cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
 long INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, long index_t, long index_i, MATRIX& vec_boost_Nd)
 {
   given_vec.set_value(0.);
-  MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
+  // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
 
   for(long i=0; i<TRAJ.Np; i++)
     {
