@@ -24,7 +24,6 @@ int help()
 MKL_LONG main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition);
 MKL_LONG main_NAPLE_REPULSION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition);
 MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, COND& given_condition);
-// MKL_LONG main_NAPLE_ASSOCIATION_TEST(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, COND& given_condition);
 
 int main(int argc, char* argv[])
 {
@@ -313,18 +312,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               double rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(r_boost);
               // the PDF is already computed in the previous map
               time_MC_4 = dsecnd();
-              // MKL_LONG k = backsearch(dCDF_U[index_other_end_of_selected_chain], rolling_dCDF_U);
-              // MKL_LONG index_new_end_of_selected_chain = INDEX_dCDF_U[index_other_end_of_selected_chain](k);
-              // MKL_LONG index_hash_itself_from_other_end = CONNECT.FIND_HASH_INDEX(index_other_end_of_selected_chain, index_itself);
               
               MKL_LONG k = backsearch(dCDF_U[index_itself], rolling_dCDF_U);
               index_new_end_of_selected_chain = INDEX_dCDF_U[index_itself](k);
               time_MC_5 = dsecnd();
-
-              // these are alread set to index_set since index_blah is reference variable of the components for the index_set
-              // index_set[0] = index_other_end_of_selected_chain; 
-              // index_set[1] = index_new_end_of_selected_chain;
-              // index_set[2] = index_itself;
 
               MKL_LONG IDENTIFIER_ACTION = TRUTH_MAP::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, index_set);
               ACTION_ARR[IDENTIFIER_ACTION](TRAJ, index_t_now, POTs, CONNECT, index_set, tmp_vec);
@@ -332,7 +323,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               MKL_LONG N_index_boost = N_index_boost_arr[IDENTIFIER_ACTION];
               
               time_MC_6 = dsecnd();
-              // N_index_boost = 3;
               
               for(MKL_LONG i=0; i<N_index_boost; i++)
                 {
@@ -456,13 +446,18 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
 
 
-// -ipo option for interprocedure optimization for all files
-
 /*
  * Local variables:
- * compile-command: "icpc -O2 -openmp -Wall -mkl -o Brownian_simulation lib_ed_cpp_BD/lib_traj.cpp lib_ed_cpp_BD/read_file_condition.cpp lib_ed_cpp_BD/lib_evolution.cpp lib_ed_cpp_BD/matrix_ed.cpp lib_ed_cpp_BD/lib_potential.cpp lib_ed_cpp_BD/lib_connectivity.cpp lib_ed_cpp_BD/lib_association.cpp lib_ed_cpp_BD/lib_handle_association.cpp lib_ed_cpp_BD/lib_geometry.cpp lib_ed_cpp_BD/lib_random.cpp Brownian_simulation.cpp -lgsl -lm"
+ * compile-command: "icpc -ipo -O2 -Wall -mkl -o Brownian_simulation lib_ed_cpp_BD/lib_traj.cpp lib_ed_cpp_BD/read_file_condition.cpp lib_ed_cpp_BD/lib_evolution.cpp lib_ed_cpp_BD/matrix_ed.cpp lib_ed_cpp_BD/lib_potential.cpp lib_ed_cpp_BD/lib_connectivity.cpp lib_ed_cpp_BD/lib_association.cpp lib_ed_cpp_BD/lib_handle_association.cpp lib_ed_cpp_BD/lib_geometry.cpp lib_ed_cpp_BD/lib_random.cpp Brownian_simulation.cpp -lgsl -lm"
  * End:
  */
 
-
+/*
+  -ipo: interprocedure optimization
+  -O2: optimization level 2
+  -Wall: rigirous compile option (no warning point is allowed)
+  -mkl: Math Kernel Librar (Intel)
+  -lgsl: GSL library
+  -lm: Math library
+ */
 
