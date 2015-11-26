@@ -154,6 +154,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_weight")).c_str();
   string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_MC_LOG")).c_str();
   ofstream FILE_LOG;
+
+  
   MKL_LONG N_THREADS = atol(given_condition("N_THREADS").c_str());
   printf("THREAD_SETTING: %ld ... ", N_THREADS); //ERR_TEST
   omp_set_num_threads(N_THREADS);
@@ -171,6 +173,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       vec_boost_Nd_parallel[i].initial(TRAJ.dimension, 1, 0.);
     }
   // ACTION::IDX IDX_SET;
+
+  
   INDEX_MC IDX;
   // MKL_LONG &index_itself = IDX.beads[2], &index_other_end_of_selected_chain = IDX.beads[0], &index_new_end_of_selected_chain = IDX.beads[1], &index_hash_selected_chain = IDX.beads[3];
   // MKL_LONG index_set[4] = {0};
@@ -178,6 +182,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   // MKL_LONG &index_hash_selected_chain = index_set[3];
   // MKL_LONG (*ACTION_ARR[4])(TRAJECTORY&, MKL_LONG, POTENTIAL_SET&, ASSOCIATION&, MKL_LONG[], MATRIX&);
   // ACTION_ARR[0] = ACTION::CANCEL; ACTION_ARR[1] = ACTION::ADD; ACTION_ARR[2] = ACTION::DEL; ACTION_ARR[3] = ACTION::MOV;
+  MKL_LONG cnt_arr[4] = {0};
+  MKL_LONG &cnt_cancel = cnt_arr[IDX.CANCEL], &cnt_add = cnt_arr[IDX.ADD], &cnt_del = cnt_arr[IDX.DEL], &cnt_mov = cnt_arr[IDX.MOV];
+
+  
   printf("DONE\n"); // ERR_TEST
   printf("FORCE VECTOR GENERATING ... "); // ERR_TEST
   MATRIX *force_spring = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
@@ -255,16 +263,25 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       MKL_LONG pre_N_associations = 0;
       MKL_LONG N_associations = 0;
 
+      // rest counting array
+      for(MKL_LONG i=0; i<4; i++)
+        {
+          cnt_arr[i] = 0;
+        }
+      
       MKL_LONG cnt = 1;
       if(given_condition("MC_renewal")=="TRUE")
         {
-          CONNECT.initial();
-          for(MKL_LONG i=0; i<CONNECT.Np; i++)
+          /*
+            // This code was problematic to allocate ASSOCIATION object at each time step, which is the main reason for memory-leaking at each time evolution.
+            // Note that this part is originated from the differences between the previous one and newly developed one.
+            CONNECT.initial();
+            for(MKL_LONG i=0; i<CONNECT.Np; i++)
             CONNECT.TOKEN[i] = 1;
+          */
+          CONNECT.set_initial_condition();
         }
       // MKL_LONG IDENT_CANCEL = 0, IDENT_ADD = 1, IDENT_DEL = 2, IDENT_MOV = 3;
-      MKL_LONG cnt_arr[4] = {0};
-      MKL_LONG &cnt_cancel = cnt_arr[IDX.CANCEL], &cnt_add = cnt_arr[IDX.ADD], &cnt_del = cnt_arr[IDX.DEL], &cnt_mov = cnt_arr[IDX.MOV];
 
       // MKL_LONG N_index_boost_arr[4];
       // N_index_boost_arr[IDX.CANCEL] = 0; N_index_boost_arr[IDX.ADD] = 2; N_index_boost_arr[IDX.DEL] = 2; N_index_boost_arr[IDX.MOV] = 3;
