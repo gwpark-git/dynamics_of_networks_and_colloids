@@ -19,8 +19,9 @@ class INDEX_MC
   // For better understanding, the reference variables are tagged and initialized in the constructor. For details, see the constructor in the sourcecode.
 
   MKL_LONG beads[4];
+  /* // Commented for copy constructor validity. the references will be defined outside class object
   MKL_LONG &itself, &attached_bead, &new_attached_bead, &hash_attached_bead;
-
+  */
   // action_arry setting for boosting up the boolean identifier
   // ACTION_ARR[IDX.CANCEL] act CANCEL. The IDX.CANCEL can be changed by IDX.ADD, IDX.DEL, IDX.MOV, respectively.
   MKL_LONG (*ACTION_ARR[4])(TRAJECTORY&, MKL_LONG, POTENTIAL_SET&, ASSOCIATION&, MKL_LONG[], MATRIX&);
@@ -35,12 +36,21 @@ class INDEX_MC
   static const MKL_LONG DEL = 2;
   static const MKL_LONG MOV = 3;
   static const MKL_LONG N_BOOST_COUNT[]; // defined on sourcefile
- INDEX_MC();
-  ~INDEX_MC()
-    {
-    }
-};
+  INDEX_MC();
+  ~INDEX_MC(){}
 
+  /* 
+     This copy constructor is of importance to prevent the potential problem.
+     Remind rule of three.
+   */ 
+  MKL_LONG copy_INDEX(const INDEX_MC& given_IDX);
+  INDEX_MC& operator=(const INDEX_MC& given_IDX);
+  INDEX_MC(const INDEX_MC& given_IDX); // copy constructore
+  
+  MKL_LONG set_initial_variables();
+  MKL_LONG initial();
+  
+};
 
 namespace SEARCHING
 {

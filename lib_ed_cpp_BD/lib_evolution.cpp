@@ -141,6 +141,16 @@ MKL_LONG INTEGRATOR::EULER::cal_random_force(TRAJECTORY& TRAJ, POTENTIAL_SET& PO
   return 0;
 }
 
+MKL_LONG INTEGRATOR::EULER::cal_random_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, gsl_rng* r_boost)
+{
+  // RANDOM::single_random_vector_generator_variance(given_vec, 1.0);
+  RANDOM::single_random_vector_generator_variance_boost(given_vec, 1.0, r_boost);
+  matrix_mul(given_vec, sqrt(2.0));
+  POTs.scale_random(given_vec, POTs.force_variables);
+  return 0;
+}
+
+
 MKL_LONG INTEGRATOR::EULER::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MKL_LONG index_t_now)
 {
   MKL_LONG index_t_next = (index_t_now + 1)%TRAJ.Nt;
