@@ -35,6 +35,7 @@ class INDEX_MC
   static const MKL_LONG ADD = 1;
   static const MKL_LONG DEL = 2;
   static const MKL_LONG MOV = 3;
+  static const MKL_LONG LOCK = 4;
   static const MKL_LONG N_BOOST_COUNT[]; // defined on sourcefile
   INDEX_MC();
   ~INDEX_MC(){}

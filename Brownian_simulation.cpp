@@ -191,8 +191,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   // MKL_LONG &index_hash_selected_chain = index_set[3];
   // MKL_LONG (*ACTION_ARR[4])(TRAJECTORY&, MKL_LONG, POTENTIAL_SET&, ASSOCIATION&, MKL_LONG[], MATRIX&);
   // ACTION_ARR[0] = ACTION::CANCEL; ACTION_ARR[1] = ACTION::ADD; ACTION_ARR[2] = ACTION::DEL; ACTION_ARR[3] = ACTION::MOV;
-  MKL_LONG cnt_arr[4] = {0};
-  MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV];
+  MKL_LONG cnt_arr[5] = {0};
+  MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
 
   
   printf("DONE\n"); // ERR_TEST
@@ -210,7 +210,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   if(given_condition("MC_LOG") == "TRUE")
     {
       FILE_LOG.open(filename_MC_LOG.c_str(), std::ios_base::out);
-      FILE_LOG << "00_cnt"<< '\t'  << "01_index_itself"<< '\t'  << "02_roll_dCDF"<< '\t'  << "03_hash_index_target"<< '\t'  << "04_index_target"<< '\t'  << "05_roll_dCDF_U"<< '\t'  << "06_index_k_new_target"<< '\t'  << "07_index_new_target"<< '\t'  << "08_TOKEN(i_NT)"<< '\t'  << "09_N_CHAIN_ENDS" << '\t'<< "10_N_CHAIN_ITSELF" << '\t' << "11_N_TOTAL_ASSOCIATION*2" << '\t' << "12_cnt_add"<< '\t'  << "13_cnt_mov"<< '\t'  << "14_cnt_del"<< '\t'  << "15_cnt_cancel" << endl;
+      FILE_LOG << "00_cnt"<< '\t'  << "01_index_itself"<< '\t'  << "02_roll_dCDF"<< '\t'  << "03_hash_index_target"<< '\t'  << "04_index_target"<< '\t'  << "05_roll_dCDF_U"<< '\t'  << "06_index_k_new_target"<< '\t'  << "07_index_new_target"<< '\t'  << "08_TOKEN(i_NT)"<< '\t'  << "09_N_CHAIN_ENDS" << '\t'<< "10_N_CHAIN_ITSELF" << '\t' << "11_N_TOTAL_ASSOCIATION*2" << '\t' << "12_cnt_add"<< '\t'  << "13_cnt_mov"<< '\t'  << "14_cnt_del"<< '\t'  << "15_cnt_cancel" << '\t' << "16_cnt_lock" << endl;
     }
   printf("SET SIMULATION PARAMETERS ...");
   MKL_LONG N_skip = atol(given_condition("N_skip").c_str());
@@ -279,8 +279,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       double max_N_diff = 0.;
       MKL_LONG sum_over_MC_steps = 0;
       MKL_LONG count_M = 0, pre_count_M = 0;
-      MKL_LONG pre_N_associations = 0;
-      MKL_LONG N_associations = 0;
+      // MKL_LONG pre_N_associations = 0;
+      // MKL_LONG N_associations = 0;
 
       // rest counting array
       for(MKL_LONG i=0; i<4; i++)
@@ -316,7 +316,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       // // Therefore, further reduce is possible to modify this computing.
       // // On here, the feature is ignored for convenience.
       double time_st_det_pdf = dsecnd();
-#pragma omp parallel for default(none) shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dt_pdf, dt_sort) num_threads(N_THREADS)
+#pragma omp parallel for default(none) shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dt_pdf, dt_sort, POTs) num_threads(N_THREADS)
       for(MKL_LONG i=0; i<TRAJ.Np; i++)
         {
           double time_st_pdf = dsecnd();
@@ -332,7 +332,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
       if(given_condition("Step")!="EQUILIBRATION")
         {
-          while(IDENTIFIER_ASSOC && cnt < N_max_steps)
+          while(IDENTIFIER_ASSOC && cnt < N_max_steps)//cnt < N_max_blocks)
             {
               // choice for visiting bead   
               // MKL_LONG total_chain_ends = CONNECT.N_TOTAL_CONNECTED_ENDS(); // this is no more importance
@@ -345,10 +345,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               */
               // LOCKER.RESET(); // reset point should not be here.
               // pragma point
-#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dt_pdf, dt_sort, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7, time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8, cnt) num_threads(N_THREADS) 
+#pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dt_pdf, dt_sort, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr, count_M, cnt) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS) 
               for(MKL_LONG tp = 0; tp<N_steps_block; tp++)
                 {
-                  cnt++;
                   /*
                     'it' have the identity number for current thread. Then, the reference variables IDX and r_boost will be used in order to usability and readability. In this case, IDX, r_boost is just reference of existing one, but IDX and r_boost itself is local reference variables which will varied thread to thread
                   */
@@ -380,7 +379,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                   time_MC_5 = dsecnd();
                   MKL_LONG IDENTIFIER_ACTION = TRUE; // it can be 1 (IDX.ADD) but just true value
                   MKL_LONG IDENTIFIER_LOCKING = FALSE;
-                  #pragma omp critical
+#pragma omp critical(LOCKING) // LOCKING is the name for this critical blocks
                   {
                     /*
                       On the omp critical region, the block will work only one thread.
@@ -404,66 +403,98 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                     // this is LOCKING procedure
                     if(!IDENTIFIER_LOCKING)
                       {
+                        cnt++;
                         for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++)
                           {
                             LOCKER(IDX.beads[I_BEADS]) = TRUE;
                           }
+                      }
+                    else
+                      {
+                            cnt_lock ++;
                       }
                   }
                   // even if this IF-phrase is duplicate one, this is of importance to detach from the 'critical directive' region in the OpenMP.
                   // Note that the critical region only applicable with single thread while the others will be used in parallel regime.
                   // In addition, the gap for passing the critical region will tune further gaps, then the computation speed for passing critical region will not be real critical issue.
                   
-                  if(IDENTIFIER_ACTION)
-                    // this is benefit to reduce one more action phrase when the LOCKING is TRUE, then IDENTIFIER_ACTION becomes FALSE.
-                    IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);
-                  ACTION::ACT(TRAJ, index_t_now, POTs, CONNECT, IDX, tmp_vec, IDENTIFIER_ACTION);
-                  // IDX.ACTION_ARR[IDENTIFIER_ACTION](TRAJ, index_t_now, POTs, CONNECT, index_set, tmp_vec);
-                  // cnt_arr[IDENTIFIER_ACTION] ++;
-                  // MKL_LONG N_index_boost = N_index_boost_arr[IDENTIFIER_ACTION];
-              
-                  time_MC_6 = dsecnd();
-                  ACTION::UPDATE_INFORMATION(CONNECT, IDX, cnt_arr, IDENTIFIER_ACTION);
-                  if(!IDENTIFIER_LOCKING) // IDX.CANCEL == 0
+                  // if(IDENTIFIER_ACTION)
+                  if(!IDENTIFIER_LOCKING) 
                     {
+                      // the scheme have been changed due to the fact that the LOCKING procedure does not affect to the equilibrium identification
+                      // #pragma omp atomic
+                      //   cnt++;
+
+                      IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);
+                      ACTION::ACT(TRAJ, index_t_now, POTs, CONNECT, IDX, vec_boost_Nd_parallel[it], IDENTIFIER_ACTION);
+                      // IDX.ACTION_ARR[IDENTIFIER_ACTION](TRAJ, index_t_now, POTs, CONNECT, index_set, tmp_vec);
+                      // cnt_arr[IDENTIFIER_ACTION] ++;
+                      // MKL_LONG N_index_boost = N_index_boost_arr[IDENTIFIER_ACTION];
+              
+                      time_MC_6 = dsecnd();
+                      ACTION::UPDATE_INFORMATION(CONNECT, IDX, cnt_arr, IDENTIFIER_ACTION);
+                      // if(!IDENTIFIER_LOCKING) // IDX.CANCEL == 0
+                      //   {
+
+                      // UNLOCKING procedure
+// #pragma omp critical(UNLOCKING)
+//                       {
                       for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++)
                         {
                           LOCKER(IDX.beads[I_BEADS]) = FALSE;
                         }
+                      // }
                       // count_M ++; // this is for compatible biased EQUILIBRIUM CHECKING procedure
-                    }
-                  // for(MKL_LONG i=0; i<N_index_boost; i++)
-                  //   {
-                  //     CONNECT.update_Z_particle(index_set[i]);
-                  //     CONNECT.update_dPDF_particle(index_set[i]);
-                  //     CONNECT.update_dCDF_particle(index_set[i]);
-                  //   }
-                  // if(N_associations != pre_N_associations)
-                  //   count_M ++;
+                      // }
+                      // for(MKL_LONG i=0; i<N_index_boost; i++)
+                      //   {
+                      //     CONNECT.update_Z_particle(index_set[i]);
+                      //     CONNECT.update_dPDF_particle(index_set[i]);
+                      //     CONNECT.update_dCDF_particle(index_set[i]);
+                      //   }
+                      // if(N_associations != pre_N_associations)
+                      //   count_M ++;
 
-                  pre_N_associations = N_associations;
-                  N_associations = cnt_add - cnt_del;
-                  count_M += N_associations;
-                  
-                  time_MC_7 = dsecnd();
-                  dt_1 += time_MC_2 - time_MC_1;
-                  dt_2 += time_MC_3 - time_MC_2;
-                  dt_3 += time_MC_4 - time_MC_3;
-                  dt_4 += time_MC_5 - time_MC_4;
-                  dt_5 += time_MC_6 - time_MC_5;
-                  dt_6 += time_MC_7 - time_MC_6;
+                      // pre_N_associations = N_associations;
 
-                  // the following log should be re-defined with appropriate manner with the prallel region.
-                  // note that it should be critical directive
-                  if (given_condition("MC_LOG") == "TRUE")
-                    {
-                      #pragma omp critical
+                      // cnt++; // count involves 
+
+                      time_MC_7 = dsecnd();
+#pragma omp critical(TIME)
                       {
-                        MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
-                        MKL_LONG count_N_associagtions = cnt_add - cnt_del;
-                        FILE_LOG << cnt << '\t' << index_itself << '\t' << rolling_dCDF<< '\t'  << index_attached_bead << '\t'  << index_new_attached_bead<< '\t'  << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_attached_bead << '\t'  << CONNECT.TOKEN[index_itself]<< '\t'<< CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight[index_itself](0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << endl;
+                      
+                        dt_1 += time_MC_2 - time_MC_1;
+                        dt_2 += time_MC_3 - time_MC_2;
+                        dt_3 += time_MC_4 - time_MC_3;
+                        dt_4 += time_MC_5 - time_MC_4;
+                        dt_5 += time_MC_6 - time_MC_5;
+                        dt_6 += time_MC_7 - time_MC_6;
                       }
-                    }
+                      // the following log should be re-defined with appropriate manner with the prallel region.
+                      // note that it should be critical directive
+#pragma omp critical(COUNTING)
+                      {
+                        /*
+                          critical(COUNTING) blocks:
+                          This is counting the action information that will be used for the future
+                         */
+                        cnt_arr[IDENTIFIER_ACTION]++;
+
+                        MKL_LONG N_associations = cnt_add - cnt_del;
+                        count_M += N_associations;
+                      
+                        if (given_condition("MC_LOG") == "TRUE")
+                          {
+                            MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
+                            MKL_LONG count_N_associagtions = cnt_add - cnt_del;
+                            {
+                              // printf("it=%ld, cnt=%ld, cnt_lock=%ld, cnt_add=%ld, cnt_del=%ld, cnt_mov=%ld, cnt_cancel=%ld, ID_LOCK=%ld, IDX_ACTION=%ld\n", it, cnt, cnt_lock, cnt_add, cnt_del, cnt_mov, cnt_cancel, IDENTIFIER_LOCKING, IDENTIFIER_ACTION);
+                              FILE_LOG << cnt << '\t' << index_itself << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << index_attached_bead << '\t'  << index_new_attached_bead<< '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_attached_bead << '\t'  << CONNECT.TOKEN[index_itself]<< '\t'<< CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight[index_itself](0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << '\t' << cnt_lock << endl;
+                            }
+                            // FILE_LOG << boost::format("%10d\t%4d\t")
+                          }
+                      } // critical(COUNTING)
+                    } // LOCKING 
                 } // for loop : omp parallel region
               // time_MC_7 = dsecnd();
               double time_MC_out_loop = dsecnd();
@@ -472,10 +503,14 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               // if(cnt%N_steps_block == 0 && cnt != N_steps_block)
               if(cnt != N_steps_block) // the first step should be passed
                 {
-                  N_diff = (double)(count_M/cnt) - (double)(pre_count_M/(cnt-N_steps_block));
+                  N_diff = (double)(count_M/cnt) - (double)(pre_count_M/(cnt-(N_steps_block-cnt_lock)));
+                  // shift factor cnt_lock is used in order to get proper identification
                   max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
                   if(N_diff/max_N_diff < tolerance_association)
-                    IDENTIFIER_ASSOC = FALSE;
+                    {
+                      printf("IDENT = %e, N_diff = %e, max_N_diff = %e\n", N_diff/max_N_diff, N_diff, max_N_diff);
+                      IDENTIFIER_ASSOC = FALSE;
+                    }
                   pre_count_M = count_M;
                 }
               
