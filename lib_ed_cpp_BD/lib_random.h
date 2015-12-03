@@ -19,6 +19,8 @@ namespace RANDOM
   MKL_LONG random_vector_generator(MATRIX& R_VEC_TRANS);
   MKL_LONG single_random_vector_generator(MATRIX& given_vec);
   MKL_LONG single_random_vector_generator_variance(MATRIX& given_vec, double s_2);
+  MKL_LONG single_random_vector_generator_boost(MATRIX& given_vec, gsl_rng* r_boost);
+  MKL_LONG single_random_vector_generator_variance_boost(MATRIX& given_vec, double s_2, gsl_rng* r_boost);
   MKL_LONG single_unit_random_vector_generator(MATRIX& given_vec);
   MKL_LONG unit_random_vector_generator(MATRIX& R_VEC_TRANS);
   MKL_LONG unit_random_vector_generator_2D(MATRIX& R_VEC_TRANS);

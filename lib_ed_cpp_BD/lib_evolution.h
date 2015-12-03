@@ -20,6 +20,8 @@ namespace INTEGRATOR
     // In the parallel region, the given variable is transfered by vec_boost_Nd_parallel[i] that is MATRIX
     // Therefore, here should have MATRIX& for call-by-reference rather than MATRIX*.
     MKL_LONG cal_random_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t);
+    MKL_LONG cal_random_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, gsl_rng* r_boost);
+    
   }
   namespace EULER_ASSOCIATION
   {

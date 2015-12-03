@@ -77,6 +77,17 @@ MKL_LONG RANDOM::single_random_vector_generator(MATRIX& given_vec)
   return 0;
 }
 
+MKL_LONG RANDOM::single_random_vector_generator_boost(MATRIX& given_vec, gsl_rng* r_boost)
+{
+  for (MKL_LONG k=0; k<given_vec.size; k++)
+    {
+      given_vec(k) = 2.0*(gsl_rng_uniform(r_boost) - 0.5); 
+      // -0.5 is used for vector components from -0.5 to 0.5, then multiplied by 2 gave us -1 to 1. 
+    }
+  return 0;
+}
+
+
 MKL_LONG RANDOM::single_random_vector_generator_variance(MATRIX& given_vec, double s_2)
 {
   single_random_vector_generator(given_vec);
@@ -86,6 +97,17 @@ MKL_LONG RANDOM::single_random_vector_generator_variance(MATRIX& given_vec, doub
     }
   return 0;
 }
+
+MKL_LONG RANDOM::single_random_vector_generator_variance_boost(MATRIX& given_vec, double s_2, gsl_rng* r_boost)
+{
+  single_random_vector_generator_boost(given_vec, r_boost);
+  for(MKL_LONG k=0; k<given_vec.size; k++)
+    {
+      given_vec(k) *= sqrt(3.0)*s_2; // to get variance 1
+    }
+  return 0;
+}
+
 
 MKL_LONG RANDOM::random_vector_generator(MATRIX& R_VEC_TRANS)
 {
