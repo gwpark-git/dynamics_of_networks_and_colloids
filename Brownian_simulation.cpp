@@ -244,8 +244,13 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   gsl_rng_env_setup();
   T_boost = gsl_rng_default;
   r_boost = gsl_rng_alloc(T_boost);
+  gsl_rng_set(r_boost, random());
+  
   printf("DONE\n");
   printf("START SIMULATION\n");
+  MKL_LONG pre_N_associations = 0;
+  MKL_LONG N_associations = 0;
+  
   for(MKL_LONG t = 0; t<Nt-1; t++)
     {
       MKL_LONG index_t_now = t % N_basic;
@@ -261,36 +266,15 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       MKL_LONG sum_over_MC_steps = 0;
       MKL_LONG count_M = 0;
       MKL_LONG pre_count_M = 0;
-      MKL_LONG pre_N_associations = 0;
-      MKL_LONG N_associations = 0;
 
-      // rest counting array
-      for(MKL_LONG i=0; i<4; i++)
-        {
-          cnt_arr[i] = 0;
-        }
-      
       MKL_LONG cnt = 1;
-      if(given_condition("MC_renewal")=="TRUE")
-        {
-          /*
-            // This code was problematic to allocate ASSOCIATION object at each time step, which is the main reason for memory-leaking at each time evolution.
-            // Note that this part is originated from the differences between the previous one and newly developed one.
-            CONNECT.initial();
-            for(MKL_LONG i=0; i<CONNECT.Np; i++)
-            CONNECT.TOKEN[i] = 1;
-          */
-          CONNECT.set_initial_condition();
-        }
       // MKL_LONG IDENT_CANCEL = 0, IDENT_ADD = 1, IDENT_DEL = 2, IDENT_MOV = 3;
 
       // MKL_LONG N_index_boost_arr[4];
       // N_index_boost_arr[IDX.CANCEL] = 0; N_index_boost_arr[IDX.ADD] = 2; N_index_boost_arr[IDX.DEL] = 2; N_index_boost_arr[IDX.MOV] = 3;
         
       double time_st_MC = dsecnd();
-      gsl_rng_set(r_boost, random());
 
-      
       // computing the distance map between beads for reducing overhead
       // note that the computing distance map during association spend 80% of computing time
       // That involve computing map from 1 to 3 beads (with number of Monte-Carlo steps)
@@ -312,6 +296,39 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
         }
       double time_end_det_pdf = dsecnd();
       dt_det_pdf += time_end_det_pdf - time_st_det_pdf;
+
+      // this is rearranged in order to use the previously updated information when MC_renewal is not turned on.
+      if(given_condition("MC_renewal")=="TRUE")
+        {
+          /*
+            // This code was problematic to allocate ASSOCIATION object at each time step, which is the main reason for memory-leaking at each time evolution.
+            // Note that this part is originated from the differences between the previous one and newly developed one.
+            CONNECT.initial();
+            for(MKL_LONG i=0; i<CONNECT.Np; i++)
+            CONNECT.TOKEN[i] = 1;
+          */
+          CONNECT.set_initial_condition();
+          // rest counting array
+          for(MKL_LONG i=0; i<4; i++)
+            {
+              cnt_arr[i] = 0;
+            }
+        }
+      else
+        {
+#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, vec_boost_Nd_parallel) num_threads(N_THREADS)
+          for(MKL_LONG i=0; i<TRAJ.Np; i++)
+            {
+              for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
+                {
+                  CONNECT.update_CASE_particle_hash_target(POTs, i, j, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, i, CONNECT.HASH[i](j), vec_boost_Nd_parallel[i]));
+                }
+              CONNECT.update_Z_particle(i);
+              CONNECT.update_dPDF_particle(i);
+              CONNECT.update_dCDF_particle(i);
+            }
+        }
+      
 
       if(given_condition("Step")!="EQUILIBRATION")
         {
@@ -362,7 +379,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                   N_diff = (double)(count_M/cnt) - (double)(pre_count_M/(cnt-N_steps_block));
                   max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
                   if(N_diff/max_N_diff < tolerance_association)
-                    IDENTIFIER_ASSOC = FALSE;
+                    {
+                      IDENTIFIER_ASSOC = FALSE;
+                    }
                   pre_count_M = count_M;
                 }
               // this is temporal changes in ordert to perform parallel computation inside MC steps
@@ -448,7 +467,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       // printf("WRITING DATA\n");
       if(t%N_skip==0)
         {
-          printf("STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_now), energy(1));
+          printf("##### STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_now), energy(1));
           printf("time consuming: MC, LV, AN, FILE = %8.6e, %8.6e, %8.6e, %8.6e\n", time_MC, time_LV, time_AN, time_file);
           double total_time = time_MC + time_LV + time_AN + time_file;
           printf("time fraction:  MC, LV, AN, FILE = %6.1f, %6.1f, %6.1f, %6.1f\n", time_MC*100/total_time, time_LV*100/total_time, time_AN*100/total_time, time_file*100/total_time);
@@ -457,6 +476,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, action = %6.1f, update = %6.1f, MC_EQ_ident = %6.1f\n", dt_det_pdf*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
           double total_dt_pdf = dt_pdf + dt_sort;
           printf("computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
+          printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, max_N_diff = %6.3e, ratio = %6.3e, NAS = %ld ####\n", cnt, N_diff, max_N_diff, N_diff/max_N_diff, N_associations);
           TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
           energy.fprint(filename_energy.c_str());
           for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
