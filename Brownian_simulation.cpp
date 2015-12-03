@@ -260,6 +260,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       double max_N_diff = 0.;
       MKL_LONG sum_over_MC_steps = 0;
       MKL_LONG count_M = 0;
+      MKL_LONG pre_count_M = 0;
       MKL_LONG pre_N_associations = 0;
       MKL_LONG N_associations = 0;
 
@@ -355,24 +356,52 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
               pre_N_associations = N_associations;
               N_associations = cnt_add - cnt_del;
-
-              if(N_associations != pre_N_associations)
+              count_M += N_associations;
+              if (cnt%N_steps_block == 0 && cnt != N_steps_block)
                 {
-                  count_M ++;
-                  if (count_M%N_steps_block == 0)
-                    {
-                      {
-                        N_diff = fabs((double)(1./(count_M*(count_M-1)))*((count_M-1)*N_associations - sum_over_MC_steps));
-                        max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
-                        if(N_diff/max_N_diff < tolerance_association)
-                          {
-                            IDENTIFIER_ASSOC = FALSE;
-                          }
-                      }
-                    }
-                  sum_over_MC_steps += N_associations;
+                  N_diff = (double)(count_M/cnt) - (double)(pre_count_M/(cnt-N_steps_block));
+                  max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
+                  if(N_diff/max_N_diff < tolerance_association)
+                    IDENTIFIER_ASSOC = FALSE;
+                  pre_count_M = count_M;
                 }
+              // this is temporal changes in ordert to perform parallel computation inside MC steps
+              // if(N_associations != pre_N_associations)
+              //   {
+              // count_M ++;
+              // if (count_M%N_steps_block == 0)
+              //   {
+              //     {
+              //       N_diff = fabs((double)(1./(count_M*(count_M-pre_count_M)))*((count_M-pre_count_M)*N_associations - sum_over_MC_steps));
+              //       max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
+              //       if(N_diff/max_N_diff < tolerance_association)
+              //         {
+              //           IDENTIFIER_ASSOC = FALSE;
+              //         }
+              //     }
+              //     pre_count_M = count_M -1;
+              //   }
+              // sum_over_MC_steps += N_associations;
+                // }
+              // if(N_associations != pre_N_associations)
+              //   {
+              //     count_M ++;
+              //     if (count_M%N_steps_block == 0)
+              //       {
+              //         {
+              //           N_diff = fabs((double)(1./(count_M*(count_M-1)))*((count_M-1)*N_associations - sum_over_MC_steps));
+              //           max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
+              //           if(N_diff/max_N_diff < tolerance_association)
+              //             {
+              //               IDENTIFIER_ASSOC = FALSE;
+              //             }
+              //         }
+              //       }
+              //     sum_over_MC_steps += N_associations;
+              //   }
 
+
+              
               time_MC_8 = dsecnd();
               dt_1 += time_MC_2 - time_MC_1;
               dt_2 += time_MC_3 - time_MC_2;
