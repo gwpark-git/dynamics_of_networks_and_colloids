@@ -177,15 +177,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
     {
       vec_boost_Nd_parallel[i].initial(TRAJ.dimension, 1, 0.);
     }
-  // ACTION::IDX IDX_SET;
-
-  
-  // MKL_LONG &index_itself = IDX.beads[2], &index_other_end_of_selected_chain = IDX.beads[0], &index_new_end_of_selected_chain = IDX.beads[1], &index_hash_selected_chain = IDX.beads[3];
-  // MKL_LONG index_set[4] = {0};
-  // MKL_LONG &index_itself = index_set[2], &index_other_end_of_selected_chain = index_set[0], &index_new_end_of_selected_chain = index_set[1]; // this make identify the system
-  // MKL_LONG &index_hash_selected_chain = index_set[3];
-  // MKL_LONG (*ACTION_ARR[4])(TRAJECTORY&, MKL_LONG, POTENTIAL_SET&, ASSOCIATION&, MKL_LONG[], MATRIX&);
-  // ACTION_ARR[0] = ACTION::CANCEL; ACTION_ARR[1] = ACTION::ADD; ACTION_ARR[2] = ACTION::DEL; ACTION_ARR[3] = ACTION::MOV;
   MKL_LONG cnt_arr[5] = {0};
   MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
 
@@ -272,14 +263,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       IDX_ARR[i].initial();
       IDX_ARR[i].set_initial_variables();
     }
-  /* this is test code */
-  // printf("TEST GSL_RNG: %ld\n", gsl_rng_uniform_int(r_boost_arr[0], TRAJ.Np));
-  /* test is done */
-// =======
-//   r_boost = gsl_rng_alloc(T_boost);
-//   gsl_rng_set(r_boost, random());
   
->>>>>>> 0dfa89dda200fd0bd56272d37d820f51400b1c5a
   printf("DONE\n");
   printf("START SIMULATION\n");
   MKL_LONG pre_N_associations = 0;
@@ -298,42 +282,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       double N_diff = 0.;
       double max_N_diff = 0.;
       MKL_LONG sum_over_MC_steps = 0;
-// <<<<<<< HEAD
-// <<<<<<< HEAD
-//       MKL_LONG count_M = 0;
-//       MKL_LONG pre_count_M = 0;
-//       MKL_LONG pre_N_associations = 0;
-//       MKL_LONG N_associations = 0;
-// =======
       MKL_LONG count_M = 0, pre_count_M = 0;
-      // MKL_LONG pre_N_associations = 0;
-      // MKL_LONG N_associations = 0;
-// >>>>>>> parallel
-// =======
-//       MKL_LONG count_M = 0;
-//       MKL_LONG pre_count_M = 0;
-// >>>>>>> 0dfa89dda200fd0bd56272d37d820f51400b1c5a
 
       MKL_LONG cnt = 1;
-// <<<<<<< HEAD
-//       if(given_condition("MC_renewal")=="TRUE")
-//         {
-//           /*
-//           // This code was problematic to allocate ASSOCIATION object at each time step, which is the main reason for memory-leaking at each time evolution.
-//           // Note that this part is originated from the differences between the previous one and newly developed one.
-//           CONNECT.initial();
-//           for(MKL_LONG i=0; i<CONNECT.Np; i++)
-//           CONNECT.TOKEN[i] = 1;
-//           */
-//           CONNECT.set_initial_condition();
-//         }
-// =======
-// >>>>>>> 0dfa89dda200fd0bd56272d37d820f51400b1c5a
-      // MKL_LONG IDENT_CANCEL = 0, IDENT_ADD = 1, IDENT_DEL = 2, IDENT_MOV = 3;
-
-      // MKL_LONG N_index_boost_arr[4];
-      // N_index_boost_arr[IDX.CANCEL] = 0; N_index_boost_arr[IDX.ADD] = 2; N_index_boost_arr[IDX.DEL] = 2; N_index_boost_arr[IDX.MOV] = 3;
-        
       double time_st_MC = dsecnd();
 
       // computing the distance map between beads for reducing overhead
@@ -367,9 +318,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           /*
             // This code was problematic to allocate ASSOCIATION object at each time step, which is the main reason for memory-leaking at each time evolution.
             // Note that this part is originated from the differences between the previous one and newly developed one.
-            CONNECT.initial();
-            for(MKL_LONG i=0; i<CONNECT.Np; i++)
-            CONNECT.TOKEN[i] = 1;
           */
           CONNECT.set_initial_condition();
           // rest counting array
@@ -398,102 +346,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
         {
           while(IDENTIFIER_ASSOC && cnt < N_max_steps)//cnt < N_max_blocks)
             {
-// <<<<<<< HEAD
-//               // choice for visiting bead   
-//               // MKL_LONG total_chain_ends = CONNECT.N_TOTAL_CONNECTED_ENDS(); // this is no more importance
-//               // printf("chain ends attached to beads, %ld, per beads, %ld, (add, mov, del) = (%ld, %ld, %ld)\n", total_chain_ends, total_chain_ends/TRAJ.Np, cnt_add, cnt_mov, cnt_del);
-//               time_MC_1 = dsecnd();
-//               IDX.itself = RANDOM::return_LONG_INT_rand_boost(r_boost, TRAJ.Np);
-//               // choice for selected chain end
-//               double rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(r_boost);
-//               time_MC_2 = dsecnd();
-//               IDX.hash_attached_bead = CONNECT.GET_INDEX_HASH_FROM_ROLL(IDX.itself, rolling_dCDF); 
-//               IDX.attached_bead = CONNECT.HASH[IDX.itself](IDX.hash_attached_bead); 
-//               time_MC_3 = dsecnd();
-//               // choice for behaviour of selected chain end
-//               double rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(r_boost);
-//               // the PDF is already computed in the previous map
-//               time_MC_4 = dsecnd();
-              
-//               MKL_LONG k = SEARCHING::backtrace(dCDF_U[IDX.itself], rolling_dCDF_U);
-//               IDX.new_attached_bead = INDEX_dCDF_U[IDX.itself](k);
-//               time_MC_5 = dsecnd();
-
-//               MKL_LONG IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);
-//               ACTION::ACT(TRAJ, index_t_now, POTs, CONNECT, IDX, tmp_vec, IDENTIFIER_ACTION);
-//               // IDX.ACTION_ARR[IDENTIFIER_ACTION](TRAJ, index_t_now, POTs, CONNECT, index_set, tmp_vec);
-//               // cnt_arr[IDENTIFIER_ACTION] ++;
-//               // MKL_LONG N_index_boost = N_index_boost_arr[IDENTIFIER_ACTION];
-              
-//               time_MC_6 = dsecnd();
-//               ACTION::UPDATE_INFORMATION(CONNECT, IDX, cnt_arr, IDENTIFIER_ACTION);
-//               // for(MKL_LONG i=0; i<N_index_boost; i++)
-//               //   {
-//               //     CONNECT.update_Z_particle(index_set[i]);
-//               //     CONNECT.update_dPDF_particle(index_set[i]);
-//               //     CONNECT.update_dCDF_particle(index_set[i]);
-//               //   }
-          
-//               time_MC_7 = dsecnd();
-
-//               pre_N_associations = N_associations;
-//               N_associations = cnt_add - cnt_del;
-//               count_M += N_associations;
-//               if (cnt%N_steps_block == 0 && cnt != N_steps_block)
-//                 {
-//                   N_diff = (double)(count_M/cnt) - (double)(pre_count_M/(cnt-N_steps_block));
-//                   max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
-//                   if(N_diff/max_N_diff < tolerance_association)
-//                     IDENTIFIER_ASSOC = FALSE;
-//                   pre_count_M = count_M;
-//                 }
-//               // this is temporal changes in ordert to perform parallel computation inside MC steps
-//               // if(N_associations != pre_N_associations)
-//               //   {
-//               // count_M ++;
-//               // if (count_M%N_steps_block == 0)
-//               //   {
-//               //     {
-//               //       N_diff = fabs((double)(1./(count_M*(count_M-pre_count_M)))*((count_M-pre_count_M)*N_associations - sum_over_MC_steps));
-//               //       max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
-//               //       if(N_diff/max_N_diff < tolerance_association)
-//               //         {
-//               //           IDENTIFIER_ASSOC = FALSE;
-//               //         }
-//               //     }
-//               //     pre_count_M = count_M -1;
-//               //   }
-//               // sum_over_MC_steps += N_associations;
-//                 // }
-//               // if(N_associations != pre_N_associations)
-//               //   {
-//               //     count_M ++;
-//               //     if (count_M%N_steps_block == 0)
-//               //       {
-//               //         {
-//               //           N_diff = fabs((double)(1./(count_M*(count_M-1)))*((count_M-1)*N_associations - sum_over_MC_steps));
-//               //           max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
-//               //           if(N_diff/max_N_diff < tolerance_association)
-//               //             {
-//               //               IDENTIFIER_ASSOC = FALSE;
-//               //             }
-//               //         }
-//               //       }
-//               //     sum_over_MC_steps += N_associations;
-//               //   }
-
-
-              
-//               time_MC_8 = dsecnd();
-//               dt_1 += time_MC_2 - time_MC_1;
-//               dt_2 += time_MC_3 - time_MC_2;
-//               dt_3 += time_MC_4 - time_MC_3;
-//               dt_4 += time_MC_5 - time_MC_4;
-//               dt_5 += time_MC_6 - time_MC_5;
-//               dt_6 += time_MC_7 - time_MC_6;
-//               dt_7 += time_MC_8 - time_MC_7;
-//               if (given_condition("MC_LOG") == "TRUE")
-// =======
               /*
                 The nested loop for parallelization scheme is of importance to handle.
                 The N_THREADS_SS might be differ from N_THREADS_BD and also the random stream is differ between two parallel scheme, which will benefit future test.
@@ -617,7 +469,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               double time_MC_out_loop = dsecnd();
               
               if(cnt != N_steps_block) // the first step should be passed
-// >>>>>>> parallel
                 {
                   N_diff = (double)(count_M/cnt) - (double)(pre_count_M/(cnt-N_steps_block));
                   max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
