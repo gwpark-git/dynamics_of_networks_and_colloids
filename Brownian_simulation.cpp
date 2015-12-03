@@ -358,7 +358,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               */
               // LOCKER.RESET(); // reset point should not be here.
               // pragma point
-#pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dt_pdf, dt_sort, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, count_M, cnt) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1)
+#pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dt_pdf, dt_sort, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, count_M, cnt) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8, N_THREADS_SS) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1)
               for(MKL_LONG tp = 0; tp<N_steps_block; tp++)
                 {
                   /*
@@ -392,42 +392,39 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                   time_MC_5 = dsecnd();
                   MKL_LONG IDENTIFIER_ACTION = TRUE; // it can be 1 (IDX.ADD) but just true value
                   MKL_LONG IDENTIFIER_LOCKING = FALSE;
-                  if(N_THREADS_SS > 1)
+#pragma omp critical(LOCKING)  // LOCKING is the name for this critical blocks
+                  {
+                  /*
+                    On the omp critical region, the block will work only one thread.
+                    If the other thread reaching this reason while there is one thread already working on this block, then the reached thread will wait until finishing the job of the other thread.
+                    This benefits to identify the working beads index on this case, since the 
+                  */
+                  for(MKL_LONG I_BEADS = 0; I_BEADS < 3 && N_THREADS_SS > 1; I_BEADS++)
                     {
-#pragma omp critical(LOCKING) // LOCKING is the name for this critical blocks
-                      {
-                      /*
-                        On the omp critical region, the block will work only one thread.
-                        If the other thread reaching this reason while there is one thread already working on this block, then the reached thread will wait until finishing the job of the other thread.
-                        This benefits to identify the working beads index on this case, since the 
-                      */
-                      for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++)
+                      if(LOCKER(IDX_ARR[it].beads[I_BEADS]))
                         {
-                          if(LOCKER(IDX_ARR[it].beads[I_BEADS]))
-                            {
-                              IDENTIFIER_ACTION = IDX_ARR[it].CANCEL;
-                              IDENTIFIER_LOCKING = TRUE;
-                              break;
-                            }
-                          // the following should be removed
-                          // because the duplicate test will be failed when we have the same index inside IDX.beads.
-                          // so checking is the first, then the locking will be applied
-                          // else
-                          //   LOCKER(IDX.beads[I_BEADS]) = TRUE;
+                          IDENTIFIER_ACTION = IDX_ARR[it].CANCEL;
+                          IDENTIFIER_LOCKING = TRUE;
+                          break;
                         }
-                      // this is LOCKING procedure
-                      if(!IDENTIFIER_LOCKING)
+                      // the following should be removed
+                      // because the duplicate test will be failed when we have the same index inside IDX.beads.
+                      // so checking is the first, then the locking will be applied
+                      // else
+                      //   LOCKER(IDX.beads[I_BEADS]) = TRUE;
+                    }
+                  // this is LOCKING procedure
+                  if(!IDENTIFIER_LOCKING)
+                    {
+                      cnt++;
+                      for(MKL_LONG I_BEADS = 0; I_BEADS < 3 && N_THREADS_SS > 1; I_BEADS++)
                         {
-                          cnt++;
-                          for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++)
-                            {
-                              LOCKER(IDX_ARR[it].beads[I_BEADS]) = TRUE;
-                            }
+                          LOCKER(IDX_ARR[it].beads[I_BEADS]) = TRUE;
                         }
-                      else
-                        {
-                          cnt_lock ++;
-                        }
+                    }
+                  else
+                    {
+                      cnt_lock ++;
                     }
                 }
                   time_MC_6 = dsecnd();
@@ -457,12 +454,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                       // UNLOCKING procedure
                       // #pragma omp critical(UNLOCKING)
                       //                       {
-                      if(N_THREADS_SS > 1)
+                      for(MKL_LONG I_BEADS = 0; I_BEADS < 3 && N_THREADS_SS > 1; I_BEADS++)
                         {
-                          for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++)
-                            {
-                              LOCKER(IDX_ARR[it].beads[I_BEADS]) = FALSE;
-                            }
+                          LOCKER(IDX_ARR[it].beads[I_BEADS]) = FALSE;
                         }
                       // }
                       // count_M ++; // this is for compatible biased EQUILIBRIUM CHECKING procedure
@@ -483,7 +477,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
                       // the following log should be re-defined with appropriate manner with the prallel region.
                       // note that it should be critical directive
-#pragma omp critical(COUNTING)
+#pragma omp critical(COUNTING) 
                       {
                         /*
                           critical(COUNTING) blocks:
