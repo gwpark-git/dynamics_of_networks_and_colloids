@@ -36,7 +36,7 @@ At the moment, the behaviour for selected chain ends follows Boltzmann distribut
 \begin{equation}
 p_k(\mathbf{r}_i, \mathbf{r}_j) = \exp\left(-(k_BT)^{-1}U(\mathbf{r}_i, \mathbf{r}_j)\right),
 \end{equation}
-where $U$ is potential exerted on the chains which is function of the distance between each chain ends, $\lvert\mathbf{r}_j - \mathbf{r}_i\rvert$.
+where $U$ is potential exerted on the chains which is function of the distance between each chain ends, $|\mathbf{r}_j - \mathbf{r}_i|$.
 
 * Stochastic Steps (revised version)
 The proposed scheme using normalized probability distribution with $Z_k$ that cancels out the effect of energy barrier. On this regards, there is no role from it which results in increasing flux to association. In addition, the visiting the chain ends that has the highest energy more frequently while the visiting opportunity to other chains becomes lower and lower. 
@@ -65,16 +65,44 @@ where $F$ is tension exerted on the chain and $l_c$ is length for end-capping.
 **** Metropolis Algorithm
 Notice that whenever $Fl_c$ larger than $E_B$, the transition probability higher than unity. Similar to the Metropolis algorithm, we are applying always acceptance state for the transition:
 \begin{equation}
-\Pi_{P\to A} = \left\{ \begin{array}{cc} \exp\left(-(k_BT)^{-1}\left(E_B - Fl_c\right)\right) & E_B > Fl_c \\
-1 & \textrm{otherwise} \end{array}\right.
+\Pi_{P\to A} = \left\{ \begin{array}{cc} \exp\left(-(k_BT)^{-1}\left(E_B - Fl_c\right)\right), & E_B > Fl_c \\
+1, & \textrm{otherwise} \end{array}\right.
 \end{equation}
 
 **** The differences with the previous version
 Even if the physical meaning differ from the previous version, the consequence of probability map is not so much changes. The flux to detachment, however, is controlled by energy barrier, $E_B$, it is expected that the flux to detach for roof chain decreases while the flux to detach for associated chain increases. In consequence, energy barrier is no more ignorance variable, which is differ from the previous version since the normalized selecting probability in previous version canceled out the energy barrier effect. 
 
+For better understanding, let assumed there are only one chain is associated for given bead while the other chains (say 9) are roof, the probability for the previous map is given by
+\begin{equation}
+P_{old, i(association)} = \frac{\exp(Fl_c)}{9 + \exp(Fl_c)}.
+\end{equation}
+When we have cumulating $P_{old}$ in terms of index, we have the maps for selecting probability. 
+Even if we do not think about this way, this scheme is physically the same with that /we are visiting chain with equal-probable, and have transition probability from passive to active state with $P_{old}$/. In this sense, the probability to select chain (that automatically in active state) follows figure [[fig:selection_probability]].
+
+In the revised version with Metropolis algorithm, this is not the case. The meaning will be similar with the previous sentence but have different probability:
+\begin{equation}
+P_{i(association)} = \Pi_{P\to A},
+\end{equation}
+which shows figure [[fig:transition_probability]] as example. Notice that the meaning for the figure [[fig:selection_probability]] and [[fig:transition_probability]] is different.
+
+
+
 *** Action of selected chain ends
 This follows the previous versions.
 
+
+* Figures
+** Selection probability in the previous map
+#+CAPTION: Example for the selection probability that there is only one associated chain exist while other 9 chains are in roof state.
+#+NAME: fig:selection_probability
+#+ATTR_HTML: :width 640px
+[[file:controls_statistics/chain_selection_probability.png]]
+
+** Transition probability in the revised version
+#+CAPTION: Example for the transition probability that has only one association while other 9 chains are remained in roof state.
+#+NAME: fig:transition_probability
+#+ATTR_HTML: :width 640px
+[[file:controls_statistics/transition_probability_revised.png]]
 
 
 # *** TODO Barrier for detachment (quick note)
