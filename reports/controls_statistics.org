@@ -1,0 +1,99 @@
+
+#+TITLE: Controls Statistics
+#+AUTHOR: Gun Woo Park
+
+* Preface
+
+* Stochastic Steps (previous version)
+Number of chains per beads, $Nc$, normalized length for end-capping, $l_c$.
+** Visiting random beads
+The visit probability is identical: that means we visit particles with probability $1/Np$, where $Np$ is number of particles. 
+
+** Selecting chains
+Each chains has probability that depends on the tension exerted on the chains:
+\begin{equation}
+P'(\mathbf{r}_i, \mathbf{r}_j) = \beta_0\exp\left((k_BT)^{-1}F(\mathbf{r}_i, \mathbf{r}_j)l_c\right),
+\end{equation}
+where $\beta_0$ is given parameters that related with detachment frequency:
+\begin{equation}
+\beta_0 = \Omega \exp(-E_B/k_BT),
+\end{equation}
+which depth of energy wall, $E_B$, controls that chain keeps the attached status.
+
+The suggested probability is normalized by partition function for visited beads, $Z_k$:
+\begin{equation}
+Z_k = \sum_{i=1}^{N_{ce}}\beta_0\exp\left((k_BT)^{-1}F(\mathbf{r}_i, \mathbf{r}_{\mathscr{C}_k(\mathbf{r}_i)})l_c\right),
+\end{equation}
+where $\mathscr{C}_k(\mathbf{r}_i)$ is the position vectors for other chain ends of $\mathbf{r}_i$.
+
+
+# Note that the barrier energy $E_B$ affect to $\beta_0$ which is canceled out since this is constant variables both of denominator and numerator. So, the normalized probability is NOT affected by the barrier energy.
+
+
+
+** Action of selected chain ends
+At the moment, the behaviour for selected chain ends follows Boltzmann distribution of the potential exerted on the chain:
+\begin{equation}
+p_k(\mathbf{r}_i, \mathbf{r}_j) = \exp\left(-(k_BT)^{-1}U(\mathbf{r}_i, \mathbf{r}_j)\right),
+\end{equation}
+where $U$ is potential exerted on the chains which is function of the distance between each chain ends, $\lvert\mathbf{r}_j - \mathbf{r}_i\rvert$.
+
+* Stochastic Steps (revised version)
+The proposed scheme using normalized probability distribution with $Z_k$ that cancels out the effect of energy barrier. On this regards, there is no role from it which results in increasing flux to association. In addition, the visiting the chain ends that has the highest energy more frequently while the visiting opportunity to other chains becomes lower and lower. 
+
+*** Selecting subjected chain end
+Let assumed that the selecting chain ends is in random, i.e., we are specifying the visiting chain ends as 
+\begin{equation}
+P_{i,k} = \frac{1}{2*Nc*Np}.
+\end{equation}
+*** Transition state: Active or Passive
+In any visiting status, we have to decide the subjected chain end is in transition state or not. The meaning of chain end is in transition state is that it detached from previously attached bead, and waiting decision for next action. Let 'active' be the transition state while 'passive' be the remained state. 
+
+**** Roof chain 
+Consider the selected chain end attached the same bead with the opposite side of chain ends, which is called roof chain. In this case, the transition probability from passive to active is controlled by energy barrier to detachment, $E_B$. Let assumed that transition probability is given by Boltzmann factor:
+\begin{equation}
+\Pi_{P\to A} \equiv \frac{\exp\left(-(k_BT)^{-1}E_B\right)}{\exp(0)} = \exp\left(-(k_BT)^{-1}E_B\right) (\equiv \tilde{\beta}_0)
+\end{equation}
+
+**** Associated chain
+If the subject chain ends is associate state, i.e., opposite side of chain end attached to other beads, the tension exerted on the chain help to transition from passive to active state. With the same notation for the detachment frequency, we have
+\begin{equation}
+\Pi_{P\to A} = \exp\left(-(k_BT)^{-1}\left(E_B - Fl_c\right)\right) (\equiv \tilde{\beta} = \tilde{\beta}_0\exp(Fl)),
+\end{equation}
+where $F$ is tension exerted on the chain and $l_c$ is length for end-capping.
+
+**** Metropolis Algorithm
+Notice that whenever $Fl_c$ larger than $E_B$, the transition probability higher than unity. Similar to the Metropolis algorithm, we are applying always acceptance state for the transition:
+\begin{equation}
+\Pi_{P\to A} = \left\{ \begin{array}{cc} \exp\left(-(k_BT)^{-1}\left(E_B - Fl_c\right)\right) & E_B > Fl_c \\
+1 & \textrm{otherwise} \end{array}\right.
+\end{equation}
+
+**** The differences with the previous version
+Even if the physical meaning differ from the previous version, the consequence of probability map is not so much changes. The flux to detachment, however, is controlled by energy barrier, $E_B$, it is expected that the flux to detach for roof chain decreases while the flux to detach for associated chain increases. In consequence, energy barrier is no more ignorance variable, which is differ from the previous version since the normalized selecting probability in previous version canceled out the energy barrier effect. 
+
+*** Action of selected chain ends
+This follows the previous versions.
+
+
+
+# *** TODO Barrier for detachment (quick note)
+# Note that the energy depth that chain ends keep attached to micellar core, $E_B$, is not implemented on this scheme. There is only one effective parameters: $l_c$, which affect to the probability of selecting chains. However, it does not provide the energy barrier to be active state. For rightful statistics, we have to consider the selected chain ends is active state (detached from the chain ends) or not based on Boltzmann factor:
+# \begin{equation}
+# \Pi_{P\to A} = \frac{\textrm{state}_{A}}{\textrm{state}_{P}} = \exp\left(-(k_BT)^{-1}(U_{A} - U_{P})\right),
+# \end{equation}
+# where $\Pi_{P\to A}$ represent transition probability from state P (passive) to state A (active).
+
+# Let $\Pi_{A\to M}$ be the probability to take movement from active state, then the real probability for the action becomes
+# \begin{align}
+# \Pi_{P\to M} &= \Pi_{A\to M}\Pi_{P\to A} = \exp\left(-(k_BT)^{-1}(U_{M} - U_{A})\right)\exp\left(-(k_BT)^{-1}(U_{A} - U_{P})\right) \\
+# &= \exp\left(-(k_BT)^{-1}(U_{M}-U_{P})\right) = \exp\left(-(k_BT)^{-1}(U - E_B)\right).
+# \end{align}
+# Notice that whenever we normalize $\Pi_{P\to M}$ with the maximum value of the probability, $\exp(E_B)$, the transition probability is exactly same without any barrier for the action that is used our code. So, it is of importance to have proper mind to random number generation for this factor that normalize proper way.
+
+# **** Metropolis Algorithm
+
+# On this regards, the action of selected chain ends should have 
+# \begin{equation}
+# p'_k(\mathbf{r}_i, \mathbf{r}_j) = \exp\left(-(k_BT)^{-1}\left(U(\mathbf{r}_i, \mathbf{r}_j) - E_B\right)\right).
+# \end{equation}
