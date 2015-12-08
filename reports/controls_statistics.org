@@ -52,24 +52,49 @@ In any visiting status, we have to decide the subjected chain end is in transiti
 **** Roof chain 
 Consider the selected chain end attached the same bead with the opposite side of chain ends, which is called roof chain. In this case, the transition probability from passive to active is controlled by energy barrier to detachment, $E_B$. Let assumed that transition probability is given by Boltzmann factor:
 \begin{equation}
-\Pi_{P\to A} \equiv \frac{\exp\left(-(k_BT)^{-1}E_B\right)}{\exp(0)} = \exp\left(-(k_BT)^{-1}E_B\right) (\equiv \tilde{\beta}_0)
+\pi_{P\to A} \equiv \frac{\exp\left(-(k_BT)^{-1}E_B\right)}{\exp(0)} = \exp\left(-(k_BT)^{-1}E_B\right) (\equiv \tilde{\beta}_0)
 \end{equation}
 
 **** Associated chain
 If the subject chain ends is associate state, i.e., opposite side of chain end attached to other beads, the tension exerted on the chain help to transition from passive to active state. With the same notation for the detachment frequency, we have
 \begin{equation}
-\Pi_{P\to A} = \exp\left(-(k_BT)^{-1}\left(E_B - Fl_c\right)\right) (\equiv \tilde{\beta} = \tilde{\beta}_0\exp(Fl)),
+\pi_{P\to A} = \exp\left(-(k_BT)^{-1}\left(E_B - Fl_c\right)\right) (\equiv \tilde{\beta} = \tilde{\beta}_0\exp(Fl)),
 \end{equation}
 where $F$ is tension exerted on the chain and $l_c$ is length for end-capping.
 
 **** Metropolis Algorithm
 Notice that whenever $Fl_c$ larger than $E_B$, the transition probability higher than unity. Similar to the Metropolis algorithm, we are applying always acceptance state for the transition:
 \begin{equation}
-\Pi_{P\to A} = \left\{ \begin{array}{cc} \exp\left(-(k_BT)^{-1}\left(E_B - Fl_c\right)\right), & E_B > Fl_c \\
+\pi_{P\to A} = \left\{ \begin{array}{cc} \exp\left(-(k_BT)^{-1}\left(E_B - Fl_c\right)\right), & E_B > Fl_c \\
 1, & \textrm{otherwise} \end{array}\right.
 \end{equation}
 
-**** The differences with the previous version
+
+
+
+**** Connectivity Information
+First of all, the following description is related with generalization the transition probability matrix with newly developed scheme. However, the internal information change effect to the system, which means the it cannot be the independent probability that handling components-wise in the matrix form. At this moment, the basic approach will following the previously described manner with the existing stochastic method. Even if the following description will not applied at this moment, it is worth to develop transition probability that describe the whole information for association/dissociation kinetics. 
+
+Let $\mathscr{C}_{i,j}$ be the number of connections between i-th and j-th particles, the connectivity matrix is given by 
+\begin{equation}
+\mathbf{C} = \left[\mathscr{C}_{i, j}\right]\qquad i,\,j\in [1, N_p].
+\end{equation}
+Let $\pi_{i,j}$ be transition probability to connect between i-th and j-th particle:
+\begin{equation}
+\pi_{i,j} = \pi^{i}_{P\to A}P_{i,j},
+\end{equation}
+where $\pi^{i}_{P\to A}$ is transition probability from passive to active for i-th particle and $P_{i,j}$ is action probability between i-th and j-th particle.
+On this regards, we can define transition matrix
+\begin{equation}
+\boldsymbol{\Pi} = \left[\pi_{i,j}\right]\qquad i,\,j\in [1, N_p]
+\end{equation}
+
+
+
+*** Action of selected chain ends
+This follows the previous versions.
+
+* The differences with the previous version
 Even if the physical meaning differ from the previous version, the consequence of probability map is not so much changes. The flux to detachment, however, is controlled by energy barrier, $E_B$, it is expected that the flux to detach for roof chain decreases while the flux to detach for associated chain increases. In consequence, energy barrier is no more ignorance variable, which is differ from the previous version since the normalized selecting probability in previous version canceled out the energy barrier effect. 
 
 For better understanding, let assumed there are only one chain is associated for given bead while the other chains (say 9) are roof, the probability for the previous map is given by
@@ -85,10 +110,6 @@ P_{i(association)} = \Pi_{P\to A},
 \end{equation}
 which shows figure [[fig:transition_probability]] as example. Notice that the meaning for the figure [[fig:selection_probability]] and [[fig:transition_probability]] is different.
 
-
-
-*** Action of selected chain ends
-This follows the previous versions.
 
 
 * Figures
