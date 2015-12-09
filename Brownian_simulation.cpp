@@ -242,7 +242,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   gsl_rng **r_boost_arr = (gsl_rng**)mkl_malloc(N_THREADS_BD*sizeof(gsl_rng*), BIT);
   gsl_rng_env_setup();
   T_boost = gsl_rng_default;
-// <<<<<<< HEAD
   for(MKL_LONG i=0; i<N_THREADS_BD; i++)
     {
       r_boost_arr[i] = gsl_rng_alloc(T_boost);
@@ -328,7 +327,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
         }
       else
         {
-#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, vec_boost_Nd_parallel) num_threads(N_THREADS)
+#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, vec_boost_Nd_parallel) num_threads(N_THREADS_BD)
           for(MKL_LONG i=0; i<TRAJ.Np; i++)
             {
               for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
@@ -422,7 +421,23 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                       // This block only compute when the thread is NOT LOCKED
 
                       time_MC_pre_ACTION = dsecnd();
-                      IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX_ARR[it]);
+                                        // CONNECT.update_CASE_particle_hash_target(POTs, i, j, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, i, CONNECT.HASH[i](j), vec_boost_Nd_parallel[i]));
+
+                      double distance_exist_bridge = GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_itself, index_attached_bead, vec_boost_Nd_parallel[it]);
+                      double tpa = POTs.transition(distance_exist_bridge, POTs.f_connector(distance_exist_bridge, POTs.force_variables), POTs.force_variables);
+                      if (tpa == 1.0)
+                        {
+                          IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX_ARR[it]);
+                        }
+                      else
+                        {
+                          double rolling_transition = RANDOM::return_double_rand_SUP1_boost(r_boost_arr_SS[it]);
+                          if (rolling_transition < tpa)
+                            IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX_ARR[it]);
+                          else
+                            IDENTIFIER_ACTION = IDX_ARR[it].CANCEL;
+                            
+                        }
                       ACTION::ACT(TRAJ, index_t_now, POTs, CONNECT, IDX_ARR[it], vec_boost_Nd_parallel[it], IDENTIFIER_ACTION);
                       time_MC_end_ACTION = dsecnd();
                       ACTION::UPDATE_INFORMATION(CONNECT, IDX_ARR[it], cnt_arr, IDENTIFIER_ACTION);

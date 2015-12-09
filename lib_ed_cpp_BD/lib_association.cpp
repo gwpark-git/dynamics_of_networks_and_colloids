@@ -462,26 +462,26 @@ MKL_LONG ASSOCIATION::del_association(MKL_LONG index_particle, MKL_LONG index_ta
 }
 
 
-double CONNECTIVITY_update_CASE_particle_hash_target(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance)
+double KINETICS::CONNECTIVITY_update_CASE_particle_hash_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance)
 {
-  CONNECT.CASE[index_particle](hash_index_target) = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
-  return CONNECT.CASE[index_particle](hash_index_target);
+  CONNECT->CASE[index_particle](hash_index_target) = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
+  return CONNECT->CASE[index_particle](hash_index_target);
 }
 
-double CONNECTIVITY_update_CASE_particle_target(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance)
+double KINETICS::CONNECTIVITY_update_CASE_particle_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance)
 {
-  MKL_LONG hash_index_target = CONNECT.FIND_HASH_INDEX(index_particle, index_target);
+  MKL_LONG hash_index_target = CONNECT->FIND_HASH_INDEX(index_particle, index_target);
   return CONNECTIVITY_update_CASE_particle_hash_target(CONNECT, POTs, index_particle, hash_index_target, distance);
 }
 
-double CONNECTIVITY_update_Z_particle(ASSOCIATION& CONNECT, MKL_LONG index_particle)
+double KINETICS::CONNECTIVITY_update_Z_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle)
 {
   
   // result = dot(x, y)
-  CONNECT.Z[index_particle] = cblas_ddot(CONNECT.TOKEN[index_particle], // N
-                                         CONNECT.weight[index_particle].data, // x
+  CONNECT->Z[index_particle] = cblas_ddot(CONNECT->TOKEN[index_particle], // N
+                                         CONNECT->weight[index_particle].data, // x
                                          1,
-                                         CONNECT.CASE[index_particle].data, // y
+                                         CONNECT->CASE[index_particle].data, // y
                                          1);
   // note that the previous code is already checked with the below code,
   // CONNECT.Z[index_particle] = 0.;
@@ -493,12 +493,12 @@ double CONNECTIVITY_update_Z_particle(ASSOCIATION& CONNECT, MKL_LONG index_parti
   //   }
   // if (fabs(CONNECT.Z[index_particle] - result) > 0.0001)
   //   printf("Z err %lf, %lf\n", CONNECT.Z[index_particle], result);
-  return CONNECT.Z[index_particle];
+  return CONNECT->Z[index_particle];
 }
 
 
 
-double CONNECTIVITY_update_dPDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_particle)
+double KINETICS::CONNECTIVITY_update_dPDF_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle)
 {
   // Note that the element-wise multiplication can be done to make diagonalization. BLAS has good aspect for this functionality.
   // DSBMV which gave us y = alpha*A*x + beta*y,
@@ -508,15 +508,15 @@ double CONNECTIVITY_update_dPDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_pa
   // y = alpha*dot(A, x) + beta*y
   cblas_dsbmv(CblasRowMajor,
               CblasUpper,
-              CONNECT.TOKEN[index_particle], // number of accounting
+              CONNECT->TOKEN[index_particle], // number of accounting
               0, // k is related with band. 0 for diagonal (or super-diagonal)
-              1./CONNECT.Z[index_particle], // alpha
-              CONNECT.weight[index_particle].data, // A (here is array for diagonal components)
+              1./CONNECT->Z[index_particle], // alpha
+              CONNECT->weight[index_particle].data, // A (here is array for diagonal components)
               1,  // lda this is leading dimension which inc A. here is set as 1 because the A is only contained diagonal components
-              CONNECT.CASE[index_particle].data, // x
+              CONNECT->CASE[index_particle].data, // x
               1, // incx
               0., // beta. 0 is removing the previous history because 0*y
-              CONNECT.dPDF[index_particle].data, // y
+              CONNECT->dPDF[index_particle].data, // y
               1); // incy
   // Note that the previous computation has been tested with the below code (the original one)
   // for(MKL_LONG k=0; k<CONNECT.TOKEN[index_particle]; k++)
@@ -529,93 +529,109 @@ double CONNECTIVITY_update_dPDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_pa
   return 0;
 }
 
-double CONNECTIVITY_update_dCDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_particle)
+double KINETICS::CONNECTIVITY_update_dCDF_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle)
 {
-  CONNECT.dCDF[index_particle](0) = CONNECT.dPDF[index_particle](0);
-  for(MKL_LONG k=1; k<CONNECT.TOKEN[index_particle]; k++)
+  CONNECT->dCDF[index_particle](0) = CONNECT->dPDF[index_particle](0);
+  for(MKL_LONG k=1; k<CONNECT->TOKEN[index_particle]; k++)
     {
-      CONNECT.dCDF[index_particle](k) = CONNECT.dCDF[index_particle](k-1) + CONNECT.dPDF[index_particle](k);
+      CONNECT->dCDF[index_particle](k) = CONNECT->dCDF[index_particle](k-1) + CONNECT->dPDF[index_particle](k);
     }
-  return CONNECT.dCDF[index_particle](CONNECT.TOKEN[index_particle]);
+  return CONNECT->dCDF[index_particle](CONNECT->TOKEN[index_particle]);
 }
-
 
 
 double ASSOCIATION::update_CASE_particle_hash_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance)
 {
-  CASE[index_particle](hash_index_target) = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
-  return CASE[index_particle](hash_index_target);
+  return KINETICS::CONNECTIVITY_update_CASE_particle_hash_target(this, POTs, index_particle, hash_index_target, distance);
 }
 
 double ASSOCIATION::update_CASE_particle_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance)
 {
-  MKL_LONG hash_index_target = FIND_HASH_INDEX(index_particle, index_target);
-  return update_CASE_particle_hash_target(POTs, index_particle, hash_index_target, distance);
+  return KINETICS::CONNECTIVITY_update_CASE_particle_target(this, POTs, index_particle, index_target, distance);
 }
-
+  /* MKL_LONG CONNECTIVITY_update_CASE_particle(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, double distance); */
 double ASSOCIATION::update_Z_particle(MKL_LONG index_particle)
 {
-  
-  // result = dot(x, y)
-  Z[index_particle] = cblas_ddot(TOKEN[index_particle], // N
-                                 weight[index_particle].data, // x
-                                 1,
-                                 CASE[index_particle].data, // y
-                                 1);
-  // note that the previous code is already checked with the below code,
-  // CONNECT.Z[index_particle] = 0.;
-  // double result = 0.;
-  // for(MKL_LONG k=0; k<CONNECT.HASH[index_particle].size; k++)
-  //   {
-  //     // CONNECT.Z[index_particle] += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
-  //     result += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
-  //   }
-  // if (fabs(CONNECT.Z[index_particle] - result) > 0.0001)
-  //   printf("Z err %lf, %lf\n", CONNECT.Z[index_particle], result);
-  return Z[index_particle];
+  return KINETICS::CONNECTIVITY_update_Z_particle(this, index_particle);
 }
-
-
 
 double ASSOCIATION::update_dPDF_particle(MKL_LONG index_particle)
 {
-  // Note that the element-wise multiplication can be done to make diagonalization. BLAS has good aspect for this functionality.
-  // DSBMV which gave us y = alpha*A*x + beta*y,
-  // which is designed for symmetric banded matrix for A
-  // In this case, we can set the third argument, k, set to 0
-
-  // y = alpha*dot(A, x) + beta*y
-  cblas_dsbmv(CblasRowMajor,
-              CblasUpper,
-              TOKEN[index_particle], // number of accounting
-              0, // k is related with band. 0 for diagonal (or super-diagonal)
-              1./Z[index_particle], // alpha
-              weight[index_particle].data, // A (here is array for diagonal components)
-              1,  // lda this is leading dimension which inc A. here is set as 1 because the A is only contained diagonal components
-              CASE[index_particle].data, // x
-              1, // incx
-              0., // beta. 0 is removing the previous history because 0*y
-              dPDF[index_particle].data, // y
-              1); // incy
-  // Note that the previous computation has been tested with the below code (the original one)
-  // for(MKL_LONG k=0; k<CONNECT.TOKEN[index_particle]; k++)
-  //   {
-  //     double tmp = (double)CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k)/CONNECT.Z[index_particle];
-  //     // this is testing fcn
-  //     if (fabs(tmp - CONNECT.dPDF[index_particle](k)) > 0.00001 )
-  //       printf("UPDATE: k=%ld, tmp=%lf, dPDF[index_particle](k)=%lf\n", k, tmp, CONNECT.dPDF[index_particle](k));
-  //   }
-  return 0;
+  return KINETICS::CONNECTIVITY_update_dPDF_particle(this, index_particle);
 }
 
 double ASSOCIATION::update_dCDF_particle(MKL_LONG index_particle)
 {
-  dCDF[index_particle](0) = dPDF[index_particle](0);
-  for(MKL_LONG k=1; k<TOKEN[index_particle]; k++)
-    {
-      dCDF[index_particle](k) = dCDF[index_particle](k-1) + dPDF[index_particle](k);
-    }
-  return dCDF[index_particle](TOKEN[index_particle]);
+  return KINETICS::CONNECTIVITY_update_dCDF_particle(this, index_particle);
 }
+
+
+// double ASSOCIATION::update_CASE_particle_hash_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance)
+// {
+//   CASE[index_particle](hash_index_target) = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
+//   return CASE[index_particle](hash_index_target);
+// }
+
+// double ASSOCIATION::update_CASE_particle_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance)
+// {
+//   MKL_LONG hash_index_target = FIND_HASH_INDEX(index_particle, index_target);
+//   return update_CASE_particle_hash_target(POTs, index_particle, hash_index_target, distance);
+// }
+
+// double ASSOCIATION::update_Z_particle(MKL_LONG index_particle)
+// {
+  
+//   // result = dot(x, y)
+//   Z[index_particle] = cblas_ddot(TOKEN[index_particle], // N
+//                                  weight[index_particle].data, // x
+//                                  1,
+//                                  CASE[index_particle].data, // y
+//                                  1);
+//   // note that the previous code is already checked with the below code,
+//   // CONNECT.Z[index_particle] = 0.;
+//   // double result = 0.;
+//   // for(MKL_LONG k=0; k<CONNECT.HASH[index_particle].size; k++)
+//   //   {
+//   //     // CONNECT.Z[index_particle] += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
+//   //     result += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
+//   //   }
+//   // if (fabs(CONNECT.Z[index_particle] - result) > 0.0001)
+//   //   printf("Z err %lf, %lf\n", CONNECT.Z[index_particle], result);
+//   return Z[index_particle];
+// }
+
+
+
+// double ASSOCIATION::update_dPDF_particle(MKL_LONG index_particle)
+// {
+//   // Note that the element-wise multiplication can be done to make diagonalization. BLAS has good aspect for this functionality.
+//   // DSBMV which gave us y = alpha*A*x + beta*y,
+//   // which is designed for symmetric banded matrix for A
+//   // In this case, we can set the third argument, k, set to 0
+
+//   // y = alpha*dot(A, x) + beta*y
+//   cblas_dsbmv(CblasRowMajor,
+//               CblasUpper,
+//               TOKEN[index_particle], // number of accounting
+//               0, // k is related with band. 0 for diagonal (or super-diagonal)
+//               1./Z[index_particle], // alpha
+//               weight[index_particle].data, // A (here is array for diagonal components)
+//               1,  // lda this is leading dimension which inc A. here is set as 1 because the A is only contained diagonal components
+//               CASE[index_particle].data, // x
+//               1, // incx
+//               0., // beta. 0 is removing the previous history because 0*y
+//               dPDF[index_particle].data, // y
+//               1); // incy
+//   // Note that the previous computation has been tested with the below code (the original one)
+//   // for(MKL_LONG k=0; k<CONNECT.TOKEN[index_particle]; k++)
+//   //   {
+//   //     double tmp = (double)CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k)/CONNECT.Z[index_particle];
+//   //     // this is testing fcn
+//   //     if (fabs(tmp - CONNECT.dPDF[index_particle](k)) > 0.00001 )
+//   //       printf("UPDATE: k=%ld, tmp=%lf, dPDF[index_particle](k)=%lf\n", k, tmp, CONNECT.dPDF[index_particle](k));
+//   //   }
+//   return 0;
+// }
+
 
 

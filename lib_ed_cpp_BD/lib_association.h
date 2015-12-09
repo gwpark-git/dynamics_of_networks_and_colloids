@@ -76,6 +76,9 @@ class ASSOCIATION : public CONNECTIVITY
   MKL_LONG FIND_HASH_INDEX(MKL_LONG index_A, MKL_LONG index_B);
 
 
+  // At the moment, there is no namespace dependence between KINETICS::NORMALIZED and KINETICS::METROPOLIS.
+  // The dependency is set with the w_function and transtion_probability that is developed with lib_potential.
+  // For better performance, it would be better to tune the following with specific dependencies (future works).
   double update_CASE_particle_hash_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance);
 
   double update_CASE_particle_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance);
@@ -135,14 +138,15 @@ namespace TRUTH_MAP
 
 
 
+namespace KINETICS
+{
+  double CONNECTIVITY_update_dCDF_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle);
+  double CONNECTIVITY_update_CASE_particle_hash_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance);
+  double CONNECTIVITY_update_CASE_particle_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance);
 
-double CONNECTIVITY_update_CASE_particle_hash_target(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance);
-
-double CONNECTIVITY_update_CASE_particle_target(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance);
-/* MKL_LONG CONNECTIVITY_update_CASE_particle(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, double distance); */
-double CONNECTIVITY_update_Z_particle(ASSOCIATION& CONNECT, MKL_LONG index_particle);
-double CONNECTIVITY_update_dPDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_particle);
-double CONNECTIVITY_update_dCDF_particle(ASSOCIATION& CONNECT, MKL_LONG index_particle);
+  double CONNECTIVITY_update_Z_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle);
+  double CONNECTIVITY_update_dPDF_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle);
+}
 
   
 

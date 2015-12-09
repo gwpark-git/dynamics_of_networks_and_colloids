@@ -88,6 +88,9 @@ MKL_LONG ACTION::UPDATE_INFORMATION(ASSOCIATION& CONNECT, INDEX_MC& IDX, MKL_LON
       CONNECT.update_Z_particle(IDX.beads[i]);
       CONNECT.update_dPDF_particle(IDX.beads[i]);
       CONNECT.update_dCDF_particle(IDX.beads[i]);
+      // KINETICS::CONNECTIVITY_update_Z_particle(&CONNECT, IDX.beads[i]);
+      // KINETICS::CONNECTIVITY_update_dPDF_particle(&CONNECT, IDX.beads[i]);
+      // KINETICS::CONNECTIVITY_update_dCDF_particle(&CONNECT, IDX.beads[i]);
     }
   return 0;
 }

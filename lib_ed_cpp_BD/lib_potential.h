@@ -20,6 +20,7 @@ class POTENTIAL_SET
   double (*e_repulsion)(double distance, double* given_variables);
   double (*scale_random)(MATRIX& basic_random_var_unity, double* given_variables);
   double (*w_function)(double distance, double tension, double* given_variables);
+  double (*transition)(double distance, double tension, double* given_varialbes);
 
   POTENTIAL_SET()
     {
@@ -76,12 +77,26 @@ namespace FORCE
       double MAP_FENE_Boltzmann(double distance, double* given_variables);
       double MAP_time_scaling_random(MATRIX& given_basic_random, double* given_variables);
       MKL_LONG MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond);
-      double Detachment_weight(double distance, double tension, double* force_variables);
-      
     }
-    
+
   }
 }  
+
+namespace KINETICS
+{
+  namespace NORMALIZED
+  {
+    double detachment_weight(double distance, double tension, double* given_variables);
+    double transition_probability(double distance, double tension, double* given_varialbes);
+  }
+
+  namespace METROPOLIS
+  {
+    double detachment_weight(double distance, double tension, double* given_variables);
+    double transition_probability(double distance, double tension, double* given_varialbes);
+  }
+}
+
 
 
 #endif
