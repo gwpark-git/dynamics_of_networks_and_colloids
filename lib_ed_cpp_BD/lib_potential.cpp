@@ -181,9 +181,9 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
       given_POT.PDF_connector = MAP_Gaussian_Boltzmann;
     }
 
-  if(given_cond("KINETICS")=="METROPOLIS")
+  if(given_cond("kinetics")=="METROPOLIS")
     {
-      given_POT.force_variables[6] = atof(given_cond("kinetics").c_str());
+      given_POT.force_variables[6] = atof(given_cond("energy_barrier").c_str());
       given_POT.w_function = KINETICS::METROPOLIS::detachment_weight;
       given_POT.transition = KINETICS::METROPOLIS::transition_probability;
     }
@@ -218,7 +218,7 @@ double KINETICS::METROPOLIS::detachment_weight(double distance, double tension, 
 
 double KINETICS::METROPOLIS::transition_probability(double distance, double tension, double* given_variables)
 {
-  double tpa = exp(tension*given_variables[4] - given_varialbes[6]);
+  double tpa = exp(tension*given_variables[4] - given_variables[6]);
   // double tpa = KINETICS::NORMALIZED::detachment_weight(distance, tension, given_variables);
   if (tpa > 1.0)
     return 1.0;
