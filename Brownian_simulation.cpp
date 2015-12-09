@@ -487,7 +487,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                 {
                   N_diff = (double)(count_M/cnt) - (double)(pre_count_M/(cnt-N_steps_block));
                   max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
-                  if(N_diff/max_N_diff < tolerance_association)
+                  if(N_diff/max_N_diff < tolerance_association && N_associations != 0)
                     {
                       IDENTIFIER_ASSOC = FALSE;
                     }
