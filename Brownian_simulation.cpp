@@ -328,7 +328,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
         }
       else
         {
-#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, vec_boost_Nd_parallel) num_threads(N_THREADS)
+#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, vec_boost_Nd_parallel) num_threads(N_THREADS_BD)
           for(MKL_LONG i=0; i<TRAJ.Np; i++)
             {
               for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
