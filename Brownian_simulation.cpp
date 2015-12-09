@@ -350,7 +350,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                 The N_THREADS_SS might be differ from N_THREADS_BD and also the random stream is differ between two parallel scheme, which will benefit future test.
                 However, for the optimization purpose, N_THREADS_BD == N_THREADS_SS is recommendable.
               */
-#pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dt_pdf, dt_sort, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, count_M, cnt) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8, N_THREADS_SS) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1)
+#pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dt_pdf, dt_sort, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, count_M, cnt, N_THREADS_SS, N_associations) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1)
               for(MKL_LONG tp = 0; tp<N_steps_block; tp++)
                 {
                   /*
@@ -465,13 +465,13 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                         dt_5 += time_MC_6 - time_MC_5; // LOCKING
                         dt_6 += time_MC_end_ACTION - time_MC_pre_ACTION; // ACTION
                         dt_7 += time_MC_end_UPDATE - time_MC_end_ACTION; // UPDATE
-                        MKL_LONG N_associations = cnt_add - cnt_del;
+                        N_associations = cnt_add - cnt_del;
                         count_M += N_associations;
                       
                         if (given_condition("MC_LOG") == "TRUE")
                           {
                             MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
-                            MKL_LONG count_N_associagtions = cnt_add - cnt_del;
+                            // MKL_LONG count_N_associagtions = cnt_add - cnt_del;
                             {
                               FILE_LOG << cnt << '\t' << index_itself << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << index_attached_bead << '\t'  << index_new_attached_bead<< '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_attached_bead << '\t'  << CONNECT.TOKEN[index_itself]<< '\t'<< CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight[index_itself](0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << '\t' << cnt_lock << endl;
                             }

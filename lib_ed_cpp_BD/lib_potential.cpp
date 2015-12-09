@@ -203,11 +203,14 @@ double KINETICS::NORMALIZED::detachment_weight(double distance, double tension, 
 {
   // given_variables[3] == Nd
   // given_variables[4] == l_cap
+  // in normalized scheme, the energy barrier is canceled out with normalization factor
+  // therefore, it is only affected by the tension exerted on the chain
   return exp(tension*given_variables[4]);
 }
 
 double KINETICS::NORMALIZED::transition_probability(double distance, double tension, double* given_variables)
 {
+  // in normalized scheme, there is no activation state
   return 1.0;
 }
 
