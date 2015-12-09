@@ -183,6 +183,7 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
 
   if(given_cond("KINETICS")=="METROPOLIS")
     {
+      given_POT.force_variables[6] = atof(given_cond("kinetics").c_str());
       given_POT.w_function = KINETICS::METROPOLIS::detachment_weight;
       given_POT.transition = KINETICS::METROPOLIS::transition_probability;
     }
@@ -196,8 +197,6 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
   return 0;
 }
 
-
-double KINETICS::detachment_tension(double distance, double tension, double* given_varialbes)
 
 
 double KINETICS::NORMALIZED::detachment_weight(double distance, double tension, double* given_variables)
@@ -219,7 +218,8 @@ double KINETICS::METROPOLIS::detachment_weight(double distance, double tension, 
 
 double KINETICS::METROPOLIS::transition_probability(double distance, double tension, double* given_variables)
 {
-  double tpa = KINETICS::NORMALIZED::detachment_weight(distance, tension, given_variables);
+  double tpa = exp(tension*given_variables[4] - given_varialbes[6]);
+  // double tpa = KINETICS::NORMALIZED::detachment_weight(distance, tension, given_variables);
   if (tpa > 1.0)
     return 1.0;
   return tpa;
