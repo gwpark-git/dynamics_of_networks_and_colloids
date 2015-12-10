@@ -149,13 +149,21 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   MKL_LONG N_max_steps = atol(given_condition("N_max_steps").c_str());
   MKL_LONG N_steps_block = atol(given_condition("N_steps_block").c_str());
   MKL_LONG N_max_blocks = N_max_steps/N_steps_block;
-  string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_trajectory")).c_str();
-  string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_energy")).c_str();
-  string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_energy_info")).c_str();
-  string filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_HASH")).c_str();
-  string filename_CASE = (given_condition("output_path") + '/' + given_condition("filename_CASE")).c_str();
-  string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_weight")).c_str();
-  string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_MC_LOG")).c_str();
+  string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
+  string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
+  string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_base") + ".info").c_str();
+  string filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
+  string filename_CASE = (given_condition("output_path") + '/' + given_condition("filename_base") + ".case").c_str();
+  string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
+  string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
+  
+  // string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_trajectory")).c_str();
+  // string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_energy")).c_str();
+  // string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_energy_info")).c_str();
+  // string filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_HASH")).c_str();
+  // string filename_CASE = (given_condition("output_path") + '/' + given_condition("filename_CASE")).c_str();
+  // string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_weight")).c_str();
+  // string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_MC_LOG")).c_str();
   ofstream FILE_LOG;
 
   
