@@ -94,7 +94,7 @@ On this regards, we can define transition matrix
 *** Action of selected chain ends
 This follows the previous versions.
 
-* The differences with the previous version
+* The differences with the previous version (originally expected)
 Even if the physical meaning differ from the previous version, the consequence of probability map is not so much changes. The flux to detachment, however, is controlled by energy barrier, $E_B$, it is expected that the flux to detach for roof chain decreases while the flux to detach for associated chain increases. In consequence, energy barrier is no more ignorance variable, which is differ from the previous version since the normalized selecting probability in previous version canceled out the energy barrier effect. 
 
 For better understanding, let assumed there are only one chain is associated for given bead while the other chains (say 9) are roof, the probability for the previous map is given by
@@ -110,6 +110,17 @@ P_{i(association)} = \Pi_{P\to A},
 \end{equation}
 which shows figure [[fig:transition_probability]] as example. Notice that the meaning for the figure [[fig:selection_probability]] and [[fig:transition_probability]] is different.
 
+* The real difference
+In conclusion, there is no real effect from energy barrier to the flux balance between association and dissociation. The results are described on the figure [[fig:effect_energy_barrier]], which shows that three distinguishable regime: (i) initially decreasing, (ii) plateau region, and (iii) decreasing further. Increasing number of trial, however, reveals that the (iii) region is artificial and the number of associations in the (iii) will reach the values of plateau region (ii). This strongly suggested that if we have number of trials, we have just two regions: (i) initially decreasing and (ii) plateau region, which seems to be stationary state.
+
+** Reason for the poor statistics for the region (iii)
+This is due to the fact that Metropolis algorithm is NOT efficiency to go through the energy barrier. This is frequently happens in many Monte Carlo simulations. In this case, /important sampling/ is needed to have unbiased statistics. 
+
+** Reason for decreasing number of associations for the region (i)
+
+
+** Explanations for the similar stationary values between energy barrier scheme and previously used methods
+In principle, the energy barrier is just way to determine it is active or not. Number of association is the consequence of balance between flux to attach to its originate bead and flux to attach to other bead, which is determined by 
 
 
 * Figures
@@ -125,24 +136,68 @@ which shows figure [[fig:transition_probability]] as example. Notice that the me
 #+ATTR_HTML: :width 640px
 [[file:controls_statistics/transition_probability_revised.png]]
 
+** Results with different energy barrier
+#+CAPTION: Energy barrier effect to the statistics. The given data is extracted one time step where the initial position is given by equilibration without associations. The red dashed line refers the original scheme while blue symbols are energy barrier scheme.
+#+NAME: fig:effect_energy_barrier
+#+ATTR_HTML: :width 640px
+[[file:controls_statistics/effect_energy_barrier.png]]
 
-# *** TODO Barrier for detachment (quick note)
-# Note that the energy depth that chain ends keep attached to micellar core, $E_B$, is not implemented on this scheme. There is only one effective parameters: $l_c$, which affect to the probability of selecting chains. However, it does not provide the energy barrier to be active state. For rightful statistics, we have to consider the selected chain ends is active state (detached from the chain ends) or not based on Boltzmann factor:
-# \begin{equation}
-# \Pi_{P\to A} = \frac{\textrm{state}_{A}}{\textrm{state}_{P}} = \exp\left(-(k_BT)^{-1}(U_{A} - U_{P})\right),
-# \end{equation}
-# where $\Pi_{P\to A}$ represent transition probability from state P (passive) to state A (active).
+#+CAPTION: Recomputed roof and bridge with the previous figure
+#+NAME: fig:balance_flux_loglog
+#+ATTR_HTML: :width 640px
+[[file:controls_statistics/poor_statistics_METROPOLIS.png]]
 
-# Let $\Pi_{A\to M}$ be the probability to take movement from active state, then the real probability for the action becomes
-# \begin{align}
-# \Pi_{P\to M} &= \Pi_{A\to M}\Pi_{P\to A} = \exp\left(-(k_BT)^{-1}(U_{M} - U_{A})\right)\exp\left(-(k_BT)^{-1}(U_{A} - U_{P})\right) \\
-# &= \exp\left(-(k_BT)^{-1}(U_{M}-U_{P})\right) = \exp\left(-(k_BT)^{-1}(U - E_B)\right).
-# \end{align}
-# Notice that whenever we normalize $\Pi_{P\to M}$ with the maximum value of the probability, $\exp(E_B)$, the transition probability is exactly same without any barrier for the action that is used our code. So, it is of importance to have proper mind to random number generation for this factor that normalize proper way.
 
-# **** Metropolis Algorithm
+** Flux analysis when every chains are roof
+#+CAPTION: Simplified diagram for flux analysis
+#+NAME: fig:simplified_diagram
+#+ATTR_HTML: :width 760px
+[[file:controls_statistics/simplified_diagram.png]]
 
-# On this regards, the action of selected chain ends should have 
-# \begin{equation}
-# p'_k(\mathbf{r}_i, \mathbf{r}_j) = \exp\left(-(k_BT)^{-1}\left(U(\mathbf{r}_i, \mathbf{r}_j) - E_B\right)\right).
-# \end{equation}
+#+CAPTION: Balance between roof and bridge when there are 640 beads with all the chains are in roof state.
+#+NAME: fig:balance_flux_loglog
+#+ATTR_HTML: :width 640px
+[[file:controls_statistics/ratio_flux_loglog.png]]
+
+
+* Temp
+\begin{equation}
+\exp(-\tilde{E}_B)
+\end{equation}
+\begin{equation}
+1 - \exp(-\tilde{E}_B)
+\end{equation}
+
+\begin{equation}
+Z_k = \sum_{i = 0 (\neq k)}^{N_p} \exp(-\tilde{U}_{i,k})
+\end{equation}
+
+\begin{equation}
+\frac{1}{Z_k}
+\end{equation}
+\begin{equation}
+\frac{Z_k -1}{Z_k}
+\end{equation}
+
+\begin{equation}
+1-\exp(-\tilde{E}_B) + \exp(-\tilde{E}_B)\cdot\frac{1}{Z_k}
+\end{equation}
+\begin{equation}
+\exp(-\tilde{E}_B)\cdot\frac{Z_k-1}{Z_k}
+\end{equation}
+
+\begin{equation}
+\min\left\{1, \exp(\tilde{F}\tilde{l} - \tilde{E}_B)\right\}
+\end{equation}
+
+\begin{equation}
+1-\min\left\{1, \exp(\tilde{F}\tilde{l} - \tilde{E}_B)\right\}
+\end{equation}
+
+\begin{equation}
+\exp(\tilde{F}\tilde{l} - \tilde{E}_B) \cdot \frac{1}{Z_k}
+\end{equation}
+
+\begin{equation}
+1 - \exp(\tilde{F}\tilde{l} - \tilde{E}_B) + \exp(\tilde{F}\tilde{l} - \tilde{E}_B)\cdot \frac{Z_k - 1}{Z_k}
+\end{equation}
