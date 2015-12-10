@@ -1,5 +1,6 @@
 #include "read_file_condition.h"
 #include <string>
+#include <iomanip> // for setw
 // using namespace std;
 
 COND::COND(char* fn)
@@ -56,7 +57,7 @@ int COND::cond_print()
       cout << "### PRINTING ARGUMENTS ###\n";
       for(MKL_LONG i=0; i<N_arg; i++)
         {
-          cout << arg[i][0] << '\t' << arg[i][1] << endl;
+          cout << setw(50) << left << arg[i][0] << ": " << setw(50) << left  << arg[i][1] << endl;
         }
       cout << "### END PRINT ###\n";
     }
