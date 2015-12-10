@@ -301,6 +301,17 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           ANALYSIS::GET_dCDF_POTENTIAL(TRAJ, index_t_now, POTs, i, INDEX_dCDF_U[i], dCDF_U[i], vec_boost_Nd_parallel[i]);
           double time_end_pdf = dsecnd();
           dCDF_U[i].sort2(INDEX_dCDF_U[i]);
+          // double norm_dCDF_U = dCDF_U[i].norm();
+          // dCDF_U[i](0) /= norm_dCDF_U;
+          for(MKL_LONG j=1; j<TRAJ.Np; j++)
+            {
+              dCDF_U[i](j) += dCDF_U[i](j-1);  // cumulating
+            }
+          double norm_dCDF_U = dCDF_U[i].norm();
+          for(MKL_LONG j=0; j<TRAJ.Np; j++)
+            {
+              dCDF_U[i](j) /= norm_dCDF_U;
+            }
           double time_end_sort = dsecnd();
 #pragma omp critical(PDF_SORT)
           {
