@@ -4,6 +4,7 @@ from numpy import *
 import matplotlib.pyplot as plt
 from scipy.linalg import norm
 from scipy.misc import comb
+from combinatorial_sequence import *
 
 def uij(distance):
     return distance**2.0
@@ -22,29 +23,29 @@ r = asarray([[0, norm(p0 - p1), norm(p0 - p2)],
 
 Pr = exp(-r)
 
-Np = 3
+Np = 40
 Nc = 25
 # ((Np, Nc)) = (Np + Nc - 1, Nc) => 27!/(25!2!) = 27*13 = 351
-Ns = 21
+# Ns = 21
 
 # w0 = zeros([Ns, Np])
 # w1 = zeros([Ns, Np])
 # w2 = zeros([Ns, Np])
 
-def get_combination_array(Np, Nc):
-    Ns = comb(Np + Nc - 1, Nc)
-    # w = zeros([Ns, Np])
-    for s in range(Ns):
-        for i in range(Np):
+# def get_combination_array(Np, Nc):
+#     Ns = comb(Np + Nc - 1, Nc)
+#     # w = zeros([Ns, Np])
+#     for s in range(Ns):
+#         for i in range(Np):
 
-w = asarray([[5, 0, 0],
-             [4, 1, 0], [4, 0, 1],
-             [3, 2, 0], [3, 1, 1], [3, 0, 2],
-             [2, 3, 0], [2, 2, 1], [2, 1, 2], [2, 0, 3],
-             [1, 4, 0], [1, 3, 1], [1, 2, 2], [1, 1, 3], [1, 0, 4],
-             [0, 5, 0], [0, 4, 1], [0, 3, 2], [0, 2, 3], [0, 1, 4], [0, 0, 5]])
-
-
+# w = asarray([[5, 0, 0],
+#              [4, 1, 0], [4, 0, 1],
+#              [3, 2, 0], [3, 1, 1], [3, 0, 2],
+#              [2, 3, 0], [2, 2, 1], [2, 1, 2], [2, 0, 3],
+#              [1, 4, 0], [1, 3, 1], [1, 2, 2], [1, 1, 3], [1, 0, 4],
+#              [0, 5, 0], [0, 4, 1], [0, 3, 2], [0, 2, 3], [0, 1, 4], [0, 0, 5]])
+w = get_weight_combinations(Np, Nc)
+Ns = shape(w)[0]
 tmp_P0 = zeros(Ns)
 tmp_P1 = zeros(Ns)
 tmp_P2 = zeros(Ns)
@@ -60,3 +61,14 @@ for i in range(Ns):
 Z0, Z1, Z2 = sum(tmp_P0), sum(tmp_P1), sum(tmp_P2)
 P0, P1, P2 = tmp_P0/Z0,   tmp_P1/Z1,   tmp_P2/Z2
 
+plt.clf()
+plt.ion()
+plt.plot(P0, 'b.-', label='P0, max=(%d, %4.3f)'%(argmax(P0), P0[argmax(P0)]))
+plt.plot(P1, 'r.-', label='P1, max=(%d, %4.3f)'%(argmax(P1), P1[argmax(P1)]))
+plt.plot(P2, 'g.-', label='P2, max=(%d, %4.3f)'%(argmax(P2), P2[argmax(P2)]))
+plt.grid()
+plt.legend(loc = 'upper left')
+plt.xlabel('index for microstate')
+plt.ylabel('probability for microstate')
+plt.axis([0, Ns-1, -0.01, 1.0])
+plt.show()

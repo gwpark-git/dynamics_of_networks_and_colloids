@@ -141,11 +141,11 @@ Z^{U}_{k} \approx 1 + CN_1\exp(-r_{p,1}^2) + CN_2\exp(-r_{p,2}^2) + CN_3\exp(-r_
 \end{equation}
 where $CN_n$ is n-th coordination number and $r_{p,n}$ is the distance for the n-th peak, and residue is effect for outside the third sell. This is quite valid since $r_{p,3} =  2.52$ and $CN_3$ is computed up to 3.07 in dimensionless distance. Note that $\exp(-3.07^2) \approx 8.07\times 10^{-5}$ which means even if we have all the 640-1 bead is outside of this distance, the effect becomes 0.05 which is quite minor. From this approximation, we can compute
 \begin{equation}
-Z^{U}_{k} \approx 1+ 4.33\exp(-0.94^2) + 5.65\exp(-1.67^2) + 5.33\exp(-2.52^2) \approx 3.14.
+Z^{U}_{k} \approx 1+ 4.33\exp(-0.94^2) + 5.65\exp(-1.67^2) + 5.33\exp(-2.52^2) \approx 3.147.
 \end{equation}
 In this case, we have the approximated flux as
 \begin{align}
-\pi_{roof\to roof} &\approx 1 - \left(1 - \frac{1}{3.14}\right)\exp(-E_B) = 1 - 0.68\exp(-E_B),\\
+\pi_{roof\to roof} &\approx 1 - \left(1 - \frac{1}{3.147}\right)\exp(-E_B) = 1 - 0.68\exp(-E_B),\\
 \pi_{roof\to bridge} &\approx 0.68\exp(-E_B).
 \end{align}
 
@@ -181,7 +181,7 @@ Similar with the previous example, we can use approximation. Note that the maxim
 which means it tends to association whenever bridge chain happens.
 
 ***** Realistic case with equilibrium results of NC25 in the previous method
-Again, we are using $Z^{U}_j\approx 3.14$ since the coordination number is computed by RDF that is already averaged value. In averaged manner, here we assumed that $Z^{U}_j \approx Z^{U}_k$. With this assumption, we have fluxes:
+Again, we are using $Z^{U}_j\approx 3.147$ since the coordination number is computed by RDF that is already averaged value. In averaged manner, here we assumed that $Z^{U}_j \approx Z^{U}_k$. With this assumption, we have fluxes:
 \begin{align}
 \pi_{bridge\to roof} &\approx 0.318\min\left\{1, \exp(F_{j,k}l - E_B)\right\}\\
 \pi_{bridge\to bridge} &\approx 1 - 0.318\min\left\{1, \exp(F_{j,k}l - E_B)\right\}.
@@ -189,7 +189,7 @@ Again, we are using $Z^{U}_j\approx 3.14$ since the coordination number is compu
 So the prefactor 0.318 controls the flux balance between roof and bridge from chains in bridge state. 
 
 ** Combining two examples
-First of all, it would be notice that the previous analysis is removed the restrictions of number of allowance in order to remove historical dependence (non-Markovian behaviour). In my point of view, if the number of allowance has real effect rather than accelerator or stabilizer, then the stochastic step is in cage state, which might be wrong. From previous analysis for flux balance, *we can expect that it is possible to transition /roof to bridge/, but it is very rare and almost impossible to transition /bridge to roof/*. This can be understood in the way that /roof to bridge/ is controlled by introduced energy barrier $E_B$, but once we overcome this energy barrier - with high number of stochastic trials -, the way back to roof state is relatively small if we compare it with way to make bridge. In addition, the used values for this results have lowerly aggregated, that means the value 3.14 becomes larger when we have data with new results. In this sense, the prefactor for bridge 0.318 can be regarded as higher value than the reality which means the probability to becomes roof is more difficult in comparison with the probability to bridge. 
+First of all, it would be notice that the previous analysis is removed the restrictions of number of allowance in order to remove historical dependence (non-Markovian behaviour). In my point of view, if the number of allowance has real effect rather than accelerator or stabilizer, then the stochastic step is in cage state, which might be wrong. From previous analysis for flux balance, *we can expect that it is possible to transition /roof to bridge/, but it is very rare and almost impossible to transition /bridge to roof/*. This can be understood in the way that /roof to bridge/ is controlled by introduced energy barrier $E_B$, but once we overcome this energy barrier - with high number of stochastic trials -, the way back to roof state is relatively small if we compare it with way to make bridge. In addition, the used values for this results have lowerly aggregated, that means the value 3.147 becomes larger when we have data with new results. In this sense, the prefactor for bridge 0.318 can be regarded as higher value than the reality which means the probability to becomes roof is more difficult in comparison with the probability to bridge. 
 
 The energy barrier seems to works both of chains in roof state and bridge state, but effect is minor at this moment since the flux are highly controlled by the averaged partition function for potential. *It strongly suggested that the probability for taking action is /under-estimated/*, which means $\exp(-U_{i,j})$ is not enough for the determination of attachment.
 
