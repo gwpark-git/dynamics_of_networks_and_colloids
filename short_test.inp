@@ -12,6 +12,7 @@ N_skip=10
 N_energy_frequency=10
 output_path=data
 filename_base=NP640_C100_T3_r11
+selection_probability=uniform
 kinetics=equalprobable_Boltzmann
 energy_barrier=1.0
 repulsion_coefficient=100
