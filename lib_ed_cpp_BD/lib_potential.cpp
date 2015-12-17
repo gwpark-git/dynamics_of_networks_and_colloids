@@ -99,6 +99,21 @@ double FORCE::GAUSSIAN::Boltzmann_distribution(double distance, double N_dimensi
   return exp(-spring_potential(distance, N_dimension));
 }
 
+double FORCE::MODIFIED_GAUSSIAN::spring_force(double distance, double N_dimension, double scale_factor)
+{
+  return FORCE::GAUSSIAN::spring_force(scale_factor*distance, N_dimension);
+}
+
+double FORCE::MODIFIED_GAUSSIAN::spring_potential(double distance, double N_dimension, double scale_factor)
+{
+  return FORCE::GAUSSIAN::spring_potential(scale_factor*distance, N_dimension);
+}
+
+double FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(double distance, double N_dimension, double scale_factor)
+{
+  return FORCE::GAUSSIAN::Boltzmann_distribution(scale_factor*distance, N_dimension);
+}
+
 
 double FORCE::FENE::non_Gaussian_factor(double distance, double N_dimension, double ratio_RM_R0)
 {
@@ -140,6 +155,21 @@ double FORCE::NAPLE::MC_ASSOCIATION::MAP_Gaussian_Boltzmann(double distance, dou
   return FORCE::GAUSSIAN::Boltzmann_distribution(distance, given_variables[3]);
 }
 
+double FORCE::NAPLE::MC_ASSOCIATION::MAP_modified_Gaussian_spring_force(double distance, double* given_variables)
+{
+  return FORCE::MODIFIED_GAUSSIAN::spring_force(distance, given_variables[3], given_variables[5]);
+}
+
+double FORCE::NAPLE::MC_ASSOCIATION::MAP_modified_Gaussian_spring_potential(double distance, double* given_variables)
+{
+  return FORCE::MODIFIED_GAUSSIAN::spring_potential(distance, given_variables[3], given_variables[5]);
+}
+
+double FORCE::NAPLE::MC_ASSOCIATION::MAP_modified_Gaussian_Boltzmann(double distance, double* given_variables)
+{
+  return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(distance, given_variables[3], given_variables[5]);
+}
+
 
 double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_spring_force(double distance, double* given_variables)
 {
@@ -167,18 +197,31 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
   given_POT.f_repulsion = FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_force;
   given_POT.e_repulsion = FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_potential;
 
-  if(given_cond("FENE")=="TRUE")
+  if(given_cond("connector")=="FENE")
     {
       given_POT.force_variables[5] = atof(given_cond("ratio_RM_R0").c_str());
       given_POT.f_connector = MAP_FENE_spring_force;
       given_POT.e_connector = MAP_FENE_spring_potential;
       given_POT.PDF_connector = MAP_FENE_Boltzmann;
     }
-  else
+  else if (given_cond("connector") == "Gaussian")
     {
       given_POT.f_connector = MAP_Gaussian_spring_force;
       given_POT.e_connector = MAP_Gaussian_spring_potential;
       given_POT.PDF_connector = MAP_Gaussian_Boltzmann;
+    }
+  else if (given_cond("connector") == "Modified_Gaussian")
+    {
+      given_POT.force_variables[5] = atof(given_cond("scale_factor_chain").c_str());
+      given_POT.f_connector = MAP_modified_Gaussian_spring_force;
+      given_POT.e_connector = MAP_modified_Gaussian_spring_potential;
+      given_POT.PDF_connector = MAP_modified_Gaussian_Boltzmann;
+      
+    }
+  else
+    {
+      printf("ERR: no avaliable connector inp.\n");
+      return -1;
     }
 
   if(given_cond("kinetics")=="METROPOLIS")
@@ -187,11 +230,22 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
       given_POT.w_function = KINETICS::METROPOLIS::detachment_weight;
       given_POT.transition = KINETICS::METROPOLIS::transition_probability;
     }
-  else
+  else if (given_cond("kinetics")=="NORMAL")
     {
       given_POT.w_function = KINETICS::NORMALIZED::detachment_weight;
       given_POT.transition = KINETICS::NORMALIZED::transition_probability;
     }
+  else if (given_cond("kinetics")=="equalprobable_Boltzmann")
+    {
+      given_POT.transition = KINETICS::EQUALPROBABLE::transition_probability;
+      given_POT.w_function = KINETICS::NORMALIZED::detachment_weight;
+    }
+  else
+    {
+      printf("ERR: no avaliable kinetics inp.\n");
+      return -1;
+    }
+  
   // given_POT.w_function = Detachment_weight;
   given_POT.scale_random = MAP_time_scaling_random;
   return 0;
@@ -226,4 +280,9 @@ double KINETICS::METROPOLIS::transition_probability(double distance, double tens
   if (tpa > 1.0)
     return 1.0;
   return tpa;
+}
+
+double KINETICS::EQUALPROBABLE::transition_probability(double distance, double tension, double* given_varialbes)
+{
+  return 1.0;
 }

@@ -40,6 +40,12 @@ namespace FORCE
     double spring_potential(double distance, double N_dimension);
     double Boltzmann_distribution(double distance, double N_dimension);
   }
+  namespace MODIFIED_GAUSSIAN
+  {
+    double spring_force(double distance, double N_dimension, double scale_factor);
+    double spring_potential(double distance, double N_dimension, double scale_factor);
+    double Boltzmann_distribution(double distance, double N_dimension, double scale_factor);
+  }
   namespace FENE
   {
     double non_Gaussian_factor(double distance, double N_dimension, double ratio_RM_R0);
@@ -72,6 +78,11 @@ namespace FORCE
       double MAP_Gaussian_spring_force(double distance, double* given_variables);
       double MAP_Gaussian_spring_potential(double distance, double* given_variables);
       double MAP_Gaussian_Boltzmann(double distance, double* given_variables);
+
+      double MAP_modified_Gaussian_spring_force(double distance, double* given_variables);
+      double MAP_modified_Gaussian_spring_potential(double distance, double* given_variables);
+      double MAP_modified_Gaussian_Boltzmann(double distance, double* given_variables);
+      
       double MAP_FENE_spring_force(double distance, double* given_variables);
       double MAP_FENE_spring_potential(double distance, double* given_variables);
       double MAP_FENE_Boltzmann(double distance, double* given_variables);
@@ -94,6 +105,11 @@ namespace KINETICS
   {
     double detachment_weight(double distance, double tension, double* given_variables);
     double transition_probability(double distance, double tension, double* given_varialbes);
+  }
+
+  namespace EQUALPROBABLE
+  {
+    double transition_probability(double distance, double tension, double* given_variables);
   }
 }
 
