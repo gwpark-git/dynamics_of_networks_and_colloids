@@ -1,0 +1,26 @@
+
+#+TITLE: Scaled Distance
+#+AUTHOR: Gun Woo Park
+
+* Temp
+Using characteristic length scale as dimeter of micelle, $R_0$, the dimensionless potential becomes
+\begin{equation}
+\tilde{U}(\tilde{\mathbf{r}}_{ij}) = \frac{N_D}{2}\tilde{\mathbf{r}}_{ij}^2
+\end{equation}
+where
+\begin{equation}
+\tilde{\mathbf{r}} = \frac{\mathbf{r}}{R_0}
+\end{equation}
+
+If the length scales for associable chain differ from length scale of diameter of micelle, we have new scale factor $\lapha$ for the dimensionless distance:
+\begin{equation}
+\tilde{\mathbf{r}}' = \frac{\mathbf{r}}{\alpha R_0}
+\end{equation}
+Since we still using characteristic distance as $R_0$, we have
+\begin{equation}
+\tilde{\mathbf{r}} = \frac{\tilde{\mathbf{r}}'}{\alpha}
+\end{equation}
+Therefore, we have
+\begin{equation}
+\tilde{U}(\tilde{\mathbf{r}}_{ij}) = \frac{N_D}{2}\left(\frac{\tilde{\mathbf{r}}_{ij}}{\alpha}\right)^2
+\end{equation}

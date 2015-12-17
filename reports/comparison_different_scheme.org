@@ -1,0 +1,147 @@
+#+TITLE: Theoretical Comparison with Different Scheme
+#+AUTHOR: Gun Woo Park
+
+* Preface
+This document is design for communication with different stochastic scheme. 
+
+* Simplified Boltzmann distribution
+Let assumed that there is $Np$ particles on the system, and $Nc$ chains per particle can act association. For fixed positions, I will try to finding the probability for micro-state that is based on the potential of associations.
+
+For convenience, let assumed that the potential exerted on associated chain as Gaussian:
+\begin{equation}
+u_G(\mathbf{r}) = \frac{N_D}{2}r^2,
+\end{equation}
+where $\mathbf{r}$ is end-to-end vector for the chain. For convenience, the all physical quantities are non-dimensional. In 2-dimensional system, it becomes just square of the distance.
+
+Since there are $Nc*Np$ chains on the system, the potential of the system is given by
+\begin{equation}
+U = \sum_{i=1}^{Nc*Np}u_G,
+\end{equation}
+which is sum over all potentials for individual chains.
+
+Here we have to think that the both chain ends can be detached from its originate bead or not. In former sense, our problem is related with how we arrange the $Nc*Np$ chains on whole possible state while the latter one is we arrange $Nc$ chains to its associated state per beads.
+
+** Chains can be freely transfer based on state probability
+For simplicity, let assumed that there are 3 particles exist (Np=3), and 3 chains per each particles are subject to association. Let $p_1 = (0, 0)$, $p_2 = (1, 1)$, and $p_3 = (0, -2)$, then the dimensionless distance becomes $r_{12} = \sqrt{2}$, $r_{13} = 2$, and $r_{23} = \sqrt{10}$. Therefore, potential level for individual chains can be categorized as roof($=u_{11}=u_{22}=u_{33} = 0$), $u_{12} = 2$, $u_{13} = 4$, and $u_{23} = 10$, in this specific example. Therefore, we have 6 state (4 out of 6 can be distinguishable based on potential energy of state - 3 degeneracy -). For simplicity, I will use all the indistinguishable 6 states.
+
+In this case, we have to arrange 9 (=Np*Nc) chains to the 6 state based on potential. The number of possible state on this case can be computed by combinations with repetition:
+\begin{equation}
+\left(\left(\begin{array}{c} n \\ k \end{array}\right)\right) = \left(\begin{array}{c} n +k - 1 \\ k \end{array}\right) = \frac{(n+k-1)!}{k!(n-1)!},
+\end{equation}
+the reason will be described in later time.
+
+In this specific example, we have 2002 states (220 distinguishable states), which is very large even for this very simplified system. This is the reason we need to perform stochastic simulation with more realistic system (larger particles and larger chain numbers). If we account the all possible micro-state based on previous combinatorial search, we can have Boltzmann distribution for the potential of given state:
+\begin{equation}
+P'^{i} = \exp(-U^{i})\qquad\textrm{with }U^{i} = \sum_{j=1}^{Nc*Np}u^{i}_{j},
+\end{equation}
+where $u^{i}_{j}$ is potential for j-th chain in the i-th particle. 
+The partition function is sum of the probability over all the state:
+\begin{equatio}
+Z = \sum_{i=1}^{Ns}\exp(-U^{i}),
+\end{equation}
+where $Ns$ is number of micro-state which is 2002 in this specific example.
+Finally, we have normalized probability that follows Boltzmann distribution:
+\begin{equation}
+P^{i} = P'^{i}/Z.
+\end{equation}
+
+For this simplified example, we have spectrum for potential energy state as figure [[fig:state_map_log]] that shows there are variety energy spectrum. The highest level refer that the all chains are in roof state that is occurred 55 times out of 2002 times with probability 1.593e-02. The second level related with there only one association with the smallest association potential, $u_{12}$: 45 times with probability 2.156e-03, and so on. In this specialized example, we can compute average number of association as
+\begin{equation}
+\langle NAS \rangle \approx 0*0.876263 + 1*(0.097028 + 0.023635) + 2*(0.002527 + 0.000454) = 0.127,
+\end{equation}
+which means 0.127 chains out of 9 chains are association, which is approximately 1.41% of chains are associated. Note that the 0.127 chain is not really doable for our simulation since it would be integer number. Of course, we can generalize this scheme for the bigger space. 
+
+Note that the rated results represent 0.999909 probability of micro-state, and $u_{23}=10$ is not involved any of the represented results because $\exp(-10) = 4.54\times 10^{-5}$ is quite rare to capture in this scheme. This might be good clue to suggest cut-off radius for the all possible state that reduce dramatically. It is noteworthy that the $r_{23} = \sqrt{10} \approx 3.16$, which is not so much big radius. 
+
+
+** Chains cannot be fully detached its originate bead
+This prevent to transfer chains from one bead to other beads. Recall the previous example, the number of state for specific chain becomes 3 from 6. To be specific, if we think a single chain attached to bead 1, the possible state for this single chain is $u_{11}$ without degeneracy, $u_{12}$, and $u_{13}$. There is no $u_{23}$ since this chain cannot be detached from bead 1. Hence, the number of possible arrangement largely reduced in this case in comparison with the previous approach. 
+
+From the given working hypothesis, we count the way of arrangement for 3 chains for first bead, for the second, and so on. The first bead case was simplified with
+\begin{equation}
+\left(\left(\begin{array}{c} 3 \\ 3\end{array}\right)\right) = \left(\begin{array}{c} 5 \\ 3\end{array}\right) = \frac{5!}{3!2!} = 10,
+\end{equation}
+which means we have only 10 micro-state for bead 1. Each beads contribute 10 micro-state, then the consequence of the all micro-state becomes $10^3$ which is approximately half of the previous example, 2002.
+
+In this case, we can simplified the probability map that is based on each single bead:
+\begin{equation}
+P'^{i}_{k} = \exp(-U^{i}_{k}),
+\end{equation}
+where subscript k denote the k-th bead. 
+The partition function for this case can be categorized with index k:
+\begin{equation}
+Z_{k} = \sum_{i=1}^{10}P'^{i}_{k},
+\end{equation}
+which implies
+\begin{equation}
+P^{i}_{k} = \exp(-U^{i}_{k})/Z_{k}.
+\end{equation}
+On this regards, the all possible probability of state can be accounted by
+\begin{equation}
+P^{(i,j,k)} = P^{i}_{1}\cdot P^{j}_{2} \cdot P^{k}_{3} \equiv \frac{\exp\left(-(U^{i}_1 + U^{j}_2 + U^{k}_3)\right)}{Z_1Z_2Z_3},
+\end{equation}
+still the subscript 1,2,3 denote the particles and index i,j,k denote the index for state with each particles.
+
+In consequence, we can use individual state level and generalization simply conditional probability between i,j,k-th state level. The results described in figure [[fig:state_map_log_constraint]] which shows that higher probability to association (3.3%).
+
+
+# Here is working hypothesis of this analysis:
+# 1. Both chain ends cannot be detached from its originate bead: prevent the chain movement.
+# 2. The probability of each beads independent to other beads: partitioning the overall complexity.
+
+
+# \begin{equation}
+# U = \sum_{i=1}^{Np}U^{i} \equiv \sum_{i=1}^{Np}\sum_{j=1}^{Nc}u_G^{i,j},
+# \end{equation}
+# where $u_G^{i,j}$ denote the chain index is $i,j$.
+
+
+* Stochastic Simulation
+For given position of particles, decision for the association should follows Boltzmann distribution that reported in the previous section. If we recall the number of micro-state with repeated combinations, even 3 beads system with 3 chains per beads make 2002 micro-state and simplified version make 1000 micro-state. For reasonable size of box, if beads of the system is 640 and 25 chains per beads are associable, then number of states becomes
+\begin{align}
+Ns_1 &= \left(\left(\begin{array}{c} C(N_p, 2) + N_p\\ N_cN_p \end{array}\right)\right) = \left(\left(\begin{array}{c} 205,120 \\ 16,000 \end{array}\right)\right) = \left(\begin{array}{c} 221,119 \\ 16,000\end{array}\right) = \frac{221,119!}{16,000!205,119!},  \\
+Ns_2 &= \left(\left(\begin{array}{c} N_p + 1 \\ N_c\end{array}\right)\right)^{N_p} = \left(\left(\begin{array}{c} 641 \\ 25\end{array}\right)\right)^{640} = \left(\begin{array}{c} 665 \\ 25\end{array}\right)^{640} = \left(\frac{665!}{25!640!}\right)^{640},
+\end{align}
+where $C(N_p, 2)$ is also combination but used inside of binary expression in order to avoid complications, and $Ns_1$ is for freely transferable chain scheme while $Ns_1$ is number of micro-state for constraint chain scheme. Even if $Ns_2 < Ns_1$, *it still too large to compute in theoretical pathway*.
+On this regards, we cannot avoid stochastic simulation in order to have stationary distribution from given position vectors.
+
+** Working Hypothesis
+For simplification, let assumed that we are visiting *single chain end* in each stochastic steps. In the selected chain ends regarded as 'transition state' that automatically allows the following action. The first working hypothesis is that /whenever we visited a single chain end, it is automatically transition state without any probability generation/. 
+Then, we have to choose a bead where this chain will attach. Since we are using Boltzmann distribution, the chain end should following Boltzmann factor, i.e., the ratio between expected probability for taking action and remaining probability:
+\begin{equation}
+\frac{\exp(-U')}{\exp(-U)} = \exp(-(U'-U)),
+\end{equation}
+where prime denote the expected potential when new action is taken. It is of importance that the previous action probability is based on the whenever the target is specified. So, we have to determine what is the target. 
+
+*** Cumulative Selection
+Let assumed that the probability is following the 
+
+
+
+
+# \left(\left(\begin{array}{c} 
+
+* Figures
+** Spectrum of potential energy state, freely move-able chains
+#+CAPTION: Potential energy state spectrum based on the Gaussian connector
+#+NAME: fig:state_map_log
+#+ATTR_HTML: :width 640px
+[[file:simplified_Boltzmann/exam_Np3_Nc3_counting_all_state.png]]
+
+** Spectrum of potential energy state, chains restricted to original bead
+#+CAPTION: Spectrum of potential energy state based on the Gaussian connector for chains constrainted to original bead
+#+NAME: fig:state_map_log_constraint
+#+ATTR_HTML: :width 640px
+[[file:simplified_Boltzmann/exam_Np3_Nc3_individual.png]]
+
+# * Scheme 1: equally probable to select chain and taking action with Boltzmann distribution
+# Let assumed that we are randomly visiting bead, and also randomly visiting specific chain end that attached to visited bead. In principle, the visiting probability follows
+# \begin{equation}
+# \frac{1}{2N_CN_p},
+# \end{equation}
+# where $N_C$ is number of chains per bead and $N_p$ is number of beads. 
+# Let say we are visiting k-th bead, 
+# Then, the in-visited chain ends follows the Boltzmann distribution:
+# \begin{equation}
+# P'(
+# \end{equation}
