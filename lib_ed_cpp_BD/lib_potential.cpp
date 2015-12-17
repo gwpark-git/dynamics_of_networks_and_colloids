@@ -224,20 +224,34 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
       return -1;
     }
 
+  if(given_cond("selection_probability")=="uniform")
+    {
+      given_POT.transition = KINETICS::EQUALPROBABLE::transition_probability;
+    }
+  else if (given_cond("selection_probability")=="weighted")
+    {
+      given_POT.transition = KINETICS::NORMALIZED::transition_probability;
+    }
+  else
+    {
+      printf("ERR: no avaliable transition probability inp.\n");
+      return -1;
+    }
+  
   if(given_cond("kinetics")=="METROPOLIS")
     {
       given_POT.force_variables[6] = atof(given_cond("energy_barrier").c_str());
       given_POT.w_function = KINETICS::METROPOLIS::detachment_weight;
-      given_POT.transition = KINETICS::METROPOLIS::transition_probability;
+      // given_POT.transition = KINETICS::METROPOLIS::transition_probability;
     }
   else if (given_cond("kinetics")=="NORMAL")
     {
       given_POT.w_function = KINETICS::NORMALIZED::detachment_weight;
-      given_POT.transition = KINETICS::NORMALIZED::transition_probability;
+      // given_POT.transition = KINETICS::NORMALIZED::transition_probability;
     }
   else if (given_cond("kinetics")=="equalprobable_Boltzmann")
     {
-      given_POT.transition = KINETICS::EQUALPROBABLE::transition_probability;
+      // given_POT.transition = KINETICS::EQUALPROBABLE::transition_probability;
       given_POT.w_function = KINETICS::NORMALIZED::detachment_weight;
     }
   else
