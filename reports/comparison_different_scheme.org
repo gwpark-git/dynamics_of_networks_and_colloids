@@ -113,8 +113,11 @@ Then, we have to choose a bead where this chain will attach. Since we are using 
 \end{equation}
 where prime denote the expected potential when new action is taken. It is of importance that the previous action probability is based on the whenever the target is specified. So, we have to determine what is the target. 
 
-*** Cumulative Selection
-Let assumed that the probability is following the 
+Simply, we can think about two way of selection: (i) selecting target particles randomly (equally probable) and using Boltzmann factor as acceptance proability or (ii) selection is follows the Boltzmann distribution, directly.
+
+*** Random Selection
+The validity of scheme can be checked with the results distribution. Recall the simplified example, 3 beads and 3 chains per beads, let assumed that we have selected one chain end that belongs to beads 1. Then, the possible pair to target can be 1, 2, and 3, which means the all bead can be subject with equalprobable. Then the acceptance is given by Boltzmann factor: $\exp(-U_{1k})$ where k is index for target beads.
+
 
 
 
