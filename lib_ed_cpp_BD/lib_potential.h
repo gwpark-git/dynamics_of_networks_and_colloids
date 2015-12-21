@@ -102,8 +102,8 @@ namespace KINETICS
   }
   namespace WEIGHTED
   {
-    /* double detachment_weight(double distance, double tension, double* given_variables); */
-    double transition_probability(double distance, double tension, double* given_varialbes);
+    double detachment_weight(double distance, double tension, double* given_variables);
+    /* double transition_probability(double distance, double tension, double* given_varialbes); */
   }
 
   namespace METROPOLIS

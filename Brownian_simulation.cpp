@@ -315,10 +315,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
             {
               dCDF_U[i](j) += dCDF_U[i](j-1);  // cumulating
             }
-          double norm_dCDF_U = dCDF_U[i].norm();
           for(MKL_LONG j=0; j<TRAJ.Np; j++)
             {
-              dCDF_U[i](j) /= norm_dCDF_U;
+              dCDF_U[i](j) /= dCDF_U[i](TRAJ.Np -1);
             }
           double time_end_sort = dsecnd();
 #pragma omp critical(PDF_SORT)
