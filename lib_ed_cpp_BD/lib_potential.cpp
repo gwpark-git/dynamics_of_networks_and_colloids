@@ -224,35 +224,37 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
       return -1;
     }
 
-  if(given_cond("selection_probability")=="uniform")
+  if(given_cond("transition_probability")=="UNIFORM")
     {
-      given_POT.transition = KINETICS::EQUALPROBABLE::transition_probability;
+      given_POT.transition = KINETICS::UNIFORM::transition_probability;
     }
-  else if (given_cond("selection_probability")=="weighted")
+  else if (given_cond("transition_probability")=="METROPOLIS")
     {
-      given_POT.transition = KINETICS::NORMALIZED::transition_probability;
+      given_POT.transition = KINETICS::METROPOLIS::transition_probability;
     }
   else
     {
-      printf("ERR: no avaliable transition probability inp.\n");
-      return -1;
+      // this is default setting
+      given_POT.transition = KINETICS::UNIFORM::transition_probability;
+      // printf("ERR: no avaliable transition probability inp.\n");
+      // return -1;
     }
   
-  if(given_cond("kinetics")=="METROPOLIS")
+  if(given_cond("chain_selection")=="METROPOLIS")
     {
       given_POT.force_variables[6] = atof(given_cond("energy_barrier").c_str());
       given_POT.w_function = KINETICS::METROPOLIS::detachment_weight;
       // given_POT.transition = KINETICS::METROPOLIS::transition_probability;
     }
-  else if (given_cond("kinetics")=="NORMAL")
+  else if (given_cond("chain_selection")=="WEIGHTED")
     {
-      given_POT.w_function = KINETICS::NORMALIZED::detachment_weight;
+      given_POT.w_function = KINETICS::WEIGHTED::detachment_weight;
       // given_POT.transition = KINETICS::NORMALIZED::transition_probability;
     }
-  else if (given_cond("kinetics")=="equalprobable_Boltzmann")
+  else if (given_cond("chain_selection")=="UNIFORM")
     {
       // given_POT.transition = KINETICS::EQUALPROBABLE::transition_probability;
-      given_POT.w_function = KINETICS::NORMALIZED::detachment_weight;
+      given_POT.w_function = KINETICS::UNIFORM::detachment_weight;
     }
   else
     {
@@ -267,7 +269,7 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
 
 
 
-double KINETICS::NORMALIZED::detachment_weight(double distance, double tension, double* given_variables)
+double KINETICS::WEIGHTED::detachment_weight(double distance, double tension, double* given_variables)
 {
   // given_variables[3] == Nd
   // given_variables[4] == l_cap
@@ -276,11 +278,11 @@ double KINETICS::NORMALIZED::detachment_weight(double distance, double tension, 
   return exp(tension*given_variables[4]);
 }
 
-double KINETICS::NORMALIZED::transition_probability(double distance, double tension, double* given_variables)
-{
-  // in normalized scheme, there is no activation state
-  return 1.0;
-}
+// double KINETICS::WEIGHTED::transition_probability(double distance, double tension, double* given_variables)
+// {
+//   // in normalized scheme, there is no activation state
+//   return 1.0;
+// }
 
 double KINETICS::METROPOLIS::detachment_weight(double distance, double tension, double* given_variables)
 {
@@ -290,13 +292,18 @@ double KINETICS::METROPOLIS::detachment_weight(double distance, double tension, 
 double KINETICS::METROPOLIS::transition_probability(double distance, double tension, double* given_variables)
 {
   double tpa = exp(tension*given_variables[4] - given_variables[6]);
-  // double tpa = KINETICS::NORMALIZED::detachment_weight(distance, tension, given_variables);
+  // double tpa = KINETICS::WEIGHTED::detachment_weight(distance, tension, given_variables);
   if (tpa > 1.0)
     return 1.0;
   return tpa;
 }
 
-double KINETICS::EQUALPROBABLE::transition_probability(double distance, double tension, double* given_varialbes)
+double KINETICS::UNIFORM::detachment_weight(double distance, double tension, double *given_variables)
+{
+  return 1.0;
+}
+
+double KINETICS::UNIFORM::transition_probability(double distance, double tension, double* given_varialbes)
 {
   return 1.0;
 }

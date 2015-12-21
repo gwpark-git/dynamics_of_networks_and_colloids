@@ -95,9 +95,14 @@ namespace FORCE
 
 namespace KINETICS
 {
-  namespace NORMALIZED
+  namespace UNIFORM
   {
     double detachment_weight(double distance, double tension, double* given_variables);
+    double transition_probability(double distance, double tension, double* given_variables);
+  }
+  namespace WEIGHTED
+  {
+    /* double detachment_weight(double distance, double tension, double* given_variables); */
     double transition_probability(double distance, double tension, double* given_varialbes);
   }
 
@@ -107,10 +112,6 @@ namespace KINETICS
     double transition_probability(double distance, double tension, double* given_varialbes);
   }
 
-  namespace EQUALPROBABLE
-  {
-    double transition_probability(double distance, double tension, double* given_variables);
-  }
 }
 
 
