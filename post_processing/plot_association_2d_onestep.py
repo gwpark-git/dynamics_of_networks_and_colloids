@@ -196,7 +196,7 @@ else:
         ax11.axis([0, cut_ratio*box_dimension[0], -0.1, ref_max])
 
 
-        plt.savefig('%s/t%08d.png'%(out_path, ft-1), dpi=300, bbox_inches='tight')
+        plt.savefig('%s/t%08d.png'%(out_path, ft-1), dpi=80, bbox_inches='tight')
         plt.close()
 
 
