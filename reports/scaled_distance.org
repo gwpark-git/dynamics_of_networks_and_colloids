@@ -1,6 +1,20 @@
 
-#+TITLE: Scaled Distance
+#+TITLE: Scaled Charateristic Distance
 #+AUTHOR: Gun Woo Park
+
+* Scale factor for RMS of end-to-end distance for associable chain
+The characteristic distance of the system is given by $R^{M}_0$ that is diameter of micelle. By default, the associable chain properties also used the same characteristic distance:
+\begin{equation}
+\tilde{\mathbf{r}} = \frac{\mathbf{r}}{R^{M}_0}.
+\end{equation}
+This is oversimplification since we do not have the direct connections between diameter of micelle and root-mean-square of end-to-end vector for associable chain: $R^{C}_0 = \sqrt{\langle \mathbf{R}^{C}\cdot\mathbf{R}^{C}\rangle}$. 
+Since the characteristic distance of system is already given by $R^{M}_0$, it will convenience to use additional scaling factor $\alpha$, $\alpha R^{C}_0 = R^{M}_0$:
+\begin{equation}
+\frac{U(\mathbf{r})}{k_BT} = \frac{N_D}{2}\left(\frac{r}{R^{C}_0}\right)^2 = \frac{N_D}{2}\left(\frac{r}{\alpha R^{M}_0}\right)^2 = \frac{N_D}{2\alpha^2}\tilde{\mathbf{r}}^2.
+\end{equation}
+
+* Effects of Scaling factor
+
 
 * Temp
 Using characteristic length scale as dimeter of micelle, $R_0$, the dimensionless potential becomes
