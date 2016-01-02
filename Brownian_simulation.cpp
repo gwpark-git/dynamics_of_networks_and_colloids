@@ -283,7 +283,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       TRAJ(index_t_next) = (++TRAJ.c_t) * TRAJ.dt;
 
       tmp_vec.set_value(0.);
-
       MKL_LONG IDENTIFIER_ASSOC = TRUE;
       double max_try_ASSOC = tolerance_association;
       double N_diff = 0.;
@@ -294,73 +293,73 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       MKL_LONG cnt = 1;
       double time_st_MC = dsecnd();
 
-      // computing the distance map between beads for reducing overhead
-      // note that the computing distance map during association spend 80% of computing time
-      // That involve computing map from 1 to 3 beads (with number of Monte-Carlo steps)
-      // In this case, however, we compute all the distance map, once, then uses this information throughout the Monte-Carlo steps since the configurational information does not change during Monte-Carlo stpes.
-      // // Note that NO upper triangle form is generated. All the i-j distance is computed twice. 
-      // // Therefore, further reduce is possible to modify this computing.
-      // // On here, the feature is ignored for convenience.
-      double time_st_det_pdf = dsecnd();
-#pragma omp parallel for default(none) shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dt_pdf, dt_sort, POTs) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
-      for(MKL_LONG i=0; i<TRAJ.Np; i++)
-        {
-          double time_st_pdf = dsecnd();
-          ANALYSIS::GET_dCDF_POTENTIAL(TRAJ, index_t_now, POTs, i, INDEX_dCDF_U[i], dCDF_U[i], vec_boost_Nd_parallel[i]);
-          double time_end_pdf = dsecnd();
-          dCDF_U[i].sort2(INDEX_dCDF_U[i]);
-          // double norm_dCDF_U = dCDF_U[i].norm();
-          // dCDF_U[i](0) /= norm_dCDF_U;
-          for(MKL_LONG j=1; j<TRAJ.Np; j++)
-            {
-              dCDF_U[i](j) += dCDF_U[i](j-1);  // cumulating
-            }
-          for(MKL_LONG j=0; j<TRAJ.Np; j++)
-            {
-              dCDF_U[i](j) /= dCDF_U[i](TRAJ.Np -1);
-            }
-          double time_end_sort = dsecnd();
-#pragma omp critical(PDF_SORT)
-          {
-            dt_pdf += time_end_pdf - time_st_pdf;
-            dt_sort += time_end_sort - time_end_pdf;
-          }
-        }
-      double time_end_det_pdf = dsecnd();
-      dt_det_pdf += time_end_det_pdf - time_st_det_pdf;
-
-      // this is rearranged in order to use the previously updated information when MC_renewal is not turned on.
-      if(given_condition("MC_renewal")=="TRUE")
-        {
-          /*
-            // This code was problematic to allocate ASSOCIATION object at each time step, which is the main reason for memory-leaking at each time evolution.
-            // Note that this part is originated from the differences between the previous one and newly developed one.
-          */
-          CONNECT.set_initial_condition();
-          // rest counting array
-          for(MKL_LONG i=0; i<4; i++)
-            {
-              cnt_arr[i] = 0;
-            }
-        }
-      else
-        {
-#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, vec_boost_Nd_parallel) num_threads(N_THREADS_BD)
-          for(MKL_LONG i=0; i<TRAJ.Np; i++)
-            {
-              for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
-                {
-                  CONNECT.update_CASE_particle_hash_target(POTs, i, j, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, i, CONNECT.HASH[i](j), vec_boost_Nd_parallel[i]));
-                }
-              CONNECT.update_Z_particle(i);
-              CONNECT.update_dPDF_particle(i);
-              CONNECT.update_dCDF_particle(i);
-            }
-        }
-      
-
       if(given_condition("Step")!="EQUILIBRATION")
         {
+
+          // computing the distance map between beads for reducing overhead
+          // note that the computing distance map during association spend 80% of computing time
+          // That involve computing map from 1 to 3 beads (with number of Monte-Carlo steps)
+          // In this case, however, we compute all the distance map, once, then uses this information throughout the Monte-Carlo steps since the configurational information does not change during Monte-Carlo stpes.
+          // // Note that NO upper triangle form is generated. All the i-j distance is computed twice. 
+          // // Therefore, further reduce is possible to modify this computing.
+          // // On here, the feature is ignored for convenience.
+          double time_st_det_pdf = dsecnd();
+#pragma omp parallel for default(none) shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dt_pdf, dt_sort, POTs) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+          for(MKL_LONG i=0; i<TRAJ.Np; i++)
+            {
+              double time_st_pdf = dsecnd();
+              ANALYSIS::GET_dCDF_POTENTIAL(TRAJ, index_t_now, POTs, i, INDEX_dCDF_U[i], dCDF_U[i], vec_boost_Nd_parallel[i]);
+              double time_end_pdf = dsecnd();
+              dCDF_U[i].sort2(INDEX_dCDF_U[i]);
+              // double norm_dCDF_U = dCDF_U[i].norm();
+              // dCDF_U[i](0) /= norm_dCDF_U;
+              for(MKL_LONG j=1; j<TRAJ.Np; j++)
+                {
+                  dCDF_U[i](j) += dCDF_U[i](j-1);  // cumulating
+                }
+              for(MKL_LONG j=0; j<TRAJ.Np; j++)
+                {
+                  dCDF_U[i](j) /= dCDF_U[i](TRAJ.Np -1);
+                }
+              double time_end_sort = dsecnd();
+#pragma omp critical(PDF_SORT)
+              {
+                dt_pdf += time_end_pdf - time_st_pdf;
+                dt_sort += time_end_sort - time_end_pdf;
+              }
+            }
+          double time_end_det_pdf = dsecnd();
+          dt_det_pdf += time_end_det_pdf - time_st_det_pdf;
+
+          // this is rearranged in order to use the previously updated information when MC_renewal is not turned on.
+          if(given_condition("MC_renewal")=="TRUE")
+            {
+              /*
+              // This code was problematic to allocate ASSOCIATION object at each time step, which is the main reason for memory-leaking at each time evolution.
+              // Note that this part is originated from the differences between the previous one and newly developed one.
+              */
+              CONNECT.set_initial_condition();
+              // rest counting array
+              for(MKL_LONG i=0; i<4; i++)
+                {
+                  cnt_arr[i] = 0;
+                }
+            }
+          else
+            {
+#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, vec_boost_Nd_parallel) num_threads(N_THREADS_BD)
+              for(MKL_LONG i=0; i<TRAJ.Np; i++)
+                {
+                  for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
+                    {
+                      CONNECT.update_CASE_particle_hash_target(POTs, i, j, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, i, CONNECT.HASH[i](j), vec_boost_Nd_parallel[i]));
+                    }
+                  CONNECT.update_Z_particle(i);
+                  CONNECT.update_dPDF_particle(i);
+                  CONNECT.update_dCDF_particle(i);
+                }
+            }
+      
           while(IDENTIFIER_ASSOC && cnt < N_max_steps)//cnt < N_max_blocks)
             {
               /*
