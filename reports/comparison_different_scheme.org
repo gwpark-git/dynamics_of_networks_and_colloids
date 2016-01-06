@@ -112,11 +112,62 @@ Then, we have to choose a bead where this chain will attach. Since we are using 
 \frac{\exp(-U')}{\exp(-U)} = \exp(-(U'-U)),
 \end{equation}
 where prime denote the expected potential when new action is taken. It is of importance that the previous action probability is based on the whenever the target is specified. So, we have to determine what is the target. 
+In principle, the action of selected chain can be categorized by association, dissociation, and movement of association. The potential for association, of course, becomes adding one more connector potential to the system since the potential for roof chain is zero. Let $U$ be the original potential of the system, and $u$ be potential for new connector, the Boltzmann factor becomes
+\begin{equation}
+\frac{\exp(-(U+u))}{\exp(-U)}=\exp(-u).
+\end{equation}
+In the case for dissociation with the same notation, it is inverse of association:
+\begin{equation}
+\frac{\exp(-U)}{\exp(-(U+u))} = \exp(u).
+\end{equation}
+For movement of association, the boltzmann factor becomes multiplication between dissociation of the original state (A) and association of new state (B):
+\begin{equation}
+\frac{\exp(-U)}{\exp(-(U+u_A))}\frac{\exp(-(U+u_B))}{\exp(-U)} = \exp(-(u_B - u_A)).
+\end{equation}
 
-Simply, we can think about two way of selection: (i) selecting target particles randomly (equally probable) and using Boltzmann factor as acceptance proability or (ii) selection is follows the Boltzmann distribution, directly.
+*** Originally used scheme
+Let assumed that the opposite site of selected chain end attached to k-th bead, the selection probability follows the Boltzmann factor divided by sum of all possible Boltzmann factor. Before going further, let assumed that the given index set for j is already sorted with increasing order based on Boltzmann factor: $i>j \Leftrightarrow \exp(-u_{ik}) > \exp(-u_{jk})$, and define $Z_k(n)$ be sum over Boltzmann factor from index 1 to index n: $Z_k(n) = \sum_{i=1}^{n}\exp(-u_{ik})$. In this treatment, the index function, $I(p)$ where $p\in [0,1)$, becomes
+\begin{equation}
+I(p) = \left\{\begin{array}{cl} 
+1 & \textrm{if } 0 \leq p < Z_k(1)/Z_k(N_p), \\
+2 & \textrm{if } Z_k(1)/Z_k(N_p) \leq p < Z_k(2)/Z_k(N_p), \\
+\vdots & \\
+N_p & \textrm{if } Z_k(N_p -1)/Z_k(N_p) \leq p < 1.
+\end{array} \right.
+\end{equation}
+Therefore, for randomly given $p$, the selected chain ends attach to the $I(p)$-th bead.
 
-*** Random Selection
-The validity of scheme can be checked with the results distribution. Recall the simplified example, 3 beads and 3 chains per beads, let assumed that we have selected one chain end that belongs to beads 1. Then, the possible pair to target can be 1, 2, and 3, which means the all bead can be subject with equalprobable. Then the acceptance is given by Boltzmann factor: $\exp(-U_{1k})$ where k is index for target beads.
+** Detailed Balance Equation
+Let $\pi_j$ be the equilibrium probability for state j. The detailed balance equation is defined by
+\begin{equation}
+\pi_i P_{ij} = \pi_j P_{ji},
+\end{equation}
+where $P_{ij}$ is the Markov transition probability from state i th state j. The transition probability, $P_{ij}$, can be decomposed by suggestion probability, $q_{ij}$, and acceptance probability, $\alpha_{ij}$:
+\begin{equation}
+P_{ij} = q_{ij}\alpha_{ij}.
+\end{equation}
+
+
+
+
+
+# On this regards, we can define transition probability as Boltzmann factor:
+# \begin{equation}
+# \pi_{i}^{k} = \exp(-u_{ik}).
+# \end{equation}
+# Note that the real transiti
+
+
+# Simply, we can think about two way of selection: (i) selecting target particles randomly (equally probable) and using Boltzmann factor as acceptance proability or (ii) selection is follows the Boltzmann distribution, directly.
+
+
+*** Random Suggestions
+Let assumed that we already have the target bead that the selected chain end will attached for. The algorithm for the /suggestion/ should be defined clearly, but the simplest case can be random selection among the all the possible suggestions. 
+
+# In this case, we are following the acceptance of the action as Metropolis algorithm:
+# \begin{equation}
+
+# \end{equation}
 
 
 

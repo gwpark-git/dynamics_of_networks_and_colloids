@@ -50,7 +50,7 @@ plt.ion()
 # plt.plot(r, BM, 'b-', label = 'Normalized probability')
 plt.plot(r, P_old, 'b-', linewidth=2, label = r'original approach')
 # plt.plot(r, BF, 'g-', linewidth=2, label = r'$\exp(-(\tilde{E}_B-\tilde{F}\tilde{l})$')
-plt.plot(r, BFC/10., 'r-', linewidth=2, label = 'flux*Metropolis')
+plt.plot(r, BFC/(BFC + 9*exp(-Eb)), 'r-', linewidth=2, label = 'flux*Metropolis')
 # plt.plot([10], [10], 's', markersize=10, markerfacecolor='blue', markeredgecolor='none', alpha = 0.2, label = 'ACCEPT')
 # plt.plot([10], [10], 's', markersize=10, markerfacecolor='red', markeredgecolor='none', alpha = 0.2, label = 'REJECT')
 
