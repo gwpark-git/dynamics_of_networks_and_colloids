@@ -571,7 +571,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
             {
               CONNECT.HASH[ip].fprint_LONG_transpose(filename_HASH.c_str());
-              CONNECT.CASE[ip].fprint_transpose(filename_CASE.c_str());
+              // CONNECT.CASE[ip].fprint_transpose(filename_CASE.c_str());
               CONNECT.weight[ip].fprint_LONG_transpose(filename_weight.c_str());
             }
         }
