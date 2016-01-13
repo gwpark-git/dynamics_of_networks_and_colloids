@@ -75,7 +75,7 @@ MKL_LONG main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_c
 {
   string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_trajectory")).c_str();
   string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_energy")).c_str();
-  string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_energy_info")).c_str();
+  // string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_energy_info")).c_str();
 
   MKL_LONG N_skip = atol(given_condition("N_skip").c_str());
   MKL_LONG N_energy_frequency = atol(given_condition("N_energy_frequency").c_str()); 
@@ -107,7 +107,7 @@ MKL_LONG main_NAPLE_REPULSION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given
 {
   string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_trajectory")).c_str();
   string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_energy")).c_str();
-  string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_energy_info")).c_str();
+  // string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_energy_info")).c_str();
 
   MKL_LONG N_skip = atol(given_condition("N_skip").c_str());
   MKL_LONG N_energy_frequency = atol(given_condition("N_energy_frequency").c_str()); 
@@ -133,10 +133,10 @@ MKL_LONG main_NAPLE_REPULSION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given
           TRAJ.fprint_row(filename_trajectory.c_str(), index_t_next);
           energy.fprint(filename_energy.c_str());
         }
-      if(t%N_energy_frequency==0)
-        {
-          ANALYSIS::cal_detail_repulsion(TRAJ, POTs, filename_energy_info.c_str(), index_t_next);
-        }
+      // if(t%N_energy_frequency==0)
+      //   {
+      //     ANALYSIS::cal_detail_repulsion(TRAJ, POTs, filename_energy_info.c_str(), index_t_next);
+      //   }
     }
   return 0;
 }
@@ -151,9 +151,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   MKL_LONG N_max_blocks = N_max_steps/N_steps_block;
   string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
   string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
-  string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_base") + ".info").c_str();
+  // string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_base") + ".info").c_str();
   string filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
-  string filename_CASE = (given_condition("output_path") + '/' + given_condition("filename_base") + ".case").c_str();
+  // string filename_CASE = (given_condition("output_path") + '/' + given_condition("filename_base") + ".case").c_str();
   string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
   string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
   
@@ -346,7 +346,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               // Note that this part is originated from the differences between the previous one and newly developed one.
               */
               CONNECT.set_initial_condition();
-              // rest counting array
+              // reset counting array
               for(MKL_LONG i=0; i<4; i++)
                 {
                   cnt_arr[i] = 0;
@@ -579,10 +579,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
             }
         }
       
-      if(t%N_energy_frequency==0)
-        {
-          ANALYSIS::cal_detail_repulsion(TRAJ, POTs, filename_energy_info.c_str(), index_t_now);
-        }
+      // if(t%N_energy_frequency==0)
+      //   {
+      //     ANALYSIS::cal_detail_repulsion(TRAJ, POTs, filename_energy_info.c_str(), index_t_now);
+      //   }
 
       double time_end_save = dsecnd();
       time_MC += time_end_MC - time_st_MC;

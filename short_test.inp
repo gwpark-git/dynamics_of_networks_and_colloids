@@ -9,7 +9,6 @@ dt=0.001
 Nt=1100
 Np=640
 N_skip=10
-N_energy_frequency=10
 output_path=data
 filename_base=test
 transition_probability=UNIFORM
