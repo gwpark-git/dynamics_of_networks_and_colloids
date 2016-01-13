@@ -331,7 +331,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               }
             }
           double time_end_det_pdf = dsecnd();
-          dt_det_pdf += time_end_det_pdf - time_st_det_pdf;
+          double dt_pdf_all = time_end_det_pdf - time_st_det_pdf;
+          dt_pdf = dt_pdf*dt_pdf_all / (dt_pdf + dt_sort);
+          dt_sort = dt_sort*dt_pdf_all / (dt_pdf + dt_sort);
+          dt_det_pdf += dt_pdf_all;
 
           IDENTIFIER_ASSOC = TRUE;
           count_M = 0; pre_count_M = 0;
