@@ -275,6 +275,15 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   printf("START SIMULATION\n");
   MKL_LONG pre_N_associations = 0;
   MKL_LONG N_associations = 0;
+
+  MKL_LONG IDENTIFIER_ASSOC = TRUE;
+  double max_try_ASSOC = tolerance_association;
+  double N_diff = 0.;
+  // double max_N_diff = 0.;
+  // MKL_LONG sum_over_MC_steps = 0;
+  MKL_LONG N_tot_associable_chain = TRAJ.Np*atoi(given_condition("N_chains_per_particle").c_str());
+  MKL_LONG count_M = 0, pre_count_M = 0;
+
   
   for(MKL_LONG t = 0; t<Nt-1; t++)
     {
@@ -283,19 +292,12 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       TRAJ(index_t_next) = (++TRAJ.c_t) * TRAJ.dt;
 
       tmp_vec.set_value(0.);
-      MKL_LONG IDENTIFIER_ASSOC = TRUE;
-      double max_try_ASSOC = tolerance_association;
-      double N_diff = 0.;
-      double max_N_diff = 0.;
-      MKL_LONG sum_over_MC_steps = 0;
-      MKL_LONG count_M = 0, pre_count_M = 0;
 
       MKL_LONG cnt = 1;
       double time_st_MC = dsecnd();
 
       if(given_condition("Step")!="EQUILIBRATION")
         {
-
           // computing the distance map between beads for reducing overhead
           // note that the computing distance map during association spend 80% of computing time
           // That involve computing map from 1 to 3 beads (with number of Monte-Carlo steps)
@@ -331,6 +333,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           double time_end_det_pdf = dsecnd();
           dt_det_pdf += time_end_det_pdf - time_st_det_pdf;
 
+          IDENTIFIER_ASSOC = TRUE;
+          count_M = 0; pre_count_M = 0;
           // this is rearranged in order to use the previously updated information when MC_renewal is not turned on.
           if(given_condition("MC_renewal")=="TRUE")
             {
@@ -344,6 +348,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                 {
                   cnt_arr[i] = 0;
                 }
+              // max_N_diff = 0.; 
+              // N_diff = 0.; sum_over_MC_steps = 0; count_M = 0, pre_count_M = 0;
             }
           else
             {
@@ -359,7 +365,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                   CONNECT.update_dCDF_particle(i);
                 }
             }
-      
           while(IDENTIFIER_ASSOC && cnt < N_max_steps)//cnt < N_max_blocks)
             {
               /*
@@ -500,17 +505,26 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               // time_MC_7 = dsecnd();
               double time_MC_out_loop = dsecnd();
               
-              if(cnt != N_steps_block) // the first step should be passed
+              // if(cnt != N_steps_block) // the first step should be passed
+              //   {
+              //     N_diff = fabs((double)(count_M/cnt) - (double)(pre_count_M/(cnt-N_steps_block)));
+              //     max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
+              //     if(N_diff/max_N_diff < tolerance_association && N_associations != 0)
+              //       {
+              //         IDENTIFIER_ASSOC = FALSE;
+              //       }
+              //     pre_count_M = count_M;
+              //   }
+              if(cnt > N_steps_block + 1)
                 {
-                  N_diff = (double)(count_M/cnt) - (double)(pre_count_M/(cnt-N_steps_block));
-                  max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
-                  if(N_diff/max_N_diff < tolerance_association && N_associations != 0)
+                  N_diff = fabs(count_M - pre_count_M)/(double)N_steps_block;
+                  if(N_diff/(double)N_tot_associable_chain < tolerance_association)
                     {
                       IDENTIFIER_ASSOC = FALSE;
                     }
-                  pre_count_M = count_M;
                 }
-              
+              pre_count_M = count_M;
+              count_M = 0;
             } // while
         } // if phrase for IDENTIFY EQUILIBRIUM CONDITION
       double time_end_MC = dsecnd();
@@ -549,7 +563,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, LOCKING = %6.3f, action = %6.1f, update = %6.1f\n", dt_det_pdf*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
           double total_dt_pdf = dt_pdf + dt_sort;
           printf("computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
-          printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, max_N_diff = %6.3e, ratio = %6.3e, NAS = %ld ####\n", cnt, N_diff, max_N_diff, N_diff/max_N_diff, N_associations);
+          // printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, max_N_diff = %6.3e, ratio = %6.3e, NAS = %ld ####\n", cnt, N_diff, max_N_diff, N_diff/max_N_diff, N_associations);
+          printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, N_tot_asso = %ld, ratio = %6.3e, NAS = %ld, fraction=%4.3f ####\n\n", cnt, N_diff, N_tot_associable_chain, N_diff/N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain);
           TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
           energy.fprint(filename_energy.c_str());
           for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
