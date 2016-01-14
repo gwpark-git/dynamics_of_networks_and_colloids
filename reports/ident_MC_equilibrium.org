@@ -1,7 +1,8 @@
 #+TITLE: Identification for MC Equilibration
 #+AUTHOR: Gun Woo Park
 
-* Current scheme
+* Identification for MC Equilibration
+** Current scheme
 Define
 \begin{equation}
 C_{NAS}(1,n) = \sum_{k=1}^{n} N_{A},
@@ -13,7 +14,7 @@ N_{diff}(n) = \left|\frac{1}{n}C_{NAS}(1,n) - \frac{1}{n-n_b}C_{NAS}(1,n_b)\righ
 where $n_b$ is number of steps for each block and the identification happens when $n\% n_b = 0$. In addition, the normalization factor is choose by the maximum of $N_{diff}$, which is the identifier compared with the given tolerance for association.
 
 
-* Renewal scheme
+** Renewal scheme
 Let $N$ be the number of all associable chains in the system and $n_b$ is number of steps for each block that prevent fluctuation. The identifier is given by
 \begin{equation}
 I'_{A}(n)=\frac{1}{n_b}\left|C_{NAS}(n-n_b, n) - C_{NAS}(n-2n_b, n-n_b)\right|,
@@ -31,8 +32,13 @@ that is the ratio between the averaged fluctuation between blocks and total numb
 # \end{equation}
 # where $N_{A}$ is current number of state.
 
-* Results
+
+
+* Figures
+** Results
 #+CAPTION: The results of different identification. The effectivenes of new scheme is of importance and will tested stability in other test.
 #+NAME: fig:compare_IDEQ
 #+ATTR_HTML: :width: 640px
 [[file:identification_stochastic_equilibration/compare_IDEQ.png]]
+
+
