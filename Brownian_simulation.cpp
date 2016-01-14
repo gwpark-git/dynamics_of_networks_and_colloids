@@ -22,8 +22,8 @@ int help()
   return 0;
 }
 
-MKL_LONG main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition);
-MKL_LONG main_NAPLE_REPULSION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition);
+// MKL_LONG main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition);
+// MKL_LONG main_NAPLE_REPULSION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition);
 MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, COND& given_condition);
 
 int main(int argc, char* argv[])
@@ -51,22 +51,32 @@ int main(int argc, char* argv[])
       TRAJECTORY TRAJ(given_condition, N_basic);
 
       POTENTIAL_SET POTs;
-      if(given_condition("Method") == "NAPLE_REPULSION")
-        {
-          FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTs, given_condition);
-          main_NAPLE_REPULSION(TRAJ, POTs, given_condition);
-        }
-      else if(given_condition("Method") == "NAPLE_ASSOCIATION")
+      if(given_condition("Method") == "NAPLE_ASSOCIATION")
         {
           ASSOCIATION CONNECT(TRAJ, given_condition);
           FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
           main_NAPLE_ASSOCIATION(TRAJ, POTs, CONNECT, given_condition);
         }
-      else if(given_condition("Method") == "PURE_BROWNIAN")
+      else
         {
-          FORCE::DEFAULT::EMPTY_force_set(POTs, given_condition);
-          main_PURE_BROWNIAN(TRAJ, POTs, given_condition);
+          printf("Method except NAPLE_ASSOCIATION is not clearly defined. The given Method input is %s", given_condition("Method").c_str());
         }
+      // if(given_condition("Method") == "NAPLE_REPULSION")
+      //   {
+      //     FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTs, given_condition);
+      //     main_NAPLE_REPULSION(TRAJ, POTs, given_condition);
+      //   }
+      // else if(given_condition("Method") == "NAPLE_ASSOCIATION")
+      //   {
+      //     ASSOCIATION CONNECT(TRAJ, given_condition);
+      //     FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
+      //     main_NAPLE_ASSOCIATION(TRAJ, POTs, CONNECT, given_condition);
+      //   }
+      // else if(given_condition("Method") == "PURE_BROWNIAN")
+      //   {
+      //     FORCE::DEFAULT::EMPTY_force_set(POTs, given_condition);
+      //     main_PURE_BROWNIAN(TRAJ, POTs, given_condition);
+      //   }
     }
   return 0;
 }
