@@ -10,7 +10,7 @@ MKL_LONG ANALYSIS::GET_dCDF_POTENTIAL_target(TRAJECTORY& TRAJ, MKL_LONG index_t,
 }
 
 
-MKL_LONG ANALYSIS::GET_dCDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_dCDF_U, MATRIX& dCDF_U, MATRIX& vec_boost_ordered_pdf)
+MKL_LONG ANALYSIS::GET_dCDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENTIAL_SET& POTs, MKL_LONG index_particle, MATRIX& INDEX_dCDF_U, MATRIX& dCDF_U, MATRIX& R_minimum_distance_boost_particle)
 {
   // note that the index_itself is not extracted in order to avoid if-phrase
   // even if it is not the case, the given distance will be zero
@@ -18,7 +18,7 @@ MKL_LONG ANALYSIS::GET_dCDF_POTENTIAL(TRAJECTORY& TRAJ, MKL_LONG index_t, POTENT
   // then, Boltzmann distribution becomes unity, which is the maximum value
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
-      double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, i, vec_boost_ordered_pdf);
+      double distance = R_minimum_distance_boost_particle(i);
       INDEX_dCDF_U(i) = i;
       dCDF_U(i) = POTs.PDF_connector(distance, POTs.force_variables);
     }
@@ -43,21 +43,20 @@ MKL_LONG INTEGRATOR::EULER::cal_connector_force(TRAJECTORY& TRAJ, POTENTIAL_SET&
   return 0;
 }
 
-MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG given_index, MATRIX& vec_boost_Nd)
+// MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG given_index, MATRIX& vec_boost_Nd)
+MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG given_index, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost)
 {
   given_vec.set_value(0.);
   for (MKL_LONG j=1; j<CONNECT.TOKEN[given_index]; j++)
     {
       MKL_LONG target_index = (MKL_LONG)CONNECT.HASH[given_index](j);
-      GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, given_index, target_index, vec_boost_Nd);
-      double distance = cblas_dnrm2(vec_boost_Nd.size,
-                                    vec_boost_Nd.data, // given vec
-                                    1);
+      MATRIX& rel_vector = R_minimum_vec_boost[given_index][target_index];
+      double distance = R_minimum_distance_boost[given_index](target_index);
       double force = CONNECT.weight[given_index](j)*POTs.f_connector(distance, POTs.force_variables);
       // a*x + y -> y
       cblas_daxpy(given_vec.size,
                   force/distance, // a
-                  vec_boost_Nd.data, // x
+                  rel_vector.data, // x
                   1,
                   given_vec.data, // y
                   1);
@@ -111,22 +110,26 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET&
   return 0;
 }
 
-MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG index_i, MATRIX& vec_boost_Nd)
+MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG index_i, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost)
 {
   given_vec.set_value(0.);
   // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
 
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
-      GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, index_i, i, vec_boost_Nd);
-      double distance = vec_boost_Nd.norm();
+      MATRIX& rel_vector = R_minimum_vec_boost[index_i][i];
+      double distance = R_minimum_distance_boost[index_i](i);
+      
       if (i != index_i)
       // if ((i != index_i) && (i != GEOMETRY::get_connected_bead(TRAJ, index_i))) // this is temporally commented. need reinforcement
         {
           double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
-          make_unit_vector(vec_boost_Nd);
-          matrix_mul(vec_boost_Nd, repulsion);
-          given_vec.add(vec_boost_Nd);
+          cblas_daxpy(given_vec.size,
+                      repulsion/distance,
+                      rel_vector.data,
+                      1,
+                      given_vec.data,
+                      1);
         }
     }
   return 0;

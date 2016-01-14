@@ -191,10 +191,17 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   printf("GENERATING BOOSTING VECTORS\n");
   LOCK LOCKER(TRAJ.Np);
   MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+  MATRIX **R_minimum_vec_boost = (MATRIX**) mkl_malloc(TRAJ.Np*sizeof(MATRIX*), BIT);
+  MATRIX *R_minimum_distance_boost = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       vec_boost_Nd_parallel[i].initial(TRAJ.dimension, 1, 0.);
+      R_minimum_vec_boost[i] = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+      for(MKL_LONG j=0; j<TRAJ.Np; j++)
+        R_minimum_vec_boost[i][j].initial(3, 1, 0.);
+      R_minimum_distance_boost[i].initial(TRAJ.Np, 1, 0.);
     }
+
   MKL_LONG cnt_arr[5] = {0};
   MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
 
@@ -246,7 +253,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
   double dt_1 = 0., dt_2 = 0., dt_3 = 0., dt_4 = 0., dt_5 = 0., dt_6 = 0., dt_7 = 0.;
   double dt_det_pdf = 0.;
-  double dt_pdf = 0., dt_sort = 0.;
+  double dt_rdist = 0., dt_pdf = 0., dt_sort = 0.;
   
   double time_MC_1 = 0., time_MC_2 = 0., time_MC_3 = 0., time_MC_4 = 0., time_MC_5 = 0., time_MC_6 = 0., time_MC_7 = 0., time_MC_8 = 0.;
 
@@ -316,11 +323,13 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           // // Therefore, further reduce is possible to modify this computing.
           // // On here, the feature is ignored for convenience.
           double time_st_det_pdf = dsecnd();
-#pragma omp parallel for default(none) shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dt_pdf, dt_sort, POTs) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+#pragma omp parallel for default(none) shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, R_minimum_vec_boost, R_minimum_distance_boost, dt_rdist, dt_pdf, dt_sort, POTs) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
           for(MKL_LONG i=0; i<TRAJ.Np; i++)
             {
+              double time_st_rdist = dsecnd();
+              GEOMETRY::get_minimum_distance_for_particle(TRAJ, index_t_now, i, R_minimum_distance_boost[i], R_minimum_vec_boost);
               double time_st_pdf = dsecnd();
-              ANALYSIS::GET_dCDF_POTENTIAL(TRAJ, index_t_now, POTs, i, INDEX_dCDF_U[i], dCDF_U[i], vec_boost_Nd_parallel[i]);
+              ANALYSIS::GET_dCDF_POTENTIAL(TRAJ, index_t_now, POTs, i, INDEX_dCDF_U[i], dCDF_U[i], R_minimum_distance_boost[i]);
               double time_end_pdf = dsecnd();
               dCDF_U[i].sort2(INDEX_dCDF_U[i]);
               // double norm_dCDF_U = dCDF_U[i].norm();
@@ -336,14 +345,17 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               double time_end_sort = dsecnd();
 #pragma omp critical(PDF_SORT)
               {
+                dt_rdist += time_st_pdf - time_st_rdist;
                 dt_pdf += time_end_pdf - time_st_pdf;
                 dt_sort += time_end_sort - time_end_pdf;
               }
             }
           double time_end_det_pdf = dsecnd();
           double dt_pdf_all = time_end_det_pdf - time_st_det_pdf;
-          dt_pdf = dt_pdf*dt_pdf_all / (dt_pdf + dt_sort);
-          dt_sort = dt_sort*dt_pdf_all / (dt_pdf + dt_sort);
+          double sum_sort_rdist = dt_rdist + dt_pdf + dt_sort;
+          dt_rdist = dt_pdf*dt_pdf_all / sum_sort_rdist;
+          dt_pdf = dt_pdf*dt_pdf_all / sum_sort_rdist;
+          dt_sort = dt_sort*dt_pdf_all / sum_sort_rdist;
           dt_det_pdf += dt_pdf_all;
 
           IDENTIFIER_ASSOC = TRUE;
@@ -366,12 +378,14 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
             }
           else
             {
-#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, vec_boost_Nd_parallel) num_threads(N_THREADS_BD)
+#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, R_minimum_distance_boost, vec_boost_Nd_parallel) num_threads(N_THREADS_BD)
               for(MKL_LONG i=0; i<TRAJ.Np; i++)
                 {
                   for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
                     {
-                      CONNECT.update_CASE_particle_hash_target(POTs, i, j, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, i, CONNECT.HASH[i](j), vec_boost_Nd_parallel[i]));
+                      // CONNECT.HASH[i](j) gave us the index for target
+                      // which means we have to compute distance between i and k where k is given by CONNECT.HASH[i](j).
+                      CONNECT.update_CASE_particle_hash_target(POTs, i, j, R_minimum_distance_boost[i](CONNECT.HASH[i](j)));
                     }
                   CONNECT.update_Z_particle(i);
                   CONNECT.update_dPDF_particle(i);
@@ -385,7 +399,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                 The N_THREADS_SS might be differ from N_THREADS_BD and also the random stream is differ between two parallel scheme, which will benefit future test.
                 However, for the optimization purpose, N_THREADS_BD == N_THREADS_SS is recommendable.
               */
-#pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dt_pdf, dt_sort, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, count_M, cnt, N_THREADS_SS, N_associations) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1)
+#pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, R_minimum_vec_boost, R_minimum_distance_boost, dt_rdist, dt_pdf, dt_sort, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, count_M, cnt, N_THREADS_SS, N_associations) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1)
               for(MKL_LONG tp = 0; tp<N_steps_block; tp++)
                 {
                   /*
@@ -456,9 +470,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                       // This block only compute when the thread is NOT LOCKED
 
                       time_MC_pre_ACTION = dsecnd();
-                                        // CONNECT.update_CASE_particle_hash_target(POTs, i, j, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, i, CONNECT.HASH[i](j), vec_boost_Nd_parallel[i]));
+                      // CONNECT.update_CASE_particle_hash_target(POTs, i, j, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, i, CONNECT.HASH[i](j), vec_boost_Nd_parallel[i]));
 
-                      double distance_exist_bridge = GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_itself, index_attached_bead, vec_boost_Nd_parallel[it]);
+                      double distance_exist_bridge = R_minimum_distance_boost[index_itself](index_attached_bead);
                       double tpa = POTs.transition(distance_exist_bridge, POTs.f_connector(distance_exist_bridge, POTs.force_variables), POTs.force_variables);
                       if (tpa == 1.0)
                         {
@@ -473,7 +487,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                             IDENTIFIER_ACTION = IDX_ARR[it].CANCEL;
                             
                         }
-                      ACTION::ACT(TRAJ, index_t_now, POTs, CONNECT, IDX_ARR[it], vec_boost_Nd_parallel[it], IDENTIFIER_ACTION);
+
+                      ACTION::ACT(TRAJ, index_t_now, POTs, CONNECT, IDX_ARR[it], R_minimum_distance_boost, IDENTIFIER_ACTION);
                       time_MC_end_ACTION = dsecnd();
                       ACTION::UPDATE_INFORMATION(CONNECT, IDX_ARR[it], cnt_arr, IDENTIFIER_ACTION);
                       time_MC_end_UPDATE = dsecnd();
@@ -542,7 +557,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
         } // if phrase for IDENTIFY EQUILIBRIUM CONDITION
       double time_end_MC = dsecnd();
 
-#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, vec_boost_Nd_parallel, force_spring, force_repulsion, force_random, r_boost_arr, N_THREADS_BD, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, R_minimum_vec_boost, R_minimum_distance_boost, vec_boost_Nd_parallel, force_spring, force_repulsion, force_random, r_boost_arr, N_THREADS_BD, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
       for (MKL_LONG i=0; i<TRAJ.Np; i++)
         {
           MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
@@ -552,8 +567,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           force_random[i].set_value(0);
 
           if(given_condition("Step")!="EQUILIBRATION")
-            INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJ, POTs, CONNECT, force_spring[i], index_t_now, i, vec_boost_Nd_parallel[i]);
-          INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, vec_boost_Nd_parallel[i]);
+            INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJ, POTs, CONNECT, force_spring[i], index_t_now, i, R_minimum_vec_boost, R_minimum_distance_boost);
+          INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_minimum_vec_boost, R_minimum_distance_boost);
           INTEGRATOR::EULER::cal_random_force_boost(TRAJ, POTs, force_random[i], index_t_now, r_boost_arr[it]);
           for (MKL_LONG k=0; k<TRAJ.dimension; k++)
             {
@@ -575,8 +590,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           printf("MC step analysis: all pdf = %6.3e, basic_random = %6.3e, getting_hash = %6.3e, det_jump = %6.3e, new_end = %6.3e, LOCKING = %6.3e, action = %6.3e, update = %6.3e\n", dt_det_pdf, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7);
           double total_dt = dt_1 + dt_2 + dt_3 + dt_4 + dt_5 + dt_6 + dt_7;
           printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, LOCKING = %6.3f, action = %6.1f, update = %6.1f\n", dt_det_pdf*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
-          double total_dt_pdf = dt_pdf + dt_sort;
-          printf("computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
+          double total_dt_pdf = dt_rdist + dt_pdf + dt_sort;
+          printf("computing rdist: %6.3e (%3.1f), computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_rdist, 100.*dt_rdist/total_dt_pdf, dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
           // printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, max_N_diff = %6.3e, ratio = %6.3e, NAS = %ld ####\n", cnt, N_diff, max_N_diff, N_diff/max_N_diff, N_associations);
           printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, N_tot_asso = %ld, ratio = %6.3e, NAS = %ld, fraction=%4.3f ####\n\n", cnt, N_diff, N_tot_associable_chain, N_diff/N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain);
           TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
@@ -609,10 +624,16 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   mkl_free(force_spring);
   mkl_free(force_repulsion);
   mkl_free(force_random);
+  for(MKL_LONG i=0; i<TRAJ.Np; i++)
+    mkl_free(R_minimum_vec_boost[i]);
+  mkl_free(R_minimum_vec_boost);
+  mkl_free(R_minimum_distance_boost);
   mkl_free(dCDF_U);
   mkl_free(INDEX_dCDF_U);
+  
   for(MKL_LONG i=0; i<N_THREADS_BD; i++)
     gsl_rng_free(r_boost_arr[i]); // for boosting
+
   mkl_free(r_boost_arr);
   mkl_free(IDX_ARR);
   return 0;

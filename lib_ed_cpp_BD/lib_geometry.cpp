@@ -1,6 +1,18 @@
 
 #include "lib_geometry.h"
 
+
+double GEOMETRY::get_minimum_distance_for_particle(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_particle, MATRIX& R_minimum_boost_particle, MATRIX** R_minimum_vec_boost)
+{
+  // this function generating minimum relative vector into R_minimum_vec_boost,
+  // and distance of it into R_minimum_boost.
+  for(MKL_LONG i=0; i<TRAJ.Np; i++)
+    {
+      R_minimum_boost_particle(i) = GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, i, R_minimum_vec_boost[index_particle][i]);
+    }
+  return 0;
+}
+
 double GEOMETRY::get_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec)
 {
   // this comentation is related with the assumes that
