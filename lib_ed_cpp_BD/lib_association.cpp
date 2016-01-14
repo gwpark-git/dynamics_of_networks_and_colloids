@@ -86,15 +86,8 @@ MKL_LONG ASSOCIATION::initial() // it should not be called by outside
     }
   ADD_ASSOCIATION = TRUTH_MAP::ADD_ASSOCIATION_BOOST;
   DEL_ASSOCIATION = TRUTH_MAP::DEL_ASSOCIATION_BOOST;
-  // MOV_ASSOCIATION = TRUTH_MAP::MOV_ASSOCIATION_BOOST;
   CANCEL_ASSOCIATION = TRUTH_MAP::CANCEL_ASSOCIATION_BOOST;
 
-  // ACT = mkl_malloc(4*sizeof(MKL_LONG (*)(ASSOCIATION&, long*, MATRIX&)), BIT); // IMPORTANCE CHECK
-  // // ACT = mkl_malloc(4*sizeof(ACTION::MOV));
-  // ACT[0] = ACTION::CANCEL;
-  // ACT[1] = ACTION::ADD;
-  // ACT[2] = ACTION::DEL;
-  // ACT[3] = ACTION::MOV;
   return 0;
 }
 
@@ -126,11 +119,6 @@ ASSOCIATION::ASSOCIATION(MKL_LONG number_of_particles, MKL_LONG number_of_chains
   MULTIPLE_CONNECTIONS = ALLOWING_MULTIPLE_CONNECTIONS;
   initial();
 }
-
-// index_set[0] == index_other_end_of_selected_chain;
-// index_set[1] == index_new_end_of_selected_chain;
-// index_set[2] == index_itself;
-
 
 
 
@@ -234,48 +222,6 @@ bool TRUTH_MAP::MOV_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, MKL_LONG index_itse
   return FALSE;
 }
 
-
-// bool TRUTH_MAP::DEL_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new)
-// {
-//   if (index_new == index_itself && index_target != index_itself && CONNECT.N_CONNECTED_ENDS(index_itself) < CONNECT.N_max && CONNECT.N_CONNECTED_ENDS(index_target) > CONNECT.N_min)
-//     return TRUE;
-//   return FALSE;
-// }
-
-// bool TRUTH_MAP::NEW_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new)
-// {
-//   if (index_new != index_itself && index_target == index_itself && CONNECT.N_CONNECTED_ENDS(index_itself) > CONNECT.N_min && CONNECT.N_CONNECTED_ENDS(index_new) < CONNECT.N_max)
-//     return TRUE;
-//   return FALSE;
-// }
-
-// bool TRUTH_MAP::MOV_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new)
-// {
-//   // importance update:: index_new != index_itself => index_target
-//   if(index_new != index_target && index_target != index_itself && CONNECT.N_CONNECTED_ENDS(index_target) > CONNECT.N_min && CONNECT.N_CONNECTED_ENDS(index_new) < CONNECT.N_max)
-//     return TRUE;
-//   return FALSE;
-// }
-
-
-
-
-// bool TRUTH_MAP::NEW_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new)
-// {
-//   if (NEW_ASSOCIATION_BASIC(CONNECT, index_itself, index_target, index_new) && !CONNECT.CHECK_EXIST(index_itself, index_new))
-//     return TRUE;
-//   return FALSE;
-// }
-
-
-// bool TRUTH_MAP::MOV_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new)
-// {
-//   if (TRUTH_MAP::MOV_ASSOCIATION_BASIC(CONNECT, index_itself, index_target, index_new) && !CONNECT.CHECK_EXIST(index_itself, index_new))
-//     return TRUE;
-//   return FALSE;
-// }
-
-
 MKL_LONG ASSOCIATION::N_TOTAL_ASSOCIATION()
 {
   MKL_LONG total_association = 0;
@@ -376,16 +322,6 @@ MKL_LONG ASSOCIATION::add_association(MKL_LONG index_particle, MKL_LONG index_ta
       HASH[index_target](hash_index_particle) = index_particle;
       TOKEN[index_target] += 1;
     }
-  // following is test function for the hash table
-  // if ((MKL_LONG)HASH[index_particle](TOKEN[index_particle]) != -1) 
-  //   {
-  //     printf("(ADD) index_target=%ld, hash_index_K=%ld, TOKEN[index_particle]=%ld, HASH[%ld](%ld)=%ld, HASH[%ld](%ld)=%ld\n", index_target, hash_index_target, TOKEN[index_particle], index_particle, TOKEN[index_particle]-1, (MKL_LONG)HASH[index_particle](TOKEN[index_particle]-1), index_particle, TOKEN[index_particle], (MKL_LONG)HASH[index_particle](TOKEN[index_particle]));
-  //     for(MKL_LONG q=0; q<HASH[index_particle].size; q++)
-  //       {
-  //         printf("%ld\t", (MKL_LONG)HASH[index_particle](q));
-  //       }
-  //     printf("\n");
-  //   }
 
   return 0;
 }
@@ -419,27 +355,12 @@ MKL_LONG ASSOCIATION::del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K
       CASE[index_I](TOKEN[index_I] - 1) = 0.;
       TOKEN[index_I] -= 1;
     }
-  // following are testing code for hash table
-  // for (MKL_LONG j=TOKEN[index_I]; j<HASH[index_I].size; j++)
-  //   {
-  //     if ((MKL_LONG)HASH[index_I](j) != -1)
-  //       {
-  //         printf("(DEL) index_I=%ld, hash_index_K=%ld, TOKEN[index_I]=%ld, HASH[index_I](%ld)=%ld, HASH[index_I](%ld)=%ld\n", index_I, hash_index_K, TOKEN[index_I], j-1, (MKL_LONG)HASH[index_I](j-1), j, (MKL_LONG)HASH[index_I](j));
-  //         for(MKL_LONG q=0; q<HASH[index_I].size; q++)
-  //           {
-  //             printf("%ld\t", (MKL_LONG)HASH[index_I](q));
-  //           }
-  //         printf("\n");
-  //       }
-  //   }
   return 0; 
 }
 
 MKL_LONG ASSOCIATION::del_association_grab_IK(MKL_LONG index_I, MKL_LONG hash_index_K)
 {
   del_association_IK(index_I, hash_index_K);
-  // CASE(index_I, 0) += 1.0;
-  // weight(index_I, 0) ++;
   // The same reason with add_association, the weight on here is increases by number of 2
   weight[index_I](0) += 2;
 
@@ -483,16 +404,6 @@ double KINETICS::CONNECTIVITY_update_Z_particle(ASSOCIATION* CONNECT, MKL_LONG i
                                          1,
                                          CONNECT->CASE[index_particle].data, // y
                                          1);
-  // note that the previous code is already checked with the below code,
-  // CONNECT.Z[index_particle] = 0.;
-  // double result = 0.;
-  // for(MKL_LONG k=0; k<CONNECT.HASH[index_particle].size; k++)
-  //   {
-  //     // CONNECT.Z[index_particle] += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
-  //     result += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
-  //   }
-  // if (fabs(CONNECT.Z[index_particle] - result) > 0.0001)
-  //   printf("Z err %lf, %lf\n", CONNECT.Z[index_particle], result);
   return CONNECT->Z[index_particle];
 }
 
@@ -518,14 +429,6 @@ double KINETICS::CONNECTIVITY_update_dPDF_particle(ASSOCIATION* CONNECT, MKL_LON
               0., // beta. 0 is removing the previous history because 0*y
               CONNECT->dPDF[index_particle].data, // y
               1); // incy
-  // Note that the previous computation has been tested with the below code (the original one)
-  // for(MKL_LONG k=0; k<CONNECT.TOKEN[index_particle]; k++)
-  //   {
-  //     double tmp = (double)CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k)/CONNECT.Z[index_particle];
-  //     // this is testing fcn
-  //     if (fabs(tmp - CONNECT.dPDF[index_particle](k)) > 0.00001 )
-  //       printf("UPDATE: k=%ld, tmp=%lf, dPDF[index_particle](k)=%lf\n", k, tmp, CONNECT.dPDF[index_particle](k));
-  //   }
   return 0;
 }
 
@@ -549,7 +452,6 @@ double ASSOCIATION::update_CASE_particle_target(POTENTIAL_SET& POTs, MKL_LONG in
 {
   return KINETICS::CONNECTIVITY_update_CASE_particle_target(this, POTs, index_particle, index_target, distance);
 }
-  /* MKL_LONG CONNECTIVITY_update_CASE_particle(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, double distance); */
 double ASSOCIATION::update_Z_particle(MKL_LONG index_particle)
 {
   return KINETICS::CONNECTIVITY_update_Z_particle(this, index_particle);
@@ -564,74 +466,5 @@ double ASSOCIATION::update_dCDF_particle(MKL_LONG index_particle)
 {
   return KINETICS::CONNECTIVITY_update_dCDF_particle(this, index_particle);
 }
-
-
-// double ASSOCIATION::update_CASE_particle_hash_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance)
-// {
-//   CASE[index_particle](hash_index_target) = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
-//   return CASE[index_particle](hash_index_target);
-// }
-
-// double ASSOCIATION::update_CASE_particle_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance)
-// {
-//   MKL_LONG hash_index_target = FIND_HASH_INDEX(index_particle, index_target);
-//   return update_CASE_particle_hash_target(POTs, index_particle, hash_index_target, distance);
-// }
-
-// double ASSOCIATION::update_Z_particle(MKL_LONG index_particle)
-// {
-  
-//   // result = dot(x, y)
-//   Z[index_particle] = cblas_ddot(TOKEN[index_particle], // N
-//                                  weight[index_particle].data, // x
-//                                  1,
-//                                  CASE[index_particle].data, // y
-//                                  1);
-//   // note that the previous code is already checked with the below code,
-//   // CONNECT.Z[index_particle] = 0.;
-//   // double result = 0.;
-//   // for(MKL_LONG k=0; k<CONNECT.HASH[index_particle].size; k++)
-//   //   {
-//   //     // CONNECT.Z[index_particle] += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
-//   //     result += CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k);
-//   //   }
-//   // if (fabs(CONNECT.Z[index_particle] - result) > 0.0001)
-//   //   printf("Z err %lf, %lf\n", CONNECT.Z[index_particle], result);
-//   return Z[index_particle];
-// }
-
-
-
-// double ASSOCIATION::update_dPDF_particle(MKL_LONG index_particle)
-// {
-//   // Note that the element-wise multiplication can be done to make diagonalization. BLAS has good aspect for this functionality.
-//   // DSBMV which gave us y = alpha*A*x + beta*y,
-//   // which is designed for symmetric banded matrix for A
-//   // In this case, we can set the third argument, k, set to 0
-
-//   // y = alpha*dot(A, x) + beta*y
-//   cblas_dsbmv(CblasRowMajor,
-//               CblasUpper,
-//               TOKEN[index_particle], // number of accounting
-//               0, // k is related with band. 0 for diagonal (or super-diagonal)
-//               1./Z[index_particle], // alpha
-//               weight[index_particle].data, // A (here is array for diagonal components)
-//               1,  // lda this is leading dimension which inc A. here is set as 1 because the A is only contained diagonal components
-//               CASE[index_particle].data, // x
-//               1, // incx
-//               0., // beta. 0 is removing the previous history because 0*y
-//               dPDF[index_particle].data, // y
-//               1); // incy
-//   // Note that the previous computation has been tested with the below code (the original one)
-//   // for(MKL_LONG k=0; k<CONNECT.TOKEN[index_particle]; k++)
-//   //   {
-//   //     double tmp = (double)CONNECT.weight[index_particle](k)*CONNECT.CASE[index_particle](k)/CONNECT.Z[index_particle];
-//   //     // this is testing fcn
-//   //     if (fabs(tmp - CONNECT.dPDF[index_particle](k)) > 0.00001 )
-//   //       printf("UPDATE: k=%ld, tmp=%lf, dPDF[index_particle](k)=%lf\n", k, tmp, CONNECT.dPDF[index_particle](k));
-//   //   }
-//   return 0;
-// }
-
 
 

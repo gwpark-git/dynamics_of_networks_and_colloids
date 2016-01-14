@@ -30,17 +30,6 @@ MKL_LONG TRAJECTORY::read_exist_traj(const char* fn_given_traj)
             }
         }
     }
-  // for(MKL_LONG i=0; i<Np; i++)
-  //   {
-  //     for(MKL_LONG i_RV=0; i_RV<=1; i_RV++)
-  //       {
-  //         for(MKL_LONG k=0; k<dimension; k++)
-  //           {
-  //             cout << (*this)(i_RV, 0, i, k) << '\t';
-  //           }
-  //       }
-  //     cout << endl;
-  //   }
   GIVEN_FILE.close();
   return 0;
 }

@@ -43,7 +43,6 @@ MKL_LONG INTEGRATOR::EULER::cal_connector_force(TRAJECTORY& TRAJ, POTENTIAL_SET&
   return 0;
 }
 
-// MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG given_index, MATRIX& vec_boost_Nd)
 MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG given_index, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost)
 {
   given_vec.set_value(0.);
@@ -60,12 +59,6 @@ MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJECTORY& TR
                   1,
                   given_vec.data, // y
                   1);
-      
-      // printf("force = %lf\n", force);
-      // make_unit_vector(vec_boost_Nd);
-      // matrix_mul(vec_boost_Nd, force);
-      // cblas_daxpy(given_vec.size, 1.0, vec_boost_Nd.data, 1, given_vec.data, 1);
-      // given_vec += vec_boost_Nd;
       
     }
   return 0;
@@ -99,7 +92,6 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET&
       GEOMETRY::get_minimum_distance_rel_vector(TRAJ, index_t, index_i, i, tmp_vec);
       double distance = tmp_vec.norm();
       if (i != index_i)
-      // if ((i != index_i) && (i != GEOMETRY::get_connected_bead(TRAJ, index_i))) // this is temporally commented. need reinforcement
         {
           double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
           make_unit_vector(tmp_vec);
@@ -113,7 +105,6 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET&
 MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG index_i, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost)
 {
   given_vec.set_value(0.);
-  // MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
 
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
@@ -121,7 +112,6 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIA
       double distance = R_minimum_distance_boost[index_i](i);
       
       if (i != index_i)
-      // if ((i != index_i) && (i != GEOMETRY::get_connected_bead(TRAJ, index_i))) // this is temporally commented. need reinforcement
         {
           double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
           cblas_daxpy(given_vec.size,
@@ -146,7 +136,6 @@ MKL_LONG INTEGRATOR::EULER::cal_random_force(TRAJECTORY& TRAJ, POTENTIAL_SET& PO
 
 MKL_LONG INTEGRATOR::EULER::cal_random_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, gsl_rng* r_boost)
 {
-  // RANDOM::single_random_vector_generator_variance(given_vec, 1.0);
   RANDOM::single_random_vector_generator_variance_boost(given_vec, 1.0, r_boost);
   matrix_mul(given_vec, sqrt(2.0));
   POTs.scale_random(given_vec, POTs.force_variables);
@@ -173,7 +162,6 @@ MKL_LONG INTEGRATOR::EULER::simple_Euler(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, 
       cal_random_force(TRAJ, POTs, force_random, index_t_now);
       for (MKL_LONG k=0; k<TRAJ.dimension; k++)
         {
-          // printf("fc = %6.3e, fr = %6.3e, fR = %6.3e\n", force_spring(k), force_repulsion(k), force_random(k));
           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*(force_spring(k) + force_repulsion(k)) + sqrt(TRAJ.dt)*force_random(k);
         }
     }
@@ -271,7 +259,6 @@ MKL_LONG ANALYSIS::CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& mat
   mat_energy(0) = (TRAJ.c_t - 1)*TRAJ.dt;
   mat_energy(2) = cal_potential_energy(TRAJ, POTs, index_t);
   // the functionality for kinetic energy is disabled since the evolution equation on this code is using Weiner process that does not support differentiability for the position. On this regards, measuring the velocity cannot be obtained by this environment. For further detail, see the documents.
-  // mat_energy(3) = cal_kinetic_energy(TRAJ, index_t);
   mat_energy(1) = mat_energy(2) + mat_energy(3);
   return 0;
 }

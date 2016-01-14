@@ -14,8 +14,6 @@ using namespace std;
 class COND
 {
 public:
-  /* MKL_LONG N_dimension, Np, Nt; */
-  /* double dt; */
   
   string** arg;
   string ERR;

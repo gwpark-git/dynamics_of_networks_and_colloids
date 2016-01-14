@@ -66,10 +66,8 @@ MKL_LONG CONNECTIVITY::read_exist_hash(const char* fn_hash)
       while(hash_k != -1) // note that the initialization condition for hash is -1
         {
           GIVEN_HASH >> hash_k;
-          // GIVEN_HASH >> HASH(++count);//hash_k;
           HASH[i](++count) = hash_k;
         }
-      // TOKEN(i) = count;
       TOKEN[i] = count;
     }
   GIVEN_HASH.close();

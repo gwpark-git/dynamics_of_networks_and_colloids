@@ -35,23 +35,15 @@ class ASSOCIATION : public CONNECTIVITY
   double *Z;
 
   MATRIX *weight;
-  /* MATRIX dist_map; */
-  /* MATRIX *dist_map; */
-  /* MATRIX dPDF_U; // this is for removing potential overhead for computing (ceiling) PDF for potential */
-  
 
   // member variables
   
-  /* bool (*ADD_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new); */
-  /* bool (*MOV_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new); */
-  /* bool (*DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new); */
   /* MKL_LONG flag_other, flag_new, flag_itself, flag_hash_other; */
   static const MKL_LONG flag_other = 0;
   static const MKL_LONG flag_new = 1;
   static const MKL_LONG flag_itself = 2;
   static const MKL_LONG flag_hash_other = 3;
   bool (*ADD_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
-  /* bool (*MOV_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]); */
   bool (*DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   bool (*CANCEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   bool (*CHECK_N_ADD_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);

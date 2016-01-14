@@ -7,9 +7,7 @@
 #include "lib_ed_cpp_BD/lib_handle_association.h"
 #include "lib_ed_cpp_BD/lib_potential.h"
 #include "lib_ed_cpp_BD/lib_parallel.h"
-// #include "lib_ed_cpp_BD/potential_definition.h"
 #include <string>
-// #include <istream>
 using namespace std;
 
 int help()
@@ -22,8 +20,6 @@ int help()
   return 0;
 }
 
-// MKL_LONG main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition);
-// MKL_LONG main_NAPLE_REPULSION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition);
 MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, COND& given_condition);
 
 int main(int argc, char* argv[])
@@ -61,95 +57,10 @@ int main(int argc, char* argv[])
         {
           printf("Method except NAPLE_ASSOCIATION is not clearly defined. The given Method input is %s", given_condition("Method").c_str());
         }
-      // if(given_condition("Method") == "NAPLE_REPULSION")
-      //   {
-      //     FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTs, given_condition);
-      //     main_NAPLE_REPULSION(TRAJ, POTs, given_condition);
-      //   }
-      // else if(given_condition("Method") == "NAPLE_ASSOCIATION")
-      //   {
-      //     ASSOCIATION CONNECT(TRAJ, given_condition);
-      //     FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
-      //     main_NAPLE_ASSOCIATION(TRAJ, POTs, CONNECT, given_condition);
-      //   }
-      // else if(given_condition("Method") == "PURE_BROWNIAN")
-      //   {
-      //     FORCE::DEFAULT::EMPTY_force_set(POTs, given_condition);
-      //     main_PURE_BROWNIAN(TRAJ, POTs, given_condition);
-      //   }
     }
   return 0;
 }
 
-MKL_LONG main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition)
-{
-  string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_trajectory")).c_str();
-  string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_energy")).c_str();
-  // string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_energy_info")).c_str();
-
-  MKL_LONG N_skip = atol(given_condition("N_skip").c_str());
-  MKL_LONG N_energy_frequency = atol(given_condition("N_energy_frequency").c_str()); 
-
-  MATRIX energy(1, 4, 0.);
-  ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, 0);
-
-  MKL_LONG Nt = atol(given_condition("Nt").c_str());
-  TRAJ.fprint_row(filename_trajectory.c_str(), 0);
-  MKL_LONG N_basic = TRAJ.rows;
-  for(MKL_LONG t=0; t<Nt-1; t++)
-    {
-      MKL_LONG index_t_now = t % N_basic;
-      MKL_LONG index_t_next = (t+1) % N_basic;
-      INTEGRATOR::EULER::simple_Euler(TRAJ, POTs, index_t_now); 
-      GEOMETRY::minimum_image_convention(TRAJ, index_t_next);
-      ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, index_t_next);
-      if(t%N_skip==0)
-        {
-          printf("STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_next), energy(1));
-          TRAJ.fprint_row(filename_trajectory.c_str(), index_t_next);
-          energy.fprint(filename_energy.c_str());
-        }
-    }
-  return 0;
-}
-
-MKL_LONG main_NAPLE_REPULSION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition)
-{
-  string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_trajectory")).c_str();
-  string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_energy")).c_str();
-  // string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_energy_info")).c_str();
-
-  MKL_LONG N_skip = atol(given_condition("N_skip").c_str());
-  MKL_LONG N_energy_frequency = atol(given_condition("N_energy_frequency").c_str()); 
-
-  MATRIX energy(1, 4, 0.);
-  ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, 0);
-
-  MKL_LONG Nt = atol(given_condition("Nt").c_str());
-  TRAJ.fprint_row(filename_trajectory.c_str(), 0);
-
-  MKL_LONG N_basic = TRAJ.rows;
-  for(MKL_LONG t=0; t<Nt-1; t++)
-    {
-      MKL_LONG index_t_now = t % N_basic;
-      MKL_LONG index_t_next = (t+1) % N_basic;
-      INTEGRATOR::EULER::simple_Euler(TRAJ, POTs, index_t_now); 
-      GEOMETRY::minimum_image_convention(TRAJ, index_t_next);
-      ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, index_t_next);
-
-      if(t%N_skip==0)
-        {
-          printf("STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_next), energy(1));
-          TRAJ.fprint_row(filename_trajectory.c_str(), index_t_next);
-          energy.fprint(filename_energy.c_str());
-        }
-      // if(t%N_energy_frequency==0)
-      //   {
-      //     ANALYSIS::cal_detail_repulsion(TRAJ, POTs, filename_energy_info.c_str(), index_t_next);
-      //   }
-    }
-  return 0;
-}
 
 
 MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, COND& given_condition)
@@ -161,33 +72,22 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   MKL_LONG N_max_blocks = N_max_steps/N_steps_block;
   string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
   string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
-  // string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_base") + ".info").c_str();
   string filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
-  // string filename_CASE = (given_condition("output_path") + '/' + given_condition("filename_base") + ".case").c_str();
   string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
   string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
   
-  // string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_trajectory")).c_str();
-  // string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_energy")).c_str();
-  // string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_energy_info")).c_str();
-  // string filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_HASH")).c_str();
-  // string filename_CASE = (given_condition("output_path") + '/' + given_condition("filename_CASE")).c_str();
-  // string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_weight")).c_str();
-  // string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_MC_LOG")).c_str();
   ofstream FILE_LOG;
 
   
   MKL_LONG N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
   MKL_LONG N_THREADS_SS = atol(given_condition("N_THREADS_SS").c_str());
   printf("THREAD_SETTING: %ld ... ", N_THREADS_BD); //ERR_TEST
-  // omp_set_num_threads(N_THREADS_BD);
   mkl_set_num_threads(N_THREADS_BD);
   double time_MC = 0.;
   double time_LV = 0.;
   double time_AN = 0.;
   double time_file = 0.;
-  printf("DONE\n"); // ERR_TEST
-  // the following are the boosting the allocation and dislocation of the MATRIX classes
+  printf("DONE\n");
   printf("GENERATING BOOSTING VECTORS\n");
   LOCK LOCKER(TRAJ.Np);
   MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
@@ -206,8 +106,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
 
   
-  printf("DONE\n"); // ERR_TEST
-  printf("FORCE VECTOR GENERATING ... "); // ERR_TEST
+  printf("DONE\n"); 
+  printf("FORCE VECTOR GENERATING ... "); 
   MATRIX *force_spring = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
   MATRIX *force_repulsion = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
   MATRIX *force_random = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
@@ -217,7 +117,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       force_repulsion[i].initial(TRAJ.dimension, 1, 0.);
       force_random[i].initial(TRAJ.dimension, 1, 0.);
     }
-  printf("DONE\n"); // ERR_TEST
+  printf("DONE\n"); 
   if(given_condition("MC_LOG") == "TRUE")
     {
       FILE_LOG.open(filename_MC_LOG.c_str(), std::ios_base::out);
@@ -231,7 +131,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, 0);
 
   MKL_LONG Nt = atol(given_condition("Nt").c_str());
-  // TRAJ.fprint_row(filename_trajectory.c_str(), 0);
 
   MKL_LONG N_basic = TRAJ.rows;
 
@@ -296,8 +195,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   MKL_LONG IDENTIFIER_ASSOC = TRUE;
   double max_try_ASSOC = tolerance_association;
   double N_diff = 0.;
-  // double max_N_diff = 0.;
-  // MKL_LONG sum_over_MC_steps = 0;
   MKL_LONG N_tot_associable_chain = TRAJ.Np*atoi(given_condition("N_chains_per_particle").c_str());
   MKL_LONG count_M = 0, pre_count_M = 0;
 
@@ -332,8 +229,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               ANALYSIS::GET_dCDF_POTENTIAL(TRAJ, index_t_now, POTs, i, INDEX_dCDF_U[i], dCDF_U[i], R_minimum_distance_boost[i]);
               double time_end_pdf = dsecnd();
               dCDF_U[i].sort2(INDEX_dCDF_U[i]);
-              // double norm_dCDF_U = dCDF_U[i].norm();
-              // dCDF_U[i](0) /= norm_dCDF_U;
               for(MKL_LONG j=1; j<TRAJ.Np; j++)
                 {
                   dCDF_U[i](j) += dCDF_U[i](j-1);  // cumulating
@@ -373,8 +268,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                 {
                   cnt_arr[i] = 0;
                 }
-              // max_N_diff = 0.; 
-              // N_diff = 0.; sum_over_MC_steps = 0; count_M = 0, pre_count_M = 0;
             }
           else
             {
@@ -406,7 +299,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                     'it' have the identity number for current thread. Then, the reference variables IDX and r_boost will be used in order to usability and readability. In this case, IDX, r_boost is just reference of existing one, but IDX and r_boost itself is local reference variables which will varied thread to thread
                   */
                   MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
-                  // INDEX_MC &IDX = IDX_ARR[it];
                   MKL_LONG &index_itself = IDX_ARR[it].beads[CONNECT.flag_itself];
                   MKL_LONG &index_attached_bead = IDX_ARR[it].beads[CONNECT.flag_other];
                   MKL_LONG &index_new_attached_bead = IDX_ARR[it].beads[CONNECT.flag_new];
@@ -470,7 +362,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                       // This block only compute when the thread is NOT LOCKED
 
                       time_MC_pre_ACTION = dsecnd();
-                      // CONNECT.update_CASE_particle_hash_target(POTs, i, j, GEOMETRY::get_minimum_distance(TRAJ, index_t_now, i, CONNECT.HASH[i](j), vec_boost_Nd_parallel[i]));
 
                       double distance_exist_bridge = R_minimum_distance_boost[index_itself](index_attached_bead);
                       double tpa = POTs.transition(distance_exist_bridge, POTs.f_connector(distance_exist_bridge, POTs.force_variables), POTs.force_variables);
@@ -533,16 +424,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               // time_MC_7 = dsecnd();
               double time_MC_out_loop = dsecnd();
               
-              // if(cnt != N_steps_block) // the first step should be passed
-              //   {
-              //     N_diff = fabs((double)(count_M/cnt) - (double)(pre_count_M/(cnt-N_steps_block)));
-              //     max_N_diff = max_N_diff > N_diff ? max_N_diff : N_diff;
-              //     if(N_diff/max_N_diff < tolerance_association && N_associations != 0)
-              //       {
-              //         IDENTIFIER_ASSOC = FALSE;
-              //       }
-              //     pre_count_M = count_M;
-              //   }
               if(cnt > N_steps_block + 1)
                 {
                   N_diff = fabs(count_M - pre_count_M)/(double)N_steps_block;
@@ -592,22 +473,16 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, LOCKING = %6.3f, action = %6.1f, update = %6.1f\n", dt_det_pdf*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
           double total_dt_pdf = dt_rdist + dt_pdf + dt_sort;
           printf("computing rdist: %6.3e (%3.1f), computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_rdist, 100.*dt_rdist/total_dt_pdf, dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
-          // printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, max_N_diff = %6.3e, ratio = %6.3e, NAS = %ld ####\n", cnt, N_diff, max_N_diff, N_diff/max_N_diff, N_associations);
           printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, N_tot_asso = %ld, ratio = %6.3e, NAS = %ld, fraction=%4.3f ####\n\n", cnt, N_diff, N_tot_associable_chain, N_diff/N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain);
           TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
           energy.fprint(filename_energy.c_str());
           for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
             {
               CONNECT.HASH[ip].fprint_LONG_transpose(filename_HASH.c_str());
-              // CONNECT.CASE[ip].fprint_transpose(filename_CASE.c_str());
               CONNECT.weight[ip].fprint_LONG_transpose(filename_weight.c_str());
             }
         }
       
-      // if(t%N_energy_frequency==0)
-      //   {
-      //     ANALYSIS::cal_detail_repulsion(TRAJ, POTs, filename_energy_info.c_str(), index_t_now);
-      //   }
 
       double time_end_save = dsecnd();
       time_MC += time_end_MC - time_st_MC;
@@ -639,6 +514,72 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   return 0;
 }
 
+
+
+// MKL_LONG main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition)
+// {
+//   string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_trajectory")).c_str();
+//   string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_energy")).c_str();
+//   // string filename_energy_info  = (given_condition("output_path") + '/' + given_condition("filename_energy_info")).c_str();
+
+//   MKL_LONG N_skip = atol(given_condition("N_skip").c_str());
+//   MKL_LONG N_energy_frequency = atol(given_condition("N_energy_frequency").c_str()); 
+
+//   MATRIX energy(1, 4, 0.);
+//   ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, 0);
+
+//   MKL_LONG Nt = atol(given_condition("Nt").c_str());
+//   TRAJ.fprint_row(filename_trajectory.c_str(), 0);
+//   MKL_LONG N_basic = TRAJ.rows;
+//   for(MKL_LONG t=0; t<Nt-1; t++)
+//     {
+//       MKL_LONG index_t_now = t % N_basic;
+//       MKL_LONG index_t_next = (t+1) % N_basic;
+//       INTEGRATOR::EULER::simple_Euler(TRAJ, POTs, index_t_now); 
+//       GEOMETRY::minimum_image_convention(TRAJ, index_t_next);
+//       ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, index_t_next);
+//       if(t%N_skip==0)
+//         {
+//           printf("STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_next), energy(1));
+//           TRAJ.fprint_row(filename_trajectory.c_str(), index_t_next);
+//           energy.fprint(filename_energy.c_str());
+//         }
+//     }
+//   return 0;
+// }
+
+// MKL_LONG main_NAPLE_REPULSION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition)
+// {
+//   string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_trajectory")).c_str();
+//   string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_energy")).c_str();
+
+//   MKL_LONG N_skip = atol(given_condition("N_skip").c_str());
+//   MKL_LONG N_energy_frequency = atol(given_condition("N_energy_frequency").c_str()); 
+
+//   MATRIX energy(1, 4, 0.);
+//   ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, 0);
+
+//   MKL_LONG Nt = atol(given_condition("Nt").c_str());
+//   TRAJ.fprint_row(filename_trajectory.c_str(), 0);
+
+//   MKL_LONG N_basic = TRAJ.rows;
+//   for(MKL_LONG t=0; t<Nt-1; t++)
+//     {
+//       MKL_LONG index_t_now = t % N_basic;
+//       MKL_LONG index_t_next = (t+1) % N_basic;
+//       INTEGRATOR::EULER::simple_Euler(TRAJ, POTs, index_t_now); 
+//       GEOMETRY::minimum_image_convention(TRAJ, index_t_next);
+//       ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, index_t_next);
+
+//       if(t%N_skip==0)
+//         {
+//           printf("STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_next), energy(1));
+//           TRAJ.fprint_row(filename_trajectory.c_str(), index_t_next);
+//           energy.fprint(filename_energy.c_str());
+//         }
+//     }
+//   return 0;
+// }
 
 
 /*

@@ -35,8 +35,6 @@ class CONNECTIVITY
   MKL_LONG read_exist_hash(const char* fn_hash);
   
   MKL_LONG check_valid(MKL_LONG index_particle, MKL_LONG index_target);
-  /* long& operator()(MKL_LONG index_particle); // return TOKEN for particle */
-  /* long& operator()(MKL_LONG index_particle, MKL_LONG index_target); // return target index */
 };
 
 

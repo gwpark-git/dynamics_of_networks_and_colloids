@@ -16,25 +16,12 @@ const MKL_LONG INDEX_MC::N_BOOST_COUNT[] = {0, 2, 2, 3};
 /*
   the reason for inheritance for reference variable is that the reference variables cannot be along without given variables. In this way, the reference variables automatically allocated with exiting variables with beads array.
 */
-// INDEX_MC::INDEX_MC() : itself(beads[2]), attached_bead(beads[0]), new_attached_bead(beads[1]), hash_attached_bead(beads[3])
 INDEX_MC::INDEX_MC()
 {
-  // index_set[4] = {0};
-  // beads = (MKL_LONG*) mkl_malloc(4*sizeof(MKL_LONG), BIT);
-  // itself = beads[2];
-  // attached_bead = beads[0];
-  // new_attached_bead = beads[1];
-  // hash_attached_bead = beads[3];
-      
-  // ACTION_ARR[CANCEL] = ACTION::CANCEL;
-  // ACTION_ARR[ADD]    = ACTION::ADD   ;
-  // ACTION_ARR[DEL]    = ACTION::DEL   ;
-  // ACTION_ARR[MOV]    = ACTION::MOV   ;
   initial();
   set_initial_variables();
 }
 
-// INDEX_MC::INDEX_MC(const INDEX_MC& given_IDX) : itself(beads[2]), attached_bead(beads[0]), new_attached_bead(beads[1]), hash_attached_bead(beads[3])
 INDEX_MC::INDEX_MC(const INDEX_MC& given_IDX)
 {
   copy_INDEX(given_IDX);
@@ -82,15 +69,11 @@ MKL_LONG ACTION::ACT(TRAJECTORY& TRAJ, MKL_LONG index_t_now, POTENTIAL_SET& POTs
 
 MKL_LONG ACTION::UPDATE_INFORMATION(ASSOCIATION& CONNECT, INDEX_MC& IDX, MKL_LONG cnt_arr[], MKL_LONG const IDENTIFIER_ACTION)
 {
-  // cnt_arr[IDENTIFIER_ACTION]++;
   for(MKL_LONG i=0; i<IDX.N_BOOST_COUNT[IDENTIFIER_ACTION]; i++)
     {
       CONNECT.update_Z_particle(IDX.beads[i]);
       CONNECT.update_dPDF_particle(IDX.beads[i]);
       CONNECT.update_dCDF_particle(IDX.beads[i]);
-      // KINETICS::CONNECTIVITY_update_Z_particle(&CONNECT, IDX.beads[i]);
-      // KINETICS::CONNECTIVITY_update_dPDF_particle(&CONNECT, IDX.beads[i]);
-      // KINETICS::CONNECTIVITY_update_dCDF_particle(&CONNECT, IDX.beads[i]);
     }
   return 0;
 }
