@@ -19,6 +19,25 @@ int help()
   cout << "\tSTRING format: filename_trajectory, filename_energy, filename_energy_detail\n";
   return 0;
 }
+/*
+
+Think: should I include internal time measurment after update of code?
+The boosting mechanism is of importance for further implementation.
+However, the measurment itself is somehow time consumming.
+Do I bear it until end of my simulation? Think about it.
+
+struct TIME
+{
+  double ST_simulation;
+  double ST_MC;
+  double ST_PDF, END_PDF;
+  double PDF_ST_RDIST, PDF_ST_PDF, PDF_ST_SORT;
+
+  double 
+  
+  
+}
+*/
 
 MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, COND& given_condition);
 
@@ -41,9 +60,10 @@ int main(int argc, char* argv[])
           // for this reason, this condition will not be varied during condition test
           // however, the explicit description should be needed for condition data
           // that is because to prevent potential errors when we implement higher order methods.
+          // Note that the only needed information for Euler is the previous time step. Therefore, we need previous and now which is in 2.
           N_basic = 2;
-        }
 
+        }
       TRAJECTORY TRAJ(given_condition, N_basic);
 
       POTENTIAL_SET POTs;
@@ -77,7 +97,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
   
   ofstream FILE_LOG;
-
   
   MKL_LONG N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
   MKL_LONG N_THREADS_SS = atol(given_condition("N_THREADS_SS").c_str());
@@ -210,22 +229,21 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       MKL_LONG cnt = 1;
       double time_st_MC = dsecnd();
 
-      if(given_condition("Step")!="EQUILIBRATION")
+
+      double time_st_det_pdf = dsecnd();
+
+
+#pragma omp parallel for default(none) shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, R_minimum_vec_boost, R_minimum_distance_boost, dt_rdist, dt_pdf, dt_sort, POTs, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+      /*
+        The following part is related with generating R_minimum_vec_boost, R_minimum_distance_boost, and also for sorted dCDF and index of it. For the case of equilibration, however, the cumulative distribution is not necessary. The other variable will be used for time evolution which means the for-loop is composed of two intrinsic part. The reason to combined those parts into one for-loop is to avoid overhead that called by OpenMP twicely.
+       */
+      for(MKL_LONG i=0; i<TRAJ.Np; i++)
         {
-          // computing the distance map between beads for reducing overhead
-          // note that the computing distance map during association spend 80% of computing time
-          // That involve computing map from 1 to 3 beads (with number of Monte-Carlo steps)
-          // In this case, however, we compute all the distance map, once, then uses this information throughout the Monte-Carlo steps since the configurational information does not change during Monte-Carlo stpes.
-          // // Note that NO upper triangle form is generated. All the i-j distance is computed twice. 
-          // // Therefore, further reduce is possible to modify this computing.
-          // // On here, the feature is ignored for convenience.
-          double time_st_det_pdf = dsecnd();
-#pragma omp parallel for default(none) shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, R_minimum_vec_boost, R_minimum_distance_boost, dt_rdist, dt_pdf, dt_sort, POTs) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
-          for(MKL_LONG i=0; i<TRAJ.Np; i++)
+          double time_st_rdist = dsecnd();
+          GEOMETRY::get_minimum_distance_for_particle(TRAJ, index_t_now, i, R_minimum_distance_boost[i], R_minimum_vec_boost);
+          double time_st_pdf = dsecnd();
+          if(given_condition("Step")!="EQUILIBRATION")
             {
-              double time_st_rdist = dsecnd();
-              GEOMETRY::get_minimum_distance_for_particle(TRAJ, index_t_now, i, R_minimum_distance_boost[i], R_minimum_vec_boost);
-              double time_st_pdf = dsecnd();
               ANALYSIS::GET_dCDF_POTENTIAL(TRAJ, index_t_now, POTs, i, INDEX_dCDF_U[i], dCDF_U[i], R_minimum_distance_boost[i]);
               double time_end_pdf = dsecnd();
               dCDF_U[i].sort2(INDEX_dCDF_U[i]);
@@ -245,13 +263,25 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                 dt_sort += time_end_sort - time_end_pdf;
               }
             }
-          double time_end_det_pdf = dsecnd();
-          double dt_pdf_all = time_end_det_pdf - time_st_det_pdf;
-          double sum_sort_rdist = dt_rdist + dt_pdf + dt_sort;
-          dt_rdist = dt_pdf*dt_pdf_all / sum_sort_rdist;
-          dt_pdf = dt_pdf*dt_pdf_all / sum_sort_rdist;
-          dt_sort = dt_sort*dt_pdf_all / sum_sort_rdist;
-          dt_det_pdf += dt_pdf_all;
+        }
+      double time_end_det_pdf = dsecnd();
+      double dt_pdf_all = time_end_det_pdf - time_st_det_pdf;
+      double sum_sort_rdist = dt_rdist + dt_pdf + dt_sort;
+      dt_rdist = dt_pdf*dt_pdf_all / sum_sort_rdist;
+      dt_pdf = dt_pdf*dt_pdf_all / sum_sort_rdist;
+      dt_sort = dt_sort*dt_pdf_all / sum_sort_rdist;
+      dt_det_pdf += dt_pdf_all;
+
+      
+      if(given_condition("Step")!="EQUILIBRATION")
+        {
+          // computing the distance map between beads for reducing overhead
+          // note that the computing distance map during association spend 80% of computing time
+          // That involve computing map from 1 to 3 beads (with number of Monte-Carlo steps)
+          // In this case, however, we compute all the distance map, once, then uses this information throughout the Monte-Carlo steps since the configurational information does not change during Monte-Carlo stpes.
+          // // Note that NO upper triangle form is generated. All the i-j distance is computed twice. 
+          // // Therefore, further reduce is possible to modify this computing.
+          // // On here, the feature is ignored for convenience.
 
           IDENTIFIER_ASSOC = TRUE;
           count_M = 0; pre_count_M = 0;
