@@ -36,7 +36,7 @@ P'^{i} = \exp(-U^{i})\qquad\textrm{with }U^{i} = \sum_{j=1}^{Nc*Np}u^{i}_{j},
 \end{equation}
 where $u^{i}_{j}$ is potential for j-th chain in the i-th particle. 
 The partition function is sum of the probability over all the state:
-\begin{equatio}
+\begin{equation}
 Z = \sum_{i=1}^{Ns}\exp(-U^{i}),
 \end{equation}
 where $Ns$ is number of micro-state which is 2002 in this specific example.
@@ -105,27 +105,7 @@ Ns_2 &= \left(\left(\begin{array}{c} N_p + 1 \\ N_c\end{array}\right)\right)^{N_
 where $C(N_p, 2)$ is also combination but used inside of binary expression in order to avoid complications, and $Ns_1$ is for freely transferable chain scheme while $Ns_1$ is number of micro-state for constraint chain scheme. Even if $Ns_2 < Ns_1$, *it still too large to compute in theoretical pathway*.
 On this regards, we cannot avoid stochastic simulation in order to have stationary distribution from given position vectors.
 
-** Working Hypothesis
-For simplification, let assumed that we are visiting *single chain end* in each stochastic steps. In the selected chain ends regarded as 'transition state' that automatically allows the following action. The first working hypothesis is that /whenever we visited a single chain end, it is automatically transition state without any probability generation/. 
-Then, we have to choose a bead where this chain will attach. Since we are using Boltzmann distribution, the chain end should following Boltzmann factor, i.e., the ratio between expected probability for taking action and remaining probability:
-\begin{equation}
-\frac{\exp(-U')}{\exp(-U)} = \exp(-(U'-U)),
-\end{equation}
-where prime denote the expected potential when new action is taken. It is of importance that the previous action probability is based on the whenever the target is specified. So, we have to determine what is the target. 
-In principle, the action of selected chain can be categorized by association, dissociation, and movement of association. The potential for association, of course, becomes adding one more connector potential to the system since the potential for roof chain is zero. Let $U$ be the original potential of the system, and $u$ be potential for new connector, the Boltzmann factor becomes
-\begin{equation}
-\frac{\exp(-(U+u))}{\exp(-U)}=\exp(-u).
-\end{equation}
-In the case for dissociation with the same notation, it is inverse of association:
-\begin{equation}
-\frac{\exp(-U)}{\exp(-(U+u))} = \exp(u).
-\end{equation}
-For movement of association, the boltzmann factor becomes multiplication between dissociation of the original state (A) and association of new state (B):
-\begin{equation}
-\frac{\exp(-U)}{\exp(-(U+u_A))}\frac{\exp(-(U+u_B))}{\exp(-U)} = \exp(-(u_B - u_A)).
-\end{equation}
-
-*** Originally used scheme
+** Originally used scheme
 Let assumed that the opposite site of selected chain end attached to k-th bead, the selection probability follows the Boltzmann factor divided by sum of all possible Boltzmann factor. Before going further, let assumed that the given index set for j is already sorted with increasing order based on Boltzmann factor: $i>j \Leftrightarrow \exp(-u_{ik}) > \exp(-u_{jk})$, and define $Z_k(n)$ be sum over Boltzmann factor from index 1 to index n: $Z_k(n) = \sum_{i=1}^{n}\exp(-u_{ik})$. In this treatment, the index function, $I(p)$ where $p\in [0,1)$, becomes
 \begin{equation}
 I(p) = \left\{\begin{array}{cl} 
@@ -137,44 +117,142 @@ N_p & \textrm{if } Z_k(N_p -1)/Z_k(N_p) \leq p < 1.
 \end{equation}
 Therefore, for randomly given $p$, the selected chain ends attach to the $I(p)$-th bead.
 
-** Detailed Balance Equation
-Let $\pi_j$ be the equilibrium probability for state j. The detailed balance equation is defined by
+** Boltzmann Distribution
+For simplification, let assumed that we are visiting *single chain end* in each stochastic steps. In the selected chain ends regarded as 'transition state' that automatically allows the following action. The first working hypothesis is that /whenever we visited a single chain end, it is automatically transition state without any probability generation/. 
+Then, we have to choose a bead where this chain will attach. Since we are using Boltzmann distribution, the chain end should following Boltzmann factor, i.e., the ratio between expected probability for taking action and remaining probability:
 \begin{equation}
-\pi_i P_{ij} = \pi_j P_{ji},
+\frac{\exp(-U')}{\exp(-U)} = \exp(-(U'-U)),
 \end{equation}
-where $P_{ij}$ is the Markov transition probability from state i th state j. The transition probability, $P_{ij}$, can be decomposed by suggestion probability, $q_{ij}$, and acceptance probability, $\alpha_{ij}$:
+where prime denote the expected potential when new action is taken. It is of importance that the previous action probability is based on the whenever the target is specified. So, we have to determine what is the target. 
+In principle, the action of selected chain can be categorized by association, dissociation, and movement of association. The potential for association, of course, becomes adding one more connector potential to the system since the potential for roof chain is zero. Let $U$ be the original potential of the system, and $u$ be potential for new connector, the Boltzmann factor becomes
 \begin{equation}
-P_{ij} = q_{ij}\alpha_{ij}.
+\frac{\exp(-(U+u))}{\exp(-U)}=C_{A}\exp(-u).
+\end{equation}
+In the case for dissociation with the same notation, it is inverse of association:
+\begin{equation}
+\frac{\exp(-U)}{\exp(-(U+u))} = C_{D}\exp(u).
+\end{equation}
+For movement of association, the boltzmann factor becomes multiplication between dissociation of the original state (A) and association of new state (B):
+\begin{equation}
+\frac{\exp(-U)}{\exp(-(U+u_A))}\frac{\exp(-(U+u_B))}{\exp(-U)} = C_{M}\exp(-(u_B - u_A)).
+\end{equation}
+Note that the $C_A, C_D, C_M$ are nomalization constants that is not specified up to now.
+
+** Metropolis and Detailed Balance Equation
+Let $\pi$ be equilibrium distribution and $P$ is transition probability, the detailed balance equation for the reversible Markov chain can be expressed by
+\begin{equation}
+\pi(s)P(s\to s') = \pi(s')P(s'\to s),
+\end{equation}
+where $s$ and $s'$ are states. In this case, the equilibrium distribution, $\pi$, is controlled by the transition probability, $P$, which is decomposed by proposal distribution, $q$, and acceptance probability, $\alpha$:
+\begin{equation}
+P(s\to s') = q(s\to s')\alpha(s\to s').
+\end{equation}
+which implies
+\begin{equation}
+\alpha(s\to s') = \frac{P(s\to s')}{q(s\to s')}.
+\end{equation}
+The acceptance ratio is given by the ratio of acceptance probability
+\begin{equation}
+A(s\to s') = \min\left\{1, \frac{\alpha(s\to s')}{\alpha(s'\to s)}\right\} = \min\left\{1, \frac{P(s\to s') q(s'\to s)}{P(s'\to s) q(s \to s')}\right\}.
+\end{equation}
+With the condition of $g(s\to s') = g(s'\to s)$, the acceptance is given by
+\begin{equation}
+A(s\to s') = \min\left\{1, \frac{P(s\to s')}{P(s'\to s)}\right\},
+\end{equation}
+where $P$ is given by Boltzmann distribution in this case.
+The basic Metropolis-Hasting algorithm is used the following steps:
+1. randomly pick an initial state, $s$;
+2. randomly pick a target state, $s'$, based on the suggestion probability $g(s\to s')$;
+3. accept the transition based on the acceptance ratio, $A$.  When $A$ is higher than unity, the transition is automatically allowed.
+4. iterate until the system reaching equilibrium distribution.
+
+For simplification and without violate the suggested scheme, the propose (suggestion) probability $g$ is given by uniformly, which means the suggestion probability is given by 
+\begin{equation}
+q(s_i\to s_j) = \frac{1}{N_p -1} \approx \frac{1}{N_p}\quad\textrm{for }N_p \gg 1.
 \end{equation}
 
+*** Start with Single Associable Case: Reversible Markov Chain
+Let assumed that we picked up the chain end that attached to $k$-th bead. The target to attach is randomly suggested, say $i$. Then the state change of the system is very localized by the selected chain:
+\begin{equation}
+P_{ik} = \exp(-u_{ik}).
+\end{equation}
+Since the probability for selection and acceptance are free from the other connectivity information, we can localize the global distribution function, $\pi$, into local distribution function, $\pi_{ik}$, without loss of generality. The detail balance for this /very/ localized case can be
+\begin{equation}
+\pi_{ik}(1)P_{ik}(1\to 0) = \pi_{ik}(0)P_{ik}(0\to 1),
+\end{equation}
+and the acceptance ratio is given by
+\begin{equation}
+A_{ik}(0\to 1) = \min\left\{1, \frac{P_{ik}(0\to 1)}{P_{ik}(1\to 0)}\right\} = \min\left\{1, \frac{C^{A}_{ik}\exp(-u_{ik})}{C^{D}_{ik}\exp(u_{ii})}\right\} = \min\left\{1, \frac{C^{A}_{ik}}{C^{D}_{ik}}\exp(-u_{ik})\right\},
+\end{equation}
+where $C^{A}_{ik}$ and $C^{D}_{ik}$ are normalization factors between i-th and k-th beads for association and dissociation, respectively.
 
 
-
-
-# On this regards, we can define transition probability as Boltzmann factor:
+# Let $\pi^{k}(\mathscr{I}_k)$ be the local distribution function for the $k$-th bead where $\mathscr{I}_k$ be the connection information 
+#  probability to association with $i$-th bead is given by $C \exp(-u_{ik})$.
+#  then the detailed balance equation is expressed by
 # \begin{equation}
-# \pi_{i}^{k} = \exp(-u_{ik}).
+# \pi_{k}(i) P(
 # \end{equation}
-# Note that the real transiti
-
-
-# Simply, we can think about two way of selection: (i) selecting target particles randomly (equally probable) and using Boltzmann factor as acceptance proability or (ii) selection is follows the Boltzmann distribution, directly.
-
-
-*** Random Suggestions
-Let assumed that we already have the target bead that the selected chain end will attached for. The algorithm for the /suggestion/ should be defined clearly, but the simplest case can be random selection among the all the possible suggestions. 
-
-# In this case, we are following the acceptance of the action as Metropolis algorithm:
+# Let $\pi_{ik}$ be the equilibrium probability for state $ik$, the detailed balance equation is defined 
+# For given pair i and j, detail balance equation can be expressed by
 # \begin{equation}
-
+# \pi_{ik}(1)P_{ik}(1\to 0) = \pi_{ik}(0)P_{ik}(0\to 1),
+# \end{equation}
+# where $P$ is the Markov transition proability and 1 denote there is one association while 0 denote no association. The transition probability decomposed into suggestion, $q$, and acceptance probability, $\alpha$:
+# \begin{equation}
+# P_{ik}(s) = q_{ik}(s)\alpha_{ik}(s).
+# \end{equation}
+# For Metropolis algorithm, it is of importance that the suggestion algorithm for the detailed balance equation should be symmetric:
+# \begin{equation}
+# q_{ik}(0\to 1) = q_{ik}(1 \to 0).
 # \end{equation}
 
+# Let assumed that we already have the target bead that the selected chain end will attached for. The algorithm for the /suggestion/ should be defined clearly, but the simplest case can be random selection among the all the possible suggestions. Ideally, the suggestion for the connection can be equally probable:
+# \begin{equation}
+# q_{ik} = \frac{1}{N_p -1}
+# \end{equation}
+# for given index $k$.
+# Since our desirable probability distribution is Boltzmann distribution, and one component for transition probability is set as constant, the acceptance probability to association is defined by simple Boltzmann factor:
+# \begin{equation}
+# \alpha_{ik}^{A} = C\exp(-u_{ik}),
+# \end{equation}
+# where $C$ is normalization constant.
+# Therefore, we have probability to association:
+# \begin{equation}
+# P_{ik}^{A} = \frac{C}{N_p -1}\exp(-u_{ik}).
+# \end{equation}
+
+# # Let $\pi_j$ be the equilibrium probability for state j. The detailed balance equation is defined by
+# # \begin{equation}
+# # \pi_i P_{ij} = \pi_j P_{ji},
+# # \end{equation}
+# # where $P_{ij}$ is the Markov transition probability from state i th state j. The transition probability, $P_{ij}$, can be decomposed by suggestion probability, $q_{ij}$, and acceptance probability, $\alpha_{ij}$:
+# # \begin{equation}
+# # P_{ij} = q_{ij}\alpha_{ij}.
+# # \end{equation}
+
+
+
+# # On this regards, we can define transition probability as Boltzmann factor:
+# # \begin{equation}
+# # \pi_{i}^{k} = \exp(-u_{ik}).
+# # \end{equation}
+# # Note that the real transiti
+
+
+# # Simply, we can think about two way of selection: (i) selecting target particles randomly (equally probable) and using Boltzmann factor as acceptance proability or (ii) selection is follows the Boltzmann distribution, directly.
 
 
 
 
-# \left(\left(\begin{array}{c} 
+# *** Cut-off Radius
+# This is of importance that introducing cut-off radius for efficiency should not affect to the statistics. The cut-off is highly related with the suggestion probability that make zero. When the acceptance probability is sufficiently approximated by zero, with random approximation, the suggestion probability is given by $1/N_p$ which in consequence the transition probability as approximately zero. Note that without this scheme, we have to account $N_p$ numbers of pairs for given specified bead, which in consequence, approximately $N_p^2$ pairs should be accounted for stochastic simulation (and we also considered total number of iterations for this pairs). Therefore, the cut-off scheme is not avoidable in order to compute the system within reasonable real time constraint. To be specific, let $N_{R_c}$ be number of particle within cut-off radius, $R_c$, then the transition probability becomes
+# \begin{align}
+# P_{ik} &= \frac{1}{N_{R_c}-1}\exp(-u_{ik})\quad\textrm{for } r_{ik} < R_c\\
+# P_{ik} &= 0 \quad\textrm{for } r_{ik} \geq R_c.
+# \end{align}
 
+# The effect to the Metropolis algorithm should be studied.
 * Figures
 ** Spectrum of potential energy state, freely move-able chains
 #+CAPTION: Potential energy state spectrum based on the Gaussian connector
