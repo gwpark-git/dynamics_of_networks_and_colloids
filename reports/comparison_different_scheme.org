@@ -253,6 +253,30 @@ where $C^{A}_{ik}$ and $C^{D}_{ik}$ are normalization factors between i-th and k
 # \end{align}
 
 # The effect to the Metropolis algorithm should be studied.
+
+* Simple Note for Compromise with the Previous Approach
+Remain all the scheme, but using Boltzmann factor, which means the probability of the movement follows Boltzmann factor:
+\begin{equation}
+P(k|i\to j) = \frac{\exp(-u_{jk})}{\exp(-u_{ik})} = \exp\left(-(u_{jk}-u_{ik})\right),
+\end{equation}
+which is differ in the previous scheme:
+\begin{equation}
+P(k|i\to j) = P(k|k\to j) = P(k|j\to j) = \exp(-u_{jk}).
+\end{equation}
+
+** Partition function
+It is of importance to think about partition function with proper normalization condtion. The sum of all the Boltzmann factor simply reduced by the current factor, $\exp(-u_{ik}):
+\begin{equation}
+Z_k^{mov} = \sum_{j=1}^{N_p} P'(k|i\to j) = \sum_{j=1}^{N_p} \exp(-u_{jk})\exp(u_{ik}).
+\end{equation}
+Therefore, we have
+\begin{equation}
+P(k|i\to j) = \exp(-u_{jk}\exp(u_{ik}) / Z_k^{mov} = \exp(-u_{jk})/\sum_{j=1}^{N_p}\exp(-u_{jk}) = \exp(-u_{jk})/Z_k,
+\end{equation}
+where $Z_k$ is the partition function that is used originally. 
+Shortly, the additional factor will not affect the overall scheme.
+
+
 * Figures
 ** Spectrum of potential energy state, freely move-able chains
 #+CAPTION: Potential energy state spectrum based on the Gaussian connector
