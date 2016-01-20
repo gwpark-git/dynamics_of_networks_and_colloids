@@ -65,7 +65,6 @@ int main(int argc, char* argv[])
 
         }
       TRAJECTORY TRAJ(given_condition, N_basic);
-
       POTENTIAL_SET POTs;
       if(given_condition("Method") == "NAPLE_ASSOCIATION")
         {
@@ -223,7 +222,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       MKL_LONG index_t_now = t % N_basic;
       MKL_LONG index_t_next = (t+1) % N_basic;
       TRAJ(index_t_next) = (++TRAJ.c_t) * TRAJ.dt;
-
+      // cout << TRAJ(index_t_now, 0, 0) << '\t' << TRAJ(index_t_now, 0, 1) << '\t' << TRAJ(index_t_now, 0, 2) << endl;
       tmp_vec.set_value(0.);
 
       MKL_LONG cnt = 1;
