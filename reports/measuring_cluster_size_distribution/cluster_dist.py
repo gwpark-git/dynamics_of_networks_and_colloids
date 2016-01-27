@@ -1,6 +1,15 @@
 
 from numpy import *
-import matplotlib.pyplot as plt
+
+def check_ident(pos, index, target, Ld):
+    Nd = shape(pos)[1]
+    if int(target)==-1:
+        return -1
+    for k in range(Nd):
+        if(ident_minimum_distance_k_from_x(pos[index, k], pos[target, k], Ld) != 0):
+            return 1
+    return 0
+                                            
 
 # def DFS_single_root(hash, stack_component, stack_order, index=0, order_count=1, bp_index=0, cnt=0):
 #     cnt += 1
@@ -150,8 +159,8 @@ def DFS_percolation_edge_test(hash, pos, Ld, stack_component, index=0, order_cou
             queue_order.append(order_count)
         if order_count < N_cols:
             target = hash[index, order_count]
-            print 'CK: CNT=%ld, INDEX=%ld, TARGET=%ld, ORDER_CNT=%ld, N(queue)=%ld'%(cnt, index, target, order_count, size(queue))
-            print queue
+            # print 'CK: CNT=%ld, INDEX=%ld, TARGET=%ld, ORDER_CNT=%ld, N(queue)=%ld'%(cnt, index, target, order_count, size(queue))
+            # print queue
 
             if int(target) is -1:
                 if size(queue) == 1:
@@ -191,20 +200,77 @@ def DFS_percolation_edge_test(hash, pos, Ld, stack_component, index=0, order_cou
         print 'ERR: CNT=%ld, INDEX=%ld, TARGET=%ld, ORDER_CNT=%ld'%(cnt, index, target, order_count)
     return size(queue)
 
-sc = []; so = []; IDPC=[]; IDPI=[]
-Np = 40
-Nd = 2
-box_dimension = 10.0
-hash = loadtxt('../../test_step/NP40_LD10P2_C100_T3.hash')
-traj = loadtxt('../../test_step/NP40_LD10P2_C100_T3.traj')
-pos = []
-for k in range(Np):
-    pos.append(traj[k*2*Nd + 1:k*2*Nd + 1 + Nd])
-pos = asarray(pos)
+def DFS_percolation_edge_restricted_box_test(hash, pos, Ld, stack_component, index=0, order_count=1, cnt=0, IDPC=[], IDPI=[], queue=[], queue_order= []):
+    try:
+        cnt += 1
+        # if cnt > 30:
+        #     return 0
+        const_new_order_count = 1
+        N_cols = shape(hash)[1]
+        if size(stack_component)==0:
+            order_count = const_new_order_count
+            stack_component.append(index)
+            queue.append(int(index))
+            queue_order.append(order_count)
+        if order_count < N_cols:
+            target = hash[index, order_count]
+            # print 'CK: CNT=%ld, INDEX=%ld, TARGET=%ld, ORDER_CNT=%ld, N(queue)=%ld'%(cnt, index, target, order_count, size(queue))
+            # print queue
+            tmp_ID = check_ident(pos, index, target, Ld)
+            # if int(target) is -1 or tmp_ID is 1:
+            if target == -1:
+                if size(queue) == 1:
+                    return 0
+                else:
+                    queue = queue[:-1]
+                    queue_order = queue_order[:-1]
+                    DFS_percolation_edge_restricted_box_test(hash, pos, Ld, stack_component, queue[-1], queue_order[-1] + 1, cnt, IDPC, IDPI, queue, queue_order)
+            elif (target in stack_component) or (tmp_ID == 1):
+                if tmp_ID == 1:
+                    for id in range(shape(pos[index, :])[0]):
+                        ident_IDP = ident_minimum_distance_k_from_x(pos[index, id], pos[target, id], Ld)
+                        if (int(ident_IDP) is not 0) and ([index, target] not in IDPI):
+                            IDPC.append([id, ident_IDP])
+                            IDPI.append([index, target])
+                DFS_percolation_edge_restricted_box_test(hash, pos, Ld, stack_component, index, order_count + 1, cnt, IDPC, IDPI, queue, queue_order)
+            else:
+                # for id in range(shape(pos[index, :])[0]):
+                #     ident_IDP = ident_minimum_distance_k_from_x(pos[index, id], pos[target, id], Ld)
+                #     if (int(ident_IDP) is not 0) and ([index, target] not in IDPI) and ([target, index] not in IDPI):
+                #         IDPC.append([id, ident_IDP])
+                #         IDPI.append([index, target])
+                    # print IDP
+                # IDP.append(ident_percolation(pos[:, index], pos[:, target]))
+                stack_component.append(target)
+                queue.append(int(target))
+                queue_order.append(order_count)
+                DFS_percolation_edge_restricted_box_test(hash, pos, Ld, stack_component, target, const_new_order_count, cnt, IDPC, IDPI, queue, queue_order)
+        else:
+            if size(queue) == 1:
+                return 0
+            else:
+                queue = queue[:-1]
+                queue_order = queue_order[:-1]
+                DFS_percolation_edge_restricted_box_test(hash, pos, Ld, stack_component, queue[-1], queue_order[-1] +1, cnt, IDPC, IDPI, queue, queue_order)
+    except:
+        print 'ERR: CNT=%ld, INDEX=%ld, TARGET=%ld, ORDER_CNT=%ld'%(cnt, index, target, order_count)
+    return size(queue)
 
-size = DFS_percolation_edge_test(hash=hash, pos=pos, Ld=box_dimension, stack_component=sc, queue_order=so, index=0, IDPC=IDPC, IDPI=IDPI)
-IDPC=asarray(IDPC)
-IDPI=asarray(IDPI)
+
+# sc = []; so = []; IDPC=[]; IDPI=[]
+# Np = 40
+# Nd = 2
+# box_dimension = 10.0
+# hash = loadtxt('../../test_step/NP40_LD10P2_C100_T3.hash')
+# traj = loadtxt('../../test_step/NP40_LD10P2_C100_T3.traj')
+# pos = []
+# for k in range(Np):
+#     pos.append(traj[k*2*Nd + 1:k*2*Nd + 1 + Nd])
+# pos = asarray(pos)
+
+# size = DFS_percolation_edge_restricted_box_test(hash=hash, pos=pos, Ld=box_dimension, stack_component=sc, queue_order=so, index=0, IDPC=IDPC, IDPI=IDPI)
+# IDPC=asarray(IDPC)
+# IDPI=asarray(IDPI)
 
 
 # sc = []; so = []; IDP = []
