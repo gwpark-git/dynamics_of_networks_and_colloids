@@ -323,21 +323,21 @@ def DF_percolation_edge_restricted_box_iter(hash, pos, Ld, stack_component, inde
         print 'ERR: CNT=%ld, INDEX=%ld, TARGET=%ld, ORDER_CNT=%ld, size_queue=%ld'%(cnt, index, target, order_count, size(queue))
     return size(queue)
 
-def cluster_edge_DFS_travel_restricted_box_iter(hash, pos, Ld, stack_component, index=0, order_count=1, cnt=0, IDPC=[], IDPI=[], queue=[], queue_order=[]):
+def cluster_edge_DFS_travel_restricted_box_iter(hash, pos, Ld, record_component, index=0, order_count=1, cnt=0, IDPC=[], IDPI=[], stack=[], stack_order=[]):
     cnt = 0; const_new_order_count = 1 # initialisation variables
     N_cols = shape(hash)[1] # limitation for the hash tables
-    queue.append(int(index)); queue_order.append(order_count) # initial queueing
-    while(size(queue) > 0): # will false when size(queue) is 0 if it is not initial step
+    stack.append(int(index)); stack_order.append(order_count) # initial stacking
+    while(size(stack) > 0): # will false when size(stack) is 0 if it is not initial step
         cnt += 1 # temporal counting 
         ident_over_cols = ident_over(hash, index, order_count)
         if ident_over_cols: # in the case that the hash[index, order_count] reaching end (-1 or order_count is over)
-            queue = queue[:-1]; queue_order = queue_order[:-1]
-            if (size(queue) > 0):
-                index = queue[-1]; order_count = queue_order[-1] + 1
+            stack = stack[:-1]; stack_order = stack_order[:-1]
+            if (size(stack) > 0):
+                index = stack[-1]; order_count = stack_order[-1] + 1
         else: # in the case that the hash[index, order_count] is properly defined
             target = hash[index, order_count]
             travel_beyond_box = check_travel_beyond_box(pos, index, target, Ld)
-            if (target in stack_component) or travel_beyond_box: # when target is in stack queue or travel beyond box boundary
+            if (target in record_component) or travel_beyond_box: # when target is in stack stack or travel beyond box boundary
                 if travel_beyond_box: 
                     for id in range(shape(pos[index, :])[0]):
                         ident_IDP = ident_minimum_distance_k_from_x(pos[index, id], pos[target, id], Ld)
@@ -350,10 +350,43 @@ def cluster_edge_DFS_travel_restricted_box_iter(hash, pos, Ld, stack_component, 
                 # this means it inherit the exist index for bead but increase order_count
                 # note that the target for next step is given by hash[index, order_count]
             else: # when the target will stack
-                stack_component.append(int(target))
-                queue.append(int(target)); queue_order.append(order_count) # record element and its order for queue
+                record_component.append(int(target))
+                stack.append(int(target)); stack_order.append(order_count) # record element and its order for stack
                 index = target; order_count = const_new_order_count; # depth first search
-    return size(queue)
+    return size(stack)
+
+def cluster_edge_DFS_travel_direct_image_iter(hash, pos, Ld, record_component, index=0, order_count=1, cnt=0, IDPC=[], IDPI=[], stack=[], stack_order=[]):
+    cnt = 0; const_new_order_count = 1 # initialisation variables
+    N_cols = shape(hash)[1] # limitation for the hash tables
+    stack.append(int(index)); stack_order.append(order_count) # initial stacking
+    while(size(stack) > 0): # will false when size(stack) is 0 if it is not initial step
+        cnt += 1 # temporal counting 
+        ident_over_cols = ident_over(hash, index, order_count)
+        if ident_over_cols: # in the case that the hash[index, order_count] reaching end (-1 or order_count is over)
+            stack = stack[:-1]; stack_order = stack_order[:-1]
+            if (size(stack) > 0):
+                index = stack[-1]; order_count = stack_order[-1] + 1
+        else: # in the case that the hash[index, order_count] is properly defined
+            target = hash[index, order_count]
+            travel_beyond_box = check_travel_beyond_box(pos, index, target, Ld)
+            if (target in record_component) or travel_beyond_box: # when target is in stack stack or travel beyond box boundary
+                if travel_beyond_box: 
+                    for id in range(shape(pos[index, :])[0]):
+                        ident_IDP = ident_minimum_distance_k_from_x(pos[index, id], pos[target, id], Ld)
+                        if (int(ident_IDP) is not 0) and ([index, target] not in IDPI):
+                            IDPC.append([id, ident_IDP])
+                            IDPI.append([index, target])
+                # when particle is duplicated or travel_beyond_box
+                index = index; order_count = order_count + 1;
+
+                # this means it inherit the exist index for bead but increase order_count
+                # note that the target for next step is given by hash[index, order_count]
+            else: # when the target will stack
+                record_component.append(int(target))
+                stack.append(int(target)); stack_order.append(order_count) # record element and its order for stack
+                index = target; order_count = const_new_order_count; # depth first search
+    return size(stack)
+
 
 def print_cluster_info(root_index, IDPC, IDPI, Nd, detail=0):
     # pL = []; pR = []

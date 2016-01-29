@@ -14,7 +14,8 @@ for k in range(Np):
 pos = asarray(pos)
 
 # size = DFS_percolation_edge_test(hash=hash, pos=pos, Ld=box_dimension, stack_component=sc, queue_order=so, index=0, IDPC=IDPC, IDPI=IDPI)
-size = DFS_percolation_edge_restricted_box_test(hash=hash, pos=pos, Ld=box_dimension, stack_component=sc, queue_order=so, index=4, IDPC=IDPC, IDPI=IDPI)
+# size = DFS_percolation_edge_restricted_box_test(hash=hash, pos=pos, Ld=box_dimension, stack_component=sc, queue_order=so, index=0, IDPC=IDPC, IDPI=IDPI)
+size = DF_percolation_edge_restricted_box_iter(hash=hash, pos=pos, Ld=box_dimension, stack_component=sc, queue_order=so, index=0, IDPC=IDPC, IDPI=IDPI)
 
 IDPC=asarray(IDPC)
 IDPI=asarray(IDPI)
