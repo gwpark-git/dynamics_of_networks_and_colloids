@@ -323,7 +323,9 @@ def DF_percolation_edge_restricted_box_iter(hash, pos, Ld, stack_component, inde
         print 'ERR: CNT=%ld, INDEX=%ld, TARGET=%ld, ORDER_CNT=%ld, size_queue=%ld'%(cnt, index, target, order_count, size(queue))
     return size(queue)
 
-def cluster_edge_DFS_travel_restricted_box_iter(hash, pos, Ld, record_component, index=0, order_count=1, cnt=0, IDPC=[], IDPI=[], stack=[], stack_order=[]):
+def cluster_edge_DFS_travel_restricted_box_iter(hash, pos, Ld, record_component, index=0, order_count=1, cnt=0):
+    stack = []; stack_order = []
+    IDPC = []; IDPI = []
     cnt = 0; const_new_order_count = 1 # initialisation variables
     N_cols = shape(hash)[1] # limitation for the hash tables
     stack.append(int(index)); stack_order.append(order_count) # initial stacking
@@ -353,11 +355,21 @@ def cluster_edge_DFS_travel_restricted_box_iter(hash, pos, Ld, record_component,
                 record_component.append(int(target))
                 stack.append(int(target)); stack_order.append(order_count) # record element and its order for stack
                 index = target; order_count = const_new_order_count; # depth first search
-    return size(stack)
+    return IDPC, IDPI
+
+def measuring_cluster_size(IDPI):
+    comp = []
+    for i, j in IDPI:
+        if i not in comp:
+            comp.append(int(i))
+        if j not in comp:
+            comp.append(int(j))
+    return size(comp)
 
 def cluster_edge_DFS_travel_direct_image_iter(hash, pos, Ld, record_component, index=0, order_count=1, cnt=0, IDPC=[], IDPI=[], stack=[], stack_order=[]):
+    # Nd = shape(pos[0, :])[0]
+    # shift_space = zeors(Nd) # have shift_factor at each axis: shift_space[k], k: order for spatial dimension
     cnt = 0; const_new_order_count = 1 # initialisation variables
-    N_cols = shape(hash)[1] # limitation for the hash tables
     stack.append(int(index)); stack_order.append(order_count) # initial stacking
     while(size(stack) > 0): # will false when size(stack) is 0 if it is not initial step
         cnt += 1 # temporal counting 
@@ -369,33 +381,39 @@ def cluster_edge_DFS_travel_direct_image_iter(hash, pos, Ld, record_component, i
         else: # in the case that the hash[index, order_count] is properly defined
             target = hash[index, order_count]
             travel_beyond_box = check_travel_beyond_box(pos, index, target, Ld)
-            if (target in record_component) or travel_beyond_box: # when target is in stack stack or travel beyond box boundary
-                if travel_beyond_box: 
-                    for id in range(shape(pos[index, :])[0]):
-                        ident_IDP = ident_minimum_distance_k_from_x(pos[index, id], pos[target, id], Ld)
-                        if (int(ident_IDP) is not 0) and ([index, target] not in IDPI):
-                            IDPC.append([id, ident_IDP])
-                            IDPI.append([index, target])
-                # when particle is duplicated or travel_beyond_box
-                index = index; order_count = order_count + 1;
+            if target not in record_component:
+                record_component.append(target)
+                stack.append(target); stack_order.append(order_count)
+                index = target; order_count = const_new_order_count;
+            # if (target in record_component) or travel_beyond_box: # when target is in stack stack or travel beyond box boundary
+            #     if travel_beyond_box: 
+            #         for id in range(shape(pos[index, :])[0]):
+            #             ident_IDP = ident_minimum_distance_k_from_x(pos[index, id], pos[target, id], Ld)
+            #             if (int(ident_IDP) is not 0) and ([index, target] not in IDPI):
+            #                 IDPC.append([id, ident_IDP])
+            #                 IDPI.append([index, target])
+            #     # when particle is duplicated or travel_beyond_box
+            #     index = index; order_count = order_count + 1;
 
-                # this means it inherit the exist index for bead but increase order_count
-                # note that the target for next step is given by hash[index, order_count]
-            else: # when the target will stack
-                record_component.append(int(target))
-                stack.append(int(target)); stack_order.append(order_count) # record element and its order for stack
-                index = target; order_count = const_new_order_count; # depth first search
+            #     # this means it inherit the exist index for bead but increase order_count
+            #     # note that the target for next step is given by hash[index, order_count]
+            # else: # when the target will stack
+            #     record_component.append(int(target))
+            #     stack.append(int(target)); stack_order.append(order_count) # record element and its order for stack
+            #     index = target; order_count = const_new_order_count; # depth first search
     return size(stack)
 
-
-def print_cluster_info(root_index, IDPC, IDPI, Nd, detail=0):
+def print_cluster_info(root_index, IDPC, IDPI, Nd, detail=0, vervose=True):
     # pL = []; pR = []
-    print 'analysis including root particle %d' % (root_index)
+    pLR = zeros(Nd)
+    if vervose:
+        print 'analysis including root particle %d' % (root_index)
     flag_left = -1
     flag_right = 1
     
     for n in range(Nd):
-        print '\tfor axis %d'%(n)
+        if vervose:
+            print '\tfor axis %d'%(n)
         p_text_left = '\t  travel left pair: '
         p_text_right = '\t  travel right pair: '
         cnt_left = 0
@@ -417,11 +435,14 @@ def print_cluster_info(root_index, IDPC, IDPI, Nd, detail=0):
         if not(detail):
             p_text_left += ' %d pairs'%(cnt_left)
             p_text_right += ' %d pairs'%(cnt_right)
-        print p_text_left
-        print p_text_right
+        if vervose:
+            print p_text_left
+            print p_text_right
         if cnt_left > 0 and cnt_right > 0:
-            print '\tcluster with root %d is percolated along %d axis'%(root_index, n)
-    return 0
+            pLR[n] = 1
+            if vervose:
+                print '\tcluster with root %d is percolated along %d axis'%(root_index, n)
+    return pLR
                     
 
 

@@ -38,12 +38,12 @@ Consider the given association information, we can easily express the informatio
 \mathbf{C}_m = \left[\mathscr{C}_{ij}\right],
 \end{equation}
 where $\mathscr{C}_{ij}$ is number of associations for the pair of i- and j-th particles.
-The expression is quite simple and it contains all the existing information. In the case of time and space complex, however, the adjacency matrix is not so much efficiency if the matrix is sparse, which needed a lot of zeros inside matrix and a lot of zero identification that overhead the total time computation for identification of association. On this regards, adjacency list is more efficiency:
+The expression is quite simple and it contains all the existing information. However, the adjacency matrix is expensive both of time and space complex because adjacency matrix explicitly denote zeros inside the array, which needed more time for zero identification during processing. Hence, the adjacency list have been used :
 \begin{equation}
 \mathbf{C}_l = \left[\mathscr{I}_{i}(j)\right],
 \end{equation}
 where i denote the index for subject particle, j denote index for columns, and $\mathscr{I}_{i}(j)$ is the index that is j-th connection to the i-th particle. 
-For instance, consider the given network has the form of figure [[fig:ex_graph_association]], then the adjacency matrix becomes table [[tab:ex_adjacency_matrix]] and the adjacency list is expressed in table [[tab:ex_adjacency_list]]. Using adjacency list, the weight for the bridge should be stored in separated array.
+For instance, consider the given network has the form of figure [[fig:ex_graph_association]], then the adjacency matrix becomes table [[tab:ex_adjacency_matrix]] and the adjacency list is expressed in table [[tab:ex_adjacency_list]]. Note that the weight for the bridge should be stored in separated array for adjacency list.
 
 #+NAME: fig:ex_graph_association
 #+HTML_ATTR: :width 640px
@@ -82,15 +82,19 @@ For instance, consider the given network has the form of figure [[fig:ex_graph_a
 
 
 * Identification for Percolation
-The percolation for one spatial dimension can be solved by travel algorithm based on the association maps. Since our system has restricted number of beads, the travel algorithm is not too time consuming if it is occasionally turned on to check the status of percolation. That means we can avoid the heuristic algorithm that cannot guarantee to find all the pathway, but using deterministic algorithm to identify the dimensional percolation. 
+The percolation for one spatial dimension can be solved by travel algorithm for undirected graph structure in the word of computer science. The idea is to travel through all the bridge that connected the subjected particle, then identify the travel goes beyond box or not. 
 
-The idea of percolation test is simple: travel through all the bridge that connected on subject particle, then identify the travel of bridge goes beyond box based on axis. Hence, this section is composed of topics (i) how to identify travel beyond box, (ii) how to travel from subject particle.
+# Hence, this section is composed of topics (i) how to identify travel beyond box, (ii) how to travel from subject particle.
+
+# Since our system has restricted number of beads, the travel algorithm is not too time consuming if it is occasionally turned on to check the status of percolation. That means we can avoid the heuristic algorithm that cannot guarantee to find all the pathway, but using deterministic algorithm to identify the dimensional percolation. 
+
+
 
 # The core idea at this moment is travel for the given graph structure. During travel for the bead (vortex) based on the connections (edge), percolation will be checked based on the attached wall. Each spatial dimension, two ending of box is the basic for the percolation, once the travel go through the wall, it is recorded based on the specified connection group. As starting point of view, depth-first search (DFS) can be used for this approach, but there are various algorithm that can travel for the graph structure. Notice that such a different algorithm making different spanning tree from the graph (since spanning tree of graph is not unique) which means the time complex may vary depends on the algorithm. The given adjacency list can be regarded as hash table which means the application for the various algorithm is not so much difficulty and time consuming. As testing purpose, the network is given by figure [[fig:ex_graph_DFS]].
 
 ** Travel Beyond Box Boundary
 *** Minimum Image Convention
-Before going further, it is better to mention that the minimum distance between pair of particles is using component-wise minimization:
+Before going further, it is better to mention that the minimum distance between particles in periodic boundary condition (PBC) is using component-wise minimization:
 #+NAME: eq:component_wise_minimum_distance
 \begin{equation}
 r^{(m)}_k(\mathbf{r}_i, \mathbf{r}_j) = \min\left\{x_k(\mathbf{r}_j) - \left(L_D\mathscr{S} + x_k(\mathbf{r}_i)\right)\right\},
@@ -107,7 +111,7 @@ where $\varepsilon$ is given basis set. Minimum distance is simply given by Eucl
 #+CAPTION: Component-wise minimum distance relative vector
 [[file:data_structure/comp_minimum_distance.png]]
 
-Let assume that we have 3 particles and the subject particle is zero, which depicted figure [[fig:comp_min_dist_rel_vector]]. Let subject particle is 0 and try to find the minimum distance between 0 and 2. Then, we have to count the images of 2 which can be identified by left and right, no matter the axis. This is exactly the same meaning with equation [[eq:component_wise_minimum_distance]] since
+Let assume that we have 3 particles and the subject particle is zero, which depicted figure [[fig:comp_min_dist_rel_vector]]. If we started with 0th particle and try to find its the minimum distance with 2nd particle. For this processing, we have to count its the images of 2nd particle which can be in left or right side. The meaning of real left and right is not important because the axis independence. This is exactly the same meaning with equation [[eq:component_wise_minimum_distance]] since
 \begin{equation}
 d^{(m)}_{ij} = \left|\mathbf{r}^{(m)}(\mathbf{r}_i, \mathbf{r}_j)\right|_2 = \sqrt{\sum_{k=1}^{N_d} (r^{(m)}_k(\mathbf{r}_i, \mathbf{r}_j))^2}
 \end{equation}
@@ -120,30 +124,47 @@ becomes minimum when each $r^{(m)}_k$ is minimum. Notice that this happens becau
 # The identification for percolation is checked through the minimum image convention. 
 # Internally, the minimum image convention is checked based on the box shift array [-1, 0, 1] with box dimension, $L_D$, as multiplier. 
 # The reason of this simplified shift array is the PBC box maps the minimum image that is independent between spatial dimensions, xyz. By independent, we can define left and right (the real left and right side is not important in this case) of travel beyond current box with shift value -1 and +1, respectively. 
-To travel via given bridge from i-th to j-th particle, we are counting the shift factor for each dimensionality. If all the shift factors are zero, it means the travel will happen inside of box. If k-th dimension has left (-1) or right (+1) shift factor, then the given travel go beyond left or right boundary of k-th axis, respectively. In one cluster but might be different pairs, if both of left shift and right boundary travels happened, we can think that this cluster percolate through k-th dimension. 
+For each travels, we can count shift factor for individual axis. If all the shift factors are zeros, it means the travel will happen inside of box. If k-th dimension has left (-1) or right (+1) shift factor, then the given travel goes beyond left or right boundary of k-th axis, respectively. In one cluster, the percolation through k-th axis happens when it travel both of left and right boundary.
 
 ** Travel Algorithm
 *** Travel for Vertex: Measuring Cluster Size Distribution
-For terminology, let cluster as the group of particles that is connected. The size of cluster is defined by number of particles on the subjected cluster, then we can measure cluster size distribution for given system. To say this one in the first section of travel algorithm is it is just based on travel algorithm for vertex.
+Let say cluster as the group of particles that is connected. The size of cluster is defined by number of particles on the subjected cluster, then we can measure cluster size distribution of given system. 
 
-As briefly described in previously, the given associated network has the same structure with the undirected graph which is composed of vertex (particles in this case) and edge (association in this case). Undirected means that bridge chain is symmetric under the index of pair of particles, $\mathbf{r}_{ij} = \mathbf{r}_{ji}$, when it is in PBC box. Extracting association network information is basically the same with travel the given network system, which means we can apply general travel algorithm for graph such as depth-first search (DFS) and breadth-first search (BFS). The efficiency of travel algorithm can be analyzed by spanning tree of given graph, which is one way to express graph into tree. Simply say that for given root index, we travel for the spanning tree which generated from the given graph using DFS. 
+The given associated network has the same structure with the undirected graph that is composed of vertexes (particles in this case) and edges (association in this case). Undirected means that bridge chain is symmetric under the index of pair of particles, $\mathbf{r}_{ij} = \mathbf{r}_{ji}$. Extracting information of association topology is done through traveling the network and the data is given by adjacency list. In general, depth-first search (DFS) and breadth-first search (BFS) are good for this aspect with different spanning tree. The details of the data structure and algorithm are described on Appendix. 
+# The efficiency of travel algorithm can be analyzed by spanning tree of given graph, which is one way to express graph into tree. Simply say that for given root index, we travel for the spanning tree which generated from the given graph using DFS. 
 # In principle, both of DFS and BFS has the same time complexity, $\mathscr{O}(|E| + |V|)$, where E represent edges and V represent vertex. The algorithm on here is used DFS, but BFS will show the same results as well. 
 
-When we travel vertex no matter the path of edges by the general travel algorithm, all the particle of the given cluster is visited and we can record the given information. By adjusting root index, we can generate all the cluster information for the system, which is the key to measure cluster size distribution.
+
+# When we travel vertex no matter the path of edges by the general travel algorithm, all the particle of the given cluster is visited and we can record the given information. By adjusting root index, we can generate all the cluster information for the system, which is the key to measure cluster size distribution.
 
 *** Travels for Edges: Identify Travels Beyond PBC Box
-Travel for vertex means we visit all the particles that connected with the given root particle, but it does not guarantee that visiting all the bridges. The percolation identification depends on the bridges, not about particles itself, which means we need to modify travel algorithm from vertex point of view to edge point of view. Of course, there are various way to travel edges, but we need only information of edge not about real travels. Hence, the algorithm is slightly modified when subjected travel directed to already visited particle, just identify the travel go beyond box, then record it when it is so. The algorithm is not violated from this identification since travel for vertex will not miss all the bridges.
+Travel for vertex means we visit all the particles that connected with the given root particle, but it does not guarantee that visiting all the edges (bridges). The percolation identification depends on the bridges, not about particles itself, which means we need to modify travel algorithm. There are various way to travel edges rather than vertex, but we need only information of edge not about real travels. Hence, the algorithm is slightly modified to record the identifier for shift factor for all the possible travel path - but do not act the travel when the target particle is already in-visited status. 
 
 *** Travels inside PBC Box
-As already mentioned in above, the travel is only allowed inside box and whenever travel is experienced beyond box, travel is canceled and it will be recorded for percolation identification. By this assumption, we cannot miss all the percolation happens inside box. When percolation happens including its image of subjected box, it cannot be captured by introduced method.
-To be specific, consider the networks in figure [[fig:percolation_beyond_box]] shows that different percolation scheme. However, the percolation through x axis in the (b) of figure [[fig:percolation_beyond_box]] cannot be captured by given scheme since the percolation line through the boundary of subjected box. For relatively large 3-dimensional box, the situation is not so common, which is the reason to use introduced identification procedure. 
+As already mentioned in above, the travel is only allowed inside box and whenever travel is experienced beyond box, travel is canceled and it will be recorded for percolation identification. To be specific, consider the networks in figure [[fig:percolation_beyond_box]] shows that different percolation scheme. However, the percolation through x axis in the (b) of figure [[fig:percolation_beyond_box]] cannot be captured by given scheme since the percolation line through the boundary of subjected box. For relatively large 3-dimensional box, the situation is not so common, which is the reason to use introduced identification procedure. 
 
 #+NAME: fig:percolation_beyond_box
 #+ATTR_HTML: :width 860px
 #+CAPTION: Two dinsintuishable 2-dimensional cluster system. Left figure (a) represent percolation happens along y axis while no percolation along x axis. Right figure (b) represent the percolation happens both of x and y axis, but x percolation line beyond the subjected box. The thick red line represent isolation while the thick blue line represent percolation line along x axis.
 [[file:data_structure/ex_percolation_identification.png]]
 
-*** Allowing Travel Beyond Boundary of Box
+It also works well for 3-dimensional case. The given association information depicted in [[fig:ex_3d_NP3200_SF20]]. By eyes, it is not easy to judge there exist percolation cluster or not. From this algorithm, it reveals that the root index 0 is composed of 191 pairs of association that percolated along all the axis: x, y, and z. If we measure cluster size distribution and identify the given cluster is percolated with specified axis or not, the figure [[fig:ex_3d_NP3200_SF20_CDIST]] is good point to observe. There are 60 distinguishable clusters and 2122 total number of particles in 60 clusters. Since the number of distinguishable association is 6022, 3900 particles are isolated or attached to wall. For detail distribution, the travel should be allowed for directed image (which will be implemented later) then the distribution will be more accurate.
+
+#+NAME: fig:ex_3d_NP3200_SF20
+#+CAPTION: Equilibrium topology with the given condition: 3200Np, $20^3$ dimensionless volume, 25 chains per each particle. Re-scaling factor is used 2.0.
+#+ATTR_HTML: :width 640px
+[[file:data_structure/ex_3d_NP3200_SF20_percolation.png]]
+
+#+NAME: fig:ex_3d_NP3200_SF20_CDIST
+#+CAPTION: Cluster size distribution and identification for percolation with each independent axis.
+#+ATTR_HTML: :width 640px
+[[file:data_structure/percolation_test_3D.png]]
+
+
+
+*** TODO Allowing Travel Beyond Boundary of Box
+Notice that the following article is description for the idea. The alogirthm is not fully implemented into sourcecode, which will achieve later progress.
+
 It might be more general way to allow travel beyond boundary of box. At this moment, there are several difficulties to allow such a travels. The most importance question is /how to identify percolation/.
 
 Allowing one more image of the subjected box is a key to identify percolation. During travels, we have to record all the parity of the travel identifier since it is a key of image. Sum of all travel identifier for a given axis, say image identifier, should not lower than -1 and higher than +1, which means only direct image of subjected box will be accounted. It is of importance to distinguish between particles in different box even if they have the same index number, which can be achieved using image identifier:
@@ -152,7 +173,18 @@ I^{k} = \sum_{i=1}^{N_{tb}} s^{k}_i,
 \end{equation}
 where $N_{tb}$ is number of travel beyond boundary, k denote k-th spatial dimension and $s^k_i \in \mathscr{S}$. It is quite simple that the image identifier, $I^{k}$ can be any value of $\mathscr{S}=\{-1, 0, +1\}$, which direct the current travel happens in the left, center, or right side of the box, respectively. Therefore, /recorded shift factor is not the instance shift factor but sum of all instance shift factors./ Note that the travel to image particle is allowed even if its original particle in current PBC box is visited status. Once the travel is finished, all the particles in its direct image have been visited status and we have to make sure the all the edges are accounted for identification of travel. 
 
-The identifier for this case is the same with travel identifier inside box: one cluster for k-th axis shows both of left and right imaginary shift factor, this is percolated. We do not need to travel further from direct image of current box because of periodicity. 
+The identifier for this case is the same with travel identifier inside box: one cluster for k-th axis shows both of left and right imaginary shift factor, this is percolated. We do not need to travel further from direct image of current box. For simplification, the index vector is introduce:
+\begin{equation}
+\mathbf{I} = [i_1, i_2, i_3]^T,
+\end{equation}
+where $i_1, i_2, i_3$ are the index for each axis. If the subjected particle is in current PBC box, the components are $i_1 = i_2 = i_3 = i$ where i is the original index for the particle. If it is in directed image of PBC box, we can use shifted index:
+\begin{equation}
+i_k = i + S_k N_p,
+\end{equation}
+where $S_k$ is the shift factor for the given axis and $N_p$ is number of particles. For instance, if the system has 10 particles inside PBC box, then the $i_k$ value becomes -10 to 20: -10 to -1 for the left image of k-th axis, 0 to 10 for the current box, and 11 for 20 for the right image of k-th axis. The mapping function from image of box to current box is easily given by $i_k$ modulo $N_p$: $i_k\% N_p$. This benefit to record and tracking the stack memory of the iterative DFS algorithm.
+
+
+
 
 # We can identify between root particle and its imaginary particle with the $I^k$. 
 
@@ -166,7 +198,6 @@ The identifier for this case is the same with travel identifier inside box: one 
 
 ** Python Code for Measuring Cluster Size and Percolation Identification
 There are various way to develop DFS algorithm for tree structure in general way. It is quite simple to use recursive form since DFS is using call stack. With given size of cluster, however, the recursive call is limited by system for safety reason, and have potential overhead because of calling functions typically taking time. On this regards, the code is developed by iterative manner with some set of if-phrase in order to identify edge travels. The code is described on code [[code:DFS_percolation]] written by python. The root index will be given by the argument index (default is zero). When we need to travel all the sub-graph of given graph (existing several clusters), we can iterate root index from zero to number of particles, then we can extract distinguishable clusters, which is the way to measure cluster size distribution.
-
 
 
 
@@ -216,12 +247,9 @@ To be specific, for graph depicted in figure [[fig:ex_graph_DFS]], if we apply D
 [[file:data_structure/spanning_tree_BFS.png]]
 
 
-* Figures
-** Example for Association Graph
-
-** Example for DFS test
 
 * Codes
+
 ** Component-wise Minimum Distance
 #+NAME: componentwise_minimum_distance_cpp
 #+BEGIN_SRC c++ -n -i
@@ -232,6 +260,7 @@ double get_minimum_image_k_from_x(double x, double k, double dimension)
     return re;
 }
 #+END_SRC
+
 ** DFS for identification of percolation
 #+NAME: code:DFS_percolation
 #+BEGIN_SRC python -n -i
