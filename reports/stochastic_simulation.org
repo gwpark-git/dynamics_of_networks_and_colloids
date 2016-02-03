@@ -1,0 +1,25 @@
+
+#+TITLE: Stochastic Simulation for Physical Network System
+#+AUTHOR: Gun Woo Park
+
+* Previously Used Algorithm
+
+The given evolution equation for the previous set is described on
+\begin{equation}
+\frac{\partial \mathbf{r}_k}{\partial t} = \frac{1}{\zeta}\left(\sum_{i\in\mathscr{C}_k} \mathbf{F}^{(c)}(\mathbf{r}_i, \mathbf{r}_k) + \sum_i \mathbf{F}^{(r)}(\mathbf{r}_i, \mathbf{r}_k) + \mathbf{F}^{(s)}(\mathbf{r}_k)\right),
+\end{equation}
+where the information for $\mathscr{C}_k$ for all k in $[0, N_p]$ is already measured during stochastic steps.
+
+In this case, we can think that the time is passing during Brownian update while the stochastic step can be regarded infinite for each Brownian update.
+
+Since the equation evolve Brownian time, we can choose the characteristic time step as
+\begin{equation}
+t_c = \frac{\zeta}{k_BT}R_0^2,
+\end{equation}
+where $R_0$ is micell dimension, and the characteristic length is given by $R^m_0$. 
+
+
+
+
+* Modification
+If it is not the case, 
