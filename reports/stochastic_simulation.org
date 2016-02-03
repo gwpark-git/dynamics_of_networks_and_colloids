@@ -19,11 +19,93 @@ With Euler integrator, we have
 \mathbf{r}_k(t + \delta t) = \mathbf{r}_k(t) + \frac{k_BT}{\zeta}\delta t\left[\sum_{i\in \mathscr{C}_k}\frac{N_D}{2}\frac{r_{ik}^2}{R_c^2}\hat{\mathbf{r}}_{ik} - \sum_{i=1}^{N_p} \frac{C}{R_0}\left(1 - \frac{r_{ik}^2}{R_0^2}\right)\hat{\mathbf{r}}_{ik}\right] + \sqrt{\frac{2 k_BT \delta t}{\zeta}}\tilde{\mathbf{R}},
 \end{equation}
 where $\tilde{\mathbf{R}}\sim \mathscr{N}(0, 1)$.
-Let characteristic time as dissociation time, $\tau_D$, the given non-dimensional form for the evolution equation becomes
+Since the fastest time scale for this system is given by
 \begin{equation}
-
+\tau_B = \frac{R_0^2\zeta}{k_BTC},
 \end{equation}
-The characteristic length is given by micelle dimension, $R_0$, and the time scale for the 
+we have non-dimensional form for evolution equation:
+\begin{equation}
+\tilde{\mathbf{r}}_k(\tilde{t}' + \delta \tilde{t}') = \tilde{\mathbf{r}}_k(\tilde{t}') + \frac{1}{C}\delta\tilde{t}'\sum_{i\in\mathscr{C}_k} \frac{N_D}{2}\alpha\tilde{\mathbf{r}}_{ik} + \delta\tilde{t}'  \sum_{i=1, i\neq k}^{N_p} (\tilde{r}_{ik}^2 - 1)\hat{\mathbf{r}_{ik}} + \sqrt{\frac{2}{C}}\sqrt{\delta \tilde{t}'}\tilde{\mathbf{R}},
+\end{equation}
+where $\alpha = R_0/R_c$ and prime is used since the characteristic time for the system is given by dissociation time, $\tau_D$. We can re-map to the non-dimensional form based on Brownian time to dissociation time, we have
+\begin{equation}
+\tilde{\mathbf{r}_k}\left(\tilde{t} + \left(\frac{\tau_B}{\tau_D}\delta \tilde{t}\right)\right) = \tilde{\mathbf{r}_k}(\tilde{t}) + \frac{1}{C}\left(\frac{\tau_B}{\tau_D}\delta \tilde{t}\right) \sum_{i\in\mathscr{C}_k} \frac{N_D}{2}\alpha \tilde{\mathbf{r}}_{ik} + \left(\frac{\tau_B}{\tau_D}\delta\tilde{t}\right)\sum_{i=1,i\neq k}^{N_p}(\tilde{\mathbf{r}}_{ik}^2 - 1)\hat{\mathbf{r}}_{ik} + \sqrt{\frac{2}{C}}\sqrt{\frac{\tau_B}{\tau_D}\delta \tilde{t}}\tilde{\mathbf{R}}.
+\end{equation}
+The topological information will be updated whenever $\delta\tilde{t}$, which means when number of Brownian update reaches rational time,
+\begin{equation}
+R_t = \frac{\tau_D}{\tau_B},
+\end{equation}
+the topology will be updated.
+
+* Topology Update
+Let define the detachment frequency for the chain as
+\begin{equation}
+\beta = \beta_0\exp\left(\frac{Fl}{k_BT}\right),
+\end{equation}
+where $\beta_0$ is detachment frequency for loop chain: $\exp(E/k_BT)$.
+In each $R_t$ steps for Brownian update, the topology is subject to update. For given interval of time, $\Delta t$, the expected value for number of detachment becomes 
+\begin{equation}
+N^\dagger = N_{tot}\bar{\beta}\Delta t,
+\end{equation}
+where $\bar{\beta}$ is number average for the detachment frequency:
+\begin{equation}
+\bar{\beta} = \frac{1}{N_{tot}} \sum_{i=1}^{N_{tot}}\beta_i.
+\end{equation}
+
+On each $\Delta t$, we select random chain ends in $N_{tot}$ times. When the selected chain ends 
+
+
+# Since the system characteristic time is given by dissociation time, $\tau_D(>\tau_B)$, we can re-map the given non-dimenional form into the characteristic time
+# \begin{equation}
+# \tilde{\mathbf{r}}_k(\tilde{t} + \delta \tilde{t}) = \tilde{\mathbf{r}}_k(\tilde{t}) + \frac{1}{C}\delta\tilde{t}\sum_{i\in\mathscr{C}_k} \frac{N_D}{2}\alpha\tilde{\mathbf{r}}_{ik} + \delta\tilde{t}  \sum_{i=1, i\neq k}^{N_p} (\tilde{r}_{ik}^2 - 1)\hat{\mathbf{r}_{ik}} + \sqrt{\frac{2}{C}}\sqrt{\delta \tilde{t}}\tilde{\mathbf{R}},
+# \end{equation}
+
+
+
+# The system characteristic time is given by dissociation time, $\tau_D$ with $\tau_D > \tau_B$. The evolution equation can be expressed by
+# \begin{equation}
+# \tilde{\mathbf{r}}_k(\tilde{t} + \delta \tilde{t}) = \tilde{\mathbf{r}}_k(\tilde{t}) + \frac{\tau_D}{\tau_C C}\delta\tilde{t}\sum_{i\in\mathscr{C}_k} \frac{N_D}{2}\alpha\tilde{\mathbf{r}}_{ik} + \frac{\tau_D}{\tau_C}\delta\tilde{t}  \sum_{i=1, i\neq k}^{N_p} (\tilde{r}_{ik}^2 - 1)\hat{\mathbf{r}_{ik}} + \sqrt{\frac{\tau_D}{\tau_C}}\sqrt{\delta \tilde{t}}\tilde{\mathbf{r}},
+# \end{equation}
+
+
+# Let characteristic time as dissociation time, $\tau_D$ with $\tau_D > \tau_B$, the Brownian update is based on
+# , the given non-dimensional form for the evolution equation becomes
+# \begin{equation}
+# \tilde{\mathbf{r}}_k(\tilde{t} + \delta \tilde{t}) = \tilde{\mathbf{r}}_k(\tilde{t}) + \frac{k_BT\tau_D}{R_0^2\zeta}\delta\tilde{t}\sum_{i\in\mathscr{C}_k} \frac{N_D}{2}\alpha\tilde{\mathbf{r}}_{ik} + \frac{k_BTC\tau_D}{R_0^2 \zeta}\delta\tilde{t}  \sum_{i=1, i\neq k}^{N_p} (\tilde{r}_{ik}^2 - 1)\hat{\mathbf{r}_{ik}} + \sqrt{\frac{2k_BT\tau_D}{R_0^2\zeta}}\sqrt{\delta \tilde{t}}\tilde{\mathbf{r}},
+# \end{equation}
+
+# If we define Brownian time step, $\tau_B$:
+# \begin{equation}
+# \tau_B = \frac{R_0^2\zeta}{k_BT C},
+# \end{equation}
+# the $\tau_B$ is much shorter than the $\tau_D$, and the ratio is arbitrary value at this moment. On this regards, we can express the evolution equation based on Brownian time update
+
+
+# Let $\tau_D$ be dissociation time and $\tau_B$ is Brownian update time scale which is given by
+# \begin{equation}
+# \tau_B = \frac{R_0^2\zeta}{k_BT C},
+# \end{equation}
+# the time step to update should be based on $\tau_B$. Let characteristic time step as $\tau_
+
+# Because of $\tau_D > \tau_B$, the dimenionless time step for Brownian motion follows that time step:
+# \begin{equation}
+# \delta\tilde{t}_B = \frac{\delta\tilde{t}}{\tau_D/\tau_B} = \frac{\tau_B\delta\tilde{t}}{\tau_D}.
+# \end{equation}
+# In this case, the increment time step becomes
+# \begin{equation}
+# \delta t = \tau_D \delta \tilde_{t}
+# \end{equation}
+
+# where $\alpha = R_0/R_c$. For simplification, let integrator time scale:
+# \begin{equation}
+# \tau_I = \frac{R_0^2\zeta}{k_BT C},
+# \end{equation}
+# we have
+# \begin{equation}
+# \tilde{\mathbf{r}}_k(\tilde{t} + \delta \tilde{t}) = \tilde{\mathbf{r}}_k(\tilde{t}) + \frac{\tau_D}{\tau_C C}\delta\tilde{t}\sum_{i\in\mathscr{C}_k} \frac{N_D}{2}\alpha\tilde{\mathbf{r}}_{ik} + \frac{\tau_D}{\tau_C}\delta\tilde{t}  \sum_{i=1, i\neq k}^{N_p} (\tilde{r}_{ik}^2 - 1)\hat{\mathbf{r}_{ik}} + \sqrt{\frac{\tau_D}{\tau_C}}\sqrt{\delta \tilde{t}}\tilde{\mathbf{r}},
+# \end{equation}
+
+# The characteristic length is given by micelle dimension, $R_0$, and the time scale for the 
 
 
 # The Euler integrator for the given evolution equation is given by
@@ -31,7 +113,7 @@ The characteristic length is given by micelle dimension, $R_0$, and the time sca
 # \mathbf{r}_k(t+\delta t) = 
 # \end{equation}
 
-the characteristic length scale for the system is given by micelle dimension, $R_0$, and the time scale is dissociation time, $\tau_D$. 
+# the characteristic length scale for the system is given by micelle dimension, $R_0$, and the time scale is dissociation time, $\tau_D$. 
 
 # Let $\tau_B$ be the Brownian time steps and $\tau_D$ be dissociation time step:
 # \begin{equation}
