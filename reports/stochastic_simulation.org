@@ -2,21 +2,84 @@
 #+TITLE: Stochastic Simulation for Physical Network System
 #+AUTHOR: Gun Woo Park
 
-* Previously Used Algorithm
+* Re-Defined Stochastic Simulation
+The state variable for this system is connectivity map, $\mathscr{C}$, and set of positions for micelle, $\{\mathbf{p}\}$. The time evolution equation for positions is given by Langevin dynamics, and the topological update is following stochastic scheme.
 
-The given evolution equation for the previous set is described on
+Let started with the time evolution equation for positions:
 \begin{equation}
 \frac{\partial \mathbf{r}_k}{\partial t} = \frac{1}{\zeta}\left(\sum_{i\in\mathscr{C}_k} \mathbf{F}^{(c)}(\mathbf{r}_i, \mathbf{r}_k) + \sum_i \mathbf{F}^{(r)}(\mathbf{r}_i, \mathbf{r}_k) + \mathbf{F}^{(s)}(\mathbf{r}_k)\right),
 \end{equation}
-where the information for $\mathscr{C}_k$ for all k in $[0, N_p]$ is already measured during stochastic steps.
-
-In this case, we can think that the time is passing during Brownian update while the stochastic step can be regarded infinite for each Brownian update.
-
-Since the equation evolve Brownian time, we can choose the characteristic time step as
+where $\mathbf{F}^{(c)}$ is connection information and $\mathscr{C}_k$ is the chains attached to k-th particle, $\mathbf{F}^{(r)}$ is repulsive potential, and $\mathbf{F}^{(s)}$ and Brownian motion. The forces are given by
+\begin{align}
+\mathbf{F}^{(c)}(\mathbf{r}_i, \mathbf{r}_k) &= k_BT\frac{N_D}{2}\frac{r_{ik}^2}{R_c^2}\hat{\mathbf{r}}_{ik} \\
+\mathbf{F}^{(r)}(\mathbf{r}_i, \mathbf{r}_k) &= -C\frac{k_BT}{R_0}\left(1 - \frac{r_{ik}^2}{R_0^2}\right)\hat{\mathbf{r}}_{ik}.
+\end{align}
+With Euler integrator, we have
 \begin{equation}
-t_c = \frac{\zeta}{k_BT}R_0^2,
+\mathbf{r}_k(t + \delta t) = \mathbf{r}_k(t) + \frac{k_BT}{\zeta}\delta t\left[\sum_{i\in \mathscr{C}_k}\frac{N_D}{2}\frac{r_{ik}^2}{R_c^2}\hat{\mathbf{r}}_{ik} - \sum_{i=1}^{N_p} \frac{C}{R_0}\left(1 - \frac{r_{ik}^2}{R_0^2}\right)\hat{\mathbf{r}}_{ik}\right] + \sqrt{\frac{2 k_BT \delta t}{\zeta}}\tilde{\mathbf{R}},
 \end{equation}
-where $R_0$ is micell dimension, and the characteristic length is given by $R^m_0$. 
+where $\tilde{\mathbf{R}}\sim \mathscr{N}(0, 1)$.
+Let characteristic time as dissociation time, $\tau_D$, the given non-dimensional form for the evolution equation becomes
+\begin{equation}
+
+\end{equation}
+The characteristic length is given by micelle dimension, $R_0$, and the time scale for the 
+
+
+# The Euler integrator for the given evolution equation is given by
+# \begin{equation}
+# \mathbf{r}_k(t+\delta t) = 
+# \end{equation}
+
+the characteristic length scale for the system is given by micelle dimension, $R_0$, and the time scale is dissociation time, $\tau_D$. 
+
+# Let $\tau_B$ be the Brownian time steps and $\tau_D$ be dissociation time step:
+# \begin{equation}
+# \tau_B = \frac{\zeta R_0^2}{k_BT C},
+# \end{equation}
+# where $\zeta$ is friction coefficient for micelle, R_0 is micelle dimension which is characteristic length for the system, and $C$ is repulsive coefficient.
+# Consider the 
+
+
+# The given evolution equation for the previous set is described on
+# \begin{equation}
+# \frac{\partial \mathbf{r}_k}{\partial t} = \frac{1}{\zeta}\left(\sum_{i\in\mathscr{C}_k} \mathbf{F}^{(c)}(\mathbf{r}_i, \mathbf{r}_k) + \sum_i \mathbf{F}^{(r)}(\mathbf{r}_i, \mathbf{r}_k) + \mathbf{F}^{(s)}(\mathbf{r}_k)\right),
+# \end{equation}
+# where the information for $\mathscr{C}_k$ for all k in $[0, N_p]$ is already measured during stochastic steps.
+
+# In this case, we can think that the time is passing during Brownian update while the stochastic step can be regarded infinite for each Brownian update.
+
+# Since the equation evolve Brownian time, we can choose the characteristic time step as
+# \begin{equation}
+# t_c = \frac{\zeta}{k_BT}R_0^2,
+# \end{equation}
+# where $R_0$ is micell dimension with the characteristic length:
+# \begin{equation}
+# r_c = R_0.
+# \end{equation}
+
+# \begin{equation}
+# \tilde{\mathbf{r}}_k(\tilde{t} + \delta \tilde{t}) = \tilde{\mathbf{r}}_k(\tilde{t}) + \sum_{i\in\mathscr{C}_k}\tilde{\mathbf{F}}^{(c)}(\tilde{\mathbf{r}}_i, \tilde{\mathbf{r}}_k) + \sum_{i}\tilde{\mathbf{F}}^{(r)}(\tilde{\mathbf{r}}_i, \tilde{\mathbf{r}}_k)\delta \tilde{t} + \tilde{\mathbf{F}}^{(s)}_k\sqrt{\delta\tilde{t}},
+# \end{equation}
+
+# \begin{align}
+# \tilde{\mathbf{F}}^{(r)}(\tilde{\mathbf{r}}_i, \tilde{\mathbf{r}}_j) &= -\left(1-\tilde{\mathbf{r}}_{ij}^2\right)\frac{\tilde{\mathbf{r}}_{ij}}{\tilde{r}_{ij}}\\
+# \tilde{\mathbf{F}}^{(s)} &= \sqrt{\frac{2}{3}}\tilde{\mathbf{R}}
+# \end{align}
+
+# \begin{align}
+#   \tilde{U}^{(c)}(\tilde{\mathbf{r}}_{ij}) &= \frac{N_D}{2}\tilde{\mathbf{r}}_{ij}^2,\\
+#   \tilde{\mathbf{F}}^{(c)}(\tilde{\mathbf{r}}_{ij}) &= N_D\tilde{\mathbf{r}}_{ij}.
+# \end{align}
+
+# \begin{equation}
+# w(\delta t, \tau) = 1 - \exp\left(-\frac{\delta t}{\tau}\right)
+# \end{equation}
+
+# \begin{equation}
+# P_{ik} = \frac{\exp(-\tilde{u}_{ik})}{\sum_{j}\exp(-\tilde{u}_{jk})}
+# \end{equation}
+
 
 
 
