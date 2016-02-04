@@ -232,6 +232,17 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
     {
       given_POT.transition = KINETICS::METROPOLIS::transition_probability;
     }
+  else if (given_cond("transition_probability")=="WEIGHTED")
+    {
+      given_POT.transition = KINETICS::WEIGHTED::transition_probability;
+    }
+  else if (given_cond("transition_probability")=="DISSOCIATION")
+    {
+      given_POT.transition = KINETICS::dissociation_probability;
+      // we have to check Dt for topological update
+      // note that it is dt*N_steps_block
+      given_POT.force_variables[6] = atof(given_cond("dt").c_str())*atof(given_cond("N_steps_block").c_str());
+    }
   else
     {
       // this is default setting
@@ -286,6 +297,14 @@ double KINETICS::METROPOLIS::transition_probability(double distance, double tens
   return tpa;
 }
 
+double KINETICS::WEIGHTED::transition_probability(double distance, double tension, double* given_variables)
+{
+  double tpa = exp(tension*given_variables[4]);
+  if (tpa > 1.0)
+    return 1.0;
+  return tpa;
+}
+
 double KINETICS::UNIFORM::detachment_weight(double distance, double tension, double *given_variables)
 {
   return 1.0;
@@ -294,4 +313,12 @@ double KINETICS::UNIFORM::detachment_weight(double distance, double tension, dou
 double KINETICS::UNIFORM::transition_probability(double distance, double tension, double* given_varialbes)
 {
   return 1.0;
+}
+
+double KINETICS::dissociation_probability(double distance, double tension, double* given_variables)
+{
+  double tpa = given_variables[6]*exp(tension*given_variables[4]);
+  if (tpa > 1.0)
+    return 1.0;
+  return tpa;
 }
