@@ -9,12 +9,12 @@ The position of micelles are updated based on Langevin dynamics, which in conseq
 \end{equation}
 where $\mathbf{F}^{(c)}$ is connection information and $\mathscr{C}_k$ is the chains attached to k-th particle, $\mathbf{F}^{(r)}$ is repulsive potential, and $\mathbf{F}^{(s)}$ and Brownian motion. The forces are given by
 \begin{align}
-\mathbf{F}^{(c)}(\mathbf{r}_i, \mathbf{r}_k) &= k_BT\frac{N_D}{2}\frac{r_{ik}^2}{R_c^2}\hat{\mathbf{r}}_{ik} \\
+\mathbf{F}^{(c)}(\mathbf{r}_i, \mathbf{r}_k) &= k_BTN_D\frac{\mathbf{r}_{ik}}{R_c^2} \\
 \mathbf{F}^{(r)}(\mathbf{r}_i, \mathbf{r}_k) &= -C\frac{k_BT}{R_0}\left(1 - \frac{r_{ik}^2}{R_0^2}\right)\hat{\mathbf{r}}_{ik} \quad\textrm{when $r_{ik} < R_0$}.
 \end{align}
 With Euler integrator, we have
 \begin{equation}
-\mathbf{r}_k(t + \delta t') = \mathbf{r}_k(t) + \frac{k_BT}{\zeta}\delta t'\left[\sum_{i\in \mathscr{C}_k}\frac{N_D}{2}\frac{r_{ik}^2}{R_c^2}\hat{\mathbf{r}}_{ik} - \sum_{i=1}^{N_p} \frac{C}{R_0}\left(1 - \frac{r_{ik}^2}{R_0^2}\right)\hat{\mathbf{r}}_{ik}\right] + \sqrt{\frac{2 k_BT \delta t'}{\zeta}}\tilde{\mathbf{R}},
+\mathbf{r}_k(t + \delta t') = \mathbf{r}_k(t) + \frac{k_BT}{\zeta}\delta t'\left[\sum_{i\in \mathscr{C}_k}N_D\frac{\mathbf{r}_{ik}}{R_c^2} - \sum_{i=1}^{N_p} \frac{C}{R_0}\left(1 - \frac{r_{ik}^2}{R_0^2}\right)\hat{\mathbf{r}}_{ik}\right] + \sqrt{\frac{2 k_BT \delta t'}{\zeta}}\tilde{\mathbf{R}},
 \end{equation}
 where $\tilde{\mathbf{R}}\sim \mathscr{N}(0, 1)$ that is normal distribution with average 0 and variance 1.
 Since the fastest time scale for this system is given by
@@ -23,11 +23,11 @@ Since the fastest time scale for this system is given by
 \end{equation}
 we have non-dimensional form for evolution equation:
 \begin{equation}
-\tilde{\mathbf{r}}_k(\tilde{t}' + \delta \tilde{t}') = \tilde{\mathbf{r}}_k(\tilde{t}') + \frac{1}{C}\delta\tilde{t}'\sum_{i\in\mathscr{C}_k} \frac{N_D}{2}\alpha\tilde{\mathbf{r}}_{ik} + \delta\tilde{t}'  \sum_{i} (\tilde{r}_{ik}^2 - 1)\hat{\mathbf{r}_{ik}} + \sqrt{\frac{2}{C}}\sqrt{\delta \tilde{t}'}\tilde{\mathbf{R}},
+\tilde{\mathbf{r}}_k(\tilde{t}' + \delta \tilde{t}') = \tilde{\mathbf{r}}_k(\tilde{t}') + \frac{1}{C}\delta\tilde{t}'\sum_{i\in\mathscr{C}_k} N_D\alpha^2\tilde{\mathbf{r}}_{ik} + \delta\tilde{t}'  \sum_{i} (\tilde{r}_{ik}^2 - 1)\hat{\mathbf{r}_{ik}} + \sqrt{\frac{2}{C}}\sqrt{\delta \tilde{t}'}\tilde{\mathbf{R}},
 \end{equation}
 where $\alpha = R_0/R_c$ and prime is used since the characteristic time for the system is given by dissociation time, $\tau_D$. We can re-map to the non-dimensional form based on Brownian time to dissociation time, we have
 \begin{equation}
-\tilde{\mathbf{r}_k}\left(\tilde{t} + \left(\frac{\tau_B}{\tau_D}\delta \tilde{t}\right)\right) = \tilde{\mathbf{r}_k}(\tilde{t}) + \frac{1}{C}\left(\frac{\tau_B}{\tau_D}\delta \tilde{t}\right) \sum_{i\in\mathscr{C}_k} \frac{N_D}{2}\alpha \tilde{\mathbf{r}}_{ik} + \left(\frac{\tau_B}{\tau_D}\delta\tilde{t}\right)\sum_{i=1}(\tilde{\mathbf{r}}_{ik}^2 - 1)\hat{\mathbf{r}}_{ik} + \sqrt{\frac{2}{C}}\sqrt{\frac{\tau_B}{\tau_D}\delta \tilde{t}}\tilde{\mathbf{R}}.
+\tilde{\mathbf{r}_k}\left(\tilde{t} + \left(\frac{\tau_B}{\tau_D}\delta \tilde{t}\right)\right) = \tilde{\mathbf{r}_k}(\tilde{t}) + \frac{1}{C}\left(\frac{\tau_B}{\tau_D}\delta \tilde{t}\right) \sum_{i\in\mathscr{C}_k} N_D\alpha^2 \tilde{\mathbf{r}}_{ik} + \left(\frac{\tau_B}{\tau_D}\delta\tilde{t}\right)\sum_{i=1}(\tilde{\mathbf{r}}_{ik}^2 - 1)\hat{\mathbf{r}}_{ik} + \sqrt{\frac{2}{C}}\sqrt{\frac{\tau_B}{\tau_D}\delta \tilde{t}}\tilde{\mathbf{R}}.
 \end{equation}
 The topological information will be updated whenever $\delta\tilde{t}$, which means when number of Brownian update reaches rational time,
 \begin{equation}
