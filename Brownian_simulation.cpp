@@ -150,7 +150,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, 0);
 
   MKL_LONG Nt = atol(given_condition("Nt").c_str());
-
   MKL_LONG N_basic = TRAJ.rows;
 
   double tolerance_association = atof(given_condition("tolerance_association").c_str());
@@ -172,7 +171,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   double dt_1 = 0., dt_2 = 0., dt_3 = 0., dt_4 = 0., dt_5 = 0., dt_6 = 0., dt_7 = 0.;
   double dt_det_pdf = 0.;
   double dt_rdist = 0., dt_pdf = 0., dt_sort = 0.;
-  
   double time_MC_1 = 0., time_MC_2 = 0., time_MC_3 = 0., time_MC_4 = 0., time_MC_5 = 0., time_MC_6 = 0., time_MC_7 = 0., time_MC_8 = 0.;
 
   printf("GENERATING RANDOM VECTOR BOOST ... ");
@@ -216,7 +214,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   double N_diff = 0.;
   MKL_LONG N_tot_associable_chain = TRAJ.Np*atoi(given_condition("N_chains_per_particle").c_str());
   MKL_LONG count_M = 0, pre_count_M = 0;
-
   
   for(MKL_LONG t = 0; t<Nt-1; t++)
     {
@@ -224,11 +221,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       MKL_LONG index_t_next = (t+1) % N_basic;
       // TRAJ(index_t_next) = (++TRAJ.c_t) * TRAJ.dt;
       TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
+      ++TRAJ.c_t;
       tmp_vec.set_value(0.);
 
       MKL_LONG cnt = 1;
-
-
       double time_st_rdist = dsecnd();
 #pragma omp parallel for default(none) shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, R_minimum_vec_boost, R_minimum_distance_boost, dt_rdist, dt_pdf, dt_sort, POTs, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
       /*
@@ -245,7 +241,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       double dt_pdf_all = 0;
       double time_st_MC = dsecnd();
       
-      if(given_condition("Step")!="EQUILIBRATION" and t%N_steps_block == 0) // including initial time t=0
+      if(given_condition("Step")!="EQUILIBRATION" && t%N_steps_block == 0) // including initial time t=0
         {
           // computing the distance map between beads for reducing overhead
           // note that the computing distance map during association spend 80% of computing time
@@ -319,7 +315,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               }
             }
           // }
-
               
 #pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, R_minimum_vec_boost, R_minimum_distance_boost, dt_rdist, dt_pdf, dt_sort, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, count_M, cnt, N_THREADS_SS, N_associations, N_tot_associable_chain) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1)
           // for(MKL_LONG tp = 0; tp<N_steps_block; tp++)
@@ -403,10 +398,11 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                     {
                       double rolling_transition = RANDOM::return_double_rand_SUP1_boost(r_boost_arr_SS[it]);
                       if (rolling_transition < tpa)
-                        IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX_ARR[it]);
+                        {
+                          IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX_ARR[it]);
+                        }
                       else
                         IDENTIFIER_ACTION = IDX_ARR[it].CANCEL;
-                            
                     }
 
                   ACTION::ACT(TRAJ, index_t_now, POTs, CONNECT, IDX_ARR[it], R_minimum_distance_boost, IDENTIFIER_ACTION);

@@ -179,7 +179,7 @@ double FORCE::NAPLE::MC_ASSOCIATION::MAP_modified_Gaussian_Boltzmann(double dist
 
 double FORCE::NAPLE::MC_ASSOCIATION::MAP_cutoff_modified_Gaussian_Boltzmann(double distance, double* given_variables)
 {
-  return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(distance, given_variables[3], given_variables[7]);
+  return FORCE::MODIFIED_GAUSSIAN::cutoff_Boltzmann_distribution(distance, given_variables[3], given_variables[5], given_variables[7]);
 }
 
 
@@ -229,9 +229,14 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
       given_POT.e_connector = MAP_modified_Gaussian_spring_potential;
       double cutoff_connection = atof(given_cond("cutoff_connection").c_str());
       if (cutoff_connection > 0.0 && cutoff_connection < atof(given_cond("box_dimension").c_str()))
-        given_POT.PDF_connector = MAP_cutoff_modified_Gaussian_Boltzmann;
+        {
+          given_POT.force_variables[7] = cutoff_connection;
+          given_POT.PDF_connector = MAP_cutoff_modified_Gaussian_Boltzmann;
+        }
       else
-        given_POT.PDF_connector = MAP_modified_Gaussian_Boltzmann;
+        {
+          given_POT.PDF_connector = MAP_modified_Gaussian_Boltzmann;
+        }
     }
   else
     {
