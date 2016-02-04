@@ -120,7 +120,7 @@ double& TRAJECTORY::operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimens
 
 double& TRAJECTORY::operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
 {
-  MKL_LONG index_position = 2*dimension*bead_i + 1 + dimension_k + 2*i_RV;
+  MKL_LONG index_position = 2*dimension*bead_i + 1 + dimension_k + dimension*i_RV;
   return data[index(time_t, index_position)];
 }
 
