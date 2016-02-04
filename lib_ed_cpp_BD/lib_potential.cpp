@@ -101,7 +101,7 @@ double FORCE::GAUSSIAN::Boltzmann_distribution(double distance, double N_dimensi
 
 double FORCE::MODIFIED_GAUSSIAN::spring_force(double distance, double N_dimension, double scale_factor)
 {
-  return FORCE::GAUSSIAN::spring_force(scale_factor*distance, N_dimension);
+  return FORCE::GAUSSIAN::spring_force(scale_factor*scale_factor*distance, N_dimension);
 }
 
 double FORCE::MODIFIED_GAUSSIAN::spring_potential(double distance, double N_dimension, double scale_factor)
