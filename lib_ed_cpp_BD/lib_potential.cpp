@@ -38,7 +38,6 @@ double FORCE::NAPLE::MC_ASSOCIATION::MAP_time_scaling_random(MATRIX& given_basic
   return FORCE::DEFAULT::time_scaling_random(given_basic_random, given_variables[2]);
 }
 
-
 double FORCE::NAPLE::excluded_volume_force(double distance, double effective_distance)
 {
   if (distance < effective_distance)
@@ -114,6 +113,14 @@ double FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(double distance, double 
   return FORCE::GAUSSIAN::Boltzmann_distribution(scale_factor*distance, N_dimension);
 }
 
+double FORCE::MODIFIED_GAUSSIAN::cutoff_Boltzmann_distribution(double distance, double N_dimension, double scale_factor, double cutoff_radius)
+{
+  // note that this cut-off do not have any benefit at this moment
+  // after implementaion for cell-list, the cut-off scheme becomes efficience
+  if (distance < cutoff_radius)
+    return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(scale_factor*distance, N_dimension, scale_factor);
+  return 0.;
+}
 
 double FORCE::FENE::non_Gaussian_factor(double distance, double N_dimension, double ratio_RM_R0)
 {
@@ -170,6 +177,11 @@ double FORCE::NAPLE::MC_ASSOCIATION::MAP_modified_Gaussian_Boltzmann(double dist
   return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(distance, given_variables[3], given_variables[5]);
 }
 
+double FORCE::NAPLE::MC_ASSOCIATION::MAP_cutoff_modified_Gaussian_Boltzmann(double distance, double* given_variables)
+{
+  return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(distance, given_variables[3], given_variables[7]);
+}
+
 
 double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_spring_force(double distance, double* given_variables)
 {
@@ -188,7 +200,7 @@ double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_Boltzmann(double distance, double*
 
 MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
 {
-  given_POT.force_variables = (double*) mkl_calloc(7, sizeof(double), BIT);
+  given_POT.force_variables = (double*) mkl_calloc(8, sizeof(double), BIT);
   given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
   given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
   given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
@@ -215,8 +227,11 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
       given_POT.force_variables[5] = atof(given_cond("scale_factor_chain").c_str());
       given_POT.f_connector = MAP_modified_Gaussian_spring_force;
       given_POT.e_connector = MAP_modified_Gaussian_spring_potential;
-      given_POT.PDF_connector = MAP_modified_Gaussian_Boltzmann;
-      
+      double cutoff_connection = atof(given_cond("cutoff_connection").c_str());
+      if (cutoff_connection > 0.0 && cutoff_connection < atof(given_cond("box_dimension").c_str()))
+        given_POT.PDF_connector = MAP_cutoff_modified_Gaussian_Boltzmann;
+      else
+        given_POT.PDF_connector = MAP_modified_Gaussian_Boltzmann;
     }
   else
     {
