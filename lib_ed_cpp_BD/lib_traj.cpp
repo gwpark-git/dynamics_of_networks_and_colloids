@@ -29,6 +29,7 @@ MKL_LONG TRAJECTORY::read_exist_traj(const char* fn_given_traj)
               GIVEN_FILE >> (*this)(i_RV, 0, i, k); // modified version for all the record
             }
         }
+      // cout << endl;
     }
   GIVEN_FILE.close();
   return 0;
@@ -101,6 +102,8 @@ MKL_LONG TRAJECTORY::initialization_COND(COND& given_condition)
     {
       GENERATOR::random_position_generator(*this);
     }
+  // cout << (*this)(0, 0, 0) << '\t' << (*this)(0, 0, 1) << '\t' << (*this)(0, 0, 2) << endl;
+  
   return 0;
 }
 
