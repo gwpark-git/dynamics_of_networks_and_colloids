@@ -507,9 +507,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       if(t%N_skip==0)
         {
           time_end_LV = dsecnd();
-          energy(0) = TRAJ.c_t;
-          energy(4) = N_associations;
-          energy(5) = time_st_simulation - dsecnd();
+          energy(0) = TRAJ(index_t_now);
+          energy(4) = (double)N_associations;
+          energy(5) = dsecnd() - time_st_simulation;
           ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJ, POTs, CONNECT, energy, index_t_now, vec_boost_Nd_parallel[0]);
           time_end_AN = dsecnd();
           printf("##### STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_now), energy(1));
