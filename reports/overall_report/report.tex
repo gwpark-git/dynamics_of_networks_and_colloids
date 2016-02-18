@@ -1,0 +1,131 @@
+\documentclass[10pt, a4paper]{article}
+
+\usepackage[style=authoryear-comp, sorting=nyt, maxcitenames=2, maxbibnames=99, firstinits=true, backend=biber, hyperref=true, dashed=false, uniquename=false, uniquelist=false]{biblatex}
+% maxcitenames working for inside article
+% maxbibnames working for the printbibliography
+% firstinits=true making the last name to the .
+
+
+%% \usepackage[style=authoryear-comp, sorting=nyt, maxcitenames=2, backend=biber]{biblatex}
+\renewbibmacro{in:}{}
+\renewcommand\bibfont{\small}
+\addbibresource{report.bib}
+
+\usepackage{amsmath,amssymb, mathrsfs}
+\usepackage{xcolor, graphicx, epstopdf}
+\usepackage{amsthm}
+\newtheorem{thm}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{mydef}{Definition}
+\usepackage{authblk}
+\title{Stochastic Simulation for Shear Thickening Hydrophobically Modified Ethoxylated Urethane (HEUR) Solution}
+\author{Gun Woo Park, Giovanni Ianniruberto, and Giuseppe Marruci}
+\affil{\textit{Dipartimento di Ingegneria Chimica, dei Materiali e della Produzione Industriale, Università degli Studi di Napoli Federico II}}
+\linespread{1.3}
+\addtolength{\hoffset}{-2cm}
+\addtolength{\textwidth}{4cm}
+\addtolength{\voffset}{-1cm}
+\addtolength{\textheight}{2cm}
+
+
+% From here, listing for source code
+
+\usepackage{listings}
+  \usepackage{courier}
+ \lstset{
+         basicstyle=\footnotesize\ttfamily, % Standardschrift
+         numbers=left,               % Ort der Zeilennummern
+         numberstyle=\color{brown}\tiny,          % Stil der Zeilennummern
+         %stepnumber=2,               % Abstand zwischen den Zeilennummern
+         numbersep=5pt,              % Abstand der Nummern zum Text
+         tabsize=2,                  % Groesse von Tabs
+         extendedchars=true,         %
+         breaklines=true,            % Zeilen werden Umgebrochen
+         keywordstyle=\color{blue},
+    		frame=b,         
+%        keywordstyle=[1]\textbf,    % Stil der Keywords
+%        keywordstyle=[2]\textbf,    %
+%        keywordstyle=[3]\textbf,    %
+%        keywordstyle=[4]\textbf,   \sqrt{\sqrt{}} %
+         stringstyle=\color{black}\ttfamily, % Farbe der String
+         showspaces=false,           % Leerzeichen anzeigen ?
+         showtabs=false,             % Tabs anzeigen ?
+         xleftmargin=17pt,
+         framexleftmargin=17pt,
+         framexrightmargin=5pt,
+         framexbottommargin=4pt,
+         %backgroundcolor=\color{lightgray},
+         showstringspaces=false      % Leerzeichen in Strings anzeigen ?        
+ }
+ \lstloadlanguages{% Check Dokumentation for further languages ...
+         %[Visual]Basic
+         %Pascal
+         %C
+         C++
+         %XML
+         %HTML
+   %Java
+ }
+  %\DeclareCaptionFont{blue}{\color{blue}} 
+
+  %\captionsetup[lstlisting]{singlelinecheck=false, labelfont={blue}, textfont={blue}}
+  \usepackage{caption}
+\DeclareCaptionFont{white}{\color{white}}
+\DeclareCaptionFormat{listing}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\textwidth}{\hspace{15pt}#1#2#3}}}
+\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf,footnotesize}}
+
+% Below is example.
+%   \lstinputlisting[label=samplecode,caption=A sample]{test.cpp}
+
+% From here, fancy style
+%% \usepackage{fancyhdr}
+%% \pagestyle{fancy}
+%% %\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+%% \renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+%% \fancyhf{} % delete current setting for header and footer
+%% \fancyhead[LE,RO]{\bfseries\thepage}
+%% \fancyhead[LO]{\bfseries\rightmark}
+%% \fancyhead[RE]{\bfseries\leftmark}
+%% \renewcommand{\headrulewidth}{0.5pt}
+%% \renewcommand{\footrulewidth}{0pt}
+%% \addtolength{\headheight}{0.5pt} % make space for the rule
+%% \fancypagestyle{plain}{%
+%% \fancyhead{} % get rid of headers on plain pages
+%% \renewcommand{\headrulewidth}{0pt} % and the line
+%% }
+
+
+
+
+\begin{document}
+%% \fancyhead[LO]{Temporary fancy head}
+\maketitle
+\section{Introduction}
+Hydrophobically modified ethoxylated urethane (HEUR) is composed of poly(ethylene oxide) (PEO) as main chain and both of the PEO ends are capped by short hydrophobic groups. As reported in \textcite{Xu:1996ke}, the structure of HEUR in aqueous solution have different regime due to the concentration: dilute solution, flower-like micelle, bridges between micelle, and physical gel. The important features for these micelle is that the chain ends can be detached from the core, which in consequence, construct physical network system when concentration is enough to make bridges between micelles. Interestingly, HEUR solution fellows the single Maxwell model \parencite{Annable:1993jd} that the single relaxation time dominant the date because of the relaxation time related with chain dissociation from the attached core. In the following studies by \textcite{Suzuki:2013kk} shows the Arrhenius type time-temperature superposition for the dissociation time that consolidate the physical meaning of the single relaxation time. Even the simplicity of relaxation time, the rheological 
+
+The rheological properties have been studies in wide range of papers (ref needed), and the shear thickening appeared in lower concentration while it disappeared when concentration is increased \parencite{Suzuki:2012gfa}. In addition, the paper dispute the existing theories for shear thickening associative network based on the fact that there is no thickening for the first normal stress difference while thickening for steady-state viscosity. 
+
+
+There are many postulate about to interpret the shear thickening behaviour for HEUR solution, such as the finite extensibility of bridge chain (FENE) and flow induced network formation, and anisotropic bridge formation due to the shear flow \parencite{Uneyama:2012ge}. \textcite{Suzuki:2013kk} reveals that the 
+The rheological measurement for of \textcite{Suzuki:2013kk} reveals that the steady-state 
+
+ and repulsive contribution between micelles \parencite{Ianniruberto:2015dv}.
+
+
+
+% Since the chains attached to core is not permanently fixed, 
+
+% In dilute aqueous solution, the chain remains itself since the most of HEUR is composed of hydrophilic PEO. Above critical micelle concentration (CMC), the polymer started to form flower-like micelle that the core is composed of hydrophobic end groups. 
+
+% HEUR in water in lower concentration shows the flower-like micelle that the core is aggregated hydrophobic end groups, and most of chains are attached to the same micelle. With increasing concentration, if the distance between micelle is sufficiently small, the chains are started to bridge between adjacent micelles, then form associative network system. In high concentration range, the 
+
+% The shear thickening behavior for hydrophobically modified ethoxylated urethane (HEUR) solution is decreasing with respect to concentration.
+
+
+
+\section{Description for Simulation}
+\section{Results}
+\section{Conclusions and Future Works}
+\printbibliography
+
+\end{document}
