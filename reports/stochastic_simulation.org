@@ -71,6 +71,15 @@ where $\beta_k$ is the detachment frequency for the subjected chain end. Note th
 \begin{equation}
 P^{dissoc}_k = \min\left\{1, \beta_k \delta t\right\}.
 \end{equation}
+# Recall that 
+# \begin{equation}
+# \delta t = R_t dt = \frac{\tau_D}{\tau_B} dt.
+# \end{equation}
+
+# If $\delta t$ is too large, it would be better to update topology several times with small factor:
+# \begin{equation}
+# P^{dissoc}_k = \min\left\{1, \beta_k \frac{\delta t}{Nt}\right\}
+# \end{equation}
 
 *** Non-dimensional form
 Following the paper, Ianniruberto et al. (2015), the dissociation time without tension is given by
@@ -89,6 +98,10 @@ The criterion for increment of dimensionless time still hold in dimensionless wa
 \begin{equation}
 \delta \tilde{t} < \tilde{\beta}(\tilde{r}_c)^{-1}.
 \end{equation}
+
+*** Update frequency
+
+
 # with
 # \begin{align}
 # \beta_{ik} &= \frac{1}{\tau_D}\tilde{\beta}_{ik} \\

@@ -1,259 +1,40 @@
-\documentclass[10pt, a4paper]{article}
-% \usepackage{indentfirst}
-\usepackage[toc,page]{appendix}
-\usepackage[style=authoryear-comp, sorting=nyt, maxcitenames=2, maxbibnames=99, firstinits=true, backend=biber, hyperref=true, dashed=false, uniquename=false, uniquelist=false]{biblatex}
-% maxcitenames working for inside article
-% maxbibnames working for the printbibliography
-% firstinits=true making the last name to the .
-
-
-%% \usepackage[style=authoryear-comp, sorting=nyt, maxcitenames=2, backend=biber]{biblatex}
-\renewbibmacro{in:}{}
-\renewcommand\bibfont{\small}
-\addbibresource{report.bib}
-
-\usepackage{amsmath,amssymb, mathrsfs}
-\usepackage{xcolor, graphicx, epstopdf}
-\usepackage{amsthm}
-\newtheorem{thm}{Theorem}
-\newtheorem{lemma}{Lemma}
-\newtheorem{mydef}{Definition}
-\usepackage{authblk}
-\title{Stochastic Simulation for Shear Thickening Hydrophobically Modified Ethoxylated Urethane (HEUR) Solution}
-\author{Gun Woo Park, Giovanni Ianniruberto, and Giuseppe Marrucci}
-\affil{\textit{Dipartimento di Ingegneria Chimica, dei Materiali e della Produzione Industriale, Università degli Studi di Napoli Federico II}}
-\linespread{1.3}
-\addtolength{\hoffset}{-2cm}
-\addtolength{\textwidth}{4cm}
-\addtolength{\voffset}{-1cm}
-\addtolength{\textheight}{2cm}
-
-
-% From here, listing for source code
-
-\usepackage{listings}
-  \usepackage{courier}
- \lstset{
-         basicstyle=\footnotesize\ttfamily, % Standardschrift
-         numbers=left,               % Ort der Zeilennummern
-         numberstyle=\color{brown}\tiny,          % Stil der Zeilennummern
-         %stepnumber=2,               % Abstand zwischen den Zeilennummern
-         numbersep=5pt,              % Abstand der Nummern zum Text
-         tabsize=2,                  % Groesse von Tabs
-         extendedchars=true,         %
-         breaklines=true,            % Zeilen werden Umgebrochen
-         keywordstyle=\color{blue},
-    		frame=b,         
-%        keywordstyle=[1]\textbf,    % Stil der Keywords
-%        keywordstyle=[2]\textbf,    %
-%        keywordstyle=[3]\textbf,    %
-%        keywordstyle=[4]\textbf,   \sqrt{\sqrt{}} %
-         stringstyle=\color{black}\ttfamily, % Farbe der String
-         showspaces=false,           % Leerzeichen anzeigen ?
-         showtabs=false,             % Tabs anzeigen ?
-         xleftmargin=17pt,
-         framexleftmargin=17pt,
-         framexrightmargin=5pt,
-         framexbottommargin=4pt,
-         %backgroundcolor=\color{lightgray},
-         showstringspaces=false      % Leerzeichen in Strings anzeigen ?        
- }
- \lstloadlanguages{% Check Dokumentation for further languages ...
-         %[Visual]Basic
-         %Pascal
-         %C
-         C++
-         %XML
-         %HTML
-   %Java
- }
-  %\DeclareCaptionFont{blue}{\color{blue}} 
-
-  %\captionsetup[lstlisting]{singlelinecheck=false, labelfont={blue}, textfont={blue}}
-  \usepackage{caption}
-\DeclareCaptionFont{white}{\color{white}}
-\DeclareCaptionFormat{listing}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\textwidth}{\hspace{15pt}#1#2#3}}}
-\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf,footnotesize}}
-
-% Below is example.
-%   \lstinputlisting[label=samplecode,caption=A sample]{test.cpp}
-
-% From here, fancy style
-%% \usepackage{fancyhdr}
-%% \pagestyle{fancy}
-%% %\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
-%% \renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
-%% \fancyhf{} % delete current setting for header and footer
-%% \fancyhead[LE,RO]{\bfseries\thepage}
-%% \fancyhead[LO]{\bfseries\rightmark}
-%% \fancyhead[RE]{\bfseries\leftmark}
-%% \renewcommand{\headrulewidth}{0.5pt}
-%% \renewcommand{\footrulewidth}{0pt}
-%% \addtolength{\headheight}{0.5pt} % make space for the rule
-%% \fancypagestyle{plain}{%
-%% \fancyhead{} % get rid of headers on plain pages
-%% \renewcommand{\headrulewidth}{0pt} % and the line
-%% }
-
-
-
-
+% Created 2016-02-19 Fri 12:33
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Gun Woo Park}
+\date{\today}
+\title{Data Structure and Travel Algorithm}
+\hypersetup{
+ pdfauthor={Gun Woo Park},
+ pdftitle={Data Structure and Travel Algorithm},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 24.5.1 (Org mode 8.3.1)}, 
+ pdflang={English}}
 \begin{document}
-%% \fancyhead[LO]{Temporary fancy head}
+
 \maketitle
-\section{Introduction}
-Hydrophobically modified ethoxylated urethane (HEUR) is poly(ethylene oxide) (PEO) based copolymer that both of chain ends are capped by hydrophobic groups. Because of this end-capping, HEUR in aqueous solution that the concentration higher than critical micelle concentration (CMC) make flower-like micelle, which have hydrophilic PEO as flower and aggregated hydrophobic end-groups as its core \parencite{Xu:1996ke}. \textcite{Annable:1993jd} measures rheological properties of 10k, 20k, and 35k PEO and different size of end-capped group, which reveals there is one dominant relaxation time that allows to fit with single Maxwell model, and the dominant relaxation time follows Arrhenius type time-temperature superposition. \textcite{Uneyama:2012ge} report concentration dependence for rheological properties using 46k PEO based HEUR, which shows that the dominant characteristic time and plateau modulus follows two distinguishable scaling law based on a critical concentration, $c^\ast$. It is regarded as the consequence of transition from sparse to dense network in terms of percolation.
-
-% that the characteristic time and characteristic modulus, plteau modulus for single Maxwell model, dependency due to concentration (46k PEO based HEUR)
-% shows two distinguishable region for percolated network: sparse and dense. 
-
-Shear thickening for HEUR solution in steady-state viscosity, $\eta(\dot{\gamma})$ is another interesting phenomena. \textcite{Annable:1993jd} report shear thickening behaviour for stead-state viscosity before thinning regime while the dynamic viscosity, $\eta(\omega)$, directly goes into thinning regime. Interestingly, the effect of shear thickening is decreases and disappeared due to increasing concentration \parencite{Suzuki:2013kk}, and disappeared concentration is the similar with the sparse to dense transition concentration reported in above. The first normal stress coefficient, $\Psi_1(\dot{\gamma})$, however, no thickening is observed \parencites{Pellens:2004ga, Suzuki:2013kk}, which follows that \textcite{Suzuki:2012gfa} dispute the finite extensible nonlinear elasticity (FENE) and shear-induced strand formation \parencite{Tam:1998fi} schemes for shear thickening, but support anisotropic bridge formation in shear gradient direction \parencite{Uneyama:2012ge}. 
-
-Recently, \textcite{Ianniruberto:2015dv} suggest the repulsive contribution between flower-like micelle model based on simplified dumbbell model. The basic idea of repulsive micelle model is in the low concentration, the micelles are well separated in spatially that mutually repels each other when shear is introduced. The results are qualitatively matched with the experimental one. However, there is small thickening for the $\Psi_1(\dot{\gamma})$, and this is regarded as mathematical approximation. In this study, the stochastic simulation is developed with repulsive contribution between micelles underline in \textcite{Ianniruberto:2015dv}.
+\tableofcontents
 
 
+\section{Preface}
+\label{sec:orgheadline1}
+This documentation is related with the basic data structure and travel algorithm for the given graph structure in order to identify percolated structure. 
 
-
-\section{Description for Simulation}
-\subsection{Working Hypothesis}
-
-\subsection{Time Evolution for Positions of Micelle}
-The position of micelles are updated based on Langevin dynamics, which in consequence, have following form:
-\begin{equation}
-\frac{\partial \mathbf{r}_k}{\partial t} = \frac{1}{\zeta}\left(\sum_{i\in\mathscr{C}_k} \mathbf{F}^{(c)}(\mathbf{r}_i, \mathbf{r}_k) + \sum_i \mathbf{F}^{(r)}(\mathbf{r}_i, \mathbf{r}_k) + \mathbf{F}^{(s)}(\mathbf{r}_k)\right),
-\end{equation}
-where $\mathbf{F}^{(c)}$ is connection information and $\mathscr{C}_k$ is the chains attached to k-th particle, $\mathbf{F}^{(r)}$ is repulsive potential, and $\mathbf{F}^{(s)}$ and Brownian motion. The forces are given by
-\begin{align}
-\mathbf{F}^{(c)}(\mathbf{r}_i, \mathbf{r}_k) &= k_BTN_D\frac{\mathbf{r}_{ik}}{R_c^2} \\
-\mathbf{F}^{(r)}(\mathbf{r}_i, \mathbf{r}_k) &= -C\frac{k_BT}{R_0}\left(1 - \frac{r_{ik}^2}{R_0^2}\right)\hat{\mathbf{r}}_{ik} \quad\textrm{when $r_{ik} < R_0$}.
-\end{align}
-with Euler integrator, we have
-\begin{equation}
-\mathbf{r}_k(t + \delta t') = \mathbf{r}_k(t) + \frac{k_BT}{\zeta}\delta t'\left[\sum_{i\in \mathscr{C}_k}N_D\frac{\mathbf{r}_{ik}}{R_c^2} - \sum_{i=1}^{N_p} \frac{C}{R_0}\left(1 - \frac{r_{ik}^2}{R_0^2}\right)\hat{\mathbf{r}}_{ik}\right] + \sqrt{\frac{2 k_BT \delta t'}{\zeta}}\tilde{\mathbf{R}},
-\end{equation}
-where $\tilde{\mathbf{R}}\sim \mathscr{N}(0, 1)$ that is normal distribution with average 0 and variance 1.
-Since the fastest time scale for this system is given by
-\begin{equation}
-\tau_B = \frac{R_0^2\zeta}{k_BTC},
-\end{equation}
-we have non-dimensional form for evolution equation:
-\begin{equation}
-\tilde{\mathbf{r}}_k(\tilde{t}' + \delta \tilde{t}') = \tilde{\mathbf{r}}_k(\tilde{t}') + \frac{1}{C}\delta\tilde{t}'\sum_{i\in\mathscr{C}_k} N_D\alpha^2\tilde{\mathbf{r}}_{ik} + \delta\tilde{t}'  \sum_{i} (\tilde{r}_{ik}^2 - 1)\hat{\mathbf{r}_{ik}} + \sqrt{\frac{2}{C}}\sqrt{\delta \tilde{t}'}\tilde{\mathbf{R}},
-\end{equation}
-where $\alpha = R_0/R_c$ and prime is used since the characteristic time for the system is given by dissociation time, $\tau_D$. 
-Note that the re-map of time scale from Brownian motion to topological characteristic time, dissociation time $\tau_D$, then the remapping is done through
-\begin{equation}
-\tilde{t} = \frac{\tau_B}{\tau_D}\tilde{t}',
-\end{equation}
-where prime denote dimensionless time based on Brownian motion and without tilde denote the dimensionless time based on dissociation time.
-
-% We can re-map to the non-dimensional form based on Brownian time to dissociation time, we have
-% \begin{equation}
-% \tilde{\mathbf{r}_k}\left(\tilde{t} + \left(\frac{\tau_B}{\tau_D}\delta \tilde{t}\right)\right) = \tilde{\mathbf{r}_k}(\tilde{t}) + \frac{1}{C}\left(\frac{\tau_B}{\tau_D}\delta \tilde{t}\right) \sum_{i\in\mathscr{C}_k} N_D\alpha^2 \tilde{\mathbf{r}}_{ik} + \left(\frac{\tau_B}{\tau_D}\delta\tilde{t}\right)\sum_{i=1}(\tilde{\mathbf{r}}_{ik}^2 - 1)\hat{\mathbf{r}}_{ik} + \sqrt{\frac{2}{C}}\sqrt{\frac{\tau_B}{\tau_D}\delta \tilde{t}}\tilde{\mathbf{R}}.
-% \end{equation}
-% The topological information will be updated whenever $\delta\tilde{t}$, which means when number of Brownian update reaches rational time,
-% \begin{equation}
-% R_t = \frac{\tau_D}{\tau_B},
-% \end{equation}
-% the topology will be updated.
-
-\subsection{Topological Update}
-\subsubsection{Probability for Dissociation}
-Let define the detachment frequency for the chain that attached between i- and j-th micelles:
-\begin{equation}
-\beta_{ij} = \beta(\mathbf{r}_{ij}) \equiv \beta_0\exp\left(\frac{F(\mathbf{r}_{ij})l}{k_BT}\right),
-\end{equation}
-where $\beta_0$ is detachment frequency for loop chain: $\Omega\exp(E/k_BT)$.
-In each $R_t$ steps for Brownian update, the topology is subject to update. Let the system has $N_{tot}$ chain ends ($N_{tot}/2$ chains). For given interval of time, $\delta t$, the expected value for number of detachment becomes 
-\begin{equation}
-N^\dagger = N_{tot}\bar{\beta}\delta t,
-\end{equation}
-where $\bar{\beta}$ is number average for the detachment frequency:
-\begin{equation}
-\bar{\beta} = \frac{2}{N_{tot}} \sum_{i=1}^{N_{tot}/2}\beta_i.
-\end{equation}
-Because of $N^\dagger \leq N_{tot}$, we have inequality
-\begin{equation}
-\bar{\beta}{\delta t} \leq 1.
-\end{equation}
-Hence, it is appropriate criterion for time increment for topological update by
-\begin{equation}
-\delta t < \beta_{max}^{-1},
-\end{equation}
-where $\beta_{max}$ is the maximum detachment frequency. Note that the $\bar{\beta}$ and $\beta_{max}$ is not clear for general case. If we have cut-off radius for association, $r_c$, however, the $\beta_{max}$ can be given by $\beta(r_c)$.
-
-On each $\delta t$, we select random chain ends in $N_{tot}$ times. The dissociation probability for the selected chain end is given by
-\begin{equation}
-P^{dissoc}_k = \frac{N^\dagger}{N_{tot}}\frac{\beta_k}{\bar{\beta}} = \beta_k\delta t,
-\end{equation}
-
-\subsubsection{Non-dimensional form}
-Following the paper, Ianniruberto et al. (2015), the dissociation time without tension is given by
-\begin{equation}
-\tau_D = \beta_0^{-1} = \Omega^{-1}\exp\left(\frac{E}{k_BT}\right),
-\end{equation}
-which implies
-\begin{equation}
-\beta = \frac{1}{\tau_D}\exp(\tilde{F}\tilde{l}) \equiv \frac{1}{\tau_D}\tilde{\beta}.
-\end{equation}
-Therefore, we have
-\begin{equation}
-P^{dissoc}_k = \tilde{\beta}_k\delta \tilde{t}.
-\end{equation}
-The criterion for increment of dimensionless time still hold in dimensionless way:
-\begin{equation}
-d\tilde{t} \leq \delta \tilde{t} \leq \delta \tilde{t}_c \equiv \min\left\{1, \tilde{\beta}(\tilde{r}_c)^{-1}\right\}.
-\end{equation}
-Note that the minimum time step is given by Brownian time step while the maximum time step is given by topological time or maximum criterion.
-% Therefore, we have criterion for the topological time step as
-% \begin{equation}
-% \delta \tilde{t} \in [\delta{t}_
-% \end{equation}
-
-% On this regards, it might be clear that the $\delta \tilde{t}$ should be between $d\tilde{t}$ and $\delta \tilde{t}_c$. Note that the topological characteristic time is given by dissociation time, $\tau_D$.
-\subsubsection{Dissociation Time and Brownian Time}
-The Brownian motion is fast compared with dissociation time, $\tau_D$. Let the rational time step as
-\begin{equation}
-R_t = \frac{\tau_D}{\tau_B}, 
-\end{equation}
-then we can easily remap from $\tilde{t}'$ time scales to $\tilde{t}(\equiv \tilde{t}'/R_t)$ time scale that is dimensionless time based on dissociation time. The choice for topological update step can be arbitrary based on 
-
-
-\subsubsection{Probability map for Association}
-Once the subjected chain end is detached, it immediately attach to other micelle. Let say the other chain end is attached to j-th particle, the attachment probability for a micelle is based on the Boltzmann factor:
-\begin{equation}
-P^{B}_{ij} = \exp\left(-\tilde{u}_{ij}\right),
-\end{equation}
-where index i denote possible target of micelle that originated from j-th particle. 
-Let cumulative Boltzmann distribution as
-\begin{equation}
-F'_j(n) = \sum_{i=1}^{n}P^{B}_{ij},
-\end{equation}
-where $n$ is up to number of particles, $N_p$. Obviously, the $F'_j(N_p)$ is sum of all the probability that possibly connect with $j$-th particle. Then, we have normalized cumulative Boltzmann distribution:
-\begin{equation}
-F_j(n) = \frac{F'_j(n)}{F'_j(N_p)}.
-\end{equation}
-For given random number, $p\in[0, 1)$, the index function, $\mathscr{I}$, is defined 
-\begin{equation}
-\mathscr{I}(p) = \left\{\begin{array}{cc} 1 & \textrm{if }  p < F_j(1) \\
-2 & \textrm{if } F_j(1) \leq p < F_j(2) \\
-\vdots & \vdots \\
-N_p & \textrm{if } F_j(N_p - 1) \leq p.
-\end{array}\right.
-\end{equation}
-Therefore, for given random number, $p$, the index of target micelle is given by $\mathscr{I}(p)$. For performance, the cumulating order will be changed through the sorting based on the probability. In addition, the cut-off scheme will be implemented through cell-list method, which is not described on here.
-
-
-\section{Results}
-\subsection{Equilibrium Properties}
-\subsection{Percolation Identification}
-\section{Conclusions and Future Works}
-
-
-\printbibliography
-\begin{appendices}
-\section{Data Structure for Connectivity Information}
-\subsection{Multi-dimensional Array}
+\section{Multi-dimensional Array}
 \label{sec:orgheadline2}
 For compatibility and convenience, the multi-dimensional arrays are expressed by one-dimensional array by index mapping function. To be specific, the given N by M 2-dimensional array may have the form of table \ref{tab:orgtable1}, which is possibly mapped to table \ref{tab:orgtable2}. The advantage for this expression can be thought as two parts: coding interface can be united and we can use several compression techniques such as lower occupation for symmetric matrix. There are various numerical packages have been used this way: BLAS, LAPACK, GSL, and so on.
 
@@ -287,7 +68,7 @@ val. & val(0,0) & val(0,1) & \(\cdots\) & val(0,M) & val(1,M) & \(\cdots\) & val
 
 
 
-\subsection{Adjacency Matrix and List}
+\section{Adjacency Matrix and List}
 \label{sec:orgheadline3}
 Consider the given association information, we can easily express the information using adjacency matrix:
 \begin{equation}
@@ -303,7 +84,7 @@ For instance, consider the given network has the form of figure \ref{orgkeyword1
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=.9\linewidth]{../data_structure/ex_graph_association.png}
+\includegraphics[width=.9\linewidth]{data_structure/ex_graph_association.png}
 \caption{Example for association maps. It can be regarded as undirected graph since there is no directional information for the association (edge as CS notation) between particles (vortex as CS notation).}
 \end{figure}
 
@@ -345,9 +126,14 @@ bead & 0 & 1 & 2\\
 \end{tabular}
 \end{table}
 
+
 \section{Identification for Percolation}
 \label{sec:orgheadline13}
 The percolation for one spatial dimension can be solved by travel algorithm for undirected graph structure in the word of computer science. The idea is to travel through all the bridge that connected the subjected particle, then identify the travel goes beyond box or not. 
+
+
+
+
 
 
 \subsection{Travel Beyond Box Boundary}
@@ -368,7 +154,7 @@ where \(\varepsilon\) is given basis set. Minimum distance is simply given by Eu
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=.9\linewidth]{../data_structure/comp_minimum_distance.png}
+\includegraphics[width=.9\linewidth]{data_structure/comp_minimum_distance.png}
 \caption{Component-wise minimum distance relative vector}
 \end{figure}
 
@@ -402,7 +188,7 @@ As already mentioned in above, the travel is only allowed inside box and wheneve
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=.9\linewidth]{../data_structure/ex_percolation_identification.png}
+\includegraphics[width=.9\linewidth]{data_structure/ex_percolation_identification.png}
 \caption{\label{fig:orgparagraph1}
 Two dinsintuishable 2-dimensional cluster system. Left figure (a) represent percolation happens along y axis while no percolation along x axis. Right figure (b) represent the percolation happens both of x and y axis, but x percolation line beyond the subjected box. The thick red line represent isolation while the thick blue line represent percolation line along x axis.}
 \end{figure}
@@ -411,14 +197,14 @@ It also works well for 3-dimensional case. The given association information dep
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=.9\linewidth]{../data_structure/ex_3d_NP3200_SF20_percolation.png}
+\includegraphics[width=.9\linewidth]{data_structure/ex_3d_NP3200_SF20_percolation.png}
 \caption{\label{fig:orgparagraph2}
 Equilibrium topology with the given condition: 3200Np, \(20^3\) dimensionless volume, 25 chains per each particle. Re-scaling factor is used 2.0.}
 \end{figure}
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=.9\linewidth]{../data_structure/percolation_test_3D.png}
+\includegraphics[width=.9\linewidth]{data_structure/percolation_test_3D.png}
 \caption{\label{fig:orgparagraph3}
 Cluster size distribution and identification for percolation with each independent axis.}
 \end{figure}
@@ -477,7 +263,7 @@ which in consequence \(V\) is set of all the index for particles and \(E\) is se
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=.9\linewidth]{../data_structure/ex_graph_DFS.png}
+\includegraphics[width=.9\linewidth]{data_structure/ex_graph_DFS.png}
 \caption{Example for association maps. This example will be used DFS testing and the starting index  changed to 0 from 1 for compatibility with the code infrastructure. Therefore, index zero indicate the zero-th particle and -1 indicate there is no association.}
 \end{figure}
 
@@ -508,13 +294,13 @@ Adjacency list for the given graph, figure \ref{orgkeyword3}}
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=.9\linewidth]{../data_structure/spanning_tree_DFS.png}
+\includegraphics[width=.9\linewidth]{data_structure/spanning_tree_DFS.png}
 \caption{DFS spanning tree for graph depicted in figure \ref{orgkeyword3}.}
 \end{figure}
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=.9\linewidth]{../data_structure/spanning_tree_BFS.png}
+\includegraphics[width=.9\linewidth]{data_structure/spanning_tree_BFS.png}
 \caption{BFS spanning tree for graph depicted in figure \ref{orgkeyword3}.}
 \end{figure}
 
@@ -588,8 +374,4 @@ Adjacency list for the given graph, figure \ref{orgkeyword3}}
 49                  index = target; order_count = const_new_order_count; # depth first search
 50      return size(stack)
 \end{verbatim}
-
-
-\end{appendices}
-
 \end{document}
