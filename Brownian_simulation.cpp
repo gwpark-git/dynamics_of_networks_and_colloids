@@ -122,7 +122,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
   MKL_LONG cnt_arr[5] = {0};
   MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
-
+  cnt_add = CONNECT.N_ASSOCIATION;
   
   printf("DONE\n"); 
   printf("FORCE VECTOR GENERATING ... "); 
@@ -163,9 +163,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
     }
   printf("DONE\n");
   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
-  CONNECT.initial();
-  for(MKL_LONG i=0; i<CONNECT.Np; i++)
-    CONNECT.TOKEN[i] = 1;
+  // The following condition duplicate and may violate the inheritance scheme from the previous association
+  // CONNECT.initial();
+  // for(MKL_LONG i=0; i<CONNECT.Np; i++)
+  //   CONNECT.TOKEN[i] = 1;
 
   double dt_1 = 0., dt_2 = 0., dt_3 = 0., dt_4 = 0., dt_5 = 0., dt_6 = 0., dt_7 = 0.;
   double dt_det_pdf = 0.;
@@ -212,7 +213,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   double max_try_ASSOC = tolerance_association;
   double N_diff = 0.;
   MKL_LONG N_tot_associable_chain = TRAJ.Np*atoi(given_condition("N_chains_per_particle").c_str());
-  MKL_LONG count_M = 0, pre_count_M = 0;
+  MKL_LONG count_M = cnt_add, pre_count_M = cnt_add;
   
   for(MKL_LONG t = 0; t<Nt-1; t++)
     {
@@ -276,6 +277,15 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
             }
           else
             {
+              // for(MKL_LONG i=0; i<TRAJ.Np; i++)
+              //   {
+              //     for(MKL_LONG j=0; j< CONNECT.TOKEN[i]; j++)
+              //       {
+              //         printf("HASH[%ld, %ld] = %ld(%ld), ", i, j, (MKL_LONG)CONNECT.HASH[i](j), (MKL_LONG)CONNECT.weight[i](j));
+              //       }
+              //     printf("\n");
+              //   }
+              
 #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, R_minimum_distance_boost, vec_boost_Nd_parallel) num_threads(N_THREADS_BD)
               for(MKL_LONG i=0; i<TRAJ.Np; i++)
                 {
@@ -288,7 +298,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                   CONNECT.update_Z_particle(i);
                   CONNECT.update_dPDF_particle(i);
                   CONNECT.update_dCDF_particle(i);
+                  // printf("Z[%ld] = %3.2lf, TOKEN[%ld] = %ld\n", i, CONNECT.Z[i], i, (MKL_LONG)CONNECT.TOKEN[i]);
                 }
+              
             }
           // while(IDENTIFIER_ASSOC && cnt < N_max_steps)//cnt < N_max_blocks)
           //   {
@@ -522,9 +534,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           printf("MC step analysis: all pdf = %6.3e, basic_random = %6.3e, getting_hash = %6.3e, det_jump = %6.3e, new_end = %6.3e, LOCKING = %6.3e, action = %6.3e, update = %6.3e\n", dt_pdf_all, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7);
           printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, LOCKING = %6.3f, action = %6.1f, update = %6.1f\n", dt_pdf_all*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
           printf("computing rdist: %6.3e (%3.1f), computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_rdist, 100.*dt_rdist/total_dt_pdf, dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
-          printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, N_tot_asso = %ld, ratio = %6.3e, NAS = %ld, fraction=%4.3f ####\n\n", cnt, N_diff, N_tot_associable_chain, N_diff/N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain);
+          printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, N_tot_asso = %ld, ratio = %6.3e, NAS = %ld, fraction=%4.3f, total time=%4.3e ####\n\n", cnt, N_diff, N_tot_associable_chain, N_diff/N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain, energy(5));
           TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
-          energy.fprint(filename_energy.c_str());
+          energy.fprint_row(filename_energy.c_str(), 0);
           for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
             {
               CONNECT.HASH[ip].fprint_LONG_transpose(filename_HASH.c_str());

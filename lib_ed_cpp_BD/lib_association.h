@@ -85,8 +85,10 @@ class ASSOCIATION : public CONNECTIVITY
 
   ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition);
   ASSOCIATION(MKL_LONG number_of_particles, MKL_LONG number_of_chains_per_particles, MKL_LONG tolerance_connection, bool ALLOWING_MULTIPLE_CONNECTIONS);
+  MKL_LONG dynamic_alloc();
   MKL_LONG set_initial_condition();
   MKL_LONG initial();
+  MKL_LONG initial_inheritance();
   virtual ~ASSOCIATION()
     {
       mkl_free(CASE);
