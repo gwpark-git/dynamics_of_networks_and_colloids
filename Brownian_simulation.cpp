@@ -94,6 +94,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   string filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
   string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
   string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
+  // string filename_info = (given_condition("output_path") + '/' + given_condition("file_base") + ".info").c_str();
   
   ofstream FILE_LOG;
   
@@ -146,6 +147,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   MKL_LONG N_energy_frequency = atol(given_condition("N_energy_frequency").c_str()); 
 
   MATRIX energy(1, 6, 0.);
+  // // 0: time step to write 1-3: energy, 4: NAS, 5: real time
+  // // 6: (xx)[RF], 7: (yy)[RF], 8: (zz)[RF], 9: (xy)[RF], 10: (xz)[RF], 11:(yz)[RF]
+  // MATRIX energy(1, 12, 0.);
+
   ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, 0);
 
   MKL_LONG Nt = atol(given_condition("Nt").c_str());
@@ -435,7 +440,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                     {
                       LOCKER(IDX_ARR[it].beads[I_BEADS]) = FALSE;
                     }
-
 #pragma omp critical(COUNTING) 
                   {
                     /*

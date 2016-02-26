@@ -1,4 +1,3 @@
-
 from matplotlib.font_manager import FontProperties
 from numpy import *
 import matplotlib.pyplot as plt
