@@ -6,6 +6,11 @@ MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
 {
   ifstream GIVEN_WEIGHT;
   GIVEN_WEIGHT.open(fn_weight);
+  if (!GIVEN_WEIGHT)
+    {
+      printf("ERR to read %s", fn_weight);
+      return 0;
+    }
   MKL_LONG cnt = 0;
   string line;
   while(getline(GIVEN_WEIGHT, line))
@@ -120,7 +125,6 @@ MKL_LONG ASSOCIATION::initial_inheritance() // it should not be called by outsid
       Z[i] = 0.;
       weight[i].initial(N_max, 1, 0);
     }
-  N_ASSOCIATION = N_TOTAL_ASSOCIATION();
   
   for(MKL_LONG i=0; i<Np; i++)
     {
@@ -147,6 +151,8 @@ ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY
     {
       initial_inheritance();      
       read_exist_weight(given_condition("CONTINUATION_WEIGHT_FN").c_str());
+      N_ASSOCIATION = N_TOTAL_ASSOCIATION();
+      
     }
   else
     {
