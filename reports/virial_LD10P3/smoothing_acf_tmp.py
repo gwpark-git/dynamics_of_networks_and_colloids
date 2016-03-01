@@ -1,0 +1,21 @@
+
+plt.clf()
+plt.ion()
+plt.figure(figsize=(11,6))
+colP = ['blue', 'cyan', 'green', 'brown', 'purple', 'red']
+remap_t = 1./1000.
+plt.semilogy(arange(size(acf_dat))*remap_t, acf_dat/acf_dat[0], 'b-', linewidth=1, label = 'autocorrelation for given data (NP=400)')
+# plt.plot(arange(size(acf_invdat_10000))*remap_t, acf_invdat_10000/acf_invdat_10000[0], '-', color='blue', label = 'cut 10k (out of 26k)')
+# plt.plot(arange(size(acf_invdat_20000))*remap_t, acf_invdat_20000/acf_invdat_20000[0], '-', color='blue', label = 'cut 20k (out of 26k)')
+# plt.plot(acf_invdat_21000/acf_invdat_21000[0], '-', color=colP[1], label = 'cut 21k (out of 26k)')
+# plt.plot(acf_invdat_22000/acf_invdat_22000[0], '-', color=colP[2], label = 'cut 22k (out of 26k)')
+plt.semilogy(arange(size(acf_invdat_23000))*remap_t, acf_invdat_23000/acf_invdat_23000[0], '-', color='green', linewidth=3, alpha = 0.2, label = 'Smoothed data using Fourier filter (88% frequency)')
+# plt.plot(acf_invdat_24000/acf_invdat_24000[0], '-', color=colP[4], label = 'cut 24k (out of 26k)')
+plt.semilogy(arange(size(acf_invdat_25000))*remap_t, acf_invdat_25000/acf_invdat_25000[0], '-', color='red', linewidth=3, alpha=0.2, label = 'Smoothed data using Fourier filter (96% frequency)')
+plt.legend(loc = 'lower left')
+plt.axis([0, 4, -0.4, 1.2])
+plt.xlabel('topological dimensionless time (=time index / 1000)')
+plt.ylabel('normalized autocorrelation')
+plt.title('NP=400, longer computation')
+plt.grid()
+plt.show()
