@@ -23,7 +23,7 @@
 \newtheorem{lemma}{Lemma}
 \newtheorem{mydef}{Definition}
 \usepackage{authblk}
-\title{Stochastic Simulation for Shear Thickening Hydrophobically Modified Ethoxylated Urethane (HEUR) Solution}
+\title{Stochastic Simulation for Hydrophobically Modified Ethoxylated Urethane (HEUR) Solution}
 \author{Gun Woo Park\\ Supervisor: Giovanni Ianniruberto}
 \affil{\textit{Dipartimento di Ingegneria Chimica, dei Materiali e della Produzione Industriale, Università degli Studi di Napoli Federico II}}
 \date{24 FEB 2016}
@@ -112,9 +112,9 @@ Hydrophobically modified ethoxylated urethane (HEUR) is poly(ethylene oxide) (PE
 % that the characteristic time and characteristic modulus, plteau modulus for single Maxwell model, dependency due to concentration (46k PEO based HEUR)
 % shows two distinguishable region for percolated network: sparse and dense. 
 
-Shear thickening for HEUR solution in steady-state viscosity, $\eta(\dot{\gamma})$ is another interesting phenomena. \textcite{Annable:1993jd} report shear thickening behaviour for stead-state viscosity before thinning regime while the dynamic viscosity, $\eta(\omega)$, directly goes into thinning regime. Interestingly, the effect of shear thickening is decreases and disappeared due to increasing concentration \parencite{Suzuki:2013kk}, and disappeared concentration is the similar with the sparse to dense transition concentration reported in above. The first normal stress coefficient, $\Psi_1(\dot{\gamma})$, however, no thickening is observed \parencites{Pellens:2004ga, Suzuki:2013kk}, which follows that \textcite{Suzuki:2012gfa} dispute the finite extensible nonlinear elasticity (FENE) and shear-induced strand formation \parencite{Tam:1998fi} schemes for shear thickening, but support anisotropic bridge formation in shear gradient direction \parencite{Uneyama:2012ge}. The detail mechanism for thickening of $\eta(\dot{\gamma})$ and linearity for $\Psi_1(\dot{\gamma})$ is still in controversy.
+Shear thickening for HEUR solution in steady-state viscosity, $\eta(\dot{\gamma})$ is another interesting phenomena. \textcite{Annable:1993jd} report shear thickening behaviour for stead-state viscosity before thinning regime while the dynamic viscosity, $\eta(\omega)$, directly goes into thinning regime. Many previous models and simulations try to expect the shear thickening behaviour based on the their report, which typically shows that the thickening both of steady-state viscosity and the first normal stress different coefficient, $\Psi_1(\dot{\gamma})$, \parencites{Tam:1998fi, HernandezCifre:2003jza, HernandezCifre:2007cb, VandenBrule:1995ul, Koga:2010cc}. It turns out by \textcite{Pellens:2004ga, Suzuki:2012gfa} by the linearity of the first normal stress different coefficient. Because of the linearity for $\Psi_1(\dot{\gamma})$ before thinning is come, the strain-induced strand formation is disputed since these mechanism shows both of thickening behavior. In addition, the transient behavior, the shear viscosity growth function and the first normal stress coefficient growth function, are overshoot compared with linear viscoelasticity expectation before steady-state is reached. Cessation of shear also tested by \textcite{Suzuki:2012gfa} with different shear rate regimes that are following thickening or thinning, respectively. Unlike cessation test in shear rate given by thinning regime, the the shear viscosity and first normal stress coefficient decay linearly with respect to time when the shear rate is in thickening regime. By this evidence, the finite extensibility is not of importance to interpret the shear thickening behavior. Interestingly, the effect of shear thickening is decreases and disappeared due to increasing concentration \parencite{Suzuki:2013kk}, and disappeared concentration is the similar with the sparse to dense transition concentration reported in above.  
 
-The simulation for the shear thickening solution have been published by \textcite{VandenBrule:1995ul} and \textcites{HernandezCifre:2003jza, HernandezCifre:2007cb}. Those Brownian simulations are used dumbbells that introduce virtual sticky bead or associable bead, but shows thickening for $\Psi_1(\dot{\gamma})$. Recently, \textcite{Ianniruberto:2015dv} suggest the repulsive contribution between flower-like micelle model based on simplified dumbbell model. The basic idea of repulsive micelle model is in the low concentration, the micelles are well separated in spatially that mutually repels each other when shear is introduced. The results are qualitatively matched with the experimental one. However, there is small thickening for the $\Psi_1(\dot{\gamma})$, and this is regarded as mathematical approximation. In this study, the stochastic simulation is developed with repulsive contribution between micelles underline in \textcite{Ianniruberto:2015dv}.
+Recently, \textcite{Ianniruberto:2015dv} suggest the repulsive contribution between flower-like micelle model based on simplified dumbbell model. The basic idea of repulsive micelle model is in the low concentration, the micelles are well separated in spatially that mutually repels each other when shear is introduced. The micelle interaction model shows the strain hardening behavior for both of the viscosity and first normal stress coefficient growth function, $\eta^{+}(t;\dot{\gamma})$ and $\Psi_1^{+}(t;\dot{\gamma})$, with reasonable contribution for micelle interaction contribution for the subjected regime. However, there is thickening for the $\Psi_1(\dot{\gamma})$ which is regarded as mathematical approximation by authors point of view. In this study, the stochastic simulation is developed with repulsive contribution between micelles underline in the micelle interaction model \parencite{Ianniruberto:2015dv}.
 
 \section{Description for Simulation}
 \subsection{Time Evolution for Positions of Micelle}
@@ -181,10 +181,14 @@ Hence, it is appropriate criterion for time increment for topological update by
 \delta t < \beta_{max}^{-1},
 \end{equation}
 where $\beta_{max}$ is the maximum detachment frequency. Note that the $\bar{\beta}$ and $\beta_{max}$ is not clear for general case. If we have cut-off radius for association, $r_c$, however, the $\beta_{max}$ can be given by $\beta(r_c)$.
+Therefore, we have time step criterion
+\begin{equation}
+dt \leq \delta t < \beta^{-1}_{max} \leq \tau_D.
+\end{equation}
 
 On each $\delta t$, we select random chain ends in $N_{tot}$ times. The dissociation probability for the selected chain end is given by
 \begin{equation}
-P^{dissoc}_k = \frac{N^\dagger}{N_{tot}}\frac{\beta_k}{\bar{\beta}} = \beta_k\delta t,
+P^{dissoc}_{ij} = \frac{N^\dagger}{N_{tot}}\frac{\beta_{ij}}{\bar{\beta}} = \beta_{ij}\delta t,
 \end{equation}
 
 \subsubsection{Non-dimensional form}
@@ -222,7 +226,7 @@ then we can easily remap from dimensionless time based on Brownian motion, $\til
 \subsubsection{Probability map for Association}
 Once the subjected chain end is detached, it immediately attach to other micelle. Let say the other chain end is attached to j-th particle, the attachment probability for a micelle is based on the Boltzmann factor:
 \begin{equation}
-P^{B}_{ij} = \exp\left(-\frac{{u}_{ij}}{k_BT}\right),
+P^{B}_{ij} = \exp\left(-\frac{{U}_{ij}}{k_BT}\right),
 \end{equation}
 where index i denote possible target of micelle that originated from j-th particle. 
 Let cumulative Boltzmann distribution as
@@ -341,6 +345,8 @@ One easiest expectation might be increasing the number density of micelles, whic
 \end{itemize}
 
   
+\section{Acknolwedgement}
+This project receives funding from the People Programme (Marie Curie Actions) of the European Commission's Seventh Framewkork Programme (FP7/2007-2013) under REA grant agreement no. 607937.
 
 
 \begin{appendices}
@@ -1201,9 +1207,9 @@ Adjacency list for the given graph, figure \ref{orgkeyword3}}
   Note that $\rho(r)$ is not affected by $\Delta r$ since the counted number for histogram directly proportional to the volume: $\langle n(r, \Delta r; t)\rangle \propto V(r, \Delta r)$.
   The equation \eqref{eq:practical_RDF} becomes
   \begin{equation}
-    g(r) = \frac{\rho(r, \Delta r)}{\rho_D} = \frac{V_D}{n_D}\frac{\langle n(r, \Delta r; t)\rangle}{V(r, \Delta r)}, \label{eq:practical_RDF_refine}
+    g(r) = \frac{\rho(r, \Delta r)}{\rho_D} = \frac{V_D}{n_D}\frac{\langle n(r, \Delta r; t)\rangle}{V(r, \Delta r)}. \label{eq:practical_RDF_refine}
   \end{equation}
-  which is the same formular compared with GROMACS.
+
   
 
   For practical purpose, the pairs are only accounted for once rather than twice. On this regards, the $N-1$ factors replaced by $(N-1)/2$ which reduced the time consumption dramatically. 
