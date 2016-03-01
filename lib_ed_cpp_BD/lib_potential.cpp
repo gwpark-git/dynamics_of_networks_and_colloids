@@ -261,7 +261,7 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
       given_POT.transition = KINETICS::dissociation_probability;
       // we have to check Dt for topological update
       // note that it is dt*N_steps_block
-      given_POT.force_variables[6] = atof(given_cond("dt").c_str())*atof(given_cond("N_steps_block").c_str());
+      given_POT.force_variables[6] = atof(given_cond("dt").c_str())*atof(given_cond("N_steps_block").c_str())/atof(given_cond("Rt").c_str());
     }
   else
     {

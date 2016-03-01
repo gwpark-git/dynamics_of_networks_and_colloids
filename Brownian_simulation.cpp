@@ -124,6 +124,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   MKL_LONG cnt_arr[5] = {0};
   MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
   cnt_add = CONNECT.N_ASSOCIATION;
+  // printf("N_ASSOCIATION = %d\n\n", cnt_add);
+  // cnt_add = 100;
   
   printf("DONE\n"); 
   printf("FORCE VECTOR GENERATING ... "); 
@@ -219,6 +221,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   double N_diff = 0.;
   MKL_LONG N_tot_associable_chain = TRAJ.Np*atoi(given_condition("N_chains_per_particle").c_str());
   MKL_LONG count_M = cnt_add, pre_count_M = cnt_add;
+
   
   for(MKL_LONG t = 0; t<Nt-1; t++)
     {
@@ -282,14 +285,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
             }
           else
             {
-              // for(MKL_LONG i=0; i<TRAJ.Np; i++)
-              //   {
-              //     for(MKL_LONG j=0; j< CONNECT.TOKEN[i]; j++)
-              //       {
-              //         printf("HASH[%ld, %ld] = %ld(%ld), ", i, j, (MKL_LONG)CONNECT.HASH[i](j), (MKL_LONG)CONNECT.weight[i](j));
-              //       }
-              //     printf("\n");
-              //   }
               
 #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, R_minimum_distance_boost, vec_boost_Nd_parallel) num_threads(N_THREADS_BD)
               for(MKL_LONG i=0; i<TRAJ.Np; i++)
@@ -316,6 +311,18 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           //     */
           // if (t%N_steps_block == 0) // including initial time t=0
           //   {
+
+          // for(MKL_LONG i=0; i<TRAJ.Np; i++)
+          //   {
+  
+          //     for(MKL_LONG j=0; j< CONNECT.TOKEN[i]; j++)
+          //       {
+
+          //         printf("HASH[%ld, %ld] = %ld(%ld), ", i, j, (MKL_LONG)CONNECT.HASH[i](j), (MKL_LONG)CONNECT.weight[i](j));
+          //       }
+          //     printf("\n");
+          //   }
+          
           for(MKL_LONG i=0; i<TRAJ.Np; i++)
             {
               double time_st_pdf = dsecnd();
