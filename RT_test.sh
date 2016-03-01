@@ -1,0 +1,6 @@
+source ~/.bash_profile
+./Brownian_simulation NP1350_LD15P3_C100_SF15_RT010.inp
+./Brownian_simulation NP1350_LD15P3_C100_SF15_RT050.inp
+./Brownian_simulation NP1350_LD15P3_C100_SF15_RT200.inp
+./Brownian_simulation NP1350_LD15P3_C100_SF15_RT300.inp
+./Brownian_simulation NP1350_LD15P3_C100_SF15_RT500.inp
