@@ -45,6 +45,7 @@ namespace FORCE
     double spring_force(double distance, double N_dimension, double scale_factor);
     double spring_potential(double distance, double N_dimension, double scale_factor);
     double Boltzmann_distribution(double distance, double N_dimension, double scale_factor);
+    double cutoff_Boltzmann_distribution(double distance, double N_dimension, double scale_factor, double cutoff_radius); 
   }
   namespace FENE
   {
@@ -82,6 +83,7 @@ namespace FORCE
       double MAP_modified_Gaussian_spring_force(double distance, double* given_variables);
       double MAP_modified_Gaussian_spring_potential(double distance, double* given_variables);
       double MAP_modified_Gaussian_Boltzmann(double distance, double* given_variables);
+      double MAP_cutoff_modified_Gaussian_Boltzmann(double distance, double* given_variables);
       
       double MAP_FENE_spring_force(double distance, double* given_variables);
       double MAP_FENE_spring_potential(double distance, double* given_variables);
@@ -103,6 +105,7 @@ namespace KINETICS
   namespace WEIGHTED
   {
     double detachment_weight(double distance, double tension, double* given_variables);
+    double transition_probability(double distance, double tension, double* given_variables);
   }
 
   namespace METROPOLIS
@@ -110,6 +113,11 @@ namespace KINETICS
     double detachment_weight(double distance, double tension, double* given_variables);
     double transition_probability(double distance, double tension, double* given_varialbes);
   }
+
+  double dissociation_probability(double distance, double tension, double* given_variables);
+  /*   double detachment_weight(double distance, double tension, double* given_variables); */
+  /*   double transition_probability(double distance, double tension, double* given_varialbes); */
+  /* } */
 
 }
 
