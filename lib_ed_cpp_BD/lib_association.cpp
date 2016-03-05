@@ -285,7 +285,7 @@ MKL_LONG ASSOCIATION::N_TOTAL_ASSOCIATION()
           total_association += (MKL_LONG)weight[i](j);
         }
     }
-  return total_association;
+  return total_association/2.;
 }
 
 MKL_LONG ASSOCIATION::N_CONNECTED_ENDS(MKL_LONG given_index)
