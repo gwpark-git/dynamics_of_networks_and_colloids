@@ -550,8 +550,8 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           energy.fprint_row(filename_energy.c_str(), 0);
           for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
             {
-              CONNECT.HASH[ip].fprint_LONG_transpose(filename_HASH.c_str());
-              CONNECT.weight[ip].fprint_LONG_transpose(filename_weight.c_str());
+              CONNECT.HASH[ip].fprint_LONG_skip_transpose_LIMROWS(filename_HASH.c_str(), 1, CONNECT.TOKEN[ip]);
+              CONNECT.weight[ip].fprint_LONG_skip_transpose_LIMROWS(filename_weight.c_str(), 1, CONNECT.TOKEN[ip]);
             }
         }
       

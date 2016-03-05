@@ -64,6 +64,7 @@ MKL_LONG fprint_skip(const char *fn, MKL_LONG N_skip);
 MKL_LONG fprint_skip_transpose(const char *fn, MKL_LONG N_skip);
 MKL_LONG fprint_LONG_skip(const char *fn, MKL_LONG N_skip);
 MKL_LONG fprint_LONG_skip_transpose(const char *fn, MKL_LONG N_skip);
+MKL_LONG fprint_LONG_skip_transpose_LIMROWS(const char *fn, MKL_LONG N_skip, MKL_LONG N_lim_rows);
 MKL_LONG fprint(const char *fn);                             // ???
 MKL_LONG fprint_transpose(const char *fn);                             // ???
 MKL_LONG fprint_LONG(const char *fn);                             // ???
