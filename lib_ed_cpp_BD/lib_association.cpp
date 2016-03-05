@@ -26,16 +26,17 @@ MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
   for(MKL_LONG i=0; i<Np; i++)
     {
       MKL_LONG weight_k = 0;
-      // for(MKL_LONG k=0; k<TOKEN[i]; k++)
-      //   {
-      //     GIVEN_WEIGHT >> weight_k;
-      //     weight[i](k) = weight_k;
-      //   }
-      for(MKL_LONG k=0; k<weight[i].size; k++)
+      for(MKL_LONG k=0; k<TOKEN[i]; k++)
         {
           GIVEN_WEIGHT >> weight_k;
-          weight[i](k) = weight_k; // note that weight without association is zero.
+          weight[i](k) = weight_k;
         }
+      // for(MKL_LONG k=0; k<weight[i].size; k++)
+      //   {
+      //     GIVEN_WEIGHT >> weight_k;
+      //     weight[i](k) = weight_k; // note that weight without association is zero.
+      //   }
+      
     }
   GIVEN_WEIGHT.close();
   return 0;

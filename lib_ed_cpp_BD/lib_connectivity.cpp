@@ -59,22 +59,31 @@ MKL_LONG CONNECTIVITY::read_exist_hash(const char* fn_hash)
     }
   // flag will set for the last time steps
   // From here, the Np lines will left as initial conditions
-  for(MKL_LONG i=0; i<Np; i++)
+  // for(MKL_LONG i=0; i<Np; i++)
+  //   {
+  //     MKL_LONG hash_k = 1;
+  //     MKL_LONG count = 0;
+  //     for(MKL_LONG j=0; j<HASH[i].size; j++)
+  //       {
+  //         GIVEN_HASH >> hash_k;
+  //         if((MKL_LONG)hash_k != -1)
+  //           HASH[i](count++) = hash_k;
+  //       }
+  //     TOKEN[i] = count;
+  //   }
+  string str;
+  MKL_LONG i=0;
+  while(getline(GIVEN_HASH, str))
     {
-      MKL_LONG hash_k = 1;
-      MKL_LONG count = 0;
-      for(MKL_LONG j=0; j<HASH[i].size; j++)
-        {
-          GIVEN_HASH >> hash_k;
-          if((MKL_LONG)hash_k != -1)
-            HASH[i](count++) = hash_k;
-        }
-      // while(hash_k != -1) // note that the initialization condition for hash is -1
-      //   {
-      //     GIVEN_HASH >> hash_k;
-      //     HASH[i](count++) = hash_k;
-      //   }
-      TOKEN[i] = count;
+      istringstream ss(str);
+      MKL_LONG hash_index;
+      MKL_LONG tmp_cnt = 0;
+      while(ss >> HASH[i](tmp_cnt))
+	{
+	  tmp_cnt++;
+	}
+      TOKEN[i] = tmp_cnt;
+      i++;
     }
   GIVEN_HASH.close();
   return 0;
