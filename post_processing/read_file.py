@@ -136,18 +136,30 @@ def read_connectivity_step(f_index, f_weight, Np):
     connectivity = zeros([Np, Np])
     str_index_table = []
     str_weight_table = []
+    max_N_cols = 1
     for i in range(Np):
-        str_index_table.append(f_index.readline().split('\t')[:-1])
-        str_weight_table.append(f_weight.readline().split('\t')[:-1])
-    N_cols = shape(str_index_table)[1]
-    for i in range(Np):
-        index_i = int(str_index_table[i][0])
-        for j in range(N_cols):
-            index_j = int(str_index_table[i][j])
+        tmp_str_index = f_index.readline().split('\t')[:-1] # -1 is used because of \n
+        tmp_str_weight = f_weight.readline().split('\t')[:-1]
+        index_i = int(tmp_str_index[0])
+        for j in range(size(tmp_str_index)):
+            index_j = int(tmp_str_index[j])
             if index_j == -1:
                 break
             else:
-                connectivity[index_i, index_j] = int(str_weight_table[i][j])
+                connectivity[index_i, index_j] = int(tmp_str_weight[j])
+        # if max_N_cols < size(tmp_str_index):
+        #     max_N_cols 
+        # str_index_table.append(f_index.readline().split('\t')[:-1])
+        # str_weight_table.append(f_weight.readline().split('\t')[:-1])
+    # N_cols = shape(str_index_table)[1]
+    # for i in range(Np):
+    #     index_i = int(str_index_table[i][0])
+    #     for j in range(N_cols):
+    #         index_j = int(str_index_table[i][j])
+    #         if index_j == -1:
+    #             break
+    #         else:
+    #             connectivity[index_i, index_j] = int(str_weight_table[i][j])
     return connectivity
 
                 
