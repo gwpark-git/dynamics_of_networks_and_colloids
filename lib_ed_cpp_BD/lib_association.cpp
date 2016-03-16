@@ -6,6 +6,11 @@ MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
 {
   ifstream GIVEN_WEIGHT;
   GIVEN_WEIGHT.open(fn_weight);
+  if (!GIVEN_WEIGHT)
+    {
+      printf("ERR to read %s", fn_weight);
+      return 0;
+    }
   MKL_LONG cnt = 0;
   string line;
   while(getline(GIVEN_WEIGHT, line))
@@ -26,6 +31,12 @@ MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
           GIVEN_WEIGHT >> weight_k;
           weight[i](k) = weight_k;
         }
+      // for(MKL_LONG k=0; k<weight[i].size; k++)
+      //   {
+      //     GIVEN_WEIGHT >> weight_k;
+      //     weight[i](k) = weight_k; // note that weight without association is zero.
+      //   }
+      
     }
   GIVEN_WEIGHT.close();
   return 0;
@@ -57,20 +68,15 @@ MKL_LONG ASSOCIATION::set_initial_condition()
   return 0;
 }
 
-MKL_LONG ASSOCIATION::initial() // it should not be called by outside
+MKL_LONG ASSOCIATION::dynamic_alloc()
 {
-
   CASE = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   dPDF = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   dCDF = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   Z = (double*) mkl_malloc(Np*sizeof(double), BIT);
 
   weight = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  set_initial_condition();
-  // flag_itself = 2;
-  // flag_other = 0;
-  // flag_hash_other = 3;
-  // flag_new = 1;
+  
 
   if(MULTIPLE_CONNECTIONS)
     {
@@ -91,6 +97,48 @@ MKL_LONG ASSOCIATION::initial() // it should not be called by outside
   return 0;
 }
 
+MKL_LONG ASSOCIATION::initial() // it should not be called by outside
+{
+  dynamic_alloc();
+  // set_initial_condition reset all the variables inclduing variable belong to CONNECTIVITY class
+  // this violate the inheritance of association information from the previous computation
+  // hence, even if it is quite duplicate, the set_initial_condition() is replaced by the real sequence
+
+  set_initial_condition();
+  
+
+  return 0;
+}
+
+MKL_LONG ASSOCIATION::initial_inheritance() // it should not be called by outside
+{
+
+  dynamic_alloc();
+  //   // set_initial_condition reset all the variables inclduing variable belong to CONNECTIVITY class
+  //   // this violate the inheritance of association information from the previous computation
+  //   // hence, even if it is quite duplicate, the set_initial_condition() is replaced by the real sequence
+  // set_initial_condition();
+  for(MKL_LONG i=0; i<Np; i++)
+    {
+      CASE[i].initial(N_max, 1, 0.);
+      dPDF[i].initial(N_max, 1, 0.);
+      dCDF[i].initial(N_max, 1, 0.);
+      Z[i] = 0.;
+      weight[i].initial(N_max, 1, 0);
+    }
+  
+  for(MKL_LONG i=0; i<Np; i++)
+    {
+      dPDF[i](0) = 1.0;
+      dCDF[i](0) = 1.0;
+      CASE[i](0) = 1.0;
+    }
+
+  return 0;
+}
+
+
+
 ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY(given_condition)
 {
   Nc = atol(given_condition("N_chains_per_particle").c_str());
@@ -98,13 +146,18 @@ ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY
   N_min = 2*Nc - Tec;
   N_max = 2*Nc + Tec;
   if(given_condition("allowing_multiple_connections") == "TRUE")
-      MULTIPLE_CONNECTIONS = TRUE;
-  
-  initial();
+    MULTIPLE_CONNECTIONS = TRUE;
 
   if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
     {
+      initial_inheritance();      
       read_exist_weight(given_condition("CONTINUATION_WEIGHT_FN").c_str());
+      N_ASSOCIATION = N_TOTAL_ASSOCIATION();
+      
+    }
+  else
+    {
+      initial();
     }
 }
 
@@ -232,7 +285,7 @@ MKL_LONG ASSOCIATION::N_TOTAL_ASSOCIATION()
           total_association += (MKL_LONG)weight[i](j);
         }
     }
-  return total_association;
+  return total_association/2.;
 }
 
 MKL_LONG ASSOCIATION::N_CONNECTED_ENDS(MKL_LONG given_index)

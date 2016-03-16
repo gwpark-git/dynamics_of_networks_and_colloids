@@ -1,0 +1,24 @@
+
+#+TITLE: Rheological Measurment
+#+AUTHOR: Gun Woo Park
+
+* Measuring Stress Tensor in Equilbrium
+Measuring pressure based on the wall is given by its virial function
+\begin{equation}
+\mathbf{P}V = \left\langle\sum_{i=1}^{N} \mathbf{r}_i\mathbf{F}_i \right\rangle_t,
+\end{equation}
+where $i$ is index for particle, $\mathbf{r}$_i is position for i-th particle, and $\mathbf{F}_i$ is force exerted on the subjected particle. In principle, the force is sum over all the different contributions. For simplification, let the virial function:
+\begin{equation}
+\mathbf{\mathscr{W}} = \sum_i \mathbf{r}_i\mathbf{F}_i,
+\end{equation}
+
+
+
+# The deviatoric part for the molecular stress tensor in equilibrium simulation frequently used
+# \begin{equation}
+# \boldsymbol{\sygma} = \
+# \tau_{\alpha \beta} = - \frac{1}{V}\left(\sum_i \frac{p_{i\alpha}p_{i\beta}}{m_i} + \sum_i r_{i\alpha}f\mathbf{i\beta}\right)
+# \end{equation}
+
+
+* Equation sets

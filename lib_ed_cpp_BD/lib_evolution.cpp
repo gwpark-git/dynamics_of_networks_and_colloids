@@ -256,7 +256,7 @@ MKL_LONG ANALYSIS::cal_detail_repulsion(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, c
  
 MKL_LONG ANALYSIS::CAL_ENERGY(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& mat_energy, MKL_LONG index_t)
 {
-  mat_energy(0) = (TRAJ.c_t - 1)*TRAJ.dt;
+  // mat_energy(0) = (TRAJ.c_t - 1)*TRAJ.dt;
   mat_energy(2) = cal_potential_energy(TRAJ, POTs, index_t);
   // the functionality for kinetic energy is disabled since the evolution equation on this code is using Weiner process that does not support differentiability for the position. On this regards, measuring the velocity cannot be obtained by this environment. For further detail, see the documents.
   mat_energy(1) = mat_energy(2) + mat_energy(3);

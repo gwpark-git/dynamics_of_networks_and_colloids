@@ -6,14 +6,17 @@ from lib_rdf import *
 from numpy import *
 import matplotlib.pyplot as plt
 
-if size(sys.argv) < 7:
+if size(sys.argv) < 10:
     print 'USAGE:'
     print 'argv[1] == trajectory file name'
     print 'argv[2] == output rdf file name'
     print 'argv[3] == starting time step'
     print 'argv[4] == number of blocks for time average'
     print 'argv[5] == factor to multiplicate blocks'
-    print 'argv[6] == dt for output frequency'
+    print 'argv[6] == N_dimension'
+    print 'argv[7] == box_dimension'
+    print 'argv[8] == number of particles'
+    print 'argv[9] == dr'
 else:
 
     fn_traj = sys.argv[1]
@@ -22,14 +25,14 @@ else:
     t_st = int(sys.argv[3])
     N_t_block = int(sys.argv[4])
     fac_t = int(sys.argv[5])
-    dt = float(sys.argv[6])
+    # dt = float(sys.argv[6])
     traj = loadtxt(fn_traj)
     Nt = shape(traj)[0]
-    dr = 0.1
-    N_dimension = 2
-    box_dimension = 40.0
+    N_dimension = int(sys.argv[6])
+    box_dimension = float(sys.argv[7])
     half_bd = box_dimension/2.0
-    Np = 640
+    Np = int(sys.argv[8])
+    dr = float(sys.argv[9])
     rho = 0.4
     cut_ratio = 0.5
     fac_t = 1
