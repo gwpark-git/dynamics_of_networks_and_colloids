@@ -132,6 +132,13 @@ def read_traj_step(f_traj, Np, N_dimension):
         cnt += N_dimension
     return pos
 
+# def read_hash_step(f_index, Np):
+#     re = zeros([Np, Np])
+#     for i in range(Np):
+#         tmp_str_index = f_index.readline().split('\t')[:-1]
+#         for j in range(size(tmp_str_index[0])):
+            
+
 def read_connectivity_step(f_index, f_weight, Np):
     connectivity = zeros([Np, Np])
     str_index_table = []
