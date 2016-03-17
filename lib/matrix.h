@@ -18,8 +18,8 @@
 // Note that I seperated library for linear algebra and matrix.
 // If some error occurs during compiling, please check to include linear algebra code.
 
-#ifndef MATRIX_ED_H
-#define MATRIX_ED_H
+#ifndef MATRIX_H
+#define MATRIX_H
 #define TRUE 1
 #define FALSE 0
 #define BIT 64

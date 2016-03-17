@@ -2,8 +2,8 @@
 
 // Trajectory class definition for first aim
 // As test purpose, it include 2-dimensional case, then extend to the 3-dimensional geometry.
-#ifndef LIB_TRAJ_H
-#define LIB_TRAJ_H
+#ifndef TRAJECTORY_H
+#define TRAJECTORY_H
 
 #define TRUE 1
 #define FALSE 0
@@ -15,8 +15,8 @@
 #include <math.h>
 #include <string>
 #include <sstream>
-#include "matrix_ed.h"
-#include "lib_random.h"
+#include "matrix.h"
+#include "random.h"
 #include <omp.h>
 
 #include "read_file_condition.h"

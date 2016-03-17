@@ -1,5 +1,5 @@
 
-#include "lib_cell_list.h"
+#include "cell_list.h"
 
 MKL_LONG CLIST::cell_index(MKL_LONG* index_vec)
 {

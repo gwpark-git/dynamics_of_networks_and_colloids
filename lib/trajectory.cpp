@@ -1,4 +1,4 @@
-#include "lib_traj.h"
+#include "trajectory.h"
 
 using namespace std;
 

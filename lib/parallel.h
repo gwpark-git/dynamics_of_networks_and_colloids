@@ -1,13 +1,13 @@
 
-#ifndef LIB_PARALLEL_H
-#define LIB_PARALLEL_H
+#ifndef PARALLEL_H
+#define PARALLEL_H
 
 #define BIT 64
 #define TRUE 1
 #define FALSE 0
 
 #include <iostream>
-#include "lib_handle_association.h"
+#include "handle_association.h"
 
 class LOCK
 {

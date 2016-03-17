@@ -1,6 +1,6 @@
 
-#ifndef LIB_RANDOM_H
-#define LIB_RANDOM_H
+#ifndef RANDOM_H
+#define RANDOM_H
 
 extern "C" {
 #include <gsl/gsl_rng.h>
@@ -10,7 +10,7 @@ extern "C" {
 #include <math.h>
 #include <mkl.h>
 #include <iostream>
-#include "matrix_ed.h"
+#include "matrix.h"
 
 // note that the RANDOM package should not has the dependency with lib_traj.h
 

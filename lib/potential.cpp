@@ -1,5 +1,5 @@
 
-#include "lib_potential.h"
+#include "potential.h"
 
 
 double FORCE::DEFAULT::EMPTY_force_contribution(double distance, double* given_varialbes)

@@ -1,5 +1,5 @@
 
-#include "lib_parallel.h"
+#include "parallel.h"
 
 LOCK::LOCK()
 {

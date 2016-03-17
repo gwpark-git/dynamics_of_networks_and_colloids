@@ -1,10 +1,11 @@
 
-#ifndef LIB_HANDLE_ASSOCIATION_H
-#define LIB_HANDLE_ASSOCIATION_H
-#include "lib_association.h"
-#include "lib_geometry.h"
-#include "lib_potential.h"
-#include "lib_traj.h"
+#ifndef HANDLE_ASSOCIATION_H
+#define HANDLE_ASSOCIATION_H
+
+#include "association.h"
+#include "geometry.h"
+#include "potential.h"
+#include "trajectory.h"
 
 // this library is designed to handle association in easiler way.
 // the reason to seperate it from lib_association is for removing dependencies of library

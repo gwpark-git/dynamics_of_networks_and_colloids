@@ -1,6 +1,6 @@
 
-#ifndef LIB_CELL_LIST_H
-#define LIB_CELL_LIST_H
+#ifndef CELL_LIST_H
+#define CELL_LIST_H
 
 #define TRUE 1
 #define FALSE 0
@@ -8,8 +8,8 @@
 
 #include <iostream>
 #include <math.h>
-#include "matrix_ed.h" 
-#include "lib_traj.h" // the converting interface will be implemented
+#include "matrix.h" 
+#include "trajectory.h" // the converting interface will be implemented
 
 
 class CLIST

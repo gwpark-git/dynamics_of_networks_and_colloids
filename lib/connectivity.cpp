@@ -1,5 +1,5 @@
 
-#include "lib_connectivity.h"
+#include "connectivity.h"
 
 CONNECTIVITY::CONNECTIVITY(COND& given_condition)
 {

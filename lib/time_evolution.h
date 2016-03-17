@@ -1,11 +1,12 @@
 
-#ifndef LIB_EVOLUTION_H
-#define LIB_EVOLUTION_H
-#include "lib_traj.h"
-#include "lib_geometry.h"
-#include "lib_potential.h"
+#ifndef TIME_EVOLUTION_H
+#define TIME_EVOLUTION_H
+
+#include "trajectory.h"
+#include "geometry.h"
+#include "potential.h"
 #include "fstream"
-#include "lib_association.h"
+#include "association.h"
 #include <mkl.h>
 
 namespace INTEGRATOR

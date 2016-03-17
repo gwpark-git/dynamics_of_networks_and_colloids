@@ -1,5 +1,5 @@
 
-#include "lib_random.h"
+#include "random.h"
 
 
 MKL_LONG RANDOM::return_LONG_INT_rand(MKL_LONG SUP)

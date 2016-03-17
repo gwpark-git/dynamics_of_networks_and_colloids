@@ -1,6 +1,6 @@
 
-#ifndef LIB_CONNECTIVITY_H
-#define LIB_CONNECTIVITY_H
+#ifndef CONNECTIVITY_H
+#define CONNECTIVITY_H
 
 #define TRUE 1
 #define FALSE 0
@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <mkl.h>
-#include "matrix_ed.h"
+#include "matrix.h"
 #include "read_file_condition.h"
 
 class CONNECTIVITY

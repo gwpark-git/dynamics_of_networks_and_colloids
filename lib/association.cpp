@@ -1,5 +1,5 @@
 
-#include "lib_association.h"
+#include "association.h"
 
 
 MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)

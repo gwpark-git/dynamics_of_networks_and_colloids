@@ -1,5 +1,5 @@
 
-#include "lib_geometry.h"
+#include "geometry.h"
 
 
 double GEOMETRY::get_minimum_distance_for_particle(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_particle, MATRIX& R_minimum_boost_particle, MATRIX** R_minimum_vec_boost)

@@ -1,11 +1,12 @@
 
-#ifndef LIB_POTENTIAL_H
-#define LIB_POTENTIAL_H
+#ifndef POTENTIAL_H
+#define POTENTIAL_H
+
 #include <iostream>
 #include <math.h>
 #include <mkl.h>
 #include "read_file_condition.h"
-#include "matrix_ed.h"
+#include "matrix.h"
 #include <string>
 #define BIT 64
 

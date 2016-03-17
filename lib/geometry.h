@@ -1,9 +1,9 @@
 
-#ifndef LIB_GEOMETRY_H
-#define LIB_GEOMETRY_H
+#ifndef GEOMETRY_H
+#define GEOMETRY_H
 
 #include <iostream>
-#include "lib_traj.h"
+#include "trajectory.h"
 
 namespace GEOMETRY
 {

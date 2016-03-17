@@ -1,12 +1,12 @@
 
 #include <iostream>
-#include "lib_ed_cpp_BD/matrix_ed.h"
-#include "lib_ed_cpp_BD/lib_traj.h"
-#include "lib_ed_cpp_BD/lib_evolution.h"
-#include "lib_ed_cpp_BD/lib_association.h"
-#include "lib_ed_cpp_BD/lib_handle_association.h"
-#include "lib_ed_cpp_BD/lib_potential.h"
-#include "lib_ed_cpp_BD/lib_parallel.h"
+#include "../lib/matrix.h"
+#include "../lib/trajectory.h"
+#include "../lib/time_evolution.h"
+#include "../lib/association.h"
+#include "../lib/handle_association.h"
+#include "../lib/potential.h"
+#include "../lib/parallel.h"
 #include <string>
 using namespace std;
 
@@ -656,7 +656,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 
 /*
  * Local variables:
- * compile-command: "icpc -openmp -O2 -Wall -mkl -o Brownian_simulation lib_ed_cpp_BD/lib_traj.cpp lib_ed_cpp_BD/read_file_condition.cpp lib_ed_cpp_BD/lib_evolution.cpp lib_ed_cpp_BD/matrix_ed.cpp lib_ed_cpp_BD/lib_potential.cpp lib_ed_cpp_BD/lib_connectivity.cpp lib_ed_cpp_BD/lib_association.cpp lib_ed_cpp_BD/lib_handle_association.cpp lib_ed_cpp_BD/lib_geometry.cpp lib_ed_cpp_BD/lib_random.cpp lib_ed_cpp_BD/lib_parallel.cpp Brownian_simulation.cpp -L/usr/local/include/ -L/usr/local/lib/ -lgsl -lm"
+ * compile-command: "icpc -openmp -O2 -Wall -mkl -o Brownian_simulation lib/trajectory.cpp lib/read_file_condition.cpp lib/time_evolution.cpp lib/matrix.cpp lib/potential.cpp lib/connectivity.cpp lib/association.cpp lib/handle_association.cpp lib/geometry.cpp lib/random.cpp lib/parallel.cpp src/Brownian_simulation.cpp -L/usr/local/include/ -L/usr/local/lib/ -lgsl -lm"
  * End:
  */
 

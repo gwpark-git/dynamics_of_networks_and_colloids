@@ -1,6 +1,6 @@
 
-#ifndef LIB_ASSOCIATION_H
-#define LIB_ASSOCIATION_H
+#ifndef ASSOCIATION_H
+#define ASSOCIATION_H
 
 #define TRUE 1
 #define FALSE 0
@@ -13,10 +13,10 @@ extern "C" {
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_const_mksa.h>
 }
-#include "matrix_ed.h"
-#include "lib_connectivity.h"
-#include "lib_potential.h"
-#include "lib_traj.h"
+#include "matrix.h"
+#include "connectivity.h"
+#include "potential.h"
+#include "trajectory.h"
 #include "read_file_condition.h"
 
 
