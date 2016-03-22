@@ -4,6 +4,37 @@
 
 #include <iostream>
 #include "trajectory.h"
+#include "read_file_condition.h"
+
+class RDIST : public CLIST
+{
+ public:
+
+  /* double** Rmin; */
+  MATRIX** Rvec; // Rvec[i][j] will be the relative vector between i- and j-th particles
+  MATRIX* Rsca; // Rsca[i](j) will be the relative distance between i- and j-th particles. The form is differ from the original.
+  
+  RDIST()
+    {
+      std::cout << "There is no empty constructor for RDIST class\n" << std::endl;
+      return -1;
+    }
+ RDIST(COND& given_condition) : CLIST(given_condition)
+    {
+      Rvec = (MATRIX**)mkl_malloc(Np*sizeof(MATRIX*), BIT);
+      Rsca = (MATRIX*)mkl_malloc(Np*sizeof(MATRIX), BIT);
+      for(MKL_LONG i=0; i<Np; i++)
+        {
+          Rvec[i] = (MATRIX*)mkl_malloc(Np*sizeof(MATRIX), BIT);
+          for(MKL_LONG j=0; j<Np; j++)
+            {
+              Rvec[i][j].initial(N_dimension, 1, 0.);
+            }
+          Rsca[i].initial(Np, 1, 0.);
+        }
+    }
+
+};
 
 namespace GEOMETRY
 {
