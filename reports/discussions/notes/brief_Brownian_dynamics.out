@@ -1,0 +1,57 @@
+\BOOKMARK [-1][-]{part.1}{I Simulation Details: Brownian Dynamics}{}% 1
+\BOOKMARK [0][-]{chapter.1}{Basic Approaches for Brownian Motion}{part.1}% 2
+\BOOKMARK [1][-]{section.1.1}{Wiener Process for Random Force Contribution}{chapter.1}% 3
+\BOOKMARK [1][-]{section.1.2}{Non-dimensionalization}{chapter.1}% 4
+\BOOKMARK [1][-]{section.1.3}{Simulation Results}{chapter.1}% 5
+\BOOKMARK [2][-]{subsection.1.3.1}{Notes}{section.1.3}% 6
+\BOOKMARK [2][-]{subsection.1.3.2}{Mean-square displacement}{section.1.3}% 7
+\BOOKMARK [0][-]{chapter.2}{Brownian Motion with Repulsive Potential}{part.1}% 8
+\BOOKMARK [1][-]{section.2.1}{Basic Fomular}{chapter.2}% 9
+\BOOKMARK [1][-]{section.2.2}{Non-dimensionalization with prefactor C}{chapter.2}% 10
+\BOOKMARK [1][-]{section.2.3}{Simulation Results}{chapter.2}% 11
+\BOOKMARK [2][-]{subsection.2.3.1}{Note}{section.2.3}% 12
+\BOOKMARK [2][-]{subsection.2.3.2}{Trajectory Analysis}{section.2.3}% 13
+\BOOKMARK [2][-]{subsection.2.3.3}{Distance and Energy Distribution}{section.2.3}% 14
+\BOOKMARK [0][-]{chapter.3}{Brownian Dynamics for Associative System}{part.1}% 15
+\BOOKMARK [1][-]{section.3.1}{Evolution Equations for Associative System}{chapter.3}% 16
+\BOOKMARK [2][-]{subsection.3.1.1}{Gaussian Connector}{section.3.1}% 17
+\BOOKMARK [2][-]{subsection.3.1.2}{Finite Extensible Connector}{section.3.1}% 18
+\BOOKMARK [1][-]{section.3.2}{Implementation for Association}{chapter.3}% 19
+\BOOKMARK [2][-]{subsection.3.2.1}{Equilibration for Each Association Step}{section.3.2}% 20
+\BOOKMARK [2][-]{subsection.3.2.2}{Probability to Select Chain in Beads}{section.3.2}% 21
+\BOOKMARK [2][-]{subsection.3.2.3}{Behaviour of Selected Chain}{section.3.2}% 22
+\BOOKMARK [2][-]{subsection.3.2.4}{Allowance for Number of Chain Ends per Bead}{section.3.2}% 23
+\BOOKMARK [1][-]{section.3.3}{Simulation Results}{chapter.3}% 24
+\BOOKMARK [2][-]{subsection.3.3.1}{Clustering with Gaussian Connector}{section.3.3}% 25
+\BOOKMARK [2][-]{subsection.3.3.2}{New Length Scale with FENE Connector}{section.3.3}% 26
+\BOOKMARK [2][-]{subsection.3.3.3}{Isotropic for connecting vector}{section.3.3}% 27
+\BOOKMARK [2][-]{subsection.3.3.4}{Size Effects}{section.3.3}% 28
+\BOOKMARK [0][-]{section*.11}{Appendices}{part.1}% 29
+\BOOKMARK [0][-]{Appendix.a.A}{Finite Extensibility}{part.1}% 30
+\BOOKMARK [0][-]{Appendix.a.B}{Time Correlated Data}{part.1}% 31
+\BOOKMARK [1][-]{section.a.B.1}{Stationary State Variable}{Appendix.a.B}% 32
+\BOOKMARK [1][-]{section.a.B.2}{Regression}{Appendix.a.B}% 33
+\BOOKMARK [0][-]{Appendix.a.C}{Regression Scheme}{part.1}% 34
+\BOOKMARK [1][-]{section.a.C.1}{Regression by Chebyshev Polynomial}{Appendix.a.C}% 35
+\BOOKMARK [1][-]{section.a.C.2}{Typical Polynomial Expression}{Appendix.a.C}% 36
+\BOOKMARK [1][-]{section.a.C.3}{Overhead for Recursion}{Appendix.a.C}% 37
+\BOOKMARK [0][-]{Appendix.a.D}{Cumulative Distribution and Probability Distribution Function}{part.1}% 38
+\BOOKMARK [0][-]{Appendix.a.E}{Software architecture}{part.1}% 39
+\BOOKMARK [1][-]{section.a.E.1}{GNU's scientific library as Front-End for Mathematical Calculations}{Appendix.a.E}% 40
+\BOOKMARK [1][-]{section.a.E.2}{Math Kernel Library \(MKL\) as interface between Front- and Back-End}{Appendix.a.E}% 41
+\BOOKMARK [1][-]{section.a.E.3}{Personally developed MATRIX class as Back-End}{Appendix.a.E}% 42
+\BOOKMARK [1][-]{section.a.E.4}{Parsing Test Conditions}{Appendix.a.E}% 43
+\BOOKMARK [1][-]{section.a.E.5}{Periodic Boundary Condition}{Appendix.a.E}% 44
+\BOOKMARK [2][-]{subsection.a.E.5.1}{Minimum Image Convention}{section.a.E.5}% 45
+\BOOKMARK [2][-]{subsection.a.E.5.2}{Applying Periodic Boundary Condition for Trajectory}{section.a.E.5}% 46
+\BOOKMARK [0][-]{Appendix.a.F}{Parallel Computing}{part.1}% 47
+\BOOKMARK [0][-]{Appendix.a.G}{Post-Processing}{part.1}% 48
+\BOOKMARK [1][-]{section.a.G.1}{Plotting and Making Move for Trajectory File}{Appendix.a.G}% 49
+\BOOKMARK [1][-]{section.a.G.2}{Trajectory Conversion}{Appendix.a.G}% 50
+\BOOKMARK [1][-]{section.a.G.3}{Pair Correlation Function}{Appendix.a.G}% 51
+\BOOKMARK [2][-]{subsection.a.G.3.1}{Theoretical Background}{section.a.G.3}% 52
+\BOOKMARK [2][-]{subsection.a.G.3.2}{Measuring from Simulation Data}{section.a.G.3}% 53
+\BOOKMARK [1][-]{section.a.G.4}{Structure Factor}{Appendix.a.G}% 54
+\BOOKMARK [2][-]{subsection.a.G.4.1}{Basics}{section.a.G.4}% 55
+\BOOKMARK [2][-]{subsection.a.G.4.2}{Related with Radial Distribution Function, 3D}{section.a.G.4}% 56
+\BOOKMARK [2][-]{subsection.a.G.4.3}{Isotropic Structure Factor for 2 Dimensional Case}{section.a.G.4}% 57

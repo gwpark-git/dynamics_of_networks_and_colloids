@@ -1,0 +1,4362 @@
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=prv_brief_Brownian_dynamics 2015.10.2)  2 OCT 2015 11:33
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**&prv_brief_Brownian_dynamics _region_.tex
+(./_region_.tex
+LaTeX2e <2011/06/27>
+Babel <3.9f> and hyphenation patterns for 78 languages loaded.
+CUSTOMISED FORMAT. Preloaded files:
+        .
+  report.cls    2007/10/19 v1.4h Standard LaTeX document class
+  size10.clo    2007/10/19 v1.4h Standard LaTeX file (size option)
+appendix.sty    2009/09/02 v1.2b extra appendix facilities
+indentfirst.sty    1995/11/23 v1.03 Indent first paragraph (DPC)
+arydshln.sty    2004/08/31 v1.71 
+afterpage.sty    1995/10/27 v1.08 After-Page Package (DPC)
+pdflscape.sty    2008/08/11 v0.10 Display of landscape pages in PDF (HO)
+  lscape.sty    2000/10/22 v3.01 Landscape Pages (DPC)
+graphics.sty    2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+    trig.sty    1999/03/16 v1.09 sin cos tan (DPC)
+graphics.cfg    2010/04/23 v1.9 graphics configuration of TeX Live
+  pdftex.def    2011/05/27 v0.06d Graphics/color for pdfTeX
+infwarerr.sty    2010/04/08 v1.3 Providing info/warning/error messages (HO)
+ ltxcmds.sty    2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
+   ifpdf.sty    2011/01/30 v2.3 Provides the ifpdf switch (HO)
+ ifxetex.sty    2010/09/12 v0.6 Provides ifxetex conditional
+hyperref.sty    2012/11/06 v6.83m Hypertext links for LaTeX
+hobsub-hyperref.sty    2012/05/28 v1.13 Bundle oberdiek, subset hyperref (HO)
+hobsub-generic.sty    2012/05/28 v1.13 Bundle oberdiek, subset generic (HO)
+  hobsub.sty    2012/05/28 v1.13 Construct package bundles (HO)
+ifluatex.sty    2010/03/01 v1.3 Provides the ifluatex switch (HO)
+  ifvtex.sty    2010/03/01 v1.5 Detect VTeX and its facilities (HO)
+ intcalc.sty    2007/09/27 v1.1 Expandable calculations with integers (HO)
+etexcmds.sty    2011/02/16 v1.5 Avoid name clashes with e-TeX commands (HO)
+kvsetkeys.sty    2012/04/25 v1.16 Key value parser (HO)
+kvdefinekeys.sty    2011/04/07 v1.3 Define keys (HO)
+pdftexcmds.sty    2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO)
+pdfescape.sty    2011/11/25 v1.13 Implements pdfTeX's escape features (HO)
+bigintcalc.sty    2012/04/08 v1.3 Expandable calculations on big integers (HO)
+  bitset.sty    2011/01/30 v1.1 Handle bit-vector datatype (HO)
+uniquecounter.sty    2011/01/30 v1.2 Provide unlimited unique counter (HO)
+letltxmacro.sty    2010/09/02 v1.4 Let assignment for LaTeX macros (HO)
+ hopatch.sty    2012/05/28 v1.2 Wrapper for package hooks (HO)
+xcolor-patch.sty    2011/01/30 xcolor patch
+atveryend.sty    2011/06/30 v1.8 Hooks at the very end of document (HO)
+atbegshi.sty    2011/10/05 v1.16 At begin shipout hook (HO)
+refcount.sty    2011/10/16 v3.4 Data extraction from label references (HO)
+ hycolor.sty    2011/01/30 v1.7 Color options for hyperref/bookmark (HO)
+  keyval.sty    1999/03/16 v1.13 key=value parser (DPC)
+ auxhook.sty    2011/03/04 v1.3 Hooks for auxiliary files (HO)
+kvoptions.sty    2011/06/30 v3.11 Key value format for package options (HO)
+  pd1enc.def    2012/11/06 v6.83m Hyperref: PDFDocEncoding definition (HO)
+hyperref.cfg    2002/06/06 v1.2 hyperref configuration of TeXLive
+     url.sty    2006/04/12  ver 3.3  Verb mode for urls, etc.
+ hpdftex.def    2012/11/06 v6.83m Hyperref driver for pdfTeX
+rerunfilecheck.sty    2011/04/15 v1.7 Rerun checks for auxiliary files (HO)
+biblatex.sty    2013/05/01 v2.6 programmable bibliographies (PK/JW/AB)
+biblatex2.sty    2013/05/01 v2.6 programmable bibliographies (biber) (PK/JW/AB)
+
+etoolbox.sty    2011/01/03 v2.1 e-TeX tools for LaTeX
+    etex.sty    1998/03/26 v2.0 eTeX basic definition package (PEB)
+  logreq.sty    2010/08/04 v1.0 xml request logger
+  logreq.def    2010/08/04 v1.0 logreq spec v1.0
+  ifthen.sty    2001/05/26 v1.1c Standard LaTeX ifthen package (DPC)
+  blx-dm.def
+authoryear-comp.dbx
+biblatex-dm.cfg
+blx-compat.def    2013/05/01 v2.6 biblatex compatibility (PK/JW/AB)
+biblatex.def    
+standard.bbx    2013/05/01 v2.6 biblatex bibliography style (PK/JW/AB)
+authoryear.bbx    2013/05/01 v2.6 biblatex bibliography style (PK/JW/AB)
+authoryear-comp.bbx    2013/05/01 v2.6 biblatex bibliography style (PK/JW/AB)
+authoryear-comp.cbx    2013/05/01 v2.6 biblatex citation style (PK/JW/AB)
+biblatex.cfg    
+ amsmath.sty    2013/01/14 v2.14 AMS math features
+ amstext.sty    2000/06/29 v2.01
+  amsgen.sty    1999/11/30 v2.0
+  amsbsy.sty    1999/11/29 v1.2d
+  amsopn.sty    1999/12/14 v2.01 operator names
+ amssymb.sty    2013/01/14 v3.01 AMS font symbols
+amsfonts.sty    2013/01/14 v3.01 Basic AMSFonts support
+mathrsfs.sty    1996/01/01 Math RSFS package v1.0 (jk)
+  xcolor.sty    2007/01/21 v2.11 LaTeX color extensions (UK)
+   color.cfg    2007/01/18 v1.5 color configuration of teTeX/TeXLive
+graphicx.sty    1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+epstopdf.sty    2010/02/09 v2.5 Conversion with epstopdf on the fly (HO)
+epstopdf-base.sty    2010/02/09 v2.5 Base part for package epstopdf
+  grfext.sty    2010/08/19 v1.1 Manage graphics extensions (HO)
+epstopdf-sys.cfg    2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
+  amsthm.sty    2004/08/06 v2.20
+listings.sty    2007/02/22 1.4 (Carsten Heinz)
+ lstmisc.sty    2007/02/22 1.4 (Carsten Heinz)
+listings.cfg    2007/02/22 1.4 listings configuration
+ courier.sty    2005/04/12 PSNFSS-v9.2a (WaS) 
+lstlang1.sty    2004/09/05 1.3 listings language file
+lstlang1.sty    2004/09/05 1.3 listings language file
+ lstmisc.sty    2007/02/22 1.4 (Carsten Heinz)
+lstlang1.sty    2004/09/05 1.3 listings language file
+ caption.sty    2013/05/02 v3.3-89 Customizing captions (AR)
+caption3.sty    2013/05/02 v1.6-88 caption3 kernel (AR)
+ english.lbx    2013/05/01 v2.6 biblatex localization (PK/JW/AB)
+    umsa.fd    2013/01/14 v3.01 AMS symbols A
+    umsb.fd    2013/01/14 v3.01 AMS symbols B
+   ursfs.fd    1998/03/24 rsfs font definition file (jk)
+  ot1pcr.fd    2001/06/04 font definitions for OT1/pcr.
+        .
+No file _region_.aux.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+(/Users/parkgunwoo/.emacs.d/elpa/auctex-11.88.8/latex/preview.sty
+Package: preview 2010/02/14 11.88 (AUCTeX/preview-latex)
+
+(/Users/parkgunwoo/.emacs.d/elpa/auctex-11.88.8/latex/prtightpage.def
+\PreviewBorder=\dimen137
+)
+(/Users/parkgunwoo/.emacs.d/elpa/auctex-11.88.8/latex/prauctex.def
+No auxiliary output files.
+
+
+\hbadness=\count297
+\hfuzz=\dimen138
+(/Users/parkgunwoo/.emacs.d/elpa/auctex-11.88.8/latex/prauctex.cfg))
+(/Users/parkgunwoo/.emacs.d/elpa/auctex-11.88.8/latex/prfootnotes.def)
+\pr@snippet=\count298
+\pr@box=\box33
+\pr@output=\toks29
+
+Preview: Fontsize 10pt
+Preview: PDFoutput 1
+) (/usr/local/texlive/2013/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count299
+\scratchdimen=\dimen139
+\scratchbox=\box34
+\nofMPsegments=\count300
+\nofMParguments=\count301
+\everyMPshowfont=\toks30
+\MPscratchCnt=\count302
+\MPscratchDim=\dimen140
+\MPnumerator=\count303
+\makeMPintoPDFobject=\count304
+\everyMPtoPDFconversion=\toks31
+)
+\AtBeginShipoutBox=\box35
+Package hyperref Info: Link coloring OFF on input line 102.
+ (/usr/local/texlive/2013/texmf-dist/tex/latex/hyperref/nameref.sty
+Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
+
+(/usr/local/texlive/2013/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
+Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
+)
+\c@section@level=\count305
+)
+LaTeX Info: Redefining \ref on input line 102.
+LaTeX Info: Redefining \pageref on input line 102.
+LaTeX Info: Redefining \nameref on input line 102.
+Package biblatex Info: No input encoding detected.
+(biblatex)             Assuming 'ascii'.
+Package biblatex Info: Automatic encoding selection.
+(biblatex)             Assuming data encoding 'ascii'.
+Package biblatex Info: Reference section=0 on input line 102.
+Package biblatex Info: Reference segment=0 on input line 102.
+\c@lstlisting=\count306
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: Incompatible package detected (regarding \caption).
+(caption)             \caption = \protected\long macro:->\pr@protect@domacro {}
+{##1{}}\pr@\caption .
+
+
+Package caption Warning: \caption will not be redefined since it's already
+(caption)                redefined by a document class or package which is
+(caption)                unknown to the caption package.
+See the caption package documentation for explanation.
+
+Package caption Info: End \AtBeginDocument code.
+ !name(brief_Brownian_dynamics.tex) !offset(-3) 
+! Preview: Snippet 1 started.
+<-><->
+      
+l.108 \tableofcontents
+                      
+Not a real error.
+
+Preview: Tightpage -32891 -32891 32891 32891
+! Preview: Snippet 1 ended.(5832710+0x28203959).
+<-><->
+      
+l.108 \tableofcontents
+                      
+Not a real error.
+
+[1
+
+{/usr/local/texlive/2013/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+! Preview: Snippet 2 started.
+<-><->
+      
+l.124 \chapter
+              {Basic Approaches for Brownian Motion}
+Not a real error.
+
+Chapter 1.
+! Preview: Snippet 2 ended.(11829265+0x28203959).
+<-><->
+      
+l.124 ...ter{Basic Approaches for Brownian Motion}
+                                                  
+Not a real error.
+
+[2
+
+
+
+
+]
+! Preview: Snippet 3 started.
+<-><->
+      
+l.126 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 3 ended.(1599340+0x28203959).
+<-><->
+      
+l.128 \end{equation}
+                    
+Not a real error.
+
+[3
+
+]
+! Preview: Snippet 4 started.
+<-><->
+      
+l.129 where $
+             \mathbf{F}^{(s)}$ is random force contribution from solution. W...
+
+Not a real error.
+
+! Preview: Snippet 4 ended.(581889+0x1163947).
+<-><->
+      
+l.129 where $\mathbf{F}^{(s)}$
+                               is random force contribution from solution. W...
+
+Not a real error.
+
+[4]
+! Preview: Snippet 5 started.
+<-><->
+      
+l.130 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 5 ended.(1186204+0x28203959).
+<-><->
+      
+l.132 \end{equation}
+                    
+Not a real error.
+
+[5
+
+]
+! Preview: Snippet 6 started.
+<-><->
+      
+l.133 where stochastic step, $
+                              \delta \mathbf{r}$ is defined by
+Not a real error.
+
+! Preview: Snippet 6 ended.(455111+0x626459).
+<-><->
+      
+l.133 where stochastic step, $\delta \mathbf{r}$
+                                                 is defined by
+Not a real error.
+
+[6]
+! Preview: Snippet 7 started.
+<-><->
+      
+l.134 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 7 ended.(1711233+0x28203959).
+<-><->
+      
+l.136 \end{equation}
+                    
+Not a real error.
+
+[7
+
+]
+! Preview: Snippet 8 started.
+<-><->
+      
+l.139 \section
+              {Wiener Process for Random Force Contribution}
+Not a real error.
+
+! Preview: Snippet 8 ended.(655359+0x28203959).
+<-><->
+      
+l.139 ...er Process for Random Force Contribution}
+                                                  
+Not a real error.
+
+[8
+
+]
+! Preview: Snippet 9 started.
+<-><->
+      
+l.142 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 9 ended.(1619477+0x28203959).
+<-><->
+      
+l.144 \end{equation}
+                    
+Not a real error.
+
+[9]
+! Preview: Snippet 10 started.
+<-><->
+      
+l.145 the stochastic step, $
+                            \delta \mathbf{r}$, is represented by the increm...
+
+Not a real error.
+
+! Preview: Snippet 10 ended.(455111+0x626459).
+<-><->
+      
+l.145 the stochastic step, $\delta \mathbf{r}$
+                                              , is represented by the increm...
+
+Not a real error.
+
+[10]
+! Preview: Snippet 11 started.
+<-><->
+      
+l.146 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 11 ended.(1186204+0x28203959).
+<-><->
+      
+l.148 \end{equation}
+                    
+Not a real error.
+
+[11]
+
+LaTeX Warning: Citation 'GREINER:1988cq' on page 2 undefined on input line 149.
+
+
+! Preview: Snippet 12 started.
+<-><->
+      
+l.150 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 12 ended.(1186204+0x28203959).
+<-><->
+      
+l.152 \end{equation}
+                    
+Not a real error.
+
+[12
+
+]
+! Preview: Snippet 13 started.
+<-><->
+      
+l.153 where $
+             \mathscr{N}(\mu, \sigma^2)$ denote normal distribution with mea...
+
+Not a real error.
+
+! Preview: Snippet 13 ended.(533465+163840x2709701).
+<-><->
+      
+l.153 where $\mathscr{N}(\mu, \sigma^2)$
+                                         denote normal distribution with mea...
+
+Not a real error.
+
+[13]
+! Preview: Snippet 14 started.
+<-><->
+      
+l.153 ...)$ denote normal distribution with mean $
+                                                  \mu$ and variance $\sigma^2$.
+
+Not a real error.
+
+! Preview: Snippet 14 ended.(282168+127431x394886).
+<-><->
+      
+l.153 ...enote normal distribution with mean $\mu$
+                                                   and variance $\sigma^2$.
+Not a real error.
+
+[14]
+! Preview: Snippet 15 started.
+<-><->
+      
+l.153 ...stribution with mean $\mu$ and variance $
+                                                  \sigma^2$.
+Not a real error.
+
+! Preview: Snippet 15 ended.(533465+0x691997).
+<-><->
+      
+l.153 ...n with mean $\mu$ and variance $\sigma^2$
+                                                  .
+Not a real error.
+
+[15]
+! Preview: Snippet 16 started.
+<-><->
+      
+l.156 \section
+              {Non-dimensionalization}
+Not a real error.
+
+! Preview: Snippet 16 ended.(655359+0x28203959).
+<-><->
+      
+l.156 \section{Non-dimensionalization}
+                                      
+Not a real error.
+
+[16
+
+]
+! Preview: Snippet 17 started.
+<-><->
+      
+l.157 Since the given micelle size is fixed as $
+                                                R_0$, it is appropriate to s...
+
+Not a real error.
+
+! Preview: Snippet 17 ended.(447828+98303x791611).
+<-><->
+      
+l.157 ... the given micelle size is fixed as $R_0$
+                                                  , it is appropriate to set...
+
+Not a real error.
+
+[17]
+! Preview: Snippet 18 started.
+<-><->
+      
+l.157 ...propriate to set characteristic length, $
+                                                  l_c$, as $R_0$. Then, we c...
+
+Not a real error.
+
+! Preview: Snippet 18 ended.(455111+98303x462523).
+<-><->
+      
+l.157 ...riate to set characteristic length, $l_c$
+                                                  , as $R_0$. Then, we can d...
+
+Not a real error.
+
+[18]
+! Preview: Snippet 19 started.
+<-><->
+      
+l.157 ...to set characteristic length, $l_c$, as $
+                                                  R_0$. Then, we can define ...
+
+Not a real error.
+
+! Preview: Snippet 19 ended.(447828+98303x791611).
+<-><->
+      
+l.157 ...et characteristic length, $l_c$, as $R_0$
+                                                  . Then, we can define char...
+
+Not a real error.
+
+[19]
+! Preview: Snippet 20 started.
+<-><->
+      
+l.158 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 20 ended.(1570212+0x28203959).
+<-><->
+      
+l.160 \end{equation}
+                    
+Not a real error.
+
+[20
+
+]
+! Preview: Snippet 21 started.
+<-><->
+      
+l.162 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 21 ended.(1635749+0x28203959).
+<-><->
+      
+l.164 \end{equation}
+                    
+Not a real error.
+
+[21]
+! Preview: Snippet 22 started.
+<-><->
+      
+l.166 ...can define dimensionless Gaussian noise $
+                                                  \tilde{\mathbf{R}}\sim\mat...
+
+Not a real error.
+
+! Preview: Snippet 22 ended.(605170+163840x3717231).
+<-><->
+      
+l.166 ... $\tilde{\mathbf{R}}\sim\mathscr{N}(0,1)$
+                                                    as
+Not a real error.
+
+[22]
+! Preview: Snippet 23 started.
+<-><->
+      
+l.167 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 23 ended.(1190259+0x28203959).
+<-><->
+      
+l.169 \end{equation}
+                    
+Not a real error.
+
+[23]
+! Preview: Snippet 24 started.
+<-><->
+      
+l.170 ...previous condition is equivalent to the $
+                                                  \tilde{\mathbf{R}}$ is fol...
+
+Not a real error.
+
+! Preview: Snippet 24 ended.(605170+0x565245).
+<-><->
+      
+l.170 ...is equivalent to the $\tilde{\mathbf{R}}$
+                                                   is following uniform dist...
+
+Not a real error.
+
+[24]
+! Preview: Snippet 25 started.
+<-><->
+      
+l.170 ... uniform distribution with the interval $
+                                                  [-\sqrt{3}, \sqrt{3}]$ bec...
+
+Not a real error.
+
+! Preview: Snippet 25 ended.(594554+163840x2912717).
+<-><->
+      
+l.170 ...with the interval $[-\sqrt{3}, \sqrt{3}]$
+                                                   because the variance of i...
+
+Not a real error.
+
+[25]
+! Preview: Snippet 26 started.
+<-><->
+      
+l.170 ...3}]$ because the variance of it becomes $
+                                                  (\sqrt{3}+\sqrt{3})^2/12 =...
+
+Not a real error.
+
+! Preview: Snippet 26 ended.(594554+163840x5536881).
+<-><->
+      
+l.170 ...it becomes $(\sqrt{3}+\sqrt{3})^2/12 = 1$
+                                                  .
+Not a real error.
+
+[26]
+! Preview: Snippet 27 started.
+<-><->
+      
+l.173 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 27 ended.(1950337+0x28203959).
+<-><->
+      
+l.175 \end{equation}
+                    
+Not a real error.
+
+[27]
+! Preview: Snippet 28 started.
+<-><->
+      
+l.177 \begin{align}
+                   
+Not a real error.
+
+! Preview: Snippet 28 ended.(2811703+0x28203959).
+<-><->
+      
+l.180 \end{align}
+                 
+Not a real error.
+
+[28]
+! Preview: Snippet 29 started.
+<-><->
+      
+l.183 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 29 ended.(1186204+0x28203959).
+<-><->
+      
+l.185 \end{equation}
+                    
+Not a real error.
+
+[29]
+! Preview: Snippet 30 started.
+<-><->
+      
+l.187 \section
+              {Simulation Results}
+Not a real error.
+
+! Preview: Snippet 30 ended.(655359+0x28203959).
+<-><->
+      
+l.187 \section{Simulation Results}
+                                  
+Not a real error.
+
+[30
+
+]
+! Preview: Snippet 31 started.
+<-><->
+      
+l.188 \subsection
+                 {Notes}
+Not a real error.
+
+! Preview: Snippet 31 ended.(539580+0x28203959).
+<-><->
+      
+l.188 \subsection{Notes}
+                        
+Not a real error.
+
+[31
+
+]
+! Preview: Snippet 32 started.
+<-><->
+      
+l.190 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 32 ended.(1631842+0x28203959).
+<-><->
+      
+l.192 \end{equation}
+                    
+Not a real error.
+
+[32]
+! Preview: Snippet 33 started.
+<-><->
+      
+l.195 \subsection
+                 {Mean-square displacement}
+Not a real error.
+
+! Preview: Snippet 33 ended.(546132+152916x28203959).
+<-><->
+      
+l.195 \subsection{Mean-square displacement}
+                                           
+Not a real error.
+
+[33
+
+]
+! Preview: Snippet 34 started.
+<-><->
+      
+l.196 ...lope gave us the diffusion coefficient, $
+                                                  D = k_BT/\zeta$. Recall th...
+
+Not a real error.
+
+! Preview: Snippet 34 ended.(491520+163840x3345412).
+<-><->
+      
+l.196 ...e diffusion coefficient, $D = k_BT/\zeta$
+                                                  . Recall the reduced time,...
+
+Not a real error.
+
+[34]
+
+LaTeX Warning: Reference `eq:characteristic_time' on page 2 undefined on input 
+line 196.
+
+! Preview: Snippet 35 started.
+<-><->
+      
+l.197 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 35 ended.(1471909+0x28203959).
+<-><->
+      
+l.199 \end{equation}
+                    
+Not a real error.
+
+[35
+
+]
+! Preview: Snippet 36 started.
+<-><->
+      
+l.201 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 36 ended.(1481116+0x28203959).
+<-><->
+      
+l.203 \end{equation}
+                    
+Not a real error.
+
+[36]
+! Preview: Snippet 37 started.
+<-><->
+      
+l.204 where $
+             N_D$ is spatial dimension.
+Not a real error.
+
+! Preview: Snippet 37 ended.(447828+98303x1001946).
+<-><->
+      
+l.204 where $N_D$
+                  is spatial dimension.
+Not a real error.
+
+[37]
+
+LaTeX Warning: Reference `eq:characteristic_time_D' on page 2 undefined on inpu
+t line 205.
+
+! Preview: Snippet 38 started.
+<-><->
+      
+l.206 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 38 ended.(1590343+0x28203959).
+<-><->
+      
+l.208 \end{equation}
+                    
+Not a real error.
+
+[38]
+
+LaTeX Warning: Reference `fig:MSD_brownian' on page 2 undefined on input line 2
+10.
+
+
+LaTeX Warning: Reference `fig:MSD_brownian' on page 2 undefined on input line 2
+10.
+
+! Preview: Snippet 39 started.
+<-><->
+      
+l.210 ...e theoretical interpretation because of $
+                                                  2N_D = 4$.
+Not a real error.
+
+! Preview: Snippet 39 ended.(447828+98303x2531114).
+<-><->
+      
+l.210 ...ical interpretation because of $2N_D = 4$
+                                                  .
+Not a real error.
+
+[39]
+
+LaTeX Warning: Reference `appen_traj_conv' on page 2 undefined on input line 21
+1.
+
+! Preview: Snippet 40 started.
+<-><->
+      
+l.213 \begin{figure}
+                    
+Not a real error.
+
+<figures/MSD_2d_Brownian.pdf, id=162, 578.16pt x 433.62pt>
+File: figures/MSD_2d_Brownian.pdf Graphic file (type pdf)
+
+<use figures/MSD_2d_Brownian.pdf>
+Package pdftex.def Info: figures/MSD_2d_Brownian.pdf used on input line 215.
+(pdftex.def)             Requested size: 430.35826pt x 322.7661pt.
+
+! Preview: Snippet 40 ended.(24875250+0x28203959).
+<-><->
+      
+l.218 \end{figure}
+                  
+Not a real error.
+
+[40
+
+
+
+ <./figures/MSD_2d_Brownian.pdf>]
+! Preview: Snippet 41 started.
+<-><->
+      
+l.221 \chapter
+              {Brownian Motion with Repulsive Potential}
+Not a real error.
+
+Chapter 2.
+! Preview: Snippet 41 ended.(11829265+0x28203959).
+<-><->
+      
+l.221 ...Brownian Motion with Repulsive Potential}
+                                                  
+Not a real error.
+
+[41
+
+
+
+
+]
+! Preview: Snippet 42 started.
+<-><->
+      
+l.222 \section
+              {Basic Fomular}
+Not a real error.
+
+! Preview: Snippet 42 ended.(655359+0x28203959).
+<-><->
+      
+l.222 \section{Basic Fomular}
+                             
+Not a real error.
+
+[42
+
+]
+! Preview: Snippet 43 started.
+<-><->
+      
+l.223 ... effective radius. For convenience, let $
+                                                  \mathbf{r}_{ij} = \mathbf{...
+
+Not a real error.
+
+! Preview: Snippet 43 ended.(382293+187504x3561839).
+<-><->
+      
+l.223 ...bf{r}_{ij} = \mathbf{r}_j - \mathbf{r}_i$
+                                                  . When distance between tw...
+
+Not a real error.
+
+[43]
+! Preview: Snippet 44 started.
+<-><->
+      
+l.223 ...i$. When distance between two micelles, $
+                                                  \lvert\mathbf{r}_{ij}\rver...
+
+Not a real error.
+
+! Preview: Snippet 44 ended.(491520+187504x1136035).
+<-><->
+      
+l.223 ...o micelles, $\lvert\mathbf{r}_{ij}\rvert$
+                                                   are lesser than the diame...
+
+Not a real error.
+
+[44]
+! Preview: Snippet 45 started.
+<-><->
+      
+l.223 ...er than the diameter of single micelle, $
+                                                  R_0$, the repulsive force ...
+
+Not a real error.
+
+! Preview: Snippet 45 ended.(447828+98303x791611).
+<-><->
+      
+l.223 ...han the diameter of single micelle, $R_0$
+                                                  , the repulsive force is d...
+
+Not a real error.
+
+[45]
+! Preview: Snippet 46 started.
+<-><->
+      
+l.224 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 46 ended.(2031635+0x28203959).
+<-><->
+      
+l.226 \end{equation}
+                    
+Not a real error.
+
+[46
+
+]
+! Preview: Snippet 47 started.
+<-><->
+      
+l.227 where hat denote directional vector, $
+                                            R_0$ denote expected size for mi...
+
+Not a real error.
+
+! Preview: Snippet 47 ended.(447828+98303x791611).
+<-><->
+      
+l.227 where hat denote directional vector, $R_0$
+                                                 denote expected size for mi...
+
+Not a real error.
+
+[47]
+! Preview: Snippet 48 started.
+<-><->
+      
+l.227 ... micelle, and non-dimensional parameter $
+                                                  C$ is given by
+Not a real error.
+
+! Preview: Snippet 48 ended.(447828+0x515276).
+<-><->
+      
+l.227 ...icelle, and non-dimensional parameter $C$
+                                                   is given by
+Not a real error.
+
+[48]
+! Preview: Snippet 49 started.
+<-><->
+      
+l.228 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 49 ended.(1471909+0x28203959).
+<-><->
+      
+l.230 \end{equation}
+                    
+Not a real error.
+
+[49]
+! Preview: Snippet 50 started.
+<-><->
+      
+l.231 with number of polymer in micelle, $
+                                          n_p$, and Kuhn number for each pol...
+
+Not a real error.
+
+! Preview: Snippet 50 ended.(282168+187504x696300).
+<-><->
+      
+l.231 with number of polymer in micelle, $n_p$
+                                              , and Kuhn number for each pol...
+
+Not a real error.
+
+[50]
+! Preview: Snippet 51 started.
+<-><->
+      
+l.231 ...n_p$, and Kuhn number for each polymer, $
+                                                  N$.
+Not a real error.
+
+! Preview: Snippet 51 ended.(447828+0x598014).
+<-><->
+      
+l.231 ...p$, and Kuhn number for each polymer, $N$
+                                                  .
+Not a real error.
+
+[51]
+
+LaTeX Warning: Reference `eq:evolution_Brownian' on page 2 undefined on input l
+ine 234.
+
+! Preview: Snippet 52 started.
+<-><->
+      
+l.235 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 52 ended.(1599340+0x28203959).
+<-><->
+      
+l.237 \end{equation}
+                    
+Not a real error.
+
+[52
+
+]
+! Preview: Snippet 53 started.
+<-><->
+      
+l.238 where $
+             \mathbf{F}^{(r)}$ is repulsive force and $\mathbf{F}^{(s)}$ is ...
+
+Not a real error.
+
+! Preview: Snippet 53 ended.(581889+0x1174035).
+<-><->
+      
+l.238 where $\mathbf{F}^{(r)}$
+                               is repulsive force and $\mathbf{F}^{(s)}$ is ...
+
+Not a real error.
+
+[53]
+! Preview: Snippet 54 started.
+<-><->
+      
+l.238 ...mathbf{F}^{(r)}$ is repulsive force and $
+                                                  \mathbf{F}^{(s)}$ is rando...
+
+Not a real error.
+
+! Preview: Snippet 54 ended.(581889+0x1163947).
+<-><->
+      
+l.238 ...is repulsive force and $\mathbf{F}^{(s)}$
+                                                   is random force contribut...
+
+Not a real error.
+
+[54]
+! Preview: Snippet 55 started.
+<-><->
+      
+l.239 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 55 ended.(1599340+0x28203959).
+<-><->
+      
+l.241 \end{equation}
+                    
+Not a real error.
+
+[55
+
+]
+! Preview: Snippet 56 started.
+<-><->
+      
+l.242 where stochastic step, $
+                              \delta\mathbf{r}$ is given by equation \eqref{...
+
+Not a real error.
+
+! Preview: Snippet 56 ended.(455111+0x626459).
+<-><->
+      
+l.242 where stochastic step, $\delta\mathbf{r}$
+                                                is given by equation \eqref{...
+
+Not a real error.
+
+[56]
+
+LaTeX Warning: Reference `eq:stochastic_step' on page 2 undefined on input line
+ 242.
+
+! Preview: Snippet 57 started.
+<-><->
+      
+l.244 \section
+              {Non-dimensionalization with prefactor C}
+Not a real error.
+
+! Preview: Snippet 57 ended.(655359+183500x28203959).
+<-><->
+      
+l.244 ...{Non-dimensionalization with prefactor C}
+                                                  
+Not a real error.
+
+[57
+
+]
+! Preview: Snippet 58 started.
+<-><->
+      
+l.246 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 58 ended.(1570212+0x28203959).
+<-><->
+      
+l.248 \end{equation}
+                    
+Not a real error.
+
+[58
+
+]
+! Preview: Snippet 59 started.
+<-><->
+      
+l.249 ...haracteristic length is given constant, $
+                                                  R_0$.
+Not a real error.
+
+! Preview: Snippet 59 ended.(447828+98303x791611).
+<-><->
+      
+l.249 ...cteristic length is given constant, $R_0$
+                                                  .
+Not a real error.
+
+[59]
+! Preview: Snippet 60 started.
+<-><->
+      
+l.251 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 60 ended.(1950337+0x28203959).
+<-><->
+      
+l.253 \end{equation}
+                    
+Not a real error.
+
+[60]
+! Preview: Snippet 61 started.
+<-><->
+      
+l.255 \begin{align}
+                   
+Not a real error.
+
+! Preview: Snippet 61 ended.(3388432+0x28203959).
+<-><->
+      
+l.258 \end{align}
+                 
+Not a real error.
+
+[61]
+! Preview: Snippet 62 started.
+<-><->
+      
+l.260 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 62 ended.(1471909+0x28203959).
+<-><->
+      
+l.262 \end{equation}
+                    
+Not a real error.
+
+[62]
+! Preview: Snippet 63 started.
+<-><->
+      
+l.264 ...worthy that the repulsive coeffficient, $
+                                                  C$, effect to the system. ...
+
+Not a real error.
+
+! Preview: Snippet 63 ended.(447828+0x515276).
+<-><->
+      
+l.264 ...rthy that the repulsive coeffficient, $C$
+                                                  , effect to the system. If...
+
+Not a real error.
+
+[63]
+! Preview: Snippet 64 started.
+<-><->
+      
+l.264 ...ve and random forces are comparable. If $
+                                                  C\sim 5900$, the contribut...
+
+Not a real error.
+
+! Preview: Snippet 64 ended.(447828+0x2699806).
+<-><->
+      
+l.264 ...om forces are comparable. If $C\sim 5900$
+                                                  , the contribution for ran...
+
+Not a real error.
+
+[64]
+! Preview: Snippet 65 started.
+<-><->
+      
+l.264 ...$, the contribution for random force is $
+                                                  \sim 1/77$.
+Not a real error.
+
+! Preview: Snippet 65 ended.(491520+163840x2002490).
+<-><->
+      
+l.264 ...tribution for random force is $\sim 1/77$
+                                                  .
+Not a real error.
+
+[65]
+! Preview: Snippet 66 started.
+<-><->
+      
+l.268 \section
+              {Simulation Results}
+Not a real error.
+
+! Preview: Snippet 66 ended.(655359+0x28203959).
+<-><->
+      
+l.268 \section{Simulation Results}
+                                  
+Not a real error.
+
+[66
+
+]
+! Preview: Snippet 67 started.
+<-><->
+      
+l.269 \subsection
+                 {Note}
+Not a real error.
+
+! Preview: Snippet 67 ended.(539580+0x28203959).
+<-><->
+      
+l.269 \subsection{Note}
+                       
+Not a real error.
+
+[67
+
+]
+! Preview: Snippet 68 started.
+<-><->
+      
+l.272 \subsection
+                 {Trajectory Analysis}
+Not a real error.
+
+! Preview: Snippet 68 ended.(546132+152916x28203959).
+<-><->
+      
+l.272 \subsection{Trajectory Analysis}
+                                      
+Not a real error.
+
+[68
+
+]
+! Preview: Snippet 69 started.
+<-><->
+      
+l.274 \subsection
+                 {Distance and Energy Distribution}
+Not a real error.
+
+! Preview: Snippet 69 ended.(546132+152916x28203959).
+<-><->
+      
+l.274 ...section{Distance and Energy Distribution}
+                                                  
+Not a real error.
+
+[69
+
+]
+
+LaTeX Warning: Reference `fig:CDF_PDF_repulsion' on page 3 undefined on input l
+ine 276.
+
+
+LaTeX Warning: Reference `fig:distance_distribution_repulsion' on page 3 undefi
+ned on input line 277.
+
+! Preview: Snippet 70 started.
+<-><->
+      
+l.280 \begin{figure}
+                    
+Not a real error.
+
+<figures/100_K8.pdf, id=326, 578.16pt x 433.62pt>
+File: figures/100_K8.pdf Graphic file (type pdf)
+ <use figures/100_K8.pdf>
+Package pdftex.def Info: figures/100_K8.pdf used on input line 282.
+(pdftex.def)             Requested size: 430.35826pt x 322.7661pt.
+
+<figures/80_K8.pdf, id=327, 578.16pt x 433.62pt>
+File: figures/80_K8.pdf Graphic file (type pdf)
+ <use figures/80_K8.pdf>
+Package pdftex.def Info: figures/80_K8.pdf used on input line 283.
+(pdftex.def)             Requested size: 430.35826pt x 322.7661pt.
+
+! Preview: Snippet 70 ended.(46093585+0x28203959).
+<-><->
+      
+l.285 \end{figure}
+                  
+Not a real error.
+
+[70
+
+
+ <./figures/100_K8.pdf> <./figures/80_K8.pdf
+
+pdfTeX warning: pdflatex (file ./figures/80_K8.pdf): PDF inclusion: multiple pd
+fs with page group included in a single page
+>]
+! Preview: Snippet 71 started.
+<-><->
+      
+l.287 \begin{figure}
+                    
+Not a real error.
+
+<figures/distance_dist.pdf, id=438, 578.16pt x 433.62pt>
+File: figures/distance_dist.pdf Graphic file (type pdf)
+
+<use figures/distance_dist.pdf>
+Package pdftex.def Info: figures/distance_dist.pdf used on input line 289.
+(pdftex.def)             Requested size: 430.35826pt x 322.7661pt.
+
+! Preview: Snippet 71 ended.(22830522+0x28203959).
+<-><->
+      
+l.291 \end{figure}
+                  
+Not a real error.
+
+[71
+
+
+ <./figures/distance_dist.pdf>]
+! Preview: Snippet 72 started.
+<-><->
+      
+l.298 \chapter
+              {Brownian Dynamics for Associative System}
+Not a real error.
+
+Chapter 3.
+! Preview: Snippet 72 ended.(11829265+317047x28203959).
+<-><->
+      
+l.298 ...Brownian Dynamics for Associative System}
+                                                  
+Not a real error.
+
+[72
+
+
+
+
+]
+! Preview: Snippet 73 started.
+<-><->
+      
+l.299 \section
+              {Evolution Equations for Associative System}
+Not a real error.
+
+! Preview: Snippet 73 ended.(655359+183500x28203959).
+<-><->
+      
+l.299 ...olution Equations for Associative System}
+                                                  
+Not a real error.
+
+[73
+
+]
+
+LaTeX Warning: Reference `eq:evolution_Brownian_repulsion' on page 3 undefined 
+on input line 300.
+
+! Preview: Snippet 74 started.
+<-><->
+      
+l.301 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 74 ended.(3211294+0x28203959).
+<-><->
+      
+l.303 \end{equation}
+                    
+Not a real error.
+
+[74
+
+]
+! Preview: Snippet 75 started.
+<-><->
+      
+l.304 where $
+             \mathscr{C}_i$ is set of index for the beads associated to the ...
+
+Not a real error.
+
+! Preview: Snippet 75 ended.(458751+98303x654781).
+<-><->
+      
+l.304 where $\mathscr{C}_i$
+                            is set of index for the beads associated to the ...
+
+Not a real error.
+
+[75]
+! Preview: Snippet 76 started.
+<-><->
+      
+l.306 \subsection
+                 {Gaussian Connector}
+Not a real error.
+
+! Preview: Snippet 76 ended.(546132+0x28203959).
+<-><->
+      
+l.306 \subsection{Gaussian Connector}
+                                     
+Not a real error.
+
+[76
+
+]
+! Preview: Snippet 77 started.
+<-><->
+      
+l.308 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 77 ended.(1738676+0x28203959).
+<-><->
+      
+l.310 \end{equation}
+                    
+Not a real error.
+
+[77]
+! Preview: Snippet 78 started.
+<-><->
+      
+l.312 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 78 ended.(1646667+0x28203959).
+<-><->
+      
+l.314 \end{equation}
+                    
+Not a real error.
+
+[78]
+! Preview: Snippet 79 started.
+<-><->
+      
+l.316 \begin{align}
+                   
+Not a real error.
+
+! Preview: Snippet 79 ended.(2625236+0x28203959).
+<-><->
+      
+l.319 \end{align}
+                 
+Not a real error.
+
+[79]
+! Preview: Snippet 80 started.
+<-><->
+      
+l.321 \subsection
+                 {Finite Extensible Connector}
+Not a real error.
+
+! Preview: Snippet 80 ended.(546132+0x28203959).
+<-><->
+      
+l.321 \subsection{Finite Extensible Connector}
+                                              
+Not a real error.
+
+[80
+
+]
+
+LaTeX Warning: Citation 'Kuhn1942' on page 3 undefined on input line 322.
+
+
+LaTeX Warning: Citation 'James1943' on page 3 undefined on input line 322.
+
+
+LaTeX Warning: Citation 'treloar1975physics' on page 3 undefined on input line 
+322.
+
+! Preview: Snippet 81 started.
+<-><->
+      
+l.323 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 81 ended.(1644964+0x28203959).
+<-><->
+      
+l.325 \end{equation}
+                    
+Not a real error.
+
+[81]
+! Preview: Snippet 82 started.
+<-><->
+      
+l.326 where $
+             n$ and $b$ are number and length of Kuhn segment, respectively.
+Not a real error.
+
+! Preview: Snippet 82 ended.(282168+0x393370).
+<-><->
+      
+l.326 where $n$
+                and $b$ are number and length of Kuhn segment, respectively.
+Not a real error.
+
+[82]
+! Preview: Snippet 83 started.
+<-><->
+      
+l.326 where $n$ and $
+                     b$ are number and length of Kuhn segment, respectively.
+Not a real error.
+
+! Preview: Snippet 83 ended.(455111+0x281258).
+<-><->
+      
+l.326 where $n$ and $b$
+                        are number and length of Kuhn segment, respectively.
+Not a real error.
+
+[83]
+! Preview: Snippet 84 started.
+<-><->
+      
+l.327 From inverse maps for Langevin function, $
+                                                \mathscr{L}^{-1}$, the final...
+
+Not a real error.
+
+! Preview: Snippet 84 ended.(533465+0x1401970).
+<-><->
+      
+l.327 ...for Langevin function, $\mathscr{L}^{-1}$
+                                                  , the final form for force...
+
+Not a real error.
+
+[84]
+! Preview: Snippet 85 started.
+<-><->
+      
+l.328 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 85 ended.(1471909+0x28203959).
+<-><->
+      
+l.330 \end{equation}
+                    
+Not a real error.
+
+[85]
+
+LaTeX Warning: Citation 'Cohen1991' on page 3 undefined on input line 331.
+
+! Preview: Snippet 86 started.
+<-><->
+      
+l.332 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 86 ended.(1526522+0x28203959).
+<-><->
+      
+l.334 \end{equation}
+                    
+Not a real error.
+
+[86]
+! Preview: Snippet 87 started.
+<-><->
+      
+l.335 Note that the $
+                     3$ in the formula is not come from spatial dimension, b...
+
+Not a real error.
+
+! Preview: Snippet 87 ended.(422343+0x327681).
+<-><->
+      
+l.335 Note that the $3$
+                        in the formula is not come from spatial dimension, b...
+
+Not a real error.
+
+[87]
+
+LaTeX Warning: Citation 'HaroldR.Warner1972' on page 3 undefined on input line 
+337.
+
+! Preview: Snippet 88 started.
+<-><->
+      
+l.338 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 88 ended.(1635749+0x28203959).
+<-><->
+      
+l.340 \end{equation}
+                    
+Not a real error.
+
+[88]
+! Preview: Snippet 89 started.
+<-><->
+      
+l.341 Here, prefactor $
+                       3$ is regarded as spatial dimension in comparison wit...
+
+Not a real error.
+
+! Preview: Snippet 89 ended.(422343+0x327681).
+<-><->
+      
+l.341 Here, prefactor $3$
+                          is regarded as spatial dimension in comparison wit...
+
+Not a real error.
+
+[89]
+! Preview: Snippet 90 started.
+<-><->
+      
+l.342 ...e potential by integrating over vector, $
+                                                  \mathbf{r}$.
+Not a real error.
+
+! Preview: Snippet 90 ended.(291271+0x310385).
+<-><->
+      
+l.342 ... by integrating over vector, $\mathbf{r}$
+                                                  .
+Not a real error.
+
+[90]
+! Preview: Snippet 91 started.
+<-><->
+      
+l.343 Using the maximally extendable length, $
+                                              R_M$, and the mean-square equi...
+
+Not a real error.
+
+! Preview: Snippet 91 ended.(447828+98303x1079332).
+<-><->
+      
+l.343 Using the maximally extendable length, $R_M$
+                                                  , and the mean-square equi...
+
+Not a real error.
+
+[91]
+! Preview: Snippet 92 started.
+<-><->
+      
+l.343 ...square equilibrium end-to-end distance, $
+                                                  R_0$, the potential and fo...
+
+Not a real error.
+
+! Preview: Snippet 92 ended.(447828+98303x791611).
+<-><->
+      
+l.343 ...re equilibrium end-to-end distance, $R_0$
+                                                  , the potential and force ...
+
+Not a real error.
+
+[92]
+! Preview: Snippet 93 started.
+<-><->
+      
+l.344 \begin{align}
+                   
+Not a real error.
+
+! Preview: Snippet 93 ended.(3925470+0x28203959).
+<-><->
+      
+l.347 \end{align}
+                 
+Not a real error.
+
+[93]
+! Preview: Snippet 94 started.
+<-><->
+      
+l.349 \begin{equation}
+                      F_
+Not a real error.
+
+! Preview: Snippet 94 ended.(1186204+0x28203959).
+<-><->
+      
+l.351 \end{equation}
+                    
+Not a real error.
+
+[94]
+! Preview: Snippet 95 started.
+<-><->
+      
+l.352 where $
+             \mathbf{F}_G$ is Gaussian spring and the non-Gaussian factor $F...
+
+Not a real error.
+
+! Preview: Snippet 95 ended.(449650+98303x915017).
+<-><->
+      
+l.352 where $\mathbf{F}_G$
+                           is Gaussian spring and the non-Gaussian factor $F...
+
+Not a real error.
+
+[95]
+! Preview: Snippet 96 started.
+<-><->
+      
+l.352 ...sian spring and the non-Gaussian factor $
+                                                  F_N$ is given by
+Not a real error.
+
+! Preview: Snippet 96 ended.(447828+98303x918506).
+<-><->
+      
+l.352 ... spring and the non-Gaussian factor $F_N$
+                                                   is given by
+Not a real error.
+
+[96]
+! Preview: Snippet 97 started.
+<-><->
+      
+l.353 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 97 ended.(1950238+0x28203959).
+<-><->
+      
+l.355 \end{equation}
+                    
+Not a real error.
+
+[97
+
+]
+! Preview: Snippet 98 started.
+<-><->
+      
+l.358 \begin{align}
+                   
+Not a real error.
+
+! Preview: Snippet 98 ended.(3984401+0x28203959).
+<-><->
+      
+l.361 \end{align}
+                 
+Not a real error.
+
+[98]
+! Preview: Snippet 99 started.
+<-><->
+      
+l.362 Notice that the non-Gaussian factor $
+                                           \tilde{F}_N$ is the same with \eq...
+
+Not a real error.
+
+! Preview: Snippet 99 ended.(603348+98303x918506).
+<-><->
+      
+l.362 ...hat the non-Gaussian factor $\tilde{F}_N$
+                                                   is the same with \eqref{e...
+
+Not a real error.
+
+[99]
+
+LaTeX Warning: Reference `eq:non_Gaussian_factor' on page 4 undefined on input 
+line 362.
+
+! Preview: Snippet 100 started.
+<-><->
+      
+l.363 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 100 ended.(1891231+0x28203959).
+<-><->
+      
+l.365 \end{equation}
+                    
+Not a real error.
+
+[100]
+
+LaTeX Warning: Citation 'Ianniruberto:2015dv' on page 4 undefined on input line
+ 367.
+
+! Preview: Snippet 101 started.
+<-><->
+      
+l.367 ...iew, \textcite{Ianniruberto:2015dv} use $
+                                                  R_M/R_0 = 11$ which this w...
+
+Not a real error.
+
+! Preview: Snippet 101 ended.(491520+163840x3727792).
+<-><->
+      
+l.367 ...e{Ianniruberto:2015dv} use $R_M/R_0 = 11$
+                                                   which this will add for t...
+
+Not a real error.
+
+[101]
+! Preview: Snippet 102 started.
+<-><->
+      
+l.404 \section
+              {Implementation for Association}
+Not a real error.
+
+! Preview: Snippet 102 ended.(655359+183500x28203959).
+<-><->
+      
+l.404 \section{Implementation for Association}
+                                              
+Not a real error.
+
+[102
+
+]
+! Preview: Snippet 103 started.
+<-><->
+      
+l.417 ...e bead as transition state based on the $
+                                                  Z_k$
+Not a real error.
+
+! Preview: Snippet 103 ended.(447828+98303x769823).
+<-><->
+      
+l.417 ...ad as transition state based on the $Z_k$
+                                                  
+Not a real error.
+
+[103]
+! Preview: Snippet 104 started.
+<-><->
+      
+l.423 \subsection
+                 {Equilibration for Each Association Step}
+Not a real error.
+
+! Preview: Snippet 104 ended.(546132+152916x28203959).
+<-><->
+      
+l.423 ...{Equilibration for Each Association Step}
+                                                  
+Not a real error.
+
+[104
+
+]
+! Preview: Snippet 105 started.
+<-><->
+      
+l.424 ...merical differentiation is applied. Let $
+                                                  N_b(m)$ be number of bridg...
+
+Not a real error.
+
+! Preview: Snippet 105 ended.(491520+163840x1874940).
+<-><->
+      
+l.424 ... differentiation is applied. Let $N_b(m)$
+                                                   be number of bridge chain...
+
+Not a real error.
+
+[105]
+! Preview: Snippet 106 started.
+<-><->
+      
+l.424 ...(m)$ be number of bridge chains at step $
+                                                  m$. The averaged over prev...
+
+Not a real error.
+
+! Preview: Snippet 106 ended.(282168+0x575415).
+<-><->
+      
+l.424 ...)$ be number of bridge chains at step $m$
+                                                  . The averaged over previo...
+
+Not a real error.
+
+[106]
+! Preview: Snippet 107 started.
+<-><->
+      
+l.425 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 107 ended.(2117547+0x28203959).
+<-><->
+      
+l.427 \end{equation}
+                    
+Not a real error.
+
+[107]
+! Preview: Snippet 108 started.
+<-><->
+      
+l.429 \begin{align}
+                   
+Not a real error.
+
+! Preview: Snippet 108 ended.(6680321+0x28203959).
+<-><->
+      
+l.433 \end{align}
+                 
+Not a real error.
+
+[108]
+
+LaTeX Warning: Reference `fig:identification_equilibrium_MC' on page 4 undefine
+d on input line 434.
+
+! Preview: Snippet 109 started.
+<-><->
+      
+l.436 \begin{figure}
+                    
+Not a real error.
+
+<figures/identify_equilibrium.png, id=635, 578.16pt x 433.62pt>
+File: figures/identify_equilibrium.png Graphic file (type png)
+
+<use figures/identify_equilibrium.png>
+Package pdftex.def Info: figures/identify_equilibrium.png used on input line 43
+8.
+(pdftex.def)             Requested size: 344.28792pt x 258.21552pt.
+
+! Preview: Snippet 109 ended.(21667227+0x28203959).
+<-><->
+      
+l.441 \end{figure}
+                  
+Not a real error.
+
+[109
+
+
+ <./figures/identify_equilibrium.png>]
+! Preview: Snippet 110 started.
+<-><->
+      
+l.443 \subsection
+                 {Probability to Select Chain in Beads}
+Not a real error.
+
+! Preview: Snippet 110 ended.(546132+152916x28203959).
+<-><->
+      
+l.443 ...ion{Probability to Select Chain in Beads}
+                                                  
+Not a real error.
+
+[110
+
+]
+! Preview: Snippet 111 started.
+<-><->
+      
+l.444 Let there $
+                 n_p$ chains for each micelle, i.e., the micelle has $2n_p$ ...
+
+Not a real error.
+
+! Preview: Snippet 111 ended.(282168+187504x696300).
+<-><->
+      
+l.444 Let there $n_p$
+                      chains for each micelle, i.e., the micelle has $2n_p$ ...
+
+Not a real error.
+
+[111]
+! Preview: Snippet 112 started.
+<-><->
+      
+l.444 ...for each micelle, i.e., the micelle has $
+                                                  2n_p$ of attached chain en...
+
+Not a real error.
+
+! Preview: Snippet 112 ended.(422343+187504x1023981).
+<-><->
+      
+l.444 ...ach micelle, i.e., the micelle has $2n_p$
+                                                   of attached chain end. Ea...
+
+Not a real error.
+
+[112]
+! Preview: Snippet 113 started.
+<-><->
+      
+l.444 ...le and to attach different micelle. Let $
+                                                  U$ be a potential related ...
+
+Not a real error.
+
+! Preview: Snippet 113 ended.(447828+0x518916).
+<-><->
+      
+l.444 ... and to attach different micelle. Let $U$
+                                                   be a potential related to...
+
+Not a real error.
+
+[113]
+! Preview: Snippet 114 started.
+<-><->
+      
+l.444 ... we have partition function for a bead, $
+                                                  Z_k$, as follow:
+Not a real error.
+
+! Preview: Snippet 114 ended.(447828+98303x769823).
+<-><->
+      
+l.444 ...have partition function for a bead, $Z_k$
+                                                  , as follow:
+Not a real error.
+
+[114]
+! Preview: Snippet 115 started.
+<-><->
+      
+l.445 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 115 ended.(2155685+0x28203959).
+<-><->
+      
+l.447 \end{equation}
+                    
+Not a real error.
+
+[115]
+! Preview: Snippet 116 started.
+<-><->
+      
+l.448 where $
+             \beta = (k_BT)^{-1}$ and $\mathscr{C}_k(i)$ is index for bead t...
+
+Not a real error.
+
+! Preview: Snippet 116 ended.(533465+163840x3758678).
+<-><->
+      
+l.448 where $\beta = (k_BT)^{-1}$
+                                  and $\mathscr{C}_k(i)$ is index for bead t...
+
+Not a real error.
+
+[116]
+! Preview: Snippet 117 started.
+<-><->
+      
+l.448 where $\beta = (k_BT)^{-1}$ and $
+                                       \mathscr{C}_k(i)$ is index for bead t...
+
+Not a real error.
+
+! Preview: Snippet 117 ended.(491520+163840x1494547).
+<-><->
+      
+l.448 ...eta = (k_BT)^{-1}$ and $\mathscr{C}_k(i)$
+                                                   is index for bead that at...
+
+Not a real error.
+
+[117]
+! Preview: Snippet 118 started.
+<-><->
+      
+l.448 ...ctor for partition function is given by $
+                                                  \exp(-\beta H)$ where Hami...
+
+Not a real error.
+
+! Preview: Snippet 118 ended.(491520+163840x3023989).
+<-><->
+      
+l.448 ...ion function is given by $\exp(-\beta H)$
+                                                   where Hamiltonian is give...
+
+Not a real error.
+
+[118]
+! Preview: Snippet 119 started.
+<-><->
+      
+l.448 ...\beta H)$ where Hamiltonian is given by $
+                                                  H = T - V$. Therefore, the...
+
+Not a real error.
+
+! Preview: Snippet 119 ended.(447828+54613x3274738).
+<-><->
+      
+l.448 ...where Hamiltonian is given by $H = T - V$
+                                                  . Therefore, the sign on h...
+
+Not a real error.
+
+[119]
+! Preview: Snippet 120 started.
+<-><->
+      
+l.449 ...instance, let consider the first beads, $
+                                                  Z_1$, if the beads does no...
+
+Not a real error.
+
+! Preview: Snippet 120 ended.(447828+98303x741378).
+<-><->
+      
+l.449 ...ance, let consider the first beads, $Z_1$
+                                                  , if the beads does not as...
+
+Not a real error.
+
+[120]
+! Preview: Snippet 121 started.
+<-><->
+      
+l.449 ... not associate with any other bead, the $
+                                                  \mathscr{C}_1(i)$ becomes ...
+
+Not a real error.
+
+! Preview: Snippet 121 ended.(491520+163840x1466102).
+<-><->
+      
+l.449 ...th any other bead, the $\mathscr{C}_1(i)$
+                                                   becomes 1 for all $i\in[1...
+
+Not a real error.
+
+[121]
+! Preview: Snippet 122 started.
+<-><->
+      
+l.449 ...he $\mathscr{C}_1(i)$ becomes 1 for all $
+                                                  i\in[1, n_p]$.
+Not a real error.
+
+! Preview: Snippet 122 ended.(491520+187504x2706108).
+<-><->
+      
+l.449 ...C}_1(i)$ becomes 1 for all $i\in[1, n_p]$
+                                                  .
+Not a real error.
+
+[122]
+
+LaTeX Warning: Reference `eq:Gaussian_potential' on page 4 undefined on input l
+ine 450.
+
+! Preview: Snippet 123 started.
+<-><->
+      
+l.450 ...partition function is unity. Therefore, $
+                                                  Z_1$ in this case becomes ...
+
+Not a real error.
+
+! Preview: Snippet 123 ended.(447828+98303x741378).
+<-><->
+      
+l.450 ...ition function is unity. Therefore, $Z_1$
+                                                   in this case becomes $2n_p$.
+
+Not a real error.
+
+[123]
+! Preview: Snippet 124 started.
+<-><->
+      
+l.450 .... Therefore, $Z_1$ in this case becomes $
+                                                  2n_p$.
+Not a real error.
+
+! Preview: Snippet 124 ended.(422343+187504x1023981).
+<-><->
+      
+l.450 ...refore, $Z_1$ in this case becomes $2n_p$
+                                                  .
+Not a real error.
+
+[124]
+! Preview: Snippet 125 started.
+<-><->
+      
+l.452 \subsection
+                 {Behaviour of Selected Chain}
+Not a real error.
+
+! Preview: Snippet 125 ended.(546132+0x28203959).
+<-><->
+      
+l.452 \subsection{Behaviour of Selected Chain}
+                                              
+Not a real error.
+
+[125
+
+]
+! Preview: Snippet 126 started.
+<-><->
+      
+l.453 ...on of chain. For given number of beads, $
+                                                  N_B$, the target to attach...
+
+Not a real error.
+
+! Preview: Snippet 126 ended.(447828+98303x977647).
+<-><->
+      
+l.453 ...f chain. For given number of beads, $N_B$
+                                                  , the target to attachment...
+
+Not a real error.
+
+[126]
+! Preview: Snippet 127 started.
+<-><->
+      
+l.454 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 127 ended.(1186204+0x28203959).
+<-><->
+      
+l.456 \end{equation}
+                    
+Not a real error.
+
+[127]
+! Preview: Snippet 128 started.
+<-><->
+      
+l.457 where $
+             U$ is given potential and $\{\mathbf{r}\} = \{\mathbf{r}_0, \ma...
+
+Not a real error.
+
+! Preview: Snippet 128 ended.(447828+0x518916).
+<-><->
+      
+l.457 where $U$
+                is given potential and $\{\mathbf{r}\} = \{\mathbf{r}_0, \ma...
+
+Not a real error.
+
+[128]
+! Preview: Snippet 129 started.
+<-><->
+      
+l.457 where $U$ is given potential and $
+                                        \{\mathbf{r}\} = \{\mathbf{r}_0, \ma...
+
+Not a real error.
+
+! Preview: Snippet 129 ended.(491520+164204x6706663).
+<-><->
+      
+l.457 ...\mathbf{r}_1, \cdots, \mathbf{r}_{N_B}\}$
+                                                  .
+Not a real error.
+
+[129]
+
+LaTeX Warning: Reference `fig:probability_80' on page 5 undefined on input line
+ 464.
+
+
+LaTeX Warning: Reference `fig:probability_80' on page 5 undefined on input line
+ 465.
+
+! Preview: Snippet 130 started.
+<-><->
+      
+l.466 \begin{figure}
+                    
+Not a real error.
+
+<figures/80_potential_dist.pdf, id=710, 578.16pt x 433.62pt>
+File: figures/80_potential_dist.pdf Graphic file (type pdf)
+
+<use figures/80_potential_dist.pdf>
+Package pdftex.def Info: figures/80_potential_dist.pdf used on input line 468.
+(pdftex.def)             Requested size: 344.28792pt x 258.21552pt.
+
+! Preview: Snippet 130 ended.(21667227+0x28203959).
+<-><->
+      
+l.470 \end{figure}
+                  
+Not a real error.
+
+[130
+
+
+ <./figures/80_potential_dist.pdf>]
+! Preview: Snippet 131 started.
+<-><->
+      
+l.475 \subsection
+                 {Allowance for Number of Chain Ends per Bead}
+Not a real error.
+
+! Preview: Snippet 131 ended.(546132+152916x28203959).
+<-><->
+      
+l.475 ...owance for Number of Chain Ends per Bead}
+                                                  
+Not a real error.
+
+[131
+
+]
+
+LaTeX Warning: Reference `fig:TN_effect' on page 5 undefined on input line 476.
+
+
+! Preview: Snippet 132 started.
+<-><->
+      
+l.478 \begin{figure}
+                    
+Not a real error.
+
+<figures/TN_effect.pdf, id=780, 578.16pt x 433.62pt>
+File: figures/TN_effect.pdf Graphic file (type pdf)
+
+<use figures/TN_effect.pdf>
+Package pdftex.def Info: figures/TN_effect.pdf used on input line 480.
+(pdftex.def)             Requested size: 344.28792pt x 258.21552pt.
+
+! Preview: Snippet 132 ended.(21667227+0x28203959).
+<-><->
+      
+l.483 \end{figure}
+                  
+Not a real error.
+
+[132
+
+
+ <./figures/TN_effect.pdf>]
+! Preview: Snippet 133 started.
+<-><->
+      
+l.488 \section
+              {Simulation Results}
+Not a real error.
+
+! Preview: Snippet 133 ended.(655359+0x28203959).
+<-><->
+      
+l.488 \section{Simulation Results}
+                                  
+Not a real error.
+
+[133
+
+]
+! Preview: Snippet 134 started.
+<-><->
+      
+l.489 \subsection
+                 {Clustering}
+Not a real error.
+
+! Preview: Snippet 134 ended.(546132+152916x28203959).
+<-><->
+      
+l.489 \subsection{Clustering}
+                             
+Not a real error.
+
+[134
+
+]
+! Preview: Snippet 135 started.
+<-><->
+      
+l.490 ...ritical concentration for 100 area box ($
+                                                  10^2$) in dimensionless is...
+
+Not a real error.
+
+! Preview: Snippet 135 ended.(533465+0x949365).
+<-><->
+      
+l.490 ...al concentration for 100 area box ($10^2$
+                                                  ) in dimensionless is base...
+
+Not a real error.
+
+[135]
+
+LaTeX Warning: Reference `fig:distance_distribution_repulsion' on page 5 undefi
+ned on input line 490.
+
+
+LaTeX Warning: Reference `fig:clustering' on page 5 undefined on input line 490
+.
+
+
+LaTeX Warning: Reference `fig:clustering' on page 5 undefined on input line 490
+.
+
+! Preview: Snippet 136 started.
+<-><->
+      
+l.492 \begin{figure}
+                    
+Not a real error.
+
+<figures/NP40_A100_clustering.png, id=842, 364.2408pt x 362.7954pt>
+File: figures/NP40_A100_clustering.png Graphic file (type png)
+
+<use figures/NP40_A100_clustering.png>
+Package pdftex.def Info: figures/NP40_A100_clustering.png used on input line 49
+4.
+(pdftex.def)             Requested size: 210.8779pt x 210.0395pt.
+
+<figures/NP80_A200_clustering.png, id=843, 363.2772pt x 360.8682pt>
+File: figures/NP80_A200_clustering.png Graphic file (type png)
+
+<use figures/NP80_A200_clustering.png>
+Package pdftex.def Info: figures/NP80_A200_clustering.png used on input line 49
+5.
+(pdftex.def)             Requested size: 210.8779pt x 209.4854pt.
+
+! Preview: Snippet 136 ended.(16465236+0x28203959).
+<-><->
+      
+l.498 \end{figure}
+                  
+Not a real error.
+
+[136
+
+
+ <./figures/NP40_A100_clustering.png> <./figures/NP80_A200_clustering.png>]
+! Preview: Snippet 137 started.
+<-><->
+      
+l.505 \subsection
+                 {Isotropic for connecting vector}
+Not a real error.
+
+! Preview: Snippet 137 ended.(546132+152916x28203959).
+<-><->
+      
+l.505 \subsection{Isotropic for connecting vector}
+                                                  
+Not a real error.
+
+[137
+
+]
+
+LaTeX Warning: Citation 'Ianniruberto:2015dv' on page 5 undefined on input line
+ 506.
+
+! Preview: Snippet 138 started.
+<-><->
+      
+l.507 \begin{equation}
+                      
+Not a real error.
+
+! Preview: Snippet 138 ended.(1186204+0x28203959).
+<-><->
+      
+l.509 \end{equation}
+                    
+Not a real error.
+
+[138]
+! Preview: Snippet 139 started.
+<-><->
+      
+l.510 where $
+             \nu$ is excluded volume of a monomer of polymer chain, and $\ba...
+
+Not a real error.
+
+! Preview: Snippet 139 ended.(282168+0x365454).
+<-><->
+      
+l.510 where $\nu$
+                  is excluded volume of a monomer of polymer chain, and $\ba...
+
+Not a real error.
+
+[139]
+! Preview: Snippet 140 started.
+<-><->
+      
+l.510 ...lume of a monomer of polymer chain, and $
+                                                  \bar{f}$ is non-Gaussian f...
+
+Not a real error.
+
+! Preview: Snippet 140 ended.(545041+127431x391398).
+<-><->
+      
+l.510 ...a monomer of polymer chain, and $\bar{f}$
+                                                   is non-Gaussian factor wh...
+
+Not a real error.
+
+[140]
+! Preview: Snippet 141 started.
+<-><->
+      
+l.510 ...nal to the diadic of connecting vector, $
+                                                  \langle\mathbf{RR} \rangle...
+
+Not a real error.
+
+! Preview: Snippet 141 ended.(491520+163840x1640216).
+<-><->
+      
+l.510 ...ting vector, $\langle\mathbf{RR} \rangle$
+                                                  . On this regards, the iso...
+
+Not a real error.
+
+[141]
+
+LaTeX Warning: Reference `fig:RR_isotropy' on page 5 undefined on input line 51
+0.
+
+! Preview: Snippet 142 started.
+<-><->
+      
+l.512 \begin{figure}
+                    
+Not a real error.
+
+<figures/RR_NP80_C100_T3.pdf, id=869, 578.16pt x 433.62pt>
+File: figures/RR_NP80_C100_T3.pdf Graphic file (type pdf)
+
+<use figures/RR_NP80_C100_T3.pdf>
+Package pdftex.def Info: figures/RR_NP80_C100_T3.pdf used on input line 514.
+(pdftex.def)             Requested size: 430.35826pt x 322.7661pt.
+
+! Preview: Snippet 142 ended.(23852886+0x28203959).
+<-><->
+      
+l.517 \end{figure}
+                  
+Not a real error.
+
+[142
+
+
+ <./figures/RR_NP80_C100_T3.pdf>]
+! Preview: Snippet 143 started.
+<-><->
+      
+l.519 \subsection
+                 {Size Effects}
+Not a real error.
+
+! Preview: Snippet 143 ended.(546132+0x28203959).
+<-><->
+      
+l.519 \subsection{Size Effects}
+                               
+Not a real error.
+
+[143
+
+]
+
+LaTeX Warning: Reference `fig:clustering' on page 5 undefined on input line 520
+.
+
+! Preview: Snippet 144 started.
+<-><->
+      
+l.529   \chapter
+                {Finite Extensibility}
+Not a real error.
+
+Appendix A.
+! Preview: Snippet 144 ended.(9273355+317047x28203959).
+<-><->
+      
+l.529   \chapter{Finite Extensibility}
+                                      
+Not a real error.
+
+[144
+
+
+
+
+]
+! Preview: Snippet 145 started.
+<-><->
+      
+l.532   \chapter
+                {Time Correlated Data}
+Not a real error.
+
+Appendix B.
+! Preview: Snippet 145 ended.(9273355+0x28203959).
+<-><->
+      
+l.532   \chapter{Time Correlated Data}
+                                      
+Not a real error.
+
+[145
+
+
+
+
+]
+! Preview: Snippet 146 started.
+<-><->
+      
+l.533   \section
+                {Stationary State Variable}
+Not a real error.
+
+! Preview: Snippet 146 ended.(655359+183500x28203959).
+<-><->
+      
+l.533   \section{Stationary State Variable}
+                                           
+Not a real error.
+
+[146
+
+]
+! Preview: Snippet 147 started.
+<-><->
+      
+l.534   Let $
+             \mathscr{A}$ be a state variable and the system is in equilibri...
+
+Not a real error.
+
+! Preview: Snippet 147 ended.(458751+0x676186).
+<-><->
+      
+l.534   Let $\mathscr{A}$
+                          be a state variable and the system is in equilibri...
+
+Not a real error.
+
+[147]
+! Preview: Snippet 148 started.
+<-><->
+      
+l.534 ...ystem is in equilibrium. That means the $
+                                                  \mathscr{A}$ is fluctuatio...
+
+Not a real error.
+
+! Preview: Snippet 148 ended.(458751+0x676186).
+<-><->
+      
+l.534 ...equilibrium. That means the $\mathscr{A}$
+                                                   is fluctuation around a c...
+
+Not a real error.
+
+[148]
+! Preview: Snippet 149 started.
+<-><->
+      
+l.534 ...ctuation around a certain average value $
+                                                  A = \langle \mathscr{A}\ra...
+
+Not a real error.
+
+! Preview: Snippet 149 ended.(491520+163840x2781981).
+<-><->
+      
+l.534 ... value $A = \langle \mathscr{A}\rangle_t$
+                                                   when the system is assume...
+
+Not a real error.
+
+[149]
+! Preview: Snippet 150 started.
+<-><->
+      
+l.534 ...e value itself said the first moment of $
+                                                  \mathscr{A}$ while the var...
+
+Not a real error.
+
+! Preview: Snippet 150 ended.(458751+0x676186).
+<-><->
+      
+l.534 ...lf said the first moment of $\mathscr{A}$
+                                                   while the variance is the...
+
+Not a real error.
+
+[150]
+! Preview: Snippet 151 started.
+<-><->
+      
+l.534 ...orrelation does affect to the moment of $
+                                                  \mathscr{A}$ when the orde...
+
+Not a real error.
+
+! Preview: Snippet 151 ended.(458751+0x676186).
+<-><->
+      
+l.534 ...oes affect to the moment of $\mathscr{A}$
+                                                   when the order of moment ...
+
+Not a real error.
+
+[151]
+
+LaTeX Warning: Citation 'allen1989computer' on page 7 undefined on input line 5
+36.
+
+! Preview: Snippet 152 started.
+<-><->
+      
+l.539   \section
+                {Regression}
+Not a real error.
+
+! Preview: Snippet 152 ended.(655359+183500x28203959).
+<-><->
+      
+l.539   \section{Regression}
+                            
+Not a real error.
+
+[152
+
+]
+! Preview: Snippet 153 started.
+<-><->
+      
+l.542   \chapter
+                {Regression Scheme}
+Not a real error.
+
+Appendix C.
+! Preview: Snippet 153 ended.(9273355+317047x28203959).
+<-><->
+      
+l.542   \chapter{Regression Scheme}
+                                   
+Not a real error.
+
+[153
+
+
+
+
+]
+! Preview: Snippet 154 started.
+<-><->
+      
+l.543   \section
+                {Regression by Chebyshev Polynomial}
+Not a real error.
+
+! Preview: Snippet 154 ended.(655359+183500x28203959).
+<-><->
+      
+l.543 ...ction{Regression by Chebyshev Polynomial}
+                                                  
+Not a real error.
+
+[154
+
+]
+! Preview: Snippet 155 started.
+<-><->
+      
+l.544   Let assumed that the variable $
+                                       \xi$ is in $[-1, 1]$.
+Not a real error.
+
+! Preview: Snippet 155 ended.(455111+127431x316872).
+<-><->
+      
+l.544   Let assumed that the variable $\xi$
+                                            is in $[-1, 1]$.
+Not a real error.
+
+[155]
+! Preview: Snippet 156 started.
+<-><->
+      
+l.544 ...t assumed that the variable $\xi$ is in $
+                                                  [-1, 1]$.
+Not a real error.
+
+! Preview: Snippet 156 ended.(491520+163840x1820447).
+<-><->
+      
+l.544 ...d that the variable $\xi$ is in $[-1, 1]$
+                                                  .
+Not a real error.
+
+[156]
+! Preview: Snippet 157 started.
+<-><->
+      
+l.546   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 157 ended.(1978647+0x28203959).
+<-><->
+      
+l.548   \end{equation}
+                      
+Not a real error.
+
+[157]
+! Preview: Snippet 158 started.
+<-><->
+      
+l.549   where $
+               T_n$ is n-th order Chebyshev polynomial of the first kind.
+Not a real error.
+
+! Preview: Snippet 158 ended.(447828+98303x739710).
+<-><->
+      
+l.549   where $T_n$
+                    is n-th order Chebyshev polynomial of the first kind.
+Not a real error.
+
+[158]
+! Preview: Snippet 159 started.
+<-><->
+      
+l.551   \begin{align}
+                     
+Not a real error.
+
+! Preview: Snippet 159 ended.(3460307+0x28203959).
+<-><->
+      
+l.555   \end{align}
+                   
+Not a real error.
+
+[159
+
+]
+! Preview: Snippet 160 started.
+<-><->
+      
+l.557   For given analytic function $
+                                     y = f(\xi)$ where $\xi \in [-1, 1]$, we...
+
+Not a real error.
+
+! Preview: Snippet 160 ended.(491520+163840x2436626).
+<-><->
+      
+l.557   For given analytic function $y = f(\xi)$
+                                                 where $\xi \in [-1, 1]$, we...
+
+Not a real error.
+
+[160]
+! Preview: Snippet 161 started.
+<-><->
+      
+l.557 ...en analytic function $y = f(\xi)$ where $
+                                                  \xi \in [-1, 1]$, we can e...
+
+Not a real error.
+
+! Preview: Snippet 161 ended.(491520+163840x2938307).
+<-><->
+      
+l.557 ...tion $y = f(\xi)$ where $\xi \in [-1, 1]$
+                                                  , we can expand
+Not a real error.
+
+[161]
+! Preview: Snippet 162 started.
+<-><->
+      
+l.558   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 162 ended.(2094610+0x28203959).
+<-><->
+      
+l.560   \end{equation}
+                      
+Not a real error.
+
+[162
+
+]
+! Preview: Snippet 163 started.
+<-><->
+      
+l.561 ...s used for appropriate finite number of $
+                                                  N$ rather than infinite.
+Not a real error.
+
+! Preview: Snippet 163 ended.(447828+0x598014).
+<-><->
+      
+l.561 ...used for appropriate finite number of $N$
+                                                   rather than infinite.
+Not a real error.
+
+[163]
+
+LaTeX Warning: Reference `eq:Chebyshev_expansion' on page 7 undefined on input 
+line 563.
+
+! Preview: Snippet 164 started.
+<-><->
+      
+l.564   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 164 ended.(2228232+0x28203959).
+<-><->
+      
+l.566   \end{equation}
+                      
+Not a real error.
+
+[164]
+! Preview: Snippet 165 started.
+<-><->
+      
+l.567   where $
+               y_\alpha$ denote $\alpha$-th components for given data and $\...
+
+Not a real error.
+
+! Preview: Snippet 165 ended.(282168+127431x694785).
+<-><->
+      
+l.567   where $y_\alpha$
+                         denote $\alpha$-th components for given data and $\...
+
+Not a real error.
+
+[165]
+! Preview: Snippet 166 started.
+<-><->
+      
+l.567   where $y_\alpha$ denote $
+                                 \alpha$-th components for given data and $\...
+
+Not a real error.
+
+! Preview: Snippet 166 ended.(282168+0x421661).
+<-><->
+      
+l.567   where $y_\alpha$ denote $\alpha$
+                                        -th components for given data and $\...
+
+Not a real error.
+
+[166]
+! Preview: Snippet 167 started.
+<-><->
+      
+l.567 ...alpha$-th components for given data and $
+                                                  \xi_\alpha$ is its corresp...
+
+Not a real error.
+
+! Preview: Snippet 167 ended.(455111+127431x660195).
+<-><->
+      
+l.567 ...omponents for given data and $\xi_\alpha$
+                                                   is its corresponding $\xi...
+
+Not a real error.
+
+[167]
+! Preview: Snippet 168 started.
+<-><->
+      
+l.567 ...a and $\xi_\alpha$ is its corresponding $
+                                                  \xi$ value.
+Not a real error.
+
+! Preview: Snippet 168 ended.(455111+127431x316872).
+<-><->
+      
+l.567 ...d $\xi_\alpha$ is its corresponding $\xi$
+                                                   value.
+Not a real error.
+
+[168]
+! Preview: Snippet 169 started.
+<-><->
+      
+l.569   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 169 ended.(2117547+0x28203959).
+<-><->
+      
+l.571   \end{equation}
+                      
+Not a real error.
+
+[169]
+! Preview: Snippet 170 started.
+<-><->
+      
+l.572 ...uation, we can define the coefficients, $
+                                                  \mathbf{a} = \{a_1,\cdots,...
+
+Not a real error.
+
+! Preview: Snippet 170 ended.(491520+163840x5029657).
+<-><->
+      
+l.572 ...cients, $\mathbf{a} = \{a_1,\cdots,a_M\}$
+                                                  .
+Not a real error.
+
+[170]
+! Preview: Snippet 171 started.
+<-><->
+      
+l.574 ... to the Taylor expression with order of $
+                                                  N$, that means we can find...
+
+Not a real error.
+
+! Preview: Snippet 171 ended.(447828+0x598014).
+<-><->
+      
+l.574 ...o the Taylor expression with order of $N$
+                                                  , that means we can find t...
+
+Not a real error.
+
+[171]
+
+LaTeX Warning: Citation 'arfken2008mathematical' on page 7 undefined on input l
+ine 575.
+
+! Preview: Snippet 172 started.
+<-><->
+      
+l.578   \section
+                {Typical Polynomial Expression}
+Not a real error.
+
+! Preview: Snippet 172 ended.(655359+183500x28203959).
+<-><->
+      
+l.578   \section{Typical Polynomial Expression}
+                                               
+Not a real error.
+
+[172
+
+]
+
+LaTeX Warning: Citation 'SooCho:2013bg' on page 7 undefined on input line 579.
+
+! Preview: Snippet 173 started.
+<-><->
+      
+l.580   Consider the basic Taylor expansion for $
+                                                 y=f(x)$ with finite order $N$:
+
+Not a real error.
+
+! Preview: Snippet 173 ended.(491520+163840x2494310).
+<-><->
+      
+l.580 ...r the basic Taylor expansion for $y=f(x)$
+                                                   with finite order $N$:
+Not a real error.
+
+[173]
+! Preview: Snippet 174 started.
+<-><->
+      
+l.580 ...xpansion for $y=f(x)$ with finite order $
+                                                  N$:
+Not a real error.
+
+! Preview: Snippet 174 ended.(447828+0x598014).
+<-><->
+      
+l.580 ...ansion for $y=f(x)$ with finite order $N$
+                                                  :
+Not a real error.
+
+[174]
+! Preview: Snippet 175 started.
+<-><->
+      
+l.581   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 175 ended.(2094610+0x28203959).
+<-><->
+      
+l.583   \end{equation}
+                      
+Not a real error.
+
+[175]
+! Preview: Snippet 176 started.
+<-><->
+      
+l.584   where $
+               \xi$ is scaled x given by
+Not a real error.
+
+! Preview: Snippet 176 ended.(455111+127431x316872).
+<-><->
+      
+l.584   where $\xi$
+                    is scaled x given by
+Not a real error.
+
+[176]
+! Preview: Snippet 177 started.
+<-><->
+      
+l.585   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 177 ended.(1570212+0x28203959).
+<-><->
+      
+l.587   \end{equation}
+                      
+Not a real error.
+
+[177]
+! Preview: Snippet 178 started.
+<-><->
+      
+l.588   with $
+              x_c = \frac{1}{2}(x_{max} + x_{min})$. That is related with th...
+
+Not a real error.
+
+! Preview: Snippet 178 ended.(553676+225995x6080172).
+<-><->
+      
+l.588 ...th $x_c = \frac{1}{2}(x_{max} + x_{min})$
+                                                  . That is related with the...
+
+Not a real error.
+
+[178]
+! Preview: Snippet 179 started.
+<-><->
+      
+l.588 ...at is related with the valid region for $
+                                                  \xi$ that defined on the p...
+
+Not a real error.
+
+! Preview: Snippet 179 ended.(455111+127431x316872).
+<-><->
+      
+l.588 ...s related with the valid region for $\xi$
+                                                   that defined on the previ...
+
+Not a real error.
+
+[179]
+! Preview: Snippet 180 started.
+<-><->
+      
+l.588 ...ds, we should find the relation between $
+                                                  \mathbf{a}$ and $\mathbf{b}$.
+
+Not a real error.
+
+! Preview: Snippet 180 ended.(291271+0x366361).
+<-><->
+      
+l.588 ...ld find the relation between $\mathbf{a}$
+                                                   and $\mathbf{b}$.
+Not a real error.
+
+[180]
+! Preview: Snippet 181 started.
+<-><->
+      
+l.588 ...d the relation between $\mathbf{a}$ and $
+                                                  \mathbf{b}$.
+Not a real error.
+
+! Preview: Snippet 181 ended.(455111+0x418700).
+<-><->
+      
+l.588 ...ion between $\mathbf{a}$ and $\mathbf{b}$
+                                                  .
+Not a real error.
+
+[181]
+! Preview: Snippet 182 started.
+<-><->
+      
+l.589   Let $
+             T^{(n)}_{k}$ be the n-th order Chebyshev polynomial of the firs...
+
+Not a real error.
+
+! Preview: Snippet 182 ended.(684486+197695x1240335).
+<-><->
+      
+l.589   Let $T^{(n)}_{k}$
+                          be the n-th order Chebyshev polynomial of the firs...
+
+Not a real error.
+
+[182]
+! Preview: Snippet 183 started.
+<-><->
+      
+l.589 ...yshev polynomial of the first kind with $
+                                                  k$-th power of $\xi$, from...
+
+Not a real error.
+
+! Preview: Snippet 183 ended.(455111+0x361814).
+<-><->
+      
+l.589 ...hev polynomial of the first kind with $k$
+                                                  -th power of $\xi$, from r...
+
+Not a real error.
+
+[183]
+! Preview: Snippet 184 started.
+<-><->
+      
+l.589 ... of the first kind with $k$-th power of $
+                                                  \xi$, from recursive relat...
+
+Not a real error.
+
+! Preview: Snippet 184 ended.(455111+127431x316872).
+<-><->
+      
+l.589 ...the first kind with $k$-th power of $\xi$
+                                                  , from recursive relation ...
+
+Not a real error.
+
+[184]
+
+LaTeX Warning: Reference `eq:Chebyshev_recursion' on page 7 undefined on input 
+line 589.
+
+! Preview: Snippet 185 started.
+<-><->
+      
+l.590   \begin{align}
+                     
+Not a real error.
+
+! Preview: Snippet 185 ended.(4679279+0x28203959).
+<-><->
+      
+l.595   \end{align}
+                   
+Not a real error.
+
+[185]
+! Preview: Snippet 186 started.
+<-><->
+      
+l.596   with $
+              T_0^{(0)}=1$, $T_0^{(1)}=0$, and $T_1^{(0)} = 1$. Then we can ...
+
+Not a real error.
+
+! Preview: Snippet 186 ended.(684486+174758x2379091).
+<-><->
+      
+l.596   with $T_0^{(0)}=1$
+                          , $T_0^{(1)}=0$, and $T_1^{(0)} = 1$. Then we can ...
+
+Not a real error.
+
+[186]
+! Preview: Snippet 187 started.
+<-><->
+      
+l.596   with $T_0^{(0)}=1$, $
+                             T_0^{(1)}=0$, and $T_1^{(0)} = 1$. Then we can ...
+
+Not a real error.
+
+! Preview: Snippet 187 ended.(684486+174758x2379091).
+<-><->
+      
+l.596   with $T_0^{(0)}=1$, $T_0^{(1)}=0$
+                                         , and $T_1^{(0)} = 1$. Then we can ...
+
+Not a real error.
+
+[187]
+! Preview: Snippet 188 started.
+<-><->
+      
+l.596   with $T_0^{(0)}=1$, $T_0^{(1)}=0$, and $
+                                                T_1^{(0)} = 1$. Then we can ...
+
+Not a real error.
+
+! Preview: Snippet 188 ended.(684486+174758x2379091).
+<-><->
+      
+l.596 ...)}=1$, $T_0^{(1)}=0$, and $T_1^{(0)} = 1$
+                                                  . Then we can express $\ma...
+
+Not a real error.
+
+[188]
+! Preview: Snippet 189 started.
+<-><->
+      
+l.596 ...nd $T_1^{(0)} = 1$. Then we can express $
+                                                  \mathbf{b}$ by $\alpha$ as
+Not a real error.
+
+! Preview: Snippet 189 ended.(455111+0x418700).
+<-><->
+      
+l.596 ...)} = 1$. Then we can express $\mathbf{b}$
+                                                   by $\alpha$ as
+Not a real error.
+
+[189]
+! Preview: Snippet 190 started.
+<-><->
+      
+l.596 ...1$. Then we can express $\mathbf{b}$ by $
+                                                  \alpha$ as
+Not a real error.
+
+! Preview: Snippet 190 ended.(282168+0x421661).
+<-><->
+      
+l.596 ...n we can express $\mathbf{b}$ by $\alpha$
+                                                   as
+Not a real error.
+
+[190]
+! Preview: Snippet 191 started.
+<-><->
+      
+l.597   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 191 ended.(2117547+0x28203959).
+<-><->
+      
+l.599   \end{equation}
+                      
+Not a real error.
+
+[191]
+! Preview: Snippet 192 started.
+<-><->
+      
+l.601   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 192 ended.(2122279+0x28203959).
+<-><->
+      
+l.603   \end{equation}
+                      
+Not a real error.
+
+[192]
+! Preview: Snippet 193 started.
+<-><->
+      
+l.604   where $
+               \Delta x = x_{max} - x_{min}$.
+Not a real error.
+
+! Preview: Snippet 193 ended.(447828+98303x5431083).
+<-><->
+      
+l.604   where $\Delta x = x_{max} - x_{min}$
+                                            .
+Not a real error.
+
+[193]
+! Preview: Snippet 194 started.
+<-><->
+      
+l.606   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 194 ended.(2094610+0x28203959).
+<-><->
+      
+l.608   \end{equation}
+                      
+Not a real error.
+
+[194]
+
+LaTeX Warning: Citation 'SooCho:2013bg' on page 7 undefined on input line 610.
+
+! Preview: Snippet 195 started.
+<-><->
+      
+l.612   \section
+                {Overhead for Recursion}
+Not a real error.
+
+! Preview: Snippet 195 ended.(655359+0x28203959).
+<-><->
+      
+l.612   \section{Overhead for Recursion}
+                                        
+Not a real error.
+
+[195
+
+]
+
+LaTeX Warning: Reference `eq:Chebyshev_recursion' on page 7 undefined on input 
+line 613.
+
+! Preview: Snippet 196 started.
+<-><->
+      
+l.635   \chapter
+                {Cumulative Distribution and Probability Distribution Functi...
+
+Not a real error.
+
+Appendix D.
+! Preview: Snippet 196 ended.(11829265+317047x28203959).
+<-><->
+      
+l.635 ...on and Probability Distribution Function}
+                                                  \label{appen_distance_dist...
+
+Not a real error.
+
+[196
+
+
+
+
+]
+! Preview: Snippet 197 started.
+<-><->
+      
+l.638 ...imply calculated by sorting method. Let $
+                                                  Y$ be data column that rel...
+
+Not a real error.
+
+! Preview: Snippet 197 ended.(447828+0x526109).
+<-><->
+      
+l.638 ...ply calculated by sorting method. Let $Y$
+                                                   be data column that relat...
+
+Not a real error.
+
+[197]
+! Preview: Snippet 198 started.
+<-><->
+      
+l.638 ...ed with random generation. To make sort $
+                                                  Y$ column then making inde...
+
+Not a real error.
+
+! Preview: Snippet 198 ended.(447828+0x526109).
+<-><->
+      
+l.638 ... with random generation. To make sort $Y$
+                                                   column then making index ...
+
+Not a real error.
+
+[198]
+! Preview: Snippet 199 started.
+<-><->
+      
+l.638 ...e sort $Y$ column then making index for $
+                                                  Y$ related with its popula...
+
+Not a real error.
+
+! Preview: Snippet 199 ended.(447828+0x526109).
+<-><->
+      
+l.638 ...sort $Y$ column then making index for $Y$
+                                                   related with its populati...
+
+Not a real error.
+
+[199]
+! Preview: Snippet 200 started.
+<-><->
+      
+l.638 ...for. For given cumulative distribution, $
+                                                  \mathscr{F}(r)$, we can de...
+
+Not a real error.
+
+! Preview: Snippet 200 ended.(491520+163840x1499789).
+<-><->
+      
+l.638 ...cumulative distribution, $\mathscr{F}(r)$
+                                                  , we can define probabilit...
+
+Not a real error.
+
+[200]
+! Preview: Snippet 201 started.
+<-><->
+      
+l.638 ...fine probability distribution function, $
+                                                  P(r)$, as
+Not a real error.
+
+! Preview: Snippet 201 ended.(491520+163840x1335375).
+<-><->
+      
+l.638 ...probability distribution function, $P(r)$
+                                                  , as
+Not a real error.
+
+[201]
+! Preview: Snippet 202 started.
+<-><->
+      
+l.639   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 202 ended.(1471909+0x28203959).
+<-><->
+      
+l.641   \end{equation}
+                      
+Not a real error.
+
+[202]
+! Preview: Snippet 203 started.
+<-><->
+      
+l.643 ...cheme has irregular X-axis, that is the $
+                                                  dx_i = x_i - x_{i-1}$ has ...
+
+Not a real error.
+
+! Preview: Snippet 203 ended.(455111+152917x4464970).
+<-><->
+      
+l.643 ...-axis, that is the $dx_i = x_i - x_{i-1}$
+                                                   has different values whil...
+
+Not a real error.
+
+[203]
+! Preview: Snippet 204 started.
+<-><->
+      
+l.643 ...i - x_{i-1}$ has different values while $
+                                                  dy_i = y_i - y_{i-1}$ has ...
+
+Not a real error.
+
+! Preview: Snippet 204 ended.(455111+152917x4305235).
+<-><->
+      
+l.643 ...erent values while $dy_i = y_i - y_{i-1}$
+                                                   has constant values, whic...
+
+Not a real error.
+
+[204]
+! Preview: Snippet 205 started.
+<-><->
+      
+l.646   \chapter
+                {Software architecture}\label{appen_software_architecture}
+Not a real error.
+
+Appendix E.
+! Preview: Snippet 205 ended.(9273355+0x28203959).
+<-><->
+      
+l.646   \chapter{Software architecture}
+                                       \label{appen_software_architecture}
+Not a real error.
+
+[205
+
+
+
+
+]
+! Preview: Snippet 206 started.
+<-><->
+      
+l.647   \section
+                {GNU's scientific library as Front-End for Mathematical Calc...
+
+Not a real error.
+
+! Preview: Snippet 206 ended.(2188905+0x28203959).
+<-><->
+      
+l.647 ... Front-End for Mathematical Calculations}
+                                                  
+Not a real error.
+
+[206
+
+]
+! Preview: Snippet 207 started.
+<-><->
+      
+l.652   \section
+                {Math Kernel Library (MKL) as interface between Front- and B...
+
+Not a real error.
+
+! Preview: Snippet 207 ended.(2241334+0x28203959).
+<-><->
+      
+l.652 ...as interface between Front- and Back-End}
+                                                  
+Not a real error.
+
+[207
+
+]
+! Preview: Snippet 208 started.
+<-><->
+      
+l.655   \section
+                {Personally developed MATRIX class as Back-End}
+Not a real error.
+
+! Preview: Snippet 208 ended.(655359+183500x28203959).
+<-><->
+      
+l.655 ...nally developed MATRIX class as Back-End}
+                                                  
+Not a real error.
+
+[208
+
+]
+! Preview: Snippet 209 started.
+<-><->
+      
+l.658 ...essions. For instance, for given matrix $
+                                                  \mathbf{A}$, $\mathbf{B}$,...
+
+Not a real error.
+
+! Preview: Snippet 209 ended.(449650+0x569796).
+<-><->
+      
+l.658 ...r instance, for given matrix $\mathbf{A}$
+                                                  , $\mathbf{B}$, and $\math...
+
+Not a real error.
+
+[209]
+! Preview: Snippet 210 started.
+<-><->
+      
+l.658 ...nstance, for given matrix $\mathbf{A}$, $
+                                                  \mathbf{B}$, and $\mathbf{...
+
+Not a real error.
+
+! Preview: Snippet 210 ended.(449650+0x536118).
+<-><->
+      
+l.658 ...r given matrix $\mathbf{A}$, $\mathbf{B}$
+                                                  , and $\mathbf{C}$, when w...
+
+Not a real error.
+
+[210]
+! Preview: Snippet 211 started.
+<-><->
+      
+l.658 ... matrix $\mathbf{A}$, $\mathbf{B}$, and $
+                                                  \mathbf{C}$, when we calcu...
+
+Not a real error.
+
+! Preview: Snippet 211 ended.(449650+0x544310).
+<-><->
+      
+l.658 ...athbf{A}$, $\mathbf{B}$, and $\mathbf{C}$
+                                                  , when we calculate $\math...
+
+Not a real error.
+
+[211]
+! Preview: Snippet 212 started.
+<-><->
+      
+l.658 ...}$, and $\mathbf{C}$, when we calculate $
+                                                  \mathbf{A}\cdot\mathbf{B} ...
+
+Not a real error.
+
+! Preview: Snippet 212 ended.(449650+54613x2924523).
+<-><->
+      
+l.658 ... $\mathbf{A}\cdot\mathbf{B} + \mathbf{C}$
+                                                   to input $\mathbf{C}$, us...
+
+Not a real error.
+
+[212]
+! Preview: Snippet 213 started.
+<-><->
+      
+l.658 ...}\cdot\mathbf{B} + \mathbf{C}$ to input $
+                                                  \mathbf{C}$, using cBLAS, ...
+
+Not a real error.
+
+! Preview: Snippet 213 ended.(449650+0x544310).
+<-><->
+      
+l.658 ...bf{B} + \mathbf{C}$ to input $\mathbf{C}$
+                                                  , using cBLAS, we need to ...
+
+Not a real error.
+
+[213]
+! Preview: Snippet 214 started.
+<-><->
+      
+l.687   \section
+                {Parsing Test Conditions}
+Not a real error.
+
+! Preview: Snippet 214 ended.(655359+183500x28203959).
+<-><->
+      
+l.687   \section{Parsing Test Conditions}
+                                         
+Not a real error.
+
+[214
+
+]
+! Preview: Snippet 215 started.
+<-><->
+      
+l.754   \section
+                {Periodic Boundary Condition}
+Not a real error.
+
+! Preview: Snippet 215 ended.(655359+183500x28203959).
+<-><->
+      
+l.754   \section{Periodic Boundary Condition}
+                                             
+Not a real error.
+
+[215
+
+]
+! Preview: Snippet 216 started.
+<-><->
+      
+l.755   \subsection
+                   {Minimum Image Convention}
+Not a real error.
+
+! Preview: Snippet 216 ended.(546132+152916x28203959).
+<-><->
+      
+l.755   \subsection{Minimum Image Convention}
+                                             
+Not a real error.
+
+[216
+
+]
+! Preview: Snippet 217 started.
+<-><->
+      
+l.774   \subsection
+                   {Applying Periodic Boundary Condition for Trajectory}
+Not a real error.
+
+! Preview: Snippet 217 ended.(546132+152916x28203959).
+<-><->
+      
+l.774 ...riodic Boundary Condition for Trajectory}
+                                                  
+Not a real error.
+
+[217
+
+]
+! Preview: Snippet 218 started.
+<-><->
+      
+l.795   \chapter
+                {Parallel Computing}
+Not a real error.
+
+Appendix F.
+! Preview: Snippet 218 ended.(9273355+317047x28203959).
+<-><->
+      
+l.795   \chapter{Parallel Computing}
+                                    
+Not a real error.
+
+[218
+
+
+
+
+]
+! Preview: Snippet 219 started.
+<-><->
+      
+l.816   \chapter
+                {Post-Processing}
+Not a real error.
+
+Appendix G.
+! Preview: Snippet 219 ended.(9273355+317047x28203959).
+<-><->
+      
+l.816   \chapter{Post-Processing}
+                                 
+Not a real error.
+
+[219
+
+
+
+
+]
+! Preview: Snippet 220 started.
+<-><->
+      
+l.819   \section
+                {Plotting and Making Move for Trajectory File}
+Not a real error.
+
+! Preview: Snippet 220 ended.(655359+183500x28203959).
+<-><->
+      
+l.819 ...ting and Making Move for Trajectory File}
+                                                  
+Not a real error.
+
+[220
+
+]
+! Preview: Snippet 221 started.
+<-><->
+      
+l.856   \section
+                {Trajectory Conversion}\label{appen_traj_conv}
+Not a real error.
+
+! Preview: Snippet 221 ended.(655359+183500x28203959).
+<-><->
+      
+l.856   \section{Trajectory Conversion}
+                                       \label{appen_traj_conv}
+Not a real error.
+
+[221
+
+]
+
+LaTeX Warning: Reference `fig:traj_conv' on page 13 undefined on input line 877
+.
+
+! Preview: Snippet 222 started.
+<-><->
+      
+l.878   \begin{figure}
+                      
+Not a real error.
+
+<figures/converting_trajectory.pdf, id=1223, 578.16pt x 433.62pt>
+File: figures/converting_trajectory.pdf Graphic file (type pdf)
+
+<use figures/converting_trajectory.pdf>
+Package pdftex.def Info: figures/converting_trajectory.pdf used on input line 8
+80.
+(pdftex.def)             Requested size: 430.35826pt x 322.7661pt.
+
+! Preview: Snippet 222 ended.(25897614+0x28203959).
+<-><->
+      
+l.883   \end{figure}
+                    
+Not a real error.
+
+[222
+
+
+ <./figures/converting_trajectory.pdf>]
+! Preview: Snippet 223 started.
+<-><->
+      
+l.885   \section
+                {Pair Correlation Distribution}
+Not a real error.
+
+! Preview: Snippet 223 ended.(655359+0x28203959).
+<-><->
+      
+l.885   \section{Pair Correlation Distribution}
+                                               
+Not a real error.
+
+[223
+
+]
+! Preview: Snippet 224 started.
+<-><->
+      
+l.886   The pair correlation distribution, $
+                                            \rho(\mathbf{r}_1, \mathbf{r}_2$...
+
+Not a real error.
+
+! Preview: Snippet 224 ended.(491520+163840x2093739).
+<-><->
+      
+l.886 ...bution, $\rho(\mathbf{r}_1, \mathbf{r}_2$
+                                                  , is one of the important ...
+
+Not a real error.
+
+[224]
+! Preview: Snippet 225 started.
+<-><->
+      
+l.887   \subsection
+                   {Basic Definition started with Canonical Ensemble}
+Not a real error.
+
+! Preview: Snippet 225 ended.(546132+0x28203959).
+<-><->
+      
+l.887 ...finition started with Canonical Ensemble}
+                                                  
+Not a real error.
+
+[225
+
+]
+! Preview: Snippet 226 started.
+<-><->
+      
+l.888   For given canonical ensemble $
+                                      (N, V, T)$, let $Z$ be configurational...
+
+Not a real error.
+
+! Preview: Snippet 226 ended.(491520+163840x2546570).
+<-><->
+      
+l.888   For given canonical ensemble $(N, V, T)$
+                                                , let $Z$ be configurational...
+
+Not a real error.
+
+[226]
+! Preview: Snippet 227 started.
+<-><->
+      
+l.888 ...ven canonical ensemble $(N, V, T)$, let $
+                                                  Z$ be configurational inte...
+
+Not a real error.
+
+! Preview: Snippet 227 ended.(447828+0x494251).
+<-><->
+      
+l.888 ...n canonical ensemble $(N, V, T)$, let $Z$
+                                                   be configurational integr...
+
+Not a real error.
+
+[227]
+! Preview: Snippet 228 started.
+<-><->
+      
+l.889   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 228 ended.(1586710+0x28203959).
+<-><->
+      
+l.891   \end{equation}
+                      
+Not a real error.
+
+[228]
+! Preview: Snippet 229 started.
+<-><->
+      
+l.892   where $
+               \beta$ be Boltzmann factor. Then, the probability of an eleme...
+
+Not a real error.
+
+! Preview: Snippet 229 ended.(455111+127431x405276).
+<-><->
+      
+l.892   where $\beta$
+                      be Boltzmann factor. Then, the probability of an eleme...
+
+Not a real error.
+
+[229]
+! Preview: Snippet 230 started.
+<-><->
+      
+l.893   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 230 ended.(1471909+0x28203959).
+<-><->
+      
+l.895   \end{equation}
+                      
+Not a real error.
+
+[230]
+! Preview: Snippet 231 started.
+<-><->
+      
+l.897   \begin{equation}
+                        
+Not a real error.
+
+! Preview: Snippet 231 ended.(1586710+0x28203959).
+<-><->
+      
+l.899   \end{equation}
+                      
+Not a real error.
+
+[231]
+! Preview: Snippet 232 started.
+<-><->
+      
+l.900   where $
+               n<N$ and superscript $(n)$ for $P$ denote probability reduced...
+
+Not a real error.
+
+! Preview: Snippet 232 ended.(447828+25623x1865190).
+<-><->
+      
+l.900   where $n<N$
+                    and superscript $(n)$ for $P$ denote probability reduced...
+
+Not a real error.
+
+[232]
+! Preview: Snippet 233 started.
+<-><->
+      
+l.900   where $n<N$ and superscript $
+                                     (n)$ for $P$ denote probability reduced...
+
+Not a real error.
+
+! Preview: Snippet 233 ended.(491520+163840x903096).
+<-><->
+      
+l.900   where $n<N$ and superscript $(n)$
+                                          for $P$ denote probability reduced...
+
+Not a real error.
+
+[233]
+! Preview: Snippet 234 started.
+<-><->
+      
+l.900   where $n<N$ and superscript $(n)$ for $
+                                               P$ denote probability reduced...
+
+Not a real error.
+
+! Preview: Snippet 234 ended.(447828+0x511773).
+<-><->
+      
+l.900   where $n<N$ and superscript $(n)$ for $P$
+                                                  denote probability reduced...
+
+Not a real error.
+
+[234]
+! Preview: Snippet 235 started.
+<-><->
+      
+l.900 ...$ for $P$ denote probability reduced by $
+                                                  N-n$.
+Not a real error.
+
+! Preview: Snippet 235 ended.(447828+54613x1792374).
+<-><->
+      
+l.900 ...r $P$ denote probability reduced by $N-n$
+                                                  .
+Not a real error.
+
+[235]
+
+LaTeX Warning: Empty bibliography on input line 905.
+
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 909.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 909.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 909.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 909.
+
+LaTeX Warning: There were undefined references.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 909.
+
+Package biblatex Warning: Please (re)run Biber on the file:
+(biblatex)                _region_
+(biblatex)                and rerun LaTeX afterwards.
+
+Package logreq Info: Writing requests to '_region_.run.xml'.
+\openout1 = `_region_.run.xml'.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 1593 strings out of 479654
+ 22625 string characters out of 5920401
+ 634397 words of memory out of 5000000
+ 18341 multiletter control sequences out of 15000+600000
+ 17595 words of font info for 68 fonts, out of 8000000 for 9000
+ 957 hyphenation exceptions out of 8191
+ 32i,14n,46p,1287b,1862s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
+></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
+</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></
+usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></u
+sr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></us
+r/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/
+local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/lo
+cal/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/lo
+cal/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/loca
+l/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/t
+exlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texl
+ive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texli
+ve/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive
+/2013/texmf-dist/fonts/type1/public/rsfs/rsfs10.pfb></usr/local/texlive/2013/te
+xmf-dist/fonts/type1/public/rsfs/rsfs7.pfb>
+Output written on _region_.pdf (235 pages, 2487262 bytes).
+PDF statistics:
+ 1421 PDF objects out of 1440 (max. 8388607)
+ 815 compressed objects within 9 object streams
+ 128 named destinations out of 1000 (max. 500000)
+ 56 words of extra memory for PDF output out of 10000 (max. 10000000)
+
