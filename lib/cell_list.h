@@ -30,7 +30,7 @@ class CLIST
   MKL_LONG N_neighbor_cells; // including itself
   MKL_LONG MAX_IN_CELL; // it state how many particles are allowed for one cell. Set as all the number of particles as default.
   
-  MATRIX *CELL;
+  MKL_LONG **CELL;
   MKL_LONG **NEIGHBOR_CELLS;
   MKL_LONG *TOKEN;
   MKL_LONG Np;
@@ -41,19 +41,26 @@ class CLIST
   MKL_LONG allocate_index_neighbor_cell_list();
   MKL_LONG identify_cell_from_given_position(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost);
   MKL_LONG allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost);
+
+  // operator overloading
+  MKL_LONG& operator()(MKL_LONG i, MKL_LONG j); // it will return the index for CELL[i][j] as reference variable
+
+  
   // constructor
   CLIST(){}
   /* CLIST(MKL_LONG given_N_dimension, double given_cut_off_radius, double given_box_dimension, MKL_LONG max_particle_in_cell) */
   CLIST(COND& given_condition);
 
+  // destructor
   virtual ~CLIST()
     {
-      mkl_free(CELL);
       mkl_free(TOKEN);
       for(MKL_LONG i=0; i<N_cells; i++)
         {
+          mkl_free(CELL);
           mkl_free(NEIGHBOR_CELLS[i]);
         }
+      mkl_free(CELL);
       mkl_free(NEIGHBOR_CELLS);
     }
 };

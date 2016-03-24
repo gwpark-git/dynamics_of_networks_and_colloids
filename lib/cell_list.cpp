@@ -1,5 +1,10 @@
 #include "cell_list.h"
 
+MKL_LONG& CLIST::operator()(MKL_LONG i, MKL_LONG j)
+{
+  return CELL[i][j];
+}
+
 CLIST::CLIST(COND& given_condition)
 {
   /* cut_off_radius = given_cut_off_radius; */
@@ -56,12 +61,13 @@ CLIST::CLIST(COND& given_condition)
   // N_neighbor_cells=1;
   printf("\tdynamic allocating CLIST member variables");
   TOKEN = (MKL_LONG*)mkl_malloc(N_cells*sizeof(MKL_LONG), BIT);
-  CELL = (MATRIX*)mkl_malloc(N_cells*sizeof(MATRIX), BIT);
+  CELL = (MKL_LONG**)mkl_malloc(N_cells*sizeof(MKL_LONG*), BIT);
   NEIGHBOR_CELLS = (MKL_LONG**)mkl_malloc(N_cells*sizeof(MKL_LONG*), BIT);
   for(MKL_LONG i=0; i<N_cells; i++)
     {
-      CELL[i].initial(MAX_IN_CELL, 1, 0.);
+      // CELL[i].initial(MAX_IN_CELL, 1, 0.);
       TOKEN[i] = -1; // -1 is default value when there is no index (note that the particle index is started with 0, which is the reason to avoid using 0 identifier
+      CELL[i] = (MKL_LONG*)mkl_malloc(MAX_IN_CELL*sizeof(MKL_LONG), BIT);
       NEIGHBOR_CELLS[i] = (MKL_LONG*)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG), BIT);
       /* get_neighbor_cell_list(i,  */
     }
@@ -85,11 +91,14 @@ MKL_LONG CLIST::identify_cell_from_given_position(TRAJECTORY& TRAJ, MKL_LONG ind
 
 MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost)
 {
-  MKL_LONG index = 0;
+  MKL_LONG index;
+  for(MKL_LONG i=0; i<N_cells; i++)
+    TOKEN[i] = 0;
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       index = identify_cell_from_given_position(TRAJ, index_t_now, i, index_vec_boost);
-      CELL[index](TOKEN[index]++) = i;
+      CELL[index][TOKEN[index]++] = i;
+      // CELL[index](TOKEN[index]++) = i;
     }
   return 0;
 }
@@ -195,53 +204,4 @@ MKL_LONG CLIST::index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec)
   return UTILITY::index_sca2vec(index_sca, index_vec, N_dimension, N_div);
 }
 
-
-// MKL_LONG CLIST::index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca)
-// {
-//   /*
-//    (basic) index_vec = [i, j, k] => i*N_div*N_div + j*N_div + k
-//    This is basically the same with
-//    index_vec[0]*pow(N_div, 2) + index_vec[1]*pow(N_div, 1) + index_vec[2]*pow(N_div, 0)
-
-//    In this approach, the neighbour cells can be checked by shift factor [-1, 0, +1] for each components for index_vec.
-//   */
-//   // MKL_LONG re = 0;
-//   // for(MKL_LONG n=0; n< N_dimension; n++)
-//   //   {
-//   //     re += index_vec[n]*pow(N_div, 2-n);
-//   //   }
-//   // MKL_LONG re = 0;
-//   // for (MKL_LONG n=0; n<N_dimension; n++)
-//   //   P{
-
-      
-//   return re;
-// }
-
-// MKL_LONG CLIST::index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec)
-// {
-//   /*
-//     This function will recover index set for each axis (inverse map of the index_vec2sca).
-//     Note that the com(index_vec2sca, index_sca2vec) is identity function.
-//    */
-//   index_vec[2] = (MKL_LONG)index_sca%N_div;
-//   index_vec[1] = (MKL_LONG)index_sca/(N_div);
-//   index_vec[0] = (MKL_LONG)index_sca/(N_div*N_div);
-//   for(MKL_LONG n=0; n<N_dimension-1; n++)
-//     {
-//       index_vec[n] = (MKL_LONG)index_sca/pow(N_div, 2-n);
-//     }
-//   index_vec[N_dimension-1] = (MKL_LONG)index_sca%N_div;
-// }
-
-
-
-// MKL_LONG CLIST::MAPPING(TRAJECTORY& TRAJ)
-// {
-//   // TODO parallizable mapping function
-//   // Quick in mind: the sequencial mapping function is not enough to improve the speed
-//   // OR: it is just called once when the initial trajectory is given
-//   //     On this regards, the update during simulation should not use this MAPPING function since it will overhead because parallelization is not implemented in this function.
-//   return 0;
-// }
 

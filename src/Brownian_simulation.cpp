@@ -110,6 +110,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   printf("DONE\n");
   printf("GENERATING BOOSTING VECTORS\n");
   LOCK LOCKER(TRAJ.Np);
+  MKL_LONG *tmp_index_vec = (MKL_LONG*) mkl_malloc(TRAJ.dimension*sizeof(MKL_LONG), BIT);
   MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); 
   // MATRIX **R_minimum_vec_boost = (MATRIX**) mkl_malloc(TRAJ.Np*sizeof(MATRIX*), BIT); //RDIST
   // MATRIX *R_minimum_distance_boost = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); // RDIST
@@ -246,16 +247,36 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       // double dt_rdist = 0;
       double time_st_rdist = dsecnd();
 // #pragma omp parallel for default(none) shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, R_minimum_vec_boost, R_minimum_distance_boost, dt_rdist, dt_pdf, dt_sort, POTs, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
-#pragma omp parallel for default(none) shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, R_boost, dt_rdist, dt_pdf, dt_sort, POTs, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+// #pragma omp parallel for default(none) shared(TRAJ, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, R_boost, dt_rdist, dt_pdf, dt_sort, POTs, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
       
-      /*
-        The following part is related with generating R_minimum_vec_boost, R_minimum_distance_boost, and also for sorted dCDF and index of it. For the case of equilibration, however, the cumulative distribution is not necessary. The other variable will be used for time evolution which means the for-loop is composed of two intrinsic part. The reason to combined those parts into one for-loop is to avoid overhead that called by OpenMP twicely.
-      */
-      for(MKL_LONG i=0; i<TRAJ.Np; i++)
+//       /*
+//         The following part is related with generating R_minimum_vec_boost, R_minimum_distance_boost, and also for sorted dCDF and index of it. For the case of equilibration, however, the cumulative distribution is not necessary. The other variable will be used for time evolution which means the for-loop is composed of two intrinsic part. The reason to combined those parts into one for-loop is to avoid overhead that called by OpenMP twicely.
+//       */
+//       for(MKL_LONG i=0; i<TRAJ.Np; i++)
+//         {
+//           // time_st_rdist = dsecnd();
+//           // GEOMETRY::get_minimum_distance_for_particle(TRAJ, index_t_now, i, R_minimum_distance_boost[i], R_minimum_vec_boost); // RDIST
+//           GEOMETRY::get_minimum_distance_for_particle(TRAJ, index_t_now, i, R_boost.Rsca[i], R_boost.Rvec);
+//         }
+      R_boost.allocate_cells_from_positions(TRAJ, index_t_now, tmp_index_vec);
+      for(MKL_LONG i=0; i<R_boost.N_cells; i++)
         {
-          // time_st_rdist = dsecnd();
-          // GEOMETRY::get_minimum_distance_for_particle(TRAJ, index_t_now, i, R_minimum_distance_boost[i], R_minimum_vec_boost); // RDIST
-          GEOMETRY::get_minimum_distance_for_particle(TRAJ, index_t_now, i, R_boost.Rsca[i], R_boost.Rvec);
+          for(MKL_LONG j=0; j<R_boost.TOKEN[i]; j++)
+            {
+              // R_boost.Rsca(R_boost(i,j)) = GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_particle, R_boost(i,j), R_boost.Rvec[index_particle][R_boost(i,j)]);
+              MKL_LONG index_particle = R_boost(i,j);
+              for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
+                {
+                  printf("TMP, NEIGHBOR_CELLS[%ld, %ld]\n", index_particle, k);
+// R_boost.NEIGHBOR_CELLS[index_particle][k]                  
+                  for(MKL_LONG p=0; p<R_boost.TOKEN[R_boost.NEIGHBOR_CELLS[index_particle][k]]; p++)
+                    {
+                      MKL_LONG index_target = R_boost(R_boost.NEIGHBOR_CELLS[index_particle][k], p);
+                      printf("CELL[%ld, %ld] = %ld, CELL[%ld, %ld] = %ld\n", i, j, index_particle, k, p, index_target);
+                      R_boost.Rsca[index_particle](index_target) = GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target]);
+                    }
+                }
+            }
         }
       dt_rdist += dsecnd() - time_st_rdist;
       // double dt_pdf = 0, dt_sort = 0, dt_det_pdf = 0;
@@ -593,6 +614,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 //     mkl_free(R_minimum_vec_boost[i]); // RDIST
 // mkl_free(R_minimum_vec_boost); // RDIST
 // mkl_free(R_minimum_distance_boost); // RDIST
+mkl_free(tmp_index_vec);
   mkl_free(dCDF_U);
   mkl_free(INDEX_dCDF_U);
   
