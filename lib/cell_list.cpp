@@ -156,7 +156,7 @@ MKL_LONG CLIST::allocate_index_neighbor_cell_list()
   else
     {
       // it prevent to violate the interface
-      NEIGHBOR_CELLS[0] = 0;
+      NEIGHBOR_CELLS[0][0] = 0;
     }
   return 0;
 }

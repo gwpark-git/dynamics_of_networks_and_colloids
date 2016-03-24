@@ -259,6 +259,10 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 //           GEOMETRY::get_minimum_distance_for_particle(TRAJ, index_t_now, i, R_boost.Rsca[i], R_boost.Rvec);
 //         }
       R_boost.allocate_cells_from_positions(TRAJ, index_t_now, tmp_index_vec);
+      // for(MKL_LONG i=0; i<R_boost.N_cells; i++)
+      // 	{
+	  
+      // 	}
       for(MKL_LONG i=0; i<R_boost.N_cells; i++)
         {
           for(MKL_LONG j=0; j<R_boost.TOKEN[i]; j++)
@@ -267,17 +271,18 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
               MKL_LONG index_particle = R_boost(i,j);
               for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
                 {
-                  printf("TMP, NEIGHBOR_CELLS[%ld, %ld]\n", index_particle, k);
+                  // printf("TMP, NEIGHBOR_CELLS[%ld, %ld]\n", index_particle, k);
 // R_boost.NEIGHBOR_CELLS[index_particle][k]                  
-                  for(MKL_LONG p=0; p<R_boost.TOKEN[R_boost.NEIGHBOR_CELLS[index_particle][k]]; p++)
+                  for(MKL_LONG p=0; p<R_boost.TOKEN[R_boost.NEIGHBOR_CELLS[i][k]]; p++)
                     {
-                      MKL_LONG index_target = R_boost(R_boost.NEIGHBOR_CELLS[index_particle][k], p);
-                      printf("CELL[%ld, %ld] = %ld, CELL[%ld, %ld] = %ld\n", i, j, index_particle, k, p, index_target);
+                      MKL_LONG index_target = R_boost(R_boost.NEIGHBOR_CELLS[i][k], p);
+                      // printf("CELL[%ld, %ld] = %ld, CELL[%ld, %ld] = %ld, TOKEN[%ld]=%ld, TOKEN[%ld]=%ld\n", i, j, index_particle, k, p, index_target, i, R_boost.TOKEN[i], p, R_boost.TOKEN[R_boost.NEIGHBOR_CELLS[i][k]]);
                       R_boost.Rsca[index_particle](index_target) = GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target]);
                     }
                 }
             }
         }
+      // printf("R_boost_test DONE\n");
       dt_rdist += dsecnd() - time_st_rdist;
       // double dt_pdf = 0, dt_sort = 0, dt_det_pdf = 0;
       // double dt_pdf_all = 0;
