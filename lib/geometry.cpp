@@ -1,6 +1,24 @@
 
 #include "geometry.h"
 
+RDIST::RDIST(COND& given_condition) : CLIST(given_condition)
+{
+  Rvec = (MATRIX**)mkl_malloc(Np*sizeof(MATRIX*), BIT);
+  Rsca = (MATRIX*)mkl_malloc(Np*sizeof(MATRIX), BIT);
+      
+  for(MKL_LONG i=0; i<Np; i++)
+    {
+      // since the space complexity is not the matter for our simulation (at this moment),
+      // the Rvec have Np*Np array that is much larger when we used cell-list approaches
+      Rvec[i] = (MATRIX*)mkl_malloc(Np*sizeof(MATRIX), BIT);
+      for(MKL_LONG j=0; j<Np; j++)
+        {
+          Rvec[i][j].initial(N_dimension, 1, 0.);
+        }
+      Rsca[i].initial(Np, 1, 0.);
+    }
+}
+
 
 double GEOMETRY::get_minimum_distance_for_particle(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_particle, MATRIX& R_minimum_boost_particle, MATRIX** R_minimum_vec_boost)
 {
