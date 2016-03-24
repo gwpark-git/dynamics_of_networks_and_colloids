@@ -263,11 +263,18 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       // 	{
 	  
       // 	}
+      
+      /*
+	The following double omp prallel phrases are design to work only one parallel phrase.
+	If phrase is not so obvious, but typically N_cells = N_div^N_dimension, which means it typically has higher value than N_THREADS_BD.
+	Hence, the setting criterion will be used as described in below at this moment.
+       */
+#pragma omp parallel for default(none) shared(TRAJ, index_t_now, R_boost, N_THREADS_BD) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1 && R_boost.N_cells >= N_THREADS_BD)
       for(MKL_LONG i=0; i<R_boost.N_cells; i++)
         {
+#pragma omp parallel for default(none) shared(i, TRAJ, index_t_now, R_boost) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1 && R_boost.N_cells < N_THREADS_BD)
           for(MKL_LONG j=0; j<R_boost.TOKEN[i]; j++)
             {
-              // R_boost.Rsca(R_boost(i,j)) = GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_particle, R_boost(i,j), R_boost.Rvec[index_particle][R_boost(i,j)]);
               MKL_LONG index_particle = R_boost(i,j);
               for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
                 {
