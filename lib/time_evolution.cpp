@@ -126,6 +126,49 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIA
   return 0;
 }
 
+MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_R_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG index_particle, RDIST& R_boost)
+{
+  given_vec.set_value(0.);
+  MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
+  for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
+    {
+      MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k];
+      for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
+	{
+	  MKL_LONG index_target = R_boost(cell_index_neighbor, p);
+	  double distance = R_boost.Rsca[index_particle](index_target);
+	  if (index_target != index_particle)
+	    {
+	      double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
+	      cblas_daxpy(given_vec.size,
+			  repulsion/distance,
+			  R_boost.Rvec[index_particle][index_target].data,
+			  1,
+			  given_vec.data,
+			  1);
+	    }
+	}
+    }
+  
+  // for(MKL_LONG i=0; i<TRAJ.Np; i++)
+  //   {
+  //     MATRIX& rel_vector = R_minimum_vec_boost[index_i][i];
+  //     double distance = R_minimum_distance_boost[index_i](i);
+      
+  //     if (i != index_i)
+  //       {
+  //         double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
+  //         cblas_daxpy(given_vec.size,
+  //                     repulsion/distance,
+  //                     rel_vector.data,
+  //                     1,
+  //                     given_vec.data,
+  //                     1);
+  //       }
+  //   }
+  return 0;
+}
+
 
 MKL_LONG INTEGRATOR::EULER::cal_random_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t)
 {

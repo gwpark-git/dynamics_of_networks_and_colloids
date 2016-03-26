@@ -136,7 +136,7 @@ MKL_LONG UTILITY::index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec, 
    */
   for(MKL_LONG n=0; n<N_dimension; n++)
     {
-      index_vec[n] = ((MKL_LONG)(index_sca/pow(N_div, N_dimension - (n+2))))%N_div;
+      index_vec[n] = ((MKL_LONG)(index_sca/pow(N_div, N_dimension - (n+1))))%N_div;
     }
   return index_sca;
 }
@@ -147,8 +147,11 @@ MKL_LONG CLIST::allocate_index_neighbor_cell_list()
     {
       MKL_LONG* index_vec_boost = (MKL_LONG*)mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
       MKL_LONG* sf_vec_boost = (MKL_LONG*)mkl_malloc(3*sizeof(MKL_LONG), BIT); // 3 means number of shift factors {-1, 0, +1}
-      for(MKL_LONG i=0; i<N_neighbor_cells; i++)
+      // for(MKL_LONG i=0; i<N_neighbor_cells; i++) // this was bug.
+      for(MKL_LONG i=0; i<N_cells; i++) // this is right. 
         {
+	  // note that the number of cells is N_div^N_dimension while number of neighbor cells is N_sf^N_dimension
+	  // for instance, if the PBC is divided by 5 cells for each axis, N_cells = 5^3 = 125 while the N_neighbor_cells = 3^3 = 9
           get_neighbor_cell_list(i, NEIGHBOR_CELLS[i], index_vec_boost, sf_vec_boost);
         }
       mkl_free(index_vec_boost);
@@ -171,8 +174,9 @@ MKL_LONG CLIST::get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* inde
     For non-equilibrium simulation such as simple shear flow, the re-usability will decrease which eventually adds some overhead to compute additional lists.
    */
   CLIST::index_sca2vec(index_sca, self_index_vec_boost);
-  MKL_LONG shift_factors[3] = {-1, 0, 1};
+  // MKL_LONG shift_factors[3] = {-1, 0, 1};
   MKL_LONG N_sf = 3; // {-1, 0, +1}
+  printf("=========\n");
   for(MKL_LONG nsf=0; nsf<pow(N_sf, N_dimension); nsf++)
     {
       UTILITY::index_sca2vec(nsf, sf_vec_boost, N_dimension, N_sf);
@@ -190,7 +194,9 @@ MKL_LONG CLIST::get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* inde
           // sf_vec_boost[n] -1 becomes [-1, 0, +1] which is exactly the same with shift factor array
           // self_index_vec[n] + (sf_vec_boost[n] - 1) -> sf_vec_boost[n]
         }
-      UTILITY::index_vec2sca(sf_vec_boost, index_neighbor_cells[nsf], N_dimension, N_sf);
+      // UTILITY::index_vec2sca(sf_vec_boost, index_neighbor_cells[nsf], N_dimension, N_sf); // this is the big bug
+      UTILITY::index_vec2sca(sf_vec_boost, index_neighbor_cells[nsf], N_dimension, N_div);
+      printf("self=%ld(%ld, %ld, %ld), cell[%ld,%ld,%ld]=%ld\n", index_sca, self_index_vec_boost[0], self_index_vec_boost[1], self_index_vec_boost[2], sf_vec_boost[0], sf_vec_boost[1], sf_vec_boost[2], index_neighbor_cells[nsf]);
     }
   return 0;
 }
