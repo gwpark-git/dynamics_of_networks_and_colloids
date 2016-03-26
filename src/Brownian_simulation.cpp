@@ -223,7 +223,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   
   printf("DONE\n");
   printf("START SIMULATION\n");
-  MKL_LONG pre_N_associations = 0;
   MKL_LONG N_associations = 0;
 
   // MKL_LONG IDENTIFIER_ASSOC = TRUE; // the identification is disabled
@@ -342,7 +341,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 		}
 	    } // index_particle, local parallel
 
-#pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, R_boost, dt_rdist, dt_pdf, dt_sort, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, cnt, N_THREADS_SS, N_associations, N_tot_associable_chain) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1)
+#pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, R_boost, dt_rdist, dt_pdf, dt_sort, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, cnt, N_THREADS_SS, N_associations, N_tot_associable_chain) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1) reduction(+:dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7)
 	  // #pragma omp critical(TOPOLOGY_UPDATE)
 	  // {
 	  // for(MKL_LONG tp = 0; tp<N_steps_block; tp++)
@@ -375,37 +374,44 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 	      time_MC_5 = dsecnd();
 	      MKL_LONG IDENTIFIER_ACTION = TRUE; // it can be 1 (IDX.ADD) but just true value
 	      MKL_LONG IDENTIFIER_LOCKING = FALSE;
+	      if(N_THREADS_SS > 1)
+		{
 #pragma omp critical(LOCKING)  // LOCKING is the name for this critical blocks
-	      {
-		/*
-		  On the omp critical region, the block will work only one thread.
-		  If the other thread reaching this reason while there is one thread already working on this block, then the reached thread will wait until finishing the job of the other thread.
-		  This benefits to identify the working beads index on this case, since the 
-		*/
-		// CHECKING
-		for(MKL_LONG I_BEADS = 0; I_BEADS < 3 && N_THREADS_SS > 1; I_BEADS++)
 		  {
-		    if(LOCKER(IDX_ARR[it].beads[I_BEADS]))
-		      {
-			IDENTIFIER_ACTION = IDX_ARR[it].CANCEL;
-			IDENTIFIER_LOCKING = TRUE;
-			break;
-		      }
-		  }
-		// this is LOCKING procedure
-		if(!IDENTIFIER_LOCKING)
-		  {
-		    cnt++;  // preventing LOCKING affect to the IDENTIFICATION of stochastic balance
-		    for(MKL_LONG I_BEADS = 0; I_BEADS < 3 && N_THREADS_SS > 1; I_BEADS++)
-		      {
-			LOCKER(IDX_ARR[it].beads[I_BEADS]) = TRUE;
-		      }
-		  }
-		else
-		  {
-		    cnt_lock ++;
-		  }
-	      }
+		  /*
+		    On the omp critical region, the block will work only one thread.
+		    If the other thread reaching this reason while there is one thread already working on this block, then the reached thread will wait until finishing the job of the other thread.
+		    This benefits to identify the working beads index on this case, since the 
+		  */
+		  // CHECKING
+		  for(MKL_LONG I_BEADS = 0; I_BEADS < 3 && N_THREADS_SS > 1; I_BEADS++)
+		    {
+		      if(LOCKER(IDX_ARR[it].beads[I_BEADS]))
+			{
+			  IDENTIFIER_ACTION = IDX_ARR[it].CANCEL;
+			  IDENTIFIER_LOCKING = TRUE;
+			  break;
+			}
+		    }
+		  // this is LOCKING procedure
+		  if(!IDENTIFIER_LOCKING)
+		    {
+		      cnt++;  // preventing LOCKING affect to the IDENTIFICATION of stochastic balance
+		      for(MKL_LONG I_BEADS = 0; I_BEADS < 3 && N_THREADS_SS > 1; I_BEADS++)
+			{
+			  LOCKER(IDX_ARR[it].beads[I_BEADS]) = TRUE;
+			}
+		    }
+		  else
+		    {
+		      cnt_lock ++;
+		    }
+		} // critical(LOCKING)
+	    } // check the parallel
+	      else
+		{
+		  IDENTIFIER_LOCKING = FALSE;
+		}
 	      time_MC_6 = dsecnd();
 	      // Note that the critical region only applicable with single thread while the others will be used in parallel regime.
 	      // In addition, the gap for passing the critical region will tune further gaps, then the computation speed for passing critical region will not be real critical issue.
@@ -446,14 +452,11 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 		    {
 		      LOCKER(IDX_ARR[it].beads[I_BEADS]) = FALSE;
 		    }
-#pragma omp critical(COUNTING) 
+
 		  {
-		    /*
-		      critical(COUNTING) blocks:
-		      This is counting the action information that will be used for the future.
-		      Notice that the writing MC_LOG file is inside of this COUNTING critical directive, since all the information should be the same for writing (temporal)
-		    */
-		    cnt_arr[IDENTIFIER_ACTION]++;
+		    // update for reduction part
+		    // note that the reduction is individually working
+		    // when the job in parallel region is finished, it will be summed over all the different threads
 		    dt_1 += time_MC_2 - time_MC_1; // basic_random
 		    dt_2 += time_MC_3 - time_MC_2; // getting_hash
 		    dt_3 += time_MC_4 - time_MC_3; // det_jump
@@ -461,107 +464,122 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 		    dt_5 += time_MC_6 - time_MC_5; // LOCKING
 		    dt_6 += time_MC_end_ACTION - time_MC_pre_ACTION; // ACTION
 		    dt_7 += time_MC_end_UPDATE - time_MC_end_ACTION; // UPDATE
+		  }
+
+		  /*
+		    critical(COUNTING) blocks:
+		    This is counting the action information that will be used for the future.
+		    Notice that the writing MC_LOG file is inside of this COUNTING critical directive, since all the information should be the same for writing (temporal)
+		  */
+#pragma omp critical(COUNTING) 
+		  {			
+			
+		    cnt_arr[IDENTIFIER_ACTION]++;
 		    N_associations = cnt_add - cnt_del;
-		    // count_M += N_associations;
+		    
+		  // count_M += N_associations;
                       
 		    if (given_condition("MC_LOG") == "TRUE")
 		      {
 			MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
+			  
 			// MKL_LONG count_N_associagtions = cnt_add - cnt_del;
 			{
 			  FILE_LOG << cnt << '\t' << index_itself << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << index_attached_bead << '\t'  << index_new_attached_bead<< '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_attached_bead << '\t'  << CONNECT.TOKEN[index_itself]<< '\t'<< CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight[index_itself](0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << '\t' << cnt_lock << endl;
 			}
 			// FILE_LOG << boost::format("%10d\t%4d\t")
-		      }
+		      } // MC_LOG
+			
 		  } // critical(COUNTING)
-		} // LOCKING
-	    } // for loop (ASSOCIATION)
-	} // region for topological update
-      double time_end_MC = dsecnd();
+		} // if(!IDENTIFIER_LOCKING)
+	} // for loop (ASSOCIATION)
+    } // region for topological update
+  
+  double time_end_MC = dsecnd();
 #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_spring, force_repulsion, force_random, r_boost_arr, N_THREADS_BD, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
-      for (MKL_LONG i=0; i<TRAJ.Np; i++)
-	{
-	  MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
+  for (MKL_LONG i=0; i<TRAJ.Np; i++)
+    {
+      MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
           
-	  force_spring[i].set_value(0);
-	  force_repulsion[i].set_value(0);
-	  force_random[i].set_value(0);
+      force_spring[i].set_value(0);
+      force_repulsion[i].set_value(0);
+      force_random[i].set_value(0);
 
-	  // if(given_condition("Step")!="EQUILIBRATION") // EQUILIBRIATION is disabled
-	  //   {
-	  // INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJ, POTs, CONNECT, force_spring[i], index_t_now, i, R_minimum_vec_boost, R_minimum_distance_boost); // RDIST
-	  INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJ, POTs, CONNECT, force_spring[i], index_t_now, i, R_boost.Rvec, R_boost.Rsca);
-	  // }
-	  // INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_minimum_vec_boost, R_minimum_distance_boost); // RDIST
-	  INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_boost.Rvec, R_boost.Rsca);
-	  INTEGRATOR::EULER::cal_random_force_boost(TRAJ, POTs, force_random[i], index_t_now, r_boost_arr[it]); 
-	  for (MKL_LONG k=0; k<TRAJ.dimension; k++)
-	    {
-	      TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
-	    }
-	}
-      GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
-      double time_end_LV = dsecnd();
-      double time_end_AN = time_end_LV;
-      if(t%N_skip==0)
+      // if(given_condition("Step")!="EQUILIBRATION") // EQUILIBRIATION is disabled
+      //   {
+      // INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJ, POTs, CONNECT, force_spring[i], index_t_now, i, R_minimum_vec_boost, R_minimum_distance_boost); // RDIST
+      INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJ, POTs, CONNECT, force_spring[i], index_t_now, i, R_boost.Rvec, R_boost.Rsca);
+      // }
+      // INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_minimum_vec_boost, R_minimum_distance_boost); // RDIST
+      INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_boost.Rvec, R_boost.Rsca);
+      INTEGRATOR::EULER::cal_random_force_boost(TRAJ, POTs, force_random[i], index_t_now, r_boost_arr[it]); 
+      for (MKL_LONG k=0; k<TRAJ.dimension; k++)
 	{
-	  time_end_LV = dsecnd();
-	  energy(0) = TRAJ(index_t_now);
-	  energy(4) = (double)N_associations;
-	  energy(5) = dsecnd() - time_st_simulation;
-	  ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJ, POTs, CONNECT, energy, index_t_now, vec_boost_Nd_parallel[0]);
-	  time_end_AN = dsecnd();
-	  double total_dt = dt_1 + dt_2 + dt_3 + dt_4 + dt_5 + dt_6 + dt_7;
-	  double total_dt_pdf = dt_rdist + dt_pdf + dt_sort;
-	  double total_time = time_MC + time_LV + time_AN + time_file + total_dt_pdf;
-	  double dt_pdf_all = dt_pdf + dt_sort;
-          
-	  printf("##### STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_now), energy(1));
-	  printf("time consuming: MC, LV, AN, FILE, DIST = %8.6e, %8.6e, %8.6e, %8.6e, %8.6e\n", time_MC, time_LV, time_AN, time_file, total_dt_pdf);
-	  printf("time fraction:  MC, LV, AN, FILE, DIST = %6.1f, %6.1f, %6.1f, %6.1f, %6.1f\n", time_MC*100/total_time, time_LV*100/total_time, time_AN*100/total_time, time_file*100/total_time, total_dt_pdf*100/total_time);
-	  printf("MC step analysis: all pdf = %6.3e, basic_random = %6.3e, getting_hash = %6.3e, det_jump = %6.3e, new_end = %6.3e, LOCKING = %6.3e, action = %6.3e, update = %6.3e\n", dt_pdf_all, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7);
-	  printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, LOCKING = %6.3f, action = %6.1f, update = %6.1f\n", dt_pdf_all*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
-	  printf("computing rdist: %6.3e (%3.1f), computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_rdist, 100.*dt_rdist/total_dt_pdf, dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
-	  printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, N_tot_asso = %ld, ratio = %6.3e, NAS = %ld, fraction=%4.3f, total time=%4.3e ####\n\n", cnt, N_diff, N_tot_associable_chain, N_diff/N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain, energy(5));
-	  TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
-	  energy.fprint_row(filename_energy.c_str(), 0);
-	  for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
-	    {
-	      CONNECT.HASH[ip].fprint_LONG_skip_transpose_LIMROWS(filename_HASH.c_str(), 1, CONNECT.TOKEN[ip]);
-	      CONNECT.weight[ip].fprint_LONG_skip_transpose_LIMROWS(filename_weight.c_str(), 1, CONNECT.TOKEN[ip]);
-	    }
+	  TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
 	}
+    }
+  GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
+  double time_end_LV = dsecnd();
+  double time_end_AN = time_end_LV;
+  if(t%N_skip==0)
+    {
+      time_end_LV = dsecnd();
+      energy(0) = TRAJ(index_t_now);
+      energy(4) = (double)N_associations;
+      energy(5) = dsecnd() - time_st_simulation;
+      ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJ, POTs, CONNECT, energy, index_t_now, vec_boost_Nd_parallel[0]);
+      time_end_AN = dsecnd();
+      double total_dt = dt_1 + dt_2 + dt_3 + dt_4 + dt_5 + dt_6 + dt_7;
+      double total_dt_pdf = dt_rdist + dt_pdf + dt_sort;
+      double total_time = time_MC + time_LV + time_AN + time_file + total_dt_pdf;
+      double dt_pdf_all = dt_pdf + dt_sort;
+          
+      printf("##### STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_now), energy(1));
+      printf("time consuming: MC, LV, AN, FILE, DIST = %8.6e, %8.6e, %8.6e, %8.6e, %8.6e\n", time_MC, time_LV, time_AN, time_file, total_dt_pdf);
+      printf("time fraction:  MC, LV, AN, FILE, DIST = %6.1f, %6.1f, %6.1f, %6.1f, %6.1f\n", time_MC*100/total_time, time_LV*100/total_time, time_AN*100/total_time, time_file*100/total_time, total_dt_pdf*100/total_time);
+      printf("MC step analysis: all pdf = %6.3e, basic_random = %6.3e, getting_hash = %6.3e, det_jump = %6.3e, new_end = %6.3e, LOCKING = %6.3e, action = %6.3e, update = %6.3e\n", dt_pdf_all, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7);
+      printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, LOCKING = %6.3f, action = %6.1f, update = %6.1f\n", dt_pdf_all*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
+      printf("computing rdist: %6.3e (%3.1f), computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_rdist, 100.*dt_rdist/total_dt_pdf, dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
+      printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, N_tot_asso = %ld, ratio = %6.3e, NAS = %ld, fraction=%4.3f, total time=%4.3e ####\n\n", cnt, N_diff, N_tot_associable_chain, N_diff/N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain, energy(5));
+      TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
+      energy.fprint_row(filename_energy.c_str(), 0);
+      for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
+	{
+	  CONNECT.HASH[ip].fprint_LONG_skip_transpose_LIMROWS(filename_HASH.c_str(), 1, CONNECT.TOKEN[ip]);
+	  CONNECT.weight[ip].fprint_LONG_skip_transpose_LIMROWS(filename_weight.c_str(), 1, CONNECT.TOKEN[ip]);
+	}
+    }
       
 
-      double time_end_save = dsecnd();
-      time_MC += time_end_MC - time_st_MC;
-      time_LV += time_end_LV - time_end_MC;
-      time_AN += time_end_AN - time_end_LV;
-      time_file += time_end_save - time_end_AN;
-    }
+  double time_end_save = dsecnd();
+  time_MC += time_end_MC - time_st_MC;
+  time_LV += time_end_LV - time_end_MC;
+  time_AN += time_end_AN - time_end_LV;
+  time_file += time_end_save - time_end_AN;
+}
 
-  double time_simulation = dsecnd() - time_st_simulation;
-  printf("Total simulation time = %6.3e\n", time_simulation);
-  if (given_condition("MC_LOG") == "TRUE")
-    FILE_LOG.close();
-  mkl_free(vec_boost_Nd_parallel);
-  mkl_free(force_spring);
-  mkl_free(force_repulsion);
-  mkl_free(force_random);
-  //   for(MKL_LONG i=0; i<TRAJ.Np; i++)
-  //     mkl_free(R_minimum_vec_boost[i]); // RDIST
-  // mkl_free(R_minimum_vec_boost); // RDIST
-  // mkl_free(R_minimum_distance_boost); // RDIST
-  mkl_free(tmp_index_vec);
-  mkl_free(dCDF_U);
-  mkl_free(INDEX_dCDF_U);
+double time_simulation = dsecnd() - time_st_simulation;
+printf("Total simulation time = %6.3e\n", time_simulation);
+if (given_condition("MC_LOG") == "TRUE")
+  FILE_LOG.close();
+mkl_free(vec_boost_Nd_parallel);
+mkl_free(force_spring);
+mkl_free(force_repulsion);
+mkl_free(force_random);
+//   for(MKL_LONG i=0; i<TRAJ.Np; i++)
+//     mkl_free(R_minimum_vec_boost[i]); // RDIST
+// mkl_free(R_minimum_vec_boost); // RDIST
+// mkl_free(R_minimum_distance_boost); // RDIST
+mkl_free(tmp_index_vec);
+mkl_free(dCDF_U);
+mkl_free(INDEX_dCDF_U);
   
-  for(MKL_LONG i=0; i<N_THREADS_BD; i++)
-    gsl_rng_free(r_boost_arr[i]); // for boosting
+for(MKL_LONG i=0; i<N_THREADS_BD; i++)
+  gsl_rng_free(r_boost_arr[i]); // for boosting
 
-  mkl_free(r_boost_arr);
-  mkl_free(IDX_ARR);
-  return 0;
+mkl_free(r_boost_arr);
+mkl_free(IDX_ARR);
+return 0;
 }
 
 
