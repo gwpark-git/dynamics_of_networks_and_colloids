@@ -117,7 +117,7 @@ MKL_LONG ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(ASSOCIATION& CONNECT, INDEX_MC&
   else if (CONNECT.ADD_ASSOCIATION(CONNECT, IDX.beads))
     {
       if (CONNECT.CHECK_N_ADD_ASSOCIATION(CONNECT, IDX.beads))
-        return IDX.ADD;
+	return IDX.ADD;
       else
         return IDX.CANCEL;
     }
@@ -176,5 +176,21 @@ MKL_LONG SEARCHING::backtrace(MATRIX& given_arr, double p)
         }
     }
   return 0;
+}
+
+MKL_LONG SEARCHING::backtrace_cell_list(MATRIX& given_arr, MKL_LONG TOKEN, double p, MKL_LONG index_particle, RDIST& R_boost)
+{
+  // MKL_LONG TOKEN = R_boost.TOKEN[R_boost.cell_index[index_particle]];
+  // printf("====\n");
+
+  for(MKL_LONG k= given_arr.size - 1; k >= given_arr.size - TOKEN; k--)
+    {
+      // printf("dCDF[%ld][%ld (min = %ld)] = %4.1e\n", index_particle, k, given_arr.size - TOKEN, given_arr(k));
+      if(given_arr(k) < p)
+        {
+          return k+1;
+        }
+    }
+  return given_arr.size - TOKEN;
 }
 

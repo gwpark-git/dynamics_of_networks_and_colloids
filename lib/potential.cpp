@@ -118,7 +118,7 @@ double FORCE::MODIFIED_GAUSSIAN::cutoff_Boltzmann_distribution(double distance, 
   // note that this cut-off do not have any benefit at this moment
   // after implementaion for cell-list, the cut-off scheme becomes efficience
   if (distance < cutoff_radius)
-    return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(scale_factor*distance, N_dimension, scale_factor);
+    return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(distance, N_dimension, scale_factor);
   return 0.;
 }
 
@@ -237,6 +237,7 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
         {
           given_POT.PDF_connector = MAP_modified_Gaussian_Boltzmann;
         }
+      // given_POT.PDF_connector = MAP_modified_Gaussian_Boltzmann;
     }
   else
     {
