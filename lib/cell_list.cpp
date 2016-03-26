@@ -60,6 +60,7 @@ CLIST::CLIST(COND& given_condition)
   // Np=400;
   // N_neighbor_cells=1;
   printf("\tdynamic allocating CLIST member variables");
+  cell_index = (MKL_LONG*)mkl_malloc(Np*sizeof(MKL_LONG), BIT);
   TOKEN = (MKL_LONG*)mkl_malloc(N_cells*sizeof(MKL_LONG), BIT);
   CELL = (MKL_LONG**)mkl_malloc(N_cells*sizeof(MKL_LONG*), BIT);
   NEIGHBOR_CELLS = (MKL_LONG**)mkl_malloc(N_cells*sizeof(MKL_LONG*), BIT);
@@ -91,12 +92,12 @@ MKL_LONG CLIST::identify_cell_from_given_position(TRAJECTORY& TRAJ, MKL_LONG ind
 
 MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost)
 {
-  MKL_LONG index;
   for(MKL_LONG i=0; i<N_cells; i++)
     TOKEN[i] = 0;
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
-      index = identify_cell_from_given_position(TRAJ, index_t_now, i, index_vec_boost);
+      MKL_LONG index = identify_cell_from_given_position(TRAJ, index_t_now, i, index_vec_boost);
+      cell_index[i] = index;
       CELL[index][TOKEN[index]++] = i;
       // CELL[index](TOKEN[index]++) = i;
     }

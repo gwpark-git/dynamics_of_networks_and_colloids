@@ -31,6 +31,7 @@ class CLIST
   MKL_LONG MAX_IN_CELL; // it state how many particles are allowed for one cell. Set as all the number of particles as default.
   
   MKL_LONG **CELL;
+  MKL_LONG *cell_index;
   MKL_LONG **NEIGHBOR_CELLS;
   MKL_LONG *TOKEN;
   MKL_LONG Np;
@@ -62,6 +63,7 @@ class CLIST
         }
       mkl_free(CELL);
       mkl_free(NEIGHBOR_CELLS);
+      mkl_free(cell_index);
     }
 };
 
