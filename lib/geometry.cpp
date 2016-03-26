@@ -41,6 +41,12 @@ double GEOMETRY::get_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LO
   return given_vec.norm();
 }
 
+double GEOMETRY::get_minimum_distance_cell_list(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, MKL_LONG* beyond_box_check)
+{
+  GEOMETRY::get_minimum_distance_rel_vector_cell_list(TRAJ, index_t, index_i, index_j, given_vec, beyond_box_check);
+  return given_vec.norm();
+}
+
 double GEOMETRY::return_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j)
 {
   MATRIX rel_vec(TRAJ.dimension, 1, 0.);
@@ -74,6 +80,17 @@ MKL_LONG GEOMETRY::get_minimum_distance_pos_vector(TRAJECTORY& TRAJ, MKL_LONG in
   return 0;
 }
 
+// MKL_LONG GEOMETRY::get_minimum_distance_pos_vector_cell_list(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec, MKL_LONG* beyond_box_check)
+// {
+//   for(MKL_LONG k=0; k<TRAJ.dimension; k++)
+//     {
+//       // given_vec(k) = UTIL_ARR::get_minimum_image_k_from_x(TRAJ(index_t, given_index, k), TRAJ(index_t, target_index, k), TRAJ.box_dimension[k]);
+//       given_vec(k) = TRAJ(index_t, target_index, k) - TRAJ(index_t, given_index, k)
+//     }
+//   return 0;
+// }
+
+
 MKL_LONG GEOMETRY::get_minimum_distance_rel_vector(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec)
 {
   GEOMETRY::get_minimum_distance_pos_vector(TRAJ, index_t, given_index, target_index, given_vec);
@@ -86,6 +103,27 @@ MKL_LONG GEOMETRY::get_minimum_distance_rel_vector(TRAJECTORY& TRAJ, MKL_LONG in
     }
   return 0;
 }
+
+MKL_LONG GEOMETRY::get_minimum_distance_rel_vector_cell_list(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec, MKL_LONG* beyond_box_check)
+{
+  // GEOMETRY::get_minimum_distance_pos_vector_cell_list(TRAJ, index_t, given_index, target_index, given_vec, beyond_box_check);
+  // for(MKL_LONG k=0; k<TRAJ.dimension; k++)
+  //   {
+  //     // direction convention:
+  //     // +: direction to the given bead
+  //     // -: direction to the target bead
+  //     given_vec(k) -= TRAJ(index_t, given_index, k);
+  //   }
+  for(MKL_LONG k=0; k<TRAJ.dimension; k++)
+    {
+      double PBC_coord_target = TRAJ(index_t, target_index, k) + (double)beyond_box_check[k]*TRAJ.box_dimension[k];
+      given_vec(k) = PBC_coord_target - TRAJ(index_t, given_index, k);
+    }
+  return 0;
+}
+
+
+
 
 double UTIL_ARR::get_minimum_image_k_from_x(double x, double k, double dimension)
  {

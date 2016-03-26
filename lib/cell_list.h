@@ -33,6 +33,7 @@ class CLIST
   MKL_LONG **CELL;
   MKL_LONG *cell_index;
   MKL_LONG **NEIGHBOR_CELLS;
+  MKL_LONG ***BEYOND_BOX;
   MKL_LONG *TOKEN;
   MKL_LONG Np;
   // mapping function
@@ -60,9 +61,13 @@ class CLIST
         {
           mkl_free(CELL[i]);
           mkl_free(NEIGHBOR_CELLS[i]);
+	  for(MKL_LONG j=0; j<N_neighbor_cells; j++)
+	    mkl_free(BEYOND_BOX[i][j]);
+	  mkl_free(BEYOND_BOX[i]);
         }
       mkl_free(CELL);
       mkl_free(NEIGHBOR_CELLS);
+      mkl_free(BEYOND_BOX);
       mkl_free(cell_index);
     }
 };

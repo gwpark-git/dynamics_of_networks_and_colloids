@@ -64,12 +64,18 @@ CLIST::CLIST(COND& given_condition)
   TOKEN = (MKL_LONG*)mkl_malloc(N_cells*sizeof(MKL_LONG), BIT);
   CELL = (MKL_LONG**)mkl_malloc(N_cells*sizeof(MKL_LONG*), BIT);
   NEIGHBOR_CELLS = (MKL_LONG**)mkl_malloc(N_cells*sizeof(MKL_LONG*), BIT);
+  BEYOND_BOX = (MKL_LONG***)mkl_malloc(N_cells*sizeof(MKL_LONG**), BIT);
   for(MKL_LONG i=0; i<N_cells; i++)
     {
       // CELL[i].initial(MAX_IN_CELL, 1, 0.);
       TOKEN[i] = -1; // -1 is default value when there is no index (note that the particle index is started with 0, which is the reason to avoid using 0 identifier
       CELL[i] = (MKL_LONG*)mkl_malloc(MAX_IN_CELL*sizeof(MKL_LONG), BIT);
       NEIGHBOR_CELLS[i] = (MKL_LONG*)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG), BIT);
+      BEYOND_BOX[i] = (MKL_LONG**)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG*), BIT);
+      for(MKL_LONG j=0; j<N_neighbor_cells; j++)
+	{
+	  BEYOND_BOX[i][j] = (MKL_LONG*)mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
+	}
       /* get_neighbor_cell_list(i,  */
     }
   printf("\tallocating neighbor cell list information");
@@ -176,7 +182,7 @@ MKL_LONG CLIST::get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* inde
   CLIST::index_sca2vec(index_sca, self_index_vec_boost);
   // MKL_LONG shift_factors[3] = {-1, 0, 1};
   MKL_LONG N_sf = 3; // {-1, 0, +1}
-  printf("=========\n");
+  // printf("=========\n");
   for(MKL_LONG nsf=0; nsf<pow(N_sf, N_dimension); nsf++)
     {
       UTILITY::index_sca2vec(nsf, sf_vec_boost, N_dimension, N_sf);
@@ -186,9 +192,16 @@ MKL_LONG CLIST::get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* inde
           // the following function related with the periodic boundary condition
           // whenever the neighbor beyond the PBC box, it re-mapped inside of the box
           if(sf_vec_boost[n] < 0)
-            sf_vec_boost[n] += N_div;
+	    {
+	      // this will reduce the overhead during relative distance between particle with PBC boundary condition	      
+	      BEYOND_BOX[index_sca][nsf][n] = -1;  // when the neighbor cell is beyond PBC boundary in left side
+	      sf_vec_boost[n] += N_div;
+	    }
           else if(sf_vec_boost[n] >= N_div)
-            sf_vec_boost[n] -= N_div;
+	    {
+	      BEYOND_BOX[index_sca][nsf][n] = +1; // when the neighbor cell is beyond PBC boundary in right side
+	      sf_vec_boost[n] -= N_div;
+	    }
           
           // sf_vec_boost[n] has the values in [0, 1, 2] since the N_sf is set with 3.
           // sf_vec_boost[n] -1 becomes [-1, 0, +1] which is exactly the same with shift factor array
@@ -196,7 +209,7 @@ MKL_LONG CLIST::get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* inde
         }
       // UTILITY::index_vec2sca(sf_vec_boost, index_neighbor_cells[nsf], N_dimension, N_sf); // this is the big bug
       UTILITY::index_vec2sca(sf_vec_boost, index_neighbor_cells[nsf], N_dimension, N_div);
-      printf("self=%ld(%ld, %ld, %ld), cell[%ld,%ld,%ld]=%ld\n", index_sca, self_index_vec_boost[0], self_index_vec_boost[1], self_index_vec_boost[2], sf_vec_boost[0], sf_vec_boost[1], sf_vec_boost[2], index_neighbor_cells[nsf]);
+      // printf("self=%ld(%ld, %ld, %ld), cell[%ld,%ld,%ld]=%ld\n", index_sca, self_index_vec_boost[0], self_index_vec_boost[1], self_index_vec_boost[2], sf_vec_boost[0], sf_vec_boost[1], sf_vec_boost[2], index_neighbor_cells[nsf]);
     }
   return 0;
 }

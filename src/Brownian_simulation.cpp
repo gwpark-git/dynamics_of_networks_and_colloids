@@ -278,7 +278,11 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 	      for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
 		{
 		  MKL_LONG index_target = R_boost(cell_index_neighbor, p);
-		  double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target]);
+		  // double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target]);
+		  // printf("(%4.1e, %4.1e, %4.1e), ", R_boost.Rvec[index_particle][index_target](0), R_boost.Rvec[index_particle][index_target](1), R_boost.Rvec[index_particle][index_target](2));
+		  double distance = GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target], R_boost.BEYOND_BOX[cell_index_particle][k]);
+		  // printf("(%4.1e, %4.1e, %4.1e)\n ", R_boost.Rvec[index_particle][index_target](0), R_boost.Rvec[index_particle][index_target](1), R_boost.Rvec[index_particle][index_target](2));
+		  // printf("(%4.1e, %4.1e, %4.1e, d2 = %4.1e, %4.1e\n", GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target]), GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target], R_boost.BEYOND_BOX[cell_index_particle][k]));
 		  R_boost.Rsca[index_particle](index_target) = distance;
 		} // p
 	    } // k
@@ -535,6 +539,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 	} // for loop (ASSOCIATION)
     } // region for topological update
   double time_end_MC = dsecnd();
+
 #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_spring, force_repulsion, force_random, r_boost_arr, N_THREADS_BD, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
