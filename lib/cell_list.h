@@ -57,7 +57,7 @@ class CLIST
       mkl_free(TOKEN);
       for(MKL_LONG i=0; i<N_cells; i++)
         {
-          mkl_free(CELL);
+          mkl_free(CELL[i]);
           mkl_free(NEIGHBOR_CELLS[i]);
         }
       mkl_free(CELL);

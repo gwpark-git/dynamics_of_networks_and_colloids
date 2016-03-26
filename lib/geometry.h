@@ -20,13 +20,14 @@ class RDIST : public CLIST
       std::cout << "There is no empty constructor for RDIST class\n" << std::endl;
     }
   RDIST(COND& given_condition);
-  virtual ~RDIST()
+  ~RDIST()
     {
       mkl_free(Rsca);
       for(MKL_LONG i=0; i<Np; i++)
         {
-          mkl_free(Rvec);
+          mkl_free(Rvec[i]);
         }
+      mkl_free(Rvec);
     }
 };
 
