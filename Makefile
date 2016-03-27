@@ -1,7 +1,8 @@
 
 CC=icpc
-CFLAGS=-c -openmp -O2 -Wall -mkl -L/usr/local/include/ -L/usr/local/lib/ -lgsl
-LDFLAGS=-openmp -O2 -Wall -mkl -L/usr/local/include/ -L/usr/local/lib/ -lgsl
+OPT_LEVEL=-O2
+CFLAGS=-c -openmp $(OPT_LEVEL) -Wall -mkl -L/usr/local/include/ -L/usr/local/lib/ -lgsl
+LDFLAGS=-openmp $(OPT_LEVEL) -Wall -mkl -L/usr/local/include/ -L/usr/local/lib/ -lgsl
 SOURCES=src/Brownian_simulation.cpp lib/association.cpp lib/connectivity.cpp lib/geometry.cpp lib/handle_association.cpp lib/matrix.cpp lib/parallel.cpp lib/potential.cpp lib/random.cpp lib/read_file_condition.cpp lib/time_evolution.cpp lib/trajectory.cpp lib/cell_list.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=stochastic_simulation
@@ -19,3 +20,4 @@ $(EXECUTABLE): $(OBJECTS)
 
 clean:
 	rm -f stochastic_simulation lib/*.o src/*.o
+
