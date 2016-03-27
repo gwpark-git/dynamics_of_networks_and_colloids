@@ -58,15 +58,30 @@ MKL_LONG GEOMETRY::minimum_image_convention(TRAJECTORY& TRAJ, MKL_LONG target_t)
 {
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
-      for (MKL_LONG k=0; k<TRAJ.dimension; k++)
-        {
-          double diff = TRAJ(target_t, i, k) - 0.5*TRAJ.box_dimension[k];
-          double sign = diff/fabs(diff);
-          if (fabs(diff) > 0.5*TRAJ.box_dimension[k])
-            {
-              TRAJ(target_t, i, k) -= sign*TRAJ.box_dimension[k];
-            }
-        }
+      minimum_image_convention_particle(TRAJ, target_t, i);
+      // for (MKL_LONG k=0; k<TRAJ.dimension; k++)
+      //   {
+      //     double diff = TRAJ(target_t, i, k) - 0.5*TRAJ.box_dimension[k];
+      //     double sign = diff/fabs(diff);
+      //     if (fabs(diff) > 0.5*TRAJ.box_dimension[k])
+      //       {
+      //         TRAJ(target_t, i, k) -= sign*TRAJ.box_dimension[k];
+      //       }
+      //   }
+    }
+  return 0;
+}
+
+MKL_LONG GEOMETRY::minimum_image_convention_particle(TRAJECTORY& TRAJ, MKL_LONG target_t, MKL_LONG index_particle)
+{
+  for(MKL_LONG k=0; k<TRAJ.dimension; k++)
+    {
+      double diff = TRAJ(target_t, index_particle, k) - 0.5*TRAJ.box_dimension[k];
+      double sign = diff/fabs(diff);
+      if (fabs(diff) > 0.5*TRAJ.box_dimension[k])
+	{
+	  TRAJ(target_t, index_particle, k) -= sign*TRAJ.box_dimension[k];
+	}
     }
   return 0;
 }

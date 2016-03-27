@@ -305,7 +305,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 	    }
 	  else // MC_renewal check
 	    {
-              
 	      /*
 		The following will check only for the existing brdige.
 		Since the bridges will only occurred withing neighbouring cell-list, this bridge chain will not violate the condition for cell-list.
@@ -562,8 +561,9 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
 	{
 	  TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
 	}
+      GEOMETRY::minimum_image_convention_particle(TRAJ, index_t_next, i);
     }
-  GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
+  // GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
   double time_end_LV = dsecnd();
   double time_end_AN = time_end_LV;
   if(t%N_skip==0)
