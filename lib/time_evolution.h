@@ -17,6 +17,7 @@ namespace INTEGRATOR
     MKL_LONG cal_connector_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG given_index);
     MKL_LONG cal_repulsion_force(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG index_i);
     MKL_LONG cal_repulsion_force_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG index_i, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost);
+    MKL_LONG cal_repulsion_force_R_boost(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_t, MKL_LONG index_particle, RDIST& R_boost);
     // note that the vec_boost_Nd_parallel in main function has MATRIX* form
     // In the parallel region, the given variable is transfered by vec_boost_Nd_parallel[i] that is MATRIX
     // Therefore, here should have MATRIX& for call-by-reference rather than MATRIX*.
