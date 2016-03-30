@@ -41,6 +41,7 @@ int help()
 */
 
 MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, COND& given_condition);
+MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition);
 
 int main(int argc, char* argv[])
 {
@@ -69,16 +70,17 @@ int main(int argc, char* argv[])
       POTENTIAL_SET POTs;
       if(given_condition("Method") == "NAPLE_ASSOCIATION")
         {
-	  if(given_condition("Step") == "EQUILIBRATION")
-	    {
-	      printf("ERR: EQUILIBRATION function is not defined for the cell-list version, currently");
-	    }
-	  else
-	    {
-	      ASSOCIATION CONNECT(TRAJ, given_condition);
-	      FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
-	      main_NAPLE_ASSOCIATION(TRAJ, POTs, CONNECT, given_condition);
-	    }
+          if(given_condition("Step") == "EQUILIBRATION")
+            {
+              FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
+              main_EQUILIBRATION(TRAJ, POTs, given_condition);
+            }
+          else
+            {
+              ASSOCIATION CONNECT(TRAJ, given_condition);
+              FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
+              main_NAPLE_ASSOCIATION(TRAJ, POTs, CONNECT, given_condition);
+            }
         }
       else
         {
@@ -628,6 +630,216 @@ return 0;
 }
 
 
+MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition)
+{
+  printf("STARTING_MAIN_ROOT\n"); // ERR_TEST
+  double time_st_simulation = dsecnd(); // ERR_TEST
+  // MKL_LONG N_max_steps = atol(given_condition("N_max_steps").c_str());
+  MKL_LONG N_steps_block = atol(given_condition("N_steps_block").c_str());
+  // MKL_LONG N_max_blocks = N_max_steps/N_steps_block;
+  string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
+  string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
+
+  ofstream FILE_LOG;
+  
+  MKL_LONG N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
+  printf("THREAD_SETTING: %ld ... ", N_THREADS_BD); //ERR_TEST
+  mkl_set_num_threads(N_THREADS_BD);
+  double time_MC = 0.;
+  double time_LV = 0.;
+  double time_AN = 0.;
+  double time_file = 0.;
+  printf("DONE\n");
+  printf("GENERATING BOOSTING VECTORS\n");
+
+  MKL_LONG *tmp_index_vec = (MKL_LONG*) mkl_malloc(TRAJ.dimension*sizeof(MKL_LONG), BIT);
+  MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); 
+
+  for(MKL_LONG i=0; i<TRAJ.Np; i++)
+    {
+      vec_boost_Nd_parallel[i].initial(TRAJ.dimension, 1, 0.);
+    }
+  RDIST R_boost(given_condition);
+  
+  printf("DONE\n"); 
+  printf("FORCE VECTOR GENERATING ... "); 
+
+
+  MATRIX *force_repulsion = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+  MATRIX *force_random = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+  for(MKL_LONG i=0; i<TRAJ.Np; i++)
+    {
+      force_repulsion[i].initial(TRAJ.dimension, 1, 0.);
+      force_random[i].initial(TRAJ.dimension, 1, 0.);
+    }
+  printf("DONE\n"); 
+  printf("SET SIMULATION PARAMETERS ...");
+  MKL_LONG N_skip = atol(given_condition("N_skip").c_str());
+  MKL_LONG N_energy_frequency = atol(given_condition("N_energy_frequency").c_str()); 
+
+  MATRIX energy(1, 6, 0.);
+  // // 0: time step to write 1-3: energy, 4: NAS, 5: real time
+  // // 6: (xx)[RF], 7: (yy)[RF], 8: (zz)[RF], 9: (xy)[RF], 10: (xz)[RF], 11:(yz)[RF]
+  // MATRIX energy(1, 12, 0.);
+
+  ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, 0);
+
+  MKL_LONG Nt = atol(given_condition("Nt").c_str());
+  MKL_LONG N_basic = TRAJ.rows;
+
+  double tolerance_association = atof(given_condition("tolerance_association").c_str());
+  printf("DONE\n");
+  MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
+  // The following condition duplicate and may violate the inheritance scheme from the previous association
+  // CONNECT.initial();
+  // for(MKL_LONG i=0; i<CONNECT.Np; i++)
+  //   CONNECT.TOKEN[i] = 1;
+
+  double dt_1 = 0., dt_2 = 0., dt_3 = 0., dt_4 = 0., dt_5 = 0., dt_6 = 0., dt_7 = 0.;
+  double dt_det_pdf = 0.;
+  double dt_rdist = 0., dt_pdf = 0., dt_sort = 0.;
+  double time_MC_1 = 0., time_MC_2 = 0., time_MC_3 = 0., time_MC_4 = 0., time_MC_5 = 0., time_MC_6 = 0., time_MC_7 = 0., time_MC_8 = 0.;
+
+  printf("GENERATING RANDOM VECTOR BOOST ... ");
+  /*
+    "gsl_rng *r_boost;" is the basic notation. i.e., it is already given by pointer.
+    Hence, it is of importance that the dynamic allocation set with its pointer type.
+  */
+  const gsl_rng_type *T_boost;
+
+  gsl_rng **r_boost_arr = (gsl_rng**)mkl_malloc(N_THREADS_BD*sizeof(gsl_rng*), BIT);
+  gsl_rng_env_setup();
+  T_boost = gsl_rng_default;
+  for(MKL_LONG i=0; i<N_THREADS_BD; i++)
+    {
+      r_boost_arr[i] = gsl_rng_alloc(T_boost);
+      // gsl_rng_set(r_boost_arr[i], random());
+      gsl_rng_set(r_boost_arr[i], i);
+    }
+
+  
+  printf("DONE\n");
+  printf("START SIMULATION\n");
+  MKL_LONG N_associations = 0;
+
+  // MKL_LONG IDENTIFIER_ASSOC = TRUE; // the identification is disabled
+  double max_try_ASSOC = tolerance_association;
+  double N_diff = 0.;
+  MKL_LONG N_tot_associable_chain = TRAJ.Np*atoi(given_condition("N_chains_per_particle").c_str());
+  // MKL_LONG count_M = cnt_add, pre_count_M = cnt_add;
+  // MKL_LONG count_M = cnt_add;
+  
+  for(MKL_LONG t = 0; t<Nt-1; t++)
+    {
+      MKL_LONG index_t_now = t % N_basic;
+      MKL_LONG index_t_next = (t+1) % N_basic;
+      TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
+      ++TRAJ.c_t;
+      
+      tmp_vec.set_value(0.);
+
+      MKL_LONG cnt = 1;
+
+      double time_st_rdist = dsecnd();
+      R_boost.allocate_cells_from_positions(TRAJ, index_t_now, tmp_index_vec);
+      
+#pragma omp parallel for default(none) shared(TRAJ, index_t_now, R_boost, N_THREADS_BD) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+      /*
+        Originally, this parallel regime is designed to use N_cells and TOKEN.
+        Because the chunk size is not easily specified, it is used to parallel with index of particles instead of cell-based.
+        On this regards, the cell_index array is used which will return the cell index for the subjected particle.
+      */
+      for(MKL_LONG index_particle=0; index_particle<TRAJ.Np; index_particle++)
+        {
+          MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
+          for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
+            {
+              MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k];
+              for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
+                {
+                  MKL_LONG index_target = R_boost(cell_index_neighbor, p);
+                  // double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target]);
+                  // printf("(%4.1e, %4.1e, %4.1e), ", R_boost.Rvec[index_particle][index_target](0), R_boost.Rvec[index_particle][index_target](1), R_boost.Rvec[index_particle][index_target](2));
+                  double distance = GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target], R_boost.BEYOND_BOX[cell_index_particle][k]);
+                  // printf("(%4.1e, %4.1e, %4.1e)\n ", R_boost.Rvec[index_particle][index_target](0), R_boost.Rvec[index_particle][index_target](1), R_boost.Rvec[index_particle][index_target](2));
+                  // printf("(%4.1e, %4.1e, %4.1e, d2 = %4.1e, %4.1e\n", GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target]), GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target], R_boost.BEYOND_BOX[cell_index_particle][k]));
+                  R_boost.Rsca[index_particle](index_target) = distance;
+                } // p
+            } // k
+        } // index_particle
+      dt_rdist += dsecnd() - time_st_rdist;
+      double time_st_MC = dsecnd();
+      // if(given_condition("Step")!="EQUILIBRATION" && t%N_steps_block == 0) // including initial time t=0
+      double time_end_MC = dsecnd();
+
+#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, r_boost_arr, N_THREADS_BD, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+      for (MKL_LONG i=0; i<TRAJ.Np; i++)
+        {
+          MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
+          
+          force_repulsion[i].set_value(0);
+          force_random[i].set_value(0);
+
+          INTEGRATOR::EULER::cal_repulsion_force_R_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_boost);
+          INTEGRATOR::EULER::cal_random_force_boost(TRAJ, POTs, force_random[i], index_t_now, r_boost_arr[it]); 
+          for (MKL_LONG k=0; k<TRAJ.dimension; k++)
+            {
+              TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*(force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
+            }
+        }
+      GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
+      double time_end_LV = dsecnd();
+      double time_end_AN = time_end_LV;
+      if(t%N_skip==0)
+        {
+          time_end_LV = dsecnd();
+          energy(0) = TRAJ(index_t_now);
+          energy(4) = (double)N_associations;
+          energy(5) = dsecnd() - time_st_simulation;
+          // ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJ, POTs, CONNECT, energy, index_t_now, vec_boost_Nd_parallel[0]);
+          time_end_AN = dsecnd();
+          double total_dt = dt_1 + dt_2 + dt_3 + dt_4 + dt_5 + dt_6 + dt_7;
+          double total_dt_pdf = dt_rdist + dt_pdf + dt_sort;
+          double total_time = time_MC + time_LV + time_AN + time_file + total_dt_pdf;
+          double dt_pdf_all = dt_pdf + dt_sort;
+          
+          printf("##### STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_now), energy(1));
+          printf("time consuming: MC, LV, AN, FILE, DIST = %8.6e, %8.6e, %8.6e, %8.6e, %8.6e\n", time_MC, time_LV, time_AN, time_file, total_dt_pdf);
+          printf("time fraction:  MC, LV, AN, FILE, DIST = %6.1f, %6.1f, %6.1f, %6.1f, %6.1f\n", time_MC*100/total_time, time_LV*100/total_time, time_AN*100/total_time, time_file*100/total_time, total_dt_pdf*100/total_time);
+          printf("MC step analysis: all pdf = %6.3e, basic_random = %6.3e, getting_hash = %6.3e, det_jump = %6.3e, new_end = %6.3e, LOCKING = %6.3e, action = %6.3e, update = %6.3e\n", dt_pdf_all, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7);
+          printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, LOCKING = %6.3f, action = %6.1f, update = %6.1f\n", dt_pdf_all*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
+          printf("computing rdist: %6.3e (%3.1f), computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_rdist, 100.*dt_rdist/total_dt_pdf, dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
+          printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, N_tot_asso = %ld, ratio = %6.3e, NAS = %ld, fraction=%4.3f, total time=%4.3e ####\n\n", cnt, N_diff, N_tot_associable_chain, N_diff/N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain, energy(5));
+          TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
+          energy.fprint_row(filename_energy.c_str(), 0);
+        }
+      
+
+      double time_end_save = dsecnd();
+      time_MC += time_end_MC - time_st_MC;
+      time_LV += time_end_LV - time_end_MC;
+      time_AN += time_end_AN - time_end_LV;
+      time_file += time_end_save - time_end_AN;
+    }
+
+  double time_simulation = dsecnd() - time_st_simulation;
+  printf("Total simulation time = %6.3e\n", time_simulation);
+  if (given_condition("MC_LOG") == "TRUE")
+    FILE_LOG.close();
+  mkl_free(vec_boost_Nd_parallel);
+  mkl_free(force_repulsion);
+  mkl_free(force_random);
+  //   for(MKL_LONG i=0; i<TRAJ.Np; i++)
+  //     mkl_free(R_minimum_vec_boost[i]); // RDIST
+  // mkl_free(R_minimum_vec_boost); // RDIST
+  // mkl_free(R_minimum_distance_boost); // RDIST
+  mkl_free(tmp_index_vec);
+  for(MKL_LONG i=0; i<N_THREADS_BD; i++)
+    gsl_rng_free(r_boost_arr[i]); // for boosting
+
+  mkl_free(r_boost_arr);
+  return 0;
+}
 
 
 /*
