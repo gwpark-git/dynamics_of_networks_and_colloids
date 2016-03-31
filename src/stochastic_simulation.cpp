@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
 MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, COND& given_condition)
 {
   printf("STARTING_MAIN_ROOT\n");
-  double tmp_LV_1=0, tmp_LV_2=0, tmp_LV_3=0;
+  // double tmp_LV_1=0, tmp_LV_2=0, tmp_LV_3=0;
   double time_st_simulation = dsecnd(); 
   MKL_LONG N_steps_block = atol(given_condition("N_steps_block").c_str());
   string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
@@ -490,13 +490,11 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
                     cnt_arr[IDENTIFIER_ACTION]++;
                     N_associations = cnt_add - cnt_del;
 		    
-                    // count_M += N_associations;
                       
                     if (given_condition("MC_LOG") == "TRUE")
                       {
                         MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
 			  
-                        // MKL_LONG count_N_associagtions = cnt_add - cnt_del;
                         {
                           FILE_LOG << cnt << '\t' << index_itself << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << index_attached_bead << '\t'  << index_new_attached_bead<< '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_attached_bead << '\t'  << CONNECT.TOKEN[index_itself]<< '\t'<< CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight[index_itself](0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << '\t' << cnt_lock << endl;
                         }
