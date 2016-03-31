@@ -246,7 +246,6 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
       tmp_vec.set_value(0.);
 
       MKL_LONG cnt = 1;
-
       double time_st_rdist = dsecnd();
       R_boost.allocate_cells_from_positions(TRAJ, index_t_now, tmp_index_vec);
       
@@ -572,7 +571,41 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
           
       //   }
       /* test time evolution */
-      // MATRIX force_spring_unity(3*TRAJ.Np, 1, 0.), force_repulsion_unity(3*TRAJ.Np, 1, 0.), force_ran
+ //      MATRIX force_spring_unity(3*TRAJ.Np, 1, 0.), force_repulsion_unity(3*TRAJ.Np, 1, 0.), force_random_unity(3*TRAJ.Np, 1, 0.);
+//       // compute elastic force
+//       for(MKL_LONG i=0; i<TRAJ.Np; i++)
+//         {
+//           for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
+//             {
+//               MKL_LONG target_index = (MKL_LONG)CONNECT.HASH[given_index](j);
+//               MATRIX& rel_vector = R_boost.Rvec[i][target_index];
+//               double distance = R_boost.Rsca[i](target_index);
+              
+//               double elastic_force = CONNECT.weight[i](j)*POTs.f_connector(distance, POTs.force_variables);
+//               for(MKL_LONG k=0; k<TRAJ.dimension; k++)
+//                 {
+//                   MKL_LONG ik = i*TRAJ.dimension + k;
+//                   force_spring_unity(ik) = (elastic_force/distance)*rel_vector(k);
+//                 }
+//             }
+
+//           MKL_LONG cell_index_particle = R_boost.cell_index[i];
+//           for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
+//             {
+//               MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k];
+//               for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
+//                 {
+//                   MKL_LONG index_target = R_boost(cell_index_neighbor, p);
+//                   double distance = R_boost.Rsca[i](index_target);
+//                   if (index_target != i)
+//                     {
+//                       double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
+//                       ㄹ
+//                     }
+//                 }
+// f            }
+//         }
+      
       double time_end_LV = dsecnd();
       double time_end_AN = time_end_LV;
       if(t%N_skip==0)
