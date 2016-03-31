@@ -1,3 +1,3 @@
 
-Gun Woo Park
-Init
+Developer: Gun Woo Park
+
