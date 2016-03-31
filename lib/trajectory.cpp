@@ -108,24 +108,24 @@ MKL_LONG TRAJECTORY::initialization_COND(COND& given_condition)
 }
 
 
-double& TRAJECTORY::operator()(MKL_LONG time_t)
-{
-  // it will return the reference of time
-  return data[index(time_t, 0)];
-}
+// double& TRAJECTORY::operator()(MKL_LONG time_t)
+// {
+//   // it will return the reference of time
+//   return data[index(time_t, 0)];
+// }
 
-double& TRAJECTORY::operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
-{
-  MKL_LONG index_position = 2*dimension*bead_i + 1 + dimension_k;
-  // printf("INDEX(%ld, %ld, %ld) = %ld", time_t, bead_i, dimension_k, index_position);
-  return data[index(time_t, index_position)];
-}
+// double& TRAJECTORY::operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
+// {
+//   MKL_LONG index_position = 2*dimension*bead_i + 1 + dimension_k;
+//   // printf("INDEX(%ld, %ld, %ld) = %ld", time_t, bead_i, dimension_k, index_position);
+//   return data[index(time_t, index_position)];
+// }
 
-double& TRAJECTORY::operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
-{
-  MKL_LONG index_position = 2*dimension*bead_i + 1 + dimension_k + dimension*i_RV;
-  return data[index(time_t, index_position)];
-}
+// double& TRAJECTORY::operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
+// {
+//   MKL_LONG index_position = 2*dimension*bead_i + 1 + dimension_k + dimension*i_RV;
+//   return data[index(time_t, index_position)];
+// }
 
 
 

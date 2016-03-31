@@ -451,15 +451,16 @@ double MATRIX::ABS_sum()
   return result;
 }
 
-double MATRIX::norm()
-{
-  double result = 0.0;
-  for(MKL_LONG  i=0; i<size; i++)
-    {
-      result += pow(data[i],2.0);
-    }
-  return sqrt(result);
-}
+// inlined
+// double MATRIX::norm()
+// {
+//   double result = 0.0;
+//   for(MKL_LONG  i=0; i<size; i++)
+//     {
+//       result += pow(data[i],2.0);
+//     }
+//   return sqrt(result);
+// }
 
 
 

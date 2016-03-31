@@ -134,20 +134,20 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_R_boost(TRAJECTORY& TRAJ, POTENT
     {
       MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k];
       for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
-	{
-	  MKL_LONG index_target = R_boost(cell_index_neighbor, p);
-	  double distance = R_boost.Rsca[index_particle](index_target);
-	  if (index_target != index_particle)
-	    {
-	      double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
-	      cblas_daxpy(given_vec.size,
-			  repulsion/distance,
-			  R_boost.Rvec[index_particle][index_target].data,
-			  1,
-			  given_vec.data,
-			  1);
-	    }
-	}
+        {
+          MKL_LONG index_target = R_boost(cell_index_neighbor, p);
+          double distance = R_boost.Rsca[index_particle](index_target);
+          if (index_target != index_particle)
+            {
+              double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
+              cblas_daxpy(given_vec.size,
+                          repulsion/distance,
+                          R_boost.Rvec[index_particle][index_target].data,
+                          1,
+                          given_vec.data,
+                          1);
+            }
+        }
     }
   
   // for(MKL_LONG i=0; i<TRAJ.Np; i++)

@@ -72,14 +72,34 @@ class TRAJECTORY : public MATRIX
  TRAJECTORY() ;
  TRAJECTORY(const TRAJECTORY& TRAJ); // its for copy-constructor. It must be classified for openmp variable
  TRAJECTORY(COND& given_condition, MKL_LONG N_basic);
- // operator overloading
- // simple operator for time
- double& operator()(MKL_LONG time_t);
- // simple operator for position
- double& operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k);
- // simple operator for position and velocity. i_RV = 0 for position, i_RV = 1 for velocity
- double& operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k);
+
+ /* // inlined */
+ /* // operator overloading */
+ /* // simple operator for time */
+ /* double& operator()(MKL_LONG time_t); */
+ /* // simple operator for position */
+ /* double& operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k); */
+ /* // simple operator for position and velocity. i_RV = 0 for position, i_RV = 1 for velocity */
+ /* double& operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k); */
  MKL_LONG read_exist_traj(const char* fn_given_traj);
+ double& operator()(MKL_LONG time_t)
+ {
+   // it will return the reference of time
+   return data[index(time_t, 0)];
+ }
+
+ double& operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
+ {
+   MKL_LONG index_position = 2*dimension*bead_i + 1 + dimension_k;
+   // printf("INDEX(%ld, %ld, %ld) = %ld", time_t, bead_i, dimension_k, index_position);
+   return data[index(time_t, index_position)];
+ }
+
+ double& operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
+ {
+   MKL_LONG index_position = 2*dimension*bead_i + 1 + dimension_k + dimension*i_RV;
+   return data[index(time_t, index_position)];
+ }
  
  virtual ~TRAJECTORY()
     {

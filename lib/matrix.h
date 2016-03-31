@@ -78,7 +78,7 @@ class MATRIX
   MKL_LONG nonzero();
   MKL_LONG ABS_cond(double x);
   double ABS_sum();
-  double norm();
+  /* double norm(); */ // inlined
   MKL_LONG force_clean(double TOLERANCE);
   double sum();
   double average();
@@ -114,6 +114,17 @@ class MATRIX
   // note that function inside class definition is inlined
   // these are frequently called function that have small amount of computation
 
+  double norm()
+  {
+    double result = 0.0;
+    for(MKL_LONG  i=0; i<size; i++)
+      {
+        result += pow(data[i],2.0);
+      }
+    return sqrt(result);
+  }
+
+  
   MKL_LONG set_value(double x)
   {
     if(INITIALIZATION)
