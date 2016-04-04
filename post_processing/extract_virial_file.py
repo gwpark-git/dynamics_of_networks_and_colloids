@@ -3,10 +3,20 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append('../../post_processing')
 from read_file import *
+from scipy.linalg import norm
 
 def int_Gaussian(R_vec, alpha, N_dimension):
     return float(N_dimension)*(alpha**2.0)*R_vec
 
+def rep_force(R_vec, C_repulsion, N_dimension):
+    R_sca = norm(R_vec)
+    if R_sca > 1.0:
+        return C_repulsion*(R_sca**2.0 - 1.0)*R_vec/R_sca
+
+# def F_ij(R_vec, alpha, N_dimension, C_repulsion):
+#     if C_repulsion <> 0.:
+#         return int_Gaussian(R_vec, alpha, N_dimension) + rep_force(R_vec, C_repulsion, N_dimension)
+#     return int_Gaussian(R_vec, alpha, N_dimension)
 
 # argv[1] == base file name
 # argv[2] == output file name
@@ -24,7 +34,9 @@ if size(sys.argv) < 7:
     print 'argv[4] == box_dimension'
     print 'argv[5] == N_dimension'
     print 'argv[6] == alpha'
-    print 'argv[7] == initial cut (default is 1)'
+    print 'argv[7] == TRUE for including repulsive contribution'
+    print 'argv[8] == repulsive coefficient if it is TRUE'
+    print 'argv[9] == initial cut (default is 1)'
 else:
 
     base_file_name = sys.argv[1]
@@ -32,9 +44,12 @@ else:
     box_dimension = float(sys.argv[4])
     N_dimension = int(sys.argv[5])
     alpha = float(sys.argv[6])
+    C_repulsion = 0.
+    if(sys.argv[7] == 'TRUE'):
+        C_repulsion = float(sys.argv[8])
     RF = []
     try:
-        initial_cnt = int(sys.argv[7])
+        initial_cnt = int(sys.argv[9])
     except:
         initial_cnt = 0
     
@@ -58,7 +73,10 @@ else:
                                     if connectivity[i,j] > 0:
                                         tmp_R = mapped_rel_vec_Rij(pos[i,:], pos[j,:], box_dimension)
                                         tmp_F = int_Gaussian(tmp_R, alpha, N_dimension)
-                                        tmp_RF += connectivity[i,j] * outer(tmp_R, tmp_F)
+                                        if (C_repulsion <> 0.):
+                                            tmp_RF += connectivity[i,j] * outer(tmp_R, tmp_F) + outer(tmp_R, rep_force(tmp_R, C_repulsion, N_dimension))
+                                        else:
+                                            tmp_RF += connectivity[i,j] * outer(tmp_R, tmp_F)
                                     # remove inverse pairs
                                     # note that it exclude j=i since force exerted on the loop chains are zero
                                     # w_ij = connectivity[i, j]
