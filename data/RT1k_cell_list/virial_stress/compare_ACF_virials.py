@@ -12,11 +12,11 @@
 
 
 
-sf_NP1000 = loadtxt('RF_NP1000_100tau0.dat')[:size(sf_NP1728),1]/(2.*1000.)
-# sf_NP1000 = loadtxt('RF_NP1000_100tau0.dat')[:,1]/(2.*1000.)
-t_sf_NP1000 = arange(size(sf_NP1000))/100.
-acf_NP1000 = acf_gro(sf_NP1000)
-t_acf_NP1000 = arange(size(acf_NP1000))/100.
+# sf_NP1000 = loadtxt('RF_NP1000_100tau0.dat')[:size(sf_NP1728),1]/(2.*1000.)
+# # sf_NP1000 = loadtxt('RF_NP1000_100tau0.dat')[:,1]/(2.*1000.)
+# t_sf_NP1000 = arange(size(sf_NP1000))/100.
+# acf_NP1000 = acf_gro(sf_NP1000)
+# t_acf_NP1000 = arange(size(acf_NP1000))/100.
 
 
 

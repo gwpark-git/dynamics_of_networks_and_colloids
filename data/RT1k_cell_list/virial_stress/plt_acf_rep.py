@@ -1,23 +1,23 @@
 
-# from numpy import *
-# import matplotlib.pyplot as plt
-# import sys
-# sys.path.append('../../../post_processing')
-# from acf_fcn import *
+from numpy import *
+import matplotlib.pyplot as plt
+import sys
+sys.path.append('../../../post_processing')
+from acf_fcn import *
 
-# # dat_NP0400 = loadtxt('RF_NP0400_RT1k.dat')[:,1]/(2.*1000.)
-# # acf_NP0400 = acf_gro_BAV(dat_NP0400, 2)
-# # t_acf_NP0400 = arange(size(acf_NP0400))/100.
+dat_NP0400 = loadtxt('RF_NP0400_RT1k.dat')[:,1]/(2.*1000.)
+acf_NP0400 = acf_gro_BAV(dat_NP0400, 2)
+t_acf_NP0400 = arange(size(acf_NP0400))/100.
 
-# dat_NP1000 = (loadtxt('RF_NP1000_100tau0.dat')[:,1]/(2.*1000.))
-# t_dat_NP1000 = arange(size(dat_NP1000))
-# acf_NP1000 = acf_gro_BAV(dat_NP1000, 2)
-# t_acf_NP1000 = arange(size(acf_NP1000))/100.
+dat_NP1000 = (loadtxt('RF_NP1000_rep.dat')[:,1]/(2.*1000.))
+t_dat_NP1000 = arange(size(dat_NP1000))
+acf_NP1000 = acf_gro_BAV(dat_NP1000, 2)
+t_acf_NP1000 = arange(size(acf_NP1000))/100.
 
-# dat_NP1728 = (loadtxt('RF_NP1728_100tau0.dat')[:,1]/(2.*1728.))
-# t_dat_NP1728 = arange(size(dat_NP1728))
-# acf_NP1728 = acf_gro_BAV(dat_NP1728, 2)
-# t_acf_NP1728 = arange(size(acf_NP1728))/100.
+dat_NP1728 = (loadtxt('RF_NP1728_rep.dat')[:,1]/(2.*1728.))
+t_dat_NP1728 = arange(size(dat_NP1728))
+acf_NP1728 = acf_gro_BAV(dat_NP1728, 2)
+t_acf_NP1728 = arange(size(acf_NP1728))/100.
 
 
 
@@ -59,7 +59,7 @@ ax.plot(t_acf_NP1728, acf_NP1728/acf_NP1728[0], 'r-', label = 'NP=1728')
 
 # ax.plot(t_reg, y_reg_BR_NP1000, 'r--')
 # ax.plot(t_reg, y_reg_NP1000, 'r:')
-ax.axis([0, 2, -0.2, 1])
+ax.axis([0, 1, -0.2, 1])
 ax.grid()
 ax.legend(loc = 'upper right', prop = fontP)
 # ax.set_xlabel(r'dimensionless time / $\tau_0$')
@@ -88,7 +88,7 @@ ax2.grid()
 ax2.legend(loc = 'lower right', prop = fontP, ncol=2)
 ax2.set_xlabel(r'dimensionless time / $\tau_0$')
 
-# ax2.set_ylabel(r'normalized stress autocorrelation')
+ax2.set_ylabel(r'normalized stress autocorrelation')
 ax2.set_title('linear-log', y=0.85)
 
 ax3 = plt.subplot(313)
@@ -100,8 +100,7 @@ ax3.loglog(t_acf_NP1728, acf_NP1728, 'r-')
 ax3.axis([t_acf_NP0400[2], 10**0, 10**-7, 10**-3])
 ax3.grid()
 ax3.set_xlabel(r'dimensionless time / $\tau_0$')
-ax3.set_ylabel('stress autocorrelation')
-ax3.set_title(r'log-log, $C_{\tau_{xy}}^{(1000)}(0)/C_{\tau_{xy}}^{(1728)}(0)$ = %4.1f'%(acf_NP1000[0]/acf_NP1728[0]), y=0.7)
+ax3.set_title('log-log')
 
 
 plt.show()
