@@ -1,0 +1,9 @@
+
+#+TITLE: Equilibrium Simulation
+#+AUTHOR: Gun Woo Park
+
+* Preface
+This analysis is to measure rheological quantities based on Green-Kubo relation. The formulas are described on other report.
+
+
+* Check equilibrium
