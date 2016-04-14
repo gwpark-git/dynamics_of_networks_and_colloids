@@ -1,7 +1,7 @@
 Method=NAPLE_ASSOCIATION
 Step=NO_EQUILIBRATION
 Integrator=Euler
-N_THREADS_BD=4
+N_THREADS_BD=1
 N_THREADS_SS=1
 N_dimension=3
 box_dimension=10.0
