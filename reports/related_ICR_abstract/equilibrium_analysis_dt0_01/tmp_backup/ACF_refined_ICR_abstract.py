@@ -1,43 +1,50 @@
 
-# from numpy import *
-# import matplotlib.pyplot as plt
+from numpy import *
+import matplotlib.pyplot as plt
 
-# import sys
-# sys.path.append('../../../post_processing')
-# from acf_fcn import *
-# normal_factor = 2.*1000.
+def corr_Gt(dat):
+    s_xx, s_xy, s_xz, s_yy, s_yz, s_zz = dat[:,0], dat[:,1], dat[:,2], dat[:, 4], dat[:,5], dat[:,8]
+        N_xy = s_xx - s_yy
+            N_xz = s_xx - s_zz
+                N_yz = s_yy - s_zz
+                    return acf_gro(s_xy) + acf_gro(s_yz) + acf_gro(s_xz) + (1./6.)*(acf_gro(N_xy) + acf_gro(N_xz) + acf_gro(N_yz))
 
-# sf_NP0400 = loadtxt('RF_NP0400_NC25_RT100.dat')[1000:,1]
-# t_sf_NP0400 = arange(size(sf_NP0400))/100.
-# acf_NP0400 = acf_gro(sf_NP0400/normal_factor)
-# t_acf_NP0400 = arange(size(acf_NP0400))/100.
+import sys
+sys.path.append('../../../post_processing')
+from acf_fcn import *
+normal_factor = 2.*1000.
 
-# sf_NP0600 = loadtxt('RF_NP0600_NC25_RT100.dat')[1000:,1]
-# t_sf_NP0600 = arange(size(sf_NP0600))/100.
-# acf_NP0600 = acf_gro(sf_NP0600/normal_factor)
-# t_acf_NP0600 = arange(size(acf_NP0600))/100.
+sf_NP0400 = loadtxt('RF_NP0400_NC25_RT100.dat')[1000:,1]
+t_sf_NP0400 = arange(size(sf_NP0400))/100.
+acf_NP0400 = acf_gro(sf_NP0400/normal_factor)
+t_acf_NP0400 = arange(size(acf_NP0400))/100.
 
-# sf_NP0800 = loadtxt('RF_NP0800_NC25_RT100.dat')[1000:,1]
-# t_sf_NP0800 = arange(size(sf_NP0800))/100.
-# acf_NP0800 = acf_gro(sf_NP0800/normal_factor)
-# t_acf_NP0800 = arange(size(acf_NP0800))/100.
+sf_NP0600 = loadtxt('RF_NP0600_NC25_RT100.dat')[1000:,1]
+t_sf_NP0600 = arange(size(sf_NP0600))/100.
+acf_NP0600 = acf_gro(sf_NP0600/normal_factor)
+t_acf_NP0600 = arange(size(acf_NP0600))/100.
+
+sf_NP0800 = loadtxt('RF_NP0800_NC25_RT100.dat')[1000:,1]
+t_sf_NP0800 = arange(size(sf_NP0800))/100.
+acf_NP0800 = acf_gro(sf_NP0800/normal_factor)
+t_acf_NP0800 = arange(size(acf_NP0800))/100.
 
 
-# sf_NP1000 = loadtxt('../RF_NP1000_first_run.dat')[1000:,1]
-# t_sf_NP1000 = arange(size(sf_NP1000))/100.
-# normal_factor = 2.*1000.
-# acf_NP1000 = acf_gro(sf_NP1000/normal_factor)
-# t_acf_NP1000 = arange(size(acf_NP1000))/100.
+sf_NP1000 = loadtxt('../RF_NP1000_first_run.dat')[1000:,1]
+t_sf_NP1000 = arange(size(sf_NP1000))/100.
+normal_factor = 2.*1000.
+acf_NP1000 = acf_gro(sf_NP1000/normal_factor)
+t_acf_NP1000 = arange(size(acf_NP1000))/100.
 
-# sf_NP1200 = loadtxt('../../longer_computation/virial_stress_longer/RF_NP1200_combined_4.dat')[1000:,1]
-# t_sf_NP1200 = arange(size(sf_NP1200))/100.
-# acf_NP1200 = acf_gro(sf_NP1200/normal_factor)
-# t_acf_NP1200 = arange(size(acf_NP1200))/100.
+sf_NP1200 = loadtxt('../../longer_computation/virial_stress_longer/RF_NP1200_combined_4.dat')[1000:,1]
+t_sf_NP1200 = arange(size(sf_NP1200))/100.
+acf_NP1200 = acf_gro(sf_NP1200/normal_factor)
+t_acf_NP1200 = arange(size(acf_NP1200))/100.
 
-# sf_NP1400 = loadtxt('RF/RF_NP1400_RT100_dt0_01_longer_combined.dat')[1000:,1]
-# t_sf_NP1400 = arange(size(sf_NP1400))/100.
-# acf_NP1400 = acf_gro(sf_NP1400/normal_factor)
-# t_acf_NP1400 = arange(size(acf_NP1400))/100.
+sf_NP1400 = loadtxt('RF/RF_NP1400_RT100_dt0_01_longer_combined.dat')[1000:,1]
+t_sf_NP1400 = arange(size(sf_NP1400))/100.
+acf_NP1400 = acf_gro(sf_NP1400/normal_factor)
+t_acf_NP1400 = arange(size(acf_NP1400))/100.
 
 colP = ['blue', 'green', 'brown', 'red', 'cyan', 'purple']
 symP = ['o', 's', 'D', '^', 'v', 'h']

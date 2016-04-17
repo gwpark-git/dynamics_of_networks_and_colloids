@@ -14,28 +14,19 @@ def corr_Gt(dat):
     return acf_gro(s_xy) + acf_gro(s_yz) + acf_gro(s_xz) + (1./6.)*(acf_gro(N_xy) + acf_gro(N_xz) + acf_gro(N_yz))
 
 
-# dat_NP0400 = loadtxt('RF_NP0400_RT1k.dat')/(2.*1000.)
-# acf_NP0400 = corr_Gt(dat_NP0400)
-# t_acf_NP0400 = arange(shape(acf_NP0400)[0])/100.
 
-# dat_NP0400 = (loadtxt('RF_NP0400_RT100.dat')/(2.*1000.))[1000:,:]
+# dat_NP0400 = (loadtxt('RF_NP0400_tmp.dat')/(2.*1000.))[:,:]
 # t_dat_NP0400 = arange(shape(dat_NP0400)[0])
 # acf_NP0400 = corr_Gt(dat_NP0400)
 # acf_NP0400_simple = acf_gro(dat_NP0400[:,1])
 # t_acf_NP0400 = arange(shape(acf_NP0400)[0])/1000.
 
 
-dat_NP1000 = (loadtxt('RF_NP1000_RT100.dat')/(2.*1000.))[4000:,:]
-t_dat_NP1000 = arange(shape(dat_NP1000)[0])
-acf_NP1000 = corr_Gt(dat_NP1000)
-acf_NP1000_simple = acf_gro(dat_NP1000[:,1])
-t_acf_NP1000 = arange(shape(acf_NP1000)[0])/1000.
-
-# dat_NP1728 = (loadtxt('RF_NP1728_100tau0.dat')[:,1]/(2.*1728.))
-# t_dat_NP1728 = arange(size(dat_NP1728))
-# acf_NP1728 = acf_gro_BAV(dat_NP1728, 2)
-# t_acf_NP1728 = arange(size(acf_NP1728))/100.
-
+# dat_NP1000 = (loadtxt('RF_NP1000_5tau0.dat')/(2.*1000.))
+# t_dat_NP1000 = arange(shape(dat_NP1000)[0])
+# acf_NP1000 = corr_Gt(dat_NP1000)
+# acf_NP1000_simple = acf_gro(dat_NP1000[:,1])
+# t_acf_NP1000 = arange(shape(acf_NP1000)[0])/1000.
 
 
 
@@ -60,77 +51,93 @@ y_reg_NP1000 = exp(reg_NP1000[0]*t_reg + reg_NP1000[1])
 
 
 
-from matplotlib.font_manager import FontProperties
-fontP = FontProperties()
-# fontP.set_size('small')
-
-plt.close()
-plt.ion()
-plt.figure(figsize=(11,8))
-ax = plt.subplot(311)
-ax.plot(t_acf_NP0400, acf_NP0400/acf_NP0400[0], 'b-', label = 'NP=400')
-# ax.plot(t_reg, y_reg_BR_NP0400, 'b--')
-# ax.plot(t_reg, y_reg_NP0400, 'b:')
-ax.plot(t_acf_NP1000, acf_NP1000/acf_NP1000[0], 'g-', label = 'NP=1000')
-ax.plot(t_acf_NP1000, acf_NP1000_simple/acf_NP1000_simple[0], 'r-', label = 'NP=1000, simple')
-
-# ax.plot(t_acf_NP1728, acf_NP1728/acf_NP1728[0], 'r-', label = 'NP=1728')
-
-# ax.plot(t_reg, y_reg_BR_NP1000, 'r--')
-# ax.plot(t_reg, y_reg_NP1000, 'r:')
-ax.axis([0, 2, -0.2, 1])
-ax.grid()
-ax.legend(loc = 'upper right', prop = fontP)
-# ax.set_xlabel(r'dimensionless time / $\tau_0$')
-ax.set_ylabel(r'normalized stress autocorrelation')
-ax.set_title('linear-linear', y=0.85)
-
-ax2 = plt.subplot(312)
-
-ax2.semilogy(t_acf_NP0400, acf_NP0400/acf_NP0400[0], 'b-')
-ax2.semilogy(t_reg[:10], y_reg_BR_NP0400[:10], 'b--', label = r'$t_c$(%4.2f, %4.2f) = %4.2f'%(t_acf_NP0400[0], t_acf_NP0400[5], -1./reg_BR_NP0400[0]))
-ax2.semilogy(t_reg, y_reg_NP0400, 'b:', label = r'$t_c$(%4.2f, %4.2f) = %4.2f'%(t_acf_NP0400[5], t_acf_NP0400[15], -1./reg_NP0400[0]))
-
-ax2.semilogy(t_acf_NP1000, acf_NP1000/acf_NP1000[0], 'g-')
-ax2.semilogy(t_reg[:10], y_reg_BR_NP1000[:10], 'g--', label = r'$t_c$(%4.2f, %4.2f) = %4.2f'%(t_acf_NP1000[0], t_acf_NP1000[5], -1./reg_BR_NP1000[0]))
-ax2.semilogy(t_reg, y_reg_NP1000, 'g:', label = r'$t_c$(%4.2f, %4.2f) = %4.2f'%(t_acf_NP1000[10], t_acf_NP1000[30], -1./reg_NP1000[0]))
-
-ax2.semilogy(t_acf_NP1000, acf_NP1000_simple/acf_NP1000_simple[0], 'r-')
-
-ax2.axis([0, 1, 10**-4, 10**0])
-
-# ax2.semilogy(t_acf_NP1728, acf_NP1728/acf_NP1728[0], 'r-')
-# ax2.semilogy(t_reg[:10], y_reg_BR_NP1728[:10], 'r--', label = r'$t_c$(%4.2f, %4.2f) = %4.2f'%(t_acf_NP1728[0], t_acf_NP1728[5], -1./reg_BR_NP1728[0]))
-# ax2.semilogy(t_reg, y_reg_NP1728, 'r:', label = r'$t_c$(%4.2f, %4.2f) = %4.2f'%(t_acf_NP1728[10], t_acf_NP1728[30], -1./reg_NP1728[0]))
-# ax2.axis([0, 1, 10**-4, 10**0])
-
-
-# ax2.axis([0, 2, -0.1, 1])
-ax2.grid()
-ax2.legend(loc = 'lower right', prop = fontP, ncol=2)
-ax2.set_xlabel(r'dimensionless time / $\tau_0$')
-
-# ax2.set_ylabel(r'normalized stress autocorrelation')
-ax2.set_title('linear-log', y=0.85)
-
-ax3 = plt.subplot(313)
-
-ax3.loglog(t_acf_NP0400, acf_NP0400, 'b-')
-ax3.loglog(t_acf_NP1000, acf_NP1000/acf_NP1000[0], 'g-')
-ax3.loglog(t_acf_NP1000, acf_NP1000_simple/acf_NP1000_simple[0], 'r-')
-
-# ax3.loglog(t_acf_NP1728, acf_NP1728, 'r-')
-
-# ax3.axis([t_acf_NP0400[2], 10**0, 10**-7, 10**-3])
-ax3.grid()
-ax3.set_xlabel(r'dimensionless time / $\tau_0$')
-ax3.set_ylabel('stress autocorrelation')
-# ax3.set_title(r'log-log, $C_{\tau_{xy}}^{(1000)}(0)/C_{\tau_{xy}}^{(1728)}(0)$ = %4.1f'%(acf_NP1000[0]/acf_NP1728[0]), y=0.7)
-
-
-plt.show()
+# from matplotlib.font_manager import FontProperties
+# fontP = FontProperties()
+# # fontP.set_size('small')
 
 # plt.close()
 # plt.ion()
-# plt.plot(t_dat_NP1000, dat_NP1000_tmp, 'b-')
+# plt.figure(figsize=(11,8))
+# ax = plt.subplot(311)
+# ax.plot(t_acf_NP0400, acf_NP0400/acf_NP0400[0], 'b-', label = 'NP=400')
+# # ax.plot(t_reg, y_reg_BR_NP0400, 'b--')
+# # ax.plot(t_reg, y_reg_NP0400, 'b:')
+# ax.plot(t_acf_NP1000, acf_NP1000/acf_NP1000[0], 'g-', label = 'NP=1000')
+# # ax.plot(t_acf_NP1000, acf_NP1000_simple/acf_NP1000_simple[0], 'r-', label = 'NP=1000, simple')
+
+# # ax.plot(t_acf_NP1728, acf_NP1728/acf_NP1728[0], 'r-', label = 'NP=1728')
+
+# # ax.plot(t_reg, y_reg_BR_NP1000, 'r--')
+# # ax.plot(t_reg, y_reg_NP1000, 'r:')
+# ax.axis([0, 2, -0.2, 1])
+# ax.grid()
+# ax.legend(loc = 'upper right', prop = fontP)
+# # ax.set_xlabel(r'dimensionless time / $\tau_0$')
+# ax.set_ylabel(r'normalized stress autocorrelation')
+# ax.set_title('linear-linear', y=0.85)
+
+# ax2 = plt.subplot(312)
+
+# ax2.semilogy(t_acf_NP0400, acf_NP0400/acf_NP0400[0], 'b-')
+# ax2.semilogy(t_reg[:10], y_reg_BR_NP0400[:10], 'b--', label = r'$t_c$(%4.2f, %4.2f) = %4.2f'%(t_acf_NP0400[0], t_acf_NP0400[5], -1./reg_BR_NP0400[0]))
+# ax2.semilogy(t_reg, y_reg_NP0400, 'b:', label = r'$t_c$(%4.2f, %4.2f) = %4.2f'%(t_acf_NP0400[5], t_acf_NP0400[15], -1./reg_NP0400[0]))
+
+# ax2.semilogy(t_acf_NP1000, acf_NP1000/acf_NP1000[0], 'g-')
+# ax2.semilogy(t_reg[:10], y_reg_BR_NP1000[:10], 'g--', label = r'$t_c$(%4.2f, %4.2f) = %4.2f'%(t_acf_NP1000[0], t_acf_NP1000[5], -1./reg_BR_NP1000[0]))
+# ax2.semilogy(t_reg, y_reg_NP1000, 'g:', label = r'$t_c$(%4.2f, %4.2f) = %4.2f'%(t_acf_NP1000[10], t_acf_NP1000[30], -1./reg_NP1000[0]))
+
+# ax2.semilogy(t_acf_NP1000, acf_NP1000_simple/acf_NP1000_simple[0], 'r-')
+
+# ax2.axis([0, 1, 10**-4, 10**0])
+
+# # ax2.semilogy(t_acf_NP1728, acf_NP1728/acf_NP1728[0], 'r-')
+# # ax2.semilogy(t_reg[:10], y_reg_BR_NP1728[:10], 'r--', label = r'$t_c$(%4.2f, %4.2f) = %4.2f'%(t_acf_NP1728[0], t_acf_NP1728[5], -1./reg_BR_NP1728[0]))
+# # ax2.semilogy(t_reg, y_reg_NP1728, 'r:', label = r'$t_c$(%4.2f, %4.2f) = %4.2f'%(t_acf_NP1728[10], t_acf_NP1728[30], -1./reg_NP1728[0]))
+# # ax2.axis([0, 1, 10**-4, 10**0])
+
+
+# # ax2.axis([0, 2, -0.1, 1])
+# ax2.grid()
+# ax2.legend(loc = 'lower right', prop = fontP, ncol=2)
+# ax2.set_xlabel(r'dimensionless time / $\tau_0$')
+
+# # ax2.set_ylabel(r'normalized stress autocorrelation')
+# ax2.set_title('linear-log', y=0.85)
+
+# ax3 = plt.subplot(313)
+
+# ax3.loglog(t_acf_NP0400, acf_NP0400, 'b-')
+# ax3.loglog(t_acf_NP1000, acf_NP1000/acf_NP1000[0], 'g-')
+# ax3.loglog(t_acf_NP1000, acf_NP1000_simple/acf_NP1000_simple[0], 'r-')
+
+# # ax3.loglog(t_acf_NP1728, acf_NP1728, 'r-')
+
+# # ax3.axis([t_acf_NP0400[2], 10**0, 10**-7, 10**-3])
+# ax3.grid()
+# ax3.set_xlabel(r'dimensionless time / $\tau_0$')
+# ax3.set_ylabel('stress autocorrelation')
+# # ax3.set_title(r'log-log, $C_{\tau_{xy}}^{(1000)}(0)/C_{\tau_{xy}}^{(1728)}(0)$ = %4.1f'%(acf_NP1000[0]/acf_NP1728[0]), y=0.7)
+
+
 # plt.show()
+
+# # plt.close()
+# # plt.ion()
+# # plt.plot(t_dat_NP1000, dat_NP1000_tmp, 'b-')
+# # plt.show()
+
+plt.close()
+plt.figure(figsize=(11,6))
+plt.ion()
+plt.loglog(t_acf_NP0400[:], acf_NP0400[:]/acf_NP0400[0], 'b-', linewidth=2, alpha=0.5, label = r'$\nu_m$ = 0.4')
+plt.loglog(t_acf_NP1000[:], acf_NP1000[:]/acf_NP1000[0], 'r-', linewidth=2, alpha=0.5, label = r'$\nu_m$ = 1.0')
+
+plt.loglog(t_acf_NP0400[14], acf_NP0400[14]/acf_NP0400[0], 'b|', markersize=10)
+plt.loglog(t_acf_NP1000[26], acf_NP1000[26]/acf_NP1000[0], 'r|', markersize=10)
+
+plt.legend(loc = 'lower left', numpoints=1)
+plt.axis([10**-2, 1.1*10**0, 10**-3, 2.*10**0])
+plt.xlabel(r'dimensionless time, $\beta_0 t$')
+plt.ylabel(r'normalized stress autocorrelation, $C_{\tilde{\tau}_{xy}}(t)/C_{\tilde{\tau}_{xy}}(0)$')
+plt.grid()
+plt.show()
