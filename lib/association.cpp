@@ -137,8 +137,6 @@ MKL_LONG ASSOCIATION::initial_inheritance() // it should not be called by outsid
   return 0;
 }
 
-
-
 ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY(given_condition)
 {
   Nc = atol(given_condition("N_chains_per_particle").c_str());
@@ -422,6 +420,11 @@ MKL_LONG ASSOCIATION::del_association_grab_IK(MKL_LONG index_I, MKL_LONG hash_in
 
 MKL_LONG ASSOCIATION::del_association_hash(MKL_LONG index_particle, MKL_LONG hash_index_target)
 {
+  /*
+    This is the basic call for deleting the existing connection.
+    The subjected chain ends is opposite chain ends that selected at this moment, because for the association distribution subjected by itself particle, which means the subjected chains. 
+    The transition probability for chain ends in the same chain is the same with its opponents, which means we can tweak things by detachment opponent chain ends rather than subjected chain end.
+   */
   MKL_LONG index_target = (MKL_LONG)HASH[index_particle](hash_index_target);
   del_association_grab_IK(index_particle, hash_index_target);
   del_association_IK(index_target, FIND_HASH_INDEX(index_target, index_particle));

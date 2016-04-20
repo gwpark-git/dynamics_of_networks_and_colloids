@@ -85,6 +85,13 @@ MKL_LONG ACTION::CANCEL(TRAJECTORY& TRAJ, MKL_LONG index_t_now, POTENTIAL_SET& P
 
 MKL_LONG ACTION::MOV(TRAJECTORY& TRAJ, MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
 {
+  /*
+    It is of importance to nocie that the del_association (i and j) are detaching j chain ends rather than i chain end.
+    In consequence, del_association break the opposite chain ends, then grap this chain end to the subjected particle.
+    Some details are described in the del_association_hash file which is the original form.
+    Note that this is related with the Boltzmann distribution generated during stochastic_simulation code is based on the itself particle rather than other particle.
+    If this scheme is changed to opposite way, CHAIN_HANDLE class is also affected.
+   */
   CONNECT.del_association_hash(index_set[CONNECT.flag_itself], index_set[CONNECT.flag_hash_other]);
   CONNECT.add_association_INFO(POTs, index_set[CONNECT.flag_itself], index_set[CONNECT.flag_new], R_minimum_distance_boost[index_set[CONNECT.flag_other]](index_set[CONNECT.flag_new]));
   

@@ -142,6 +142,103 @@ namespace KINETICS
   double CONNECTIVITY_update_dPDF_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle);
 }
 
+
+class CHAIN_INFORMATION
+{
+  /*
+    The CHAIN class is using CHAIN_NODE without inheritance.
+    It contains dynamically allocated CHAIN_NODE.
+   */
+ public:
+
+  CHAIN_NODE *CHAIN;
+  MKL_LONG N_chains;
+  MKL_LONG N_particles;
+
+  bool INITIALIZATION;
+
+  MKL_LONG& HEAD(MKL_LONG given_chain_index)
+    {
+      return CHAIN[given_chain_index].HEAD;
+    }
+  MKL_LONG& TAIL(MKL_LONG given_chain_index)
+    {
+      return CHAIN[given_chain_index].TAIL;
+    }
+
+  MKL_LONG& ATTACHED(MKL_LONG given_chain_index, MKL_LONG flag_HEAD_TAIL)
+    {
+      return CHAIN[given_chain_index].index[flag_HEAD_TAIL];
+    }
   
+  /* MKL_LONG& CE_ATTACHED(MKL_LONG given_chain_end_index) */
+  /*   { */
+  /*     return CHAIN[given_chain_end_index%N_chains].index[(MKL_LONG)(given_chain_end_index/N_chains)]; */
+  /*   } */
+
+  
+  MKL_LONG mov_attachment(MKL_LONG index_particle, MKL_LONG given_chain_index, MKL_LONG flag_HEAD_TAIL)
+  {
+    /*
+      flag_HEAD_TAIL is 0 for HEAD while 1 for TAIL.
+     */
+    ATTACHED(given_chain_index, flag_HEAD_TAIL) = index_particle;
+
+    return 0;
+  }
+
+  MKL_LONG add_attachment(MKL_LONG index_particle, MKL_LONG given_chain_index, MKL_LONG flag_HEAD_TAIL)
+  {
+    // there is no distingushable between add and mov attachment for chain node
+    mov_attachment(index_particle, given_chain_index, flag_HEAD_TAIL);
+    return 0;
+  }
+
+  MKL_LONG del_attachment(MKL_LONG given_chain_index, MKL_LONG flag_HEAD_TAIL)
+  {
+    // it make detachment for subjected chain ends
+    // then attach to particles which other chain ends are attached
+    mov_attachment(ATTACHED(given_chain_index, (flag_HEAD_TAIL + 1)%2), given_chain_index, flag_HEAD_TAIL);
+    return 0;
+  }
+    
+  MKL_LONG initial(MKL_LONG number_of_chains, MKL_LONG number_of_particles)
+  {
+    N_chains = number_of_chains;
+    N_particles = number_of_particles;
+    CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT);
+    for(MKL_LONG i=0; i<N_chains; i++)
+      {
+        /*
+          it allocate the equivalent number of chain ends per particles
+        */
+        HEAD(i) = i%N_particles;
+        TAIL(i) = i%N_particles;
+        /* CHAIN[i].HEAD = i%N_particles; */
+        /* CHAIN[i].TAIL = i%N_particles; */
+      }
+
+    INITIALIZATION = TRUE;
+    return INITIALIZATION;
+  }
+  CHAIN()
+    {
+      std::cout << "ERR: CHAIN Class must have initialization argument\n";
+    }
+  CHAIN(MKL_LONG number_of_chains, MKL_LONG number_of_particles)
+    {
+      initial(number_of_chains, number_of_particles);
+    }
+  CHAIN(COND& given_condition)
+    {
+      initial(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str()));
+    }
+  ~CHAIN()
+    {
+      if(INITIALIZATION)
+        mkl_free(CHAIN);
+    }
+}
+
 
 #endif
