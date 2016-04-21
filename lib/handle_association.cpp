@@ -9,7 +9,7 @@ const MKL_LONG INDEX_MC::N_BOOST_COUNT[] = {0, 2, 2, 3};
   However, in the case of array, it should be defined on here.
   N_BOOST_COUNT[IDX.CANCEL] = 0;
   N_BOOST_COUNT[IDX.ADD] = 2;
-  N_BOOST_COUNT[IDX.DEL] = 2;
+  N_BOOST_COUNT[IDX.OPP_DEL] = 2;
   N_BOOST_COUNT[IDX.MOV] = 3;
  */
 
@@ -29,10 +29,10 @@ INDEX_MC::INDEX_MC(const INDEX_MC& given_IDX)
 
 MKL_LONG INDEX_MC::initial()
 {
-  ACTION_ARR[CANCEL] = ACTION::CANCEL;
-  ACTION_ARR[ADD]    = ACTION::ADD   ;
-  ACTION_ARR[DEL]    = ACTION::DEL   ;
-  ACTION_ARR[MOV]    = ACTION::MOV   ;
+  ACTION_ARR[CANCEL] = ACTION::CANCEL ;
+  ACTION_ARR[ADD]    = ACTION::ADD    ;
+  ACTION_ARR[OPP_DEL]    = ACTION::OPP_DEL;
+  ACTION_ARR[MOV]    = ACTION::MOV    ;
   return 0;
 }
 
@@ -86,21 +86,22 @@ MKL_LONG ACTION::CANCEL(TRAJECTORY& TRAJ, MKL_LONG index_t_now, POTENTIAL_SET& P
 MKL_LONG ACTION::MOV(TRAJECTORY& TRAJ, MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
 {
   /*
-    It is of importance to nocie that the del_association (i and j) are detaching j chain ends rather than i chain end.
-    In consequence, del_association break the opposite chain ends, then grap this chain end to the subjected particle.
-    Some details are described in the del_association_hash file which is the original form.
+    It is of importance to nocie that the opp_del_association (i and j) are detaching j chain ends rather than i chain end.
+    This is the reason to use 'opp_del' for it's name rather than 'del'.
+    In consequence, opp_del_association break the opposite chain ends, then grap this chain end to the subjected particle.
+    Some details are described in the opp_del_association_hash file which is the original form in the ASSOCIATION class definition.
     Note that this is related with the Boltzmann distribution generated during stochastic_simulation code is based on the itself particle rather than other particle.
     If this scheme is changed to opposite way, CHAIN_HANDLE class is also affected.
    */
-  CONNECT.del_association_hash(index_set[CONNECT.flag_itself], index_set[CONNECT.flag_hash_other]);
+  CONNECT.opp_del_association_hash(index_set[CONNECT.flag_itself], index_set[CONNECT.flag_hash_other]);
   CONNECT.add_association_INFO(POTs, index_set[CONNECT.flag_itself], index_set[CONNECT.flag_new], R_minimum_distance_boost[index_set[CONNECT.flag_other]](index_set[CONNECT.flag_new]));
   
   return 0;
 }
 
-MKL_LONG ACTION::DEL(TRAJECTORY& TRAJ, MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
+MKL_LONG ACTION::OPP_DEL(TRAJECTORY& TRAJ, MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
 {
-  CONNECT.del_association_hash(index_set[CONNECT.flag_itself], index_set[CONNECT.flag_hash_other]);
+  CONNECT.opp_del_association_hash(index_set[CONNECT.flag_itself], index_set[CONNECT.flag_hash_other]);
   return 0;
 }
 
@@ -129,10 +130,10 @@ MKL_LONG ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(ASSOCIATION& CONNECT, INDEX_MC&
         return IDX.CANCEL;
     }
   // check index_itself == index_other
-  else if (CONNECT.DEL_ASSOCIATION(CONNECT, IDX.beads))
+  else if (CONNECT.OPP_DEL_ASSOCIATION(CONNECT, IDX.beads))
     {
-      if (CONNECT.CHECK_N_DEL_ASSOCIATION(CONNECT, IDX.beads))
-        return IDX.DEL;
+      if (CONNECT.CHECK_N_OPP_DEL_ASSOCIATION(CONNECT, IDX.beads))
+        return IDX.OPP_DEL;
       else return IDX.CANCEL;
     }
   // with nested case, this is only the case of MOV

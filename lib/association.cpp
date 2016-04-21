@@ -1,7 +1,6 @@
 
 #include "association.h"
 
-
 MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
 {
   ifstream GIVEN_WEIGHT;
@@ -82,16 +81,16 @@ MKL_LONG ASSOCIATION::dynamic_alloc()
     {
       CHECK_N_ADD_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_ADD_BOOST;
       CHECK_N_MOV_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_MOV_BOOST;
-      CHECK_N_DEL_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_DEL_BOOST;
+      CHECK_N_OPP_DEL_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_OPP_DEL_BOOST;
     }
   else
     {
       CHECK_N_ADD_ASSOCIATION = TRUTH_MAP::SINGLE::CHECK_N_ADD_BOOST;
       CHECK_N_MOV_ASSOCIATION = TRUTH_MAP::SINGLE::CHECK_N_MOV_BOOST;
-      CHECK_N_DEL_ASSOCIATION = TRUTH_MAP::SINGLE::CHECK_N_DEL_BOOST;
+      CHECK_N_OPP_DEL_ASSOCIATION = TRUTH_MAP::SINGLE::CHECK_N_OPP_DEL_BOOST;
     }
   ADD_ASSOCIATION = TRUTH_MAP::ADD_ASSOCIATION_BOOST;
-  DEL_ASSOCIATION = TRUTH_MAP::DEL_ASSOCIATION_BOOST;
+  OPP_DEL_ASSOCIATION = TRUTH_MAP::OPP_DEL_ASSOCIATION_BOOST;
   CANCEL_ASSOCIATION = TRUTH_MAP::CANCEL_ASSOCIATION_BOOST;
 
   return 0;
@@ -180,7 +179,7 @@ bool TRUTH_MAP::MULTIPLE::CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index
   return FALSE;
 }
 
-bool TRUTH_MAP::MULTIPLE::CHECK_N_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+bool TRUTH_MAP::MULTIPLE::CHECK_N_OPP_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
 {
   if (CONNECT.N_CONNECTED_ENDS(index_set[CONNECT.flag_itself]) < CONNECT.N_max && CONNECT.N_CONNECTED_ENDS(index_set[CONNECT.flag_other]) > CONNECT.N_min)
     return TRUE;
@@ -206,7 +205,7 @@ bool TRUTH_MAP::SINGLE::CHECK_N_MOV_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_s
   return TRUTH_MAP::SINGLE::CHECK_N_ADD_BOOST(CONNECT, index_set); // it has same condition
 }
 
-bool TRUTH_MAP::SINGLE::CHECK_N_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+bool TRUTH_MAP::SINGLE::CHECK_N_OPP_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
 {
   return TRUE; // this is because the single connection case
 }
@@ -226,14 +225,14 @@ bool TRUTH_MAP::ADD_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]
 }
 
 
-bool TRUTH_MAP::DEL_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+bool TRUTH_MAP::OPP_DEL_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
 {
   if (index_set[CONNECT.flag_itself] == index_set[CONNECT.flag_new])
     return TRUE;
   return FALSE;
 }
 
-bool TRUTH_MAP::DEL_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new)
+bool TRUTH_MAP::OPP_DEL_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new)
 {
   if (index_new == index_itself && index_target != index_itself && CONNECT.N_CONNECTED_ENDS(index_itself) < CONNECT.N_max && CONNECT.N_CONNECTED_ENDS(index_target) > CONNECT.N_min)
     return TRUE;
@@ -388,7 +387,7 @@ MKL_LONG ASSOCIATION::add_association_INFO(POTENTIAL_SET& POTs, MKL_LONG index_p
 // note that the following code is using hash table.
 // however, this case have potential overhead compared with linked-list
 // for further implementation, the infrastructure for the interface should be refined.
-MKL_LONG ASSOCIATION::del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K)
+MKL_LONG ASSOCIATION::opp_del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K)
 {
   weight[index_I](hash_index_K) -= 1;
   if((MKL_LONG)weight[index_I](hash_index_K) == 0)
@@ -409,32 +408,33 @@ MKL_LONG ASSOCIATION::del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K
   return 0; 
 }
 
-MKL_LONG ASSOCIATION::del_association_grab_IK(MKL_LONG index_I, MKL_LONG hash_index_K)
+MKL_LONG ASSOCIATION::opp_del_association_grab_IK(MKL_LONG index_I, MKL_LONG hash_index_K)
 {
-  del_association_IK(index_I, hash_index_K);
+  opp_del_association_IK(index_I, hash_index_K);
   // The same reason with add_association, the weight on here is increases by number of 2
   weight[index_I](0) += 2;
 
   return 0;
 }
 
-MKL_LONG ASSOCIATION::del_association_hash(MKL_LONG index_particle, MKL_LONG hash_index_target)
+MKL_LONG ASSOCIATION::opp_del_association_hash(MKL_LONG index_particle, MKL_LONG hash_index_target)
 {
   /*
     This is the basic call for deleting the existing connection.
     The subjected chain ends is opposite chain ends that selected at this moment, because for the association distribution subjected by itself particle, which means the subjected chains. 
     The transition probability for chain ends in the same chain is the same with its opponents, which means we can tweak things by detachment opponent chain ends rather than subjected chain end.
+    This is the reason the function is called 'opp_del' rather than 'del'
    */
   MKL_LONG index_target = (MKL_LONG)HASH[index_particle](hash_index_target);
-  del_association_grab_IK(index_particle, hash_index_target);
-  del_association_IK(index_target, FIND_HASH_INDEX(index_target, index_particle));
+  opp_del_association_grab_IK(index_particle, hash_index_target);
+  opp_del_association_IK(index_target, FIND_HASH_INDEX(index_target, index_particle));
   return 0;
 }
 
-MKL_LONG ASSOCIATION::del_association(MKL_LONG index_particle, MKL_LONG index_target)
+MKL_LONG ASSOCIATION::opp_del_association(MKL_LONG index_particle, MKL_LONG index_target)
 {
   MKL_LONG hash_index_target = FIND_HASH_INDEX(index_particle, index_target);
-  del_association_hash(index_particle, hash_index_target);
+  opp_del_association_hash(index_particle, hash_index_target);
   return 0;
 }
 

@@ -44,11 +44,11 @@ class ASSOCIATION : public CONNECTIVITY
   static const MKL_LONG flag_itself = 2;
   static const MKL_LONG flag_hash_other = 3;
   bool (*ADD_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
-  bool (*DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
+  bool (*OPP_DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   bool (*CANCEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   bool (*CHECK_N_ADD_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   bool (*CHECK_N_MOV_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
-  bool (*CHECK_N_DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
+  bool (*CHECK_N_OPP_DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
 
   
   MKL_LONG N_TOTAL_ASSOCIATION();
@@ -58,10 +58,10 @@ class ASSOCIATION : public CONNECTIVITY
   bool CHECK_EXIST_1D(MKL_LONG index_A, MKL_LONG index_B);
   MKL_LONG add_association(MKL_LONG index_particle, MKL_LONG index_target);
   MKL_LONG add_association_INFO(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance);
-  MKL_LONG del_association(MKL_LONG index_particle, MKL_LONG index_target);
-  MKL_LONG del_association_hash(MKL_LONG index_particle, MKL_LONG hash_index_target);
-  MKL_LONG del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K);
-  MKL_LONG del_association_grab_IK(MKL_LONG index_I, MKL_LONG hash_index_K);
+  MKL_LONG opp_del_association(MKL_LONG index_particle, MKL_LONG index_target);
+  MKL_LONG opp_del_association_hash(MKL_LONG index_particle, MKL_LONG hash_index_target);
+  MKL_LONG opp_del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K);
+  MKL_LONG opp_del_association_grab_IK(MKL_LONG index_I, MKL_LONG hash_index_K);
   
   MKL_LONG GET_INDEX_HASH_FROM_ROLL(MKL_LONG index_particle, double rolled_p);
   MKL_LONG GET_HASH_FROM_ROLL(MKL_LONG index_particle, double rolled_p);
@@ -108,20 +108,20 @@ namespace TRUTH_MAP
   namespace MULTIPLE
   {
     bool CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
-    bool CHECK_N_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
+    bool CHECK_N_OPP_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
     bool CHECK_N_MOV_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   }
   namespace SINGLE
   {
     bool CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
     bool CHECK_N_MOV_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
-    bool CHECK_N_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
+    bool CHECK_N_OPP_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   }
   bool CANCEL_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   bool ADD_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
-  bool DEL_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
+  bool OPP_DEL_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   
-  bool DEL_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
+  bool OPP_DEL_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
   
   bool NEW_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
   bool NEW_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
