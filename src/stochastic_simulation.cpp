@@ -84,6 +84,7 @@ int main(int argc, char* argv[])
               if (given_condition("tracking_individual_chain") == "TRUE")
                 {
                   CHAIN_HANDLE CHAIN(given_condition);
+                  CHAIN.allocate_existing_bridges(CONNECT);
                   main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJ, POTs, CONNECT, CHAIN, given_condition);
                 }
               else
@@ -144,7 +145,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   RDIST R_boost(given_condition);
   
   MKL_LONG cnt_arr[5] = {0};
-  MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
+  MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::REV_DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
   cnt_add = CONNECT.N_ASSOCIATION;
   // printf("N_ASSOCIATION = %d\n\n", cnt_add);
   // cnt_add = 100;
@@ -893,7 +894,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   RDIST R_boost(given_condition);
   
   MKL_LONG cnt_arr[5] = {0};
-  MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
+  MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::REV_DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
   cnt_add = CONNECT.N_ASSOCIATION;
   // printf("N_ASSOCIATION = %d\n\n", cnt_add);
   // cnt_add = 100;
@@ -1247,6 +1248,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
 
                   // ACTION::ACT(TRAJ, index_t_now, POTs, CONNECT, IDX_ARR[it], R_minimum_distance_boost, IDENTIFIER_ACTION); // RDIST
                   ACTION::ACT(TRAJ, index_t_now, POTs, CONNECT, IDX_ARR[it], R_boost.Rsca, IDENTIFIER_ACTION);
+                  CHAIN.TRACKING_ACTION(CONNECT, IDENTIFIER_ACTION, IDX_ARR[it]); // it will track individual chain information
                   
                   time_MC_end_ACTION = dsecnd();
                   ACTION::UPDATE_INFORMATION(CONNECT, IDX_ARR[it], cnt_arr, IDENTIFIER_ACTION);
