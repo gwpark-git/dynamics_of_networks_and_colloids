@@ -145,7 +145,7 @@ MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATI
   RDIST R_boost(given_condition);
   
   MKL_LONG cnt_arr[5] = {0};
-  MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::REV_DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
+  MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::OPP_DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
   cnt_add = CONNECT.N_ASSOCIATION;
   // printf("N_ASSOCIATION = %d\n\n", cnt_add);
   // cnt_add = 100;
@@ -894,7 +894,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   RDIST R_boost(given_condition);
   
   MKL_LONG cnt_arr[5] = {0};
-  MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::REV_DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
+  MKL_LONG &cnt_cancel = cnt_arr[INDEX_MC::CANCEL], &cnt_add = cnt_arr[INDEX_MC::ADD], &cnt_del = cnt_arr[INDEX_MC::OPP_DEL], &cnt_mov = cnt_arr[INDEX_MC::MOV], &cnt_lock = cnt_arr[INDEX_MC::LOCK];
   cnt_add = CONNECT.N_ASSOCIATION;
   // printf("N_ASSOCIATION = %d\n\n", cnt_add);
   // cnt_add = 100;
@@ -1144,7 +1144,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
           //   {
           //     printf("dCDF_U[%ld](399) = %4.1e\n", i, dCDF_U[i](399));
           //   }
-#pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dCDF_TOKEN, R_boost, dt_rdist, dt_pdf, dt_sort, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, cnt, N_THREADS_SS, N_associations, N_tot_associable_chain) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1) reduction(+:dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7)
+#pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, CHAIN, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dCDF_TOKEN, R_boost, dt_rdist, dt_pdf, dt_sort, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, cnt, N_THREADS_SS, N_associations, N_tot_associable_chain) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1) reduction(+:dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7)
           // #pragma omp critical(TOPOLOGY_UPDATE)
           // {
           // for(MKL_LONG tp = 0; tp<N_steps_block; tp++)

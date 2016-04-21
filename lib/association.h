@@ -159,11 +159,11 @@ class CHAIN_INFORMATION
 
   MKL_LONG& HEAD(MKL_LONG given_chain_index)
     {
-      return CHAIN[given_chain_index].HEAD;
+      return CHAIN[given_chain_index].HEAD();
     }
   MKL_LONG& TAIL(MKL_LONG given_chain_index)
     {
-      return CHAIN[given_chain_index].TAIL;
+      return CHAIN[given_chain_index].TAIL();
     }
 
   MKL_LONG& ATTACHED(MKL_LONG given_chain_index, MKL_LONG flag_HEAD_TAIL)
@@ -221,24 +221,24 @@ class CHAIN_INFORMATION
     INITIALIZATION = TRUE;
     return INITIALIZATION;
   }
-  CHAIN()
+ CHAIN_INFORMATION() 
     {
       std::cout << "ERR: CHAIN Class must have initialization argument\n";
     }
-  CHAIN(MKL_LONG number_of_chains, MKL_LONG number_of_particles)
+ CHAIN_INFORMATION(MKL_LONG number_of_chains, MKL_LONG number_of_particles) 
     {
       initial(number_of_chains, number_of_particles);
     }
-  CHAIN(COND& given_condition)
+  CHAIN_INFORMATION(COND& given_condition)
     {
       initial(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str()));
     }
-  ~CHAIN()
+  virtual ~CHAIN_INFORMATION()
     {
       if(INITIALIZATION)
         mkl_free(CHAIN);
     }
-}
+};
 
 
 #endif

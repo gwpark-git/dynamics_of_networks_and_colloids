@@ -202,3 +202,59 @@ MKL_LONG SEARCHING::backtrace_cell_list(MATRIX& given_arr, MKL_LONG TOKEN, doubl
   return given_arr.size - TOKEN;
 }
 
+
+
+MKL_LONG CHAIN_HANDLE::hash_initial()
+{
+  PARTICLE = (MKL_LONG**) mkl_malloc(N_particles*sizeof(MKL_LONG*), BIT);
+  P_TOKEN = (MKL_LONG*) mkl_malloc(N_particles*sizeof(MKL_LONG), BIT);
+  for(MKL_LONG i=0; i<N_particles; i++)
+    {
+      /* 
+         The PARTICLE is N_particles by 2*N_chains matrix.
+         For default test (1000 particles with 10 chains per particles), the array might have 160 Mb, which is quite large but not too much.
+      */
+      PARTICLE[i] = (MKL_LONG*) mkl_malloc(2*N_chains*sizeof(MKL_LONG), BIT);
+      for(MKL_LONG j=0; j<2*N_chains; j++)
+        {
+          PARTICLE[i][j] = -1; // this means the hash direct no chain ends (index for chain ends is started with 0)
+        }
+      P_TOKEN[i] = 0;
+    }
+  for(MKL_LONG i=0; i<2*N_chains; i++)
+    {
+      /* CE_ATTACHED(i) */
+      particle_add_CE(CE_ATTACHED_REF(i), i);
+    }
+
+  // this is for generating random number stream which will be necessary for selecting chain in degenerated state
+  const gsl_rng_type *T;
+  /* gsl_rng *r; */
+  gsl_rng_env_setup();
+  T = gsl_rng_default;
+  r_degeneracy_check = gsl_rng_alloc(T);
+  gsl_rng_set(r_degeneracy_check, random());
+  degeneracy_index_array = (MKL_LONG*)mkl_malloc(N_chains*sizeof(MKL_LONG), BIT);
+  return 0;
+}
+
+MKL_LONG CHAIN_HANDLE::allocate_existing_bridges(ASSOCIATION& CONNECT)
+{
+  MKL_LONG chain_count = 0;
+  for(MKL_LONG i=0; i<N_particles; i++)
+    {
+      for(MKL_LONG k=0; k<CONNECT.TOKEN[i]; k++)
+        {
+          MKL_LONG degeneracy = CONNECT.weight(i, k);
+          for(MKL_LONG p=0; p<degeneracy; p++)
+            {
+              CE_ATTACHED_REF[chain_count++] = CONNECT.HASH[i,k];
+              // CHAIN[chain_count].HEAD = i;
+              // CHAIN[chain_count].TAIL = j;
+            }
+        }
+    }
+  if (chain_count != N_chains)
+    std::cout << "ERR: allocating_existing_brdiges have unbalanced number between chain_count and N_chains\n";
+  return 0;
+}

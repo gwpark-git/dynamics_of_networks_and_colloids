@@ -44,20 +44,29 @@ class CHAIN_NODE
      Basically, its data structure is given by linked-list, and the index itself is related with the array of object.
    */
  public:
-  MKL_LONG &HEAD;
-  MKL_LONG &TAIL;
+  /* MKL_LONG &HEAD; */
+  /* MKL_LONG &TAIL; */
+  MKL_LONG &HEAD()
+    {
+      return index[0];
+    }
+  MKL_LONG &TAIL()
+    {
+      return index[1];
+    }
   MKL_LONG *index;
-  CHAIN_NODE(){
-    index = (MKL_LONG*) mkl_malloc(2*sizeof(MKL_LONG), BIT);
-    HEAD = index[0];
-    TAIL = index[1];
-  }
+  CHAIN_NODE()
+    {
+      index = (MKL_LONG*) mkl_malloc(2*sizeof(MKL_LONG), BIT);
+    /* HEAD = index[0]; */
+    /* TAIL = index[1]; */
+    }
   virtual ~CHAIN_NODE(){
     mkl_free(index);
-    HEAD = NULL;
-    TAIL = NULL;
+    /* HEAD = NULL; */
+    /* TAIL = NULL; */
   }
-}
+};
 
 /* class TRACKING_CHAIN */
 /* { */

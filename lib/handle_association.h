@@ -6,6 +6,7 @@
 #include "geometry.h"
 #include "potential.h"
 #include "trajectory.h"
+#include "random.h"
 
 // this library is designed to handle association in easiler way.
 // the reason to seperate it from lib_association is for removing dependencies of library
@@ -24,7 +25,7 @@ class INDEX_MC
   MKL_LONG &itself, &attached_bead, &new_attached_bead, &hash_attached_bead;
   */
   // action_arry setting for boosting up the boolean identifier
-  // ACTION_ARR[IDX.CANCEL] act CANCEL. The IDX.CANCEL can be changed by IDX.ADD, IDX.DEL, IDX.MOV, respectively.
+  // ACTION_ARR[IDX.CANCEL] act CANCEL. The IDX.CANCEL can be changed by IDX.ADD, IDX.OPP_DEL, IDX.MOV, respectively.
   MKL_LONG (*ACTION_ARR[4])(TRAJECTORY&, MKL_LONG, POTENTIAL_SET&, ASSOCIATION&, MKL_LONG[], MATRIX*);
   // Note that the last MATRIX* is related with R_minimum_distance_boost that has whole information
   
@@ -84,11 +85,24 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
     Hence, the hash table has information for direct map between particles and chain ends index.
 
     Notice that even if the class is using CHAIN_NODE which basically has both of chain head and tail, the hash table design to use chain end index (2*N_chains). Which means 0~N_chains-1 means the HEAD chain ends while N_chains ~ 2N_chains -1 means TAIL chain ends.
+
+    For performance issue, almost of all member functions are defined inside class declaration in order to make inline function. These functions are not so long, which means the function call takes relatively high time compared with the overall time to excute the function.
    */
  public:
 
   MKL_LONG **PARTICLE;
   MKL_LONG *P_TOKEN;
+  gsl_rng *r_degeneracy_check;
+  MKL_LONG *degeneracy_index_array;
+  MKL_LONG& CE_ATTACHED_REF(MKL_LONG given_chain_end_index)
+    {
+      return ATTACHED(given_chain_end_index%N_chains, (MKL_LONG)(given_chain_end_index/N_chains));
+    }
+  /* MKL_LONG CE_ATTACHED(MKL_LONG given_chain_end_index) */
+  /* { */
+    
+  /* } */
+  
   MKL_LONG get_hash_index(MKL_LONG index_particle, MKL_LONG index_chain_end)
   {
     for(MKL_LONG i=0; i<P_TOKEN[index_particle]; i++)
@@ -100,63 +114,90 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
     return -1;
   }
 
-  MKL_LONG add_attachment(MKL_LONG index_particle, MKL_LONG index_chain_end) : add_attachment(index_particle, index_chain_end%N_chains, (MKL_LONG)(index_chain_end/N_chains))
+  MKL_LONG add_attachment(MKL_LONG index_particle, MKL_LONG index_chain_end)
     {
+      CHAIN_INFORMATION::add_attachment(index_particle, index_chain_end%N_chains, (MKL_LONG)(index_chain_end/N_chains)); // it calls existing function in CHAIN_INFORMATION
       PARTICLE[index_particle][P_TOKEN[index_particle]++] = index_chain_end;
       return 0;
     }
 
-  MKL_LONG del_attachment(MKL_LONG index_chain_end) : del_attachment(index_chain_end%N_chains, (MKL_LONG)(index_chain_end/N_chains))
+  MKL_LONG del_attachment(MKL_LONG index_chain_end)
     {
-      for(MKL_LONG i=get_hash_index(index_particle); i<P_TOKEN[index_particle]-1; i++)
+      MKL_LONG index_particle = (MKL_LONG)CE_ATTACHED_REF(index_chain_end);
+      CHAIN_INFORMATION::del_attachment(index_chain_end%N_chains, (MKL_LONG)(index_chain_end/N_chains)); // it calls existing function in CHAIN_INFORMATION
+      for(MKL_LONG i=get_hash_index(index_particle, index_chain_end); i<P_TOKEN[index_particle]-1; i++)
         {
-          PARTICLE[index_particle][token] = PARTICLE[index_particle][token+1];
+          PARTICLE[index_particle][i] = PARTICLE[index_particle][i+1];
         }
       PARTICLE[index_particle][P_TOKEN[index_particle]] = -1;
       P_TOKEN[index_particle]--;
       return 0;
     }
-  
-  /* MKL_LONG particle_add_CE(MKL_LONG index_particle, MKL_LONG index_chain_end) */
-  /* { */
-  /*   PARTICLE[index_particle][P_TOKEN[index_particle]++] = index_chain_end; */
-  /* } */
-  
-  /* MKL_LONG particle_del_CE(MKL_LONG index_particle, MKL_LONG index_chain_end) */
-  /* { */
-  /*   /\* MKL_LONG token = 0; *\/ */
-  /*   /\* while(PARTICLE[index_particle][token++]!=index_chain_end){} *\/ */
-  /*   for(MKL_LONG i=get_hash_index(index_particle); i<P_TOKEN[index_particle]-1; i++) */
-  /*     { */
-  /*       PARTICLE[index_particle][token] = PARTICLE[index_particle][token+1]; */
-  /*     } */
-  /*   PARTICLE[index_particle][P_TOKEN[index_particle]] = -1; */
-  /*   P_TOKEN[index_particle]--; */
-  /*   return 0; */
-  /* } */
 
-  MKL_LONG& CE_ATTAHCED(MKL_LONG given_chain_end_index)
+  MKL_LONG mov_attachment(MKL_LONG index_particle, MKL_LONG given_chain_end_index)
     {
-      return ATTACHED(given_chain_end_index%N_chains, (MKL_LONG)(given_chain_end_index/N_chains));
-    }
-  
-  MKL_LONG mov_attachment(MKL_LONG index_particle, MKL_LONG given_chain_end_index) : mov_attachment(index_particle, given_chain_end_index%N_chains, (MKL_LONG)(given_chain_end_index/N_chains))
-    {
+      CHAIN_INFORMATION::mov_attachment(index_particle, given_chain_end_index%N_chains, (MKL_LONG)(given_chain_end_index/N_chains)); // it calls existing function in CHAIN_INFORMATION
       del_attachment(given_chain_end_index);
       add_attachment(index_particle, given_chain_end_index);
       /* // deleting existing bridge */
-      /* particle_del_CE(CE_ATTACHED(given_chain_end_index), given_chain_end_index); */
+      /* particle_del_CE(CE_ATTACHED_REF(given_chain_end_index), given_chain_end_index); */
       /* // adding new bridge */
       /* particle_add_CE(index_particle, given_chain_end); */
       return 0;
     }
-
-  MKL_LONG get_index_degeneracy(MKL_LONG index_subject_chain_end, MKL_LONG index_opposite_end)
+  
+  MKL_LONG particle_add_CE(MKL_LONG index_particle, MKL_LONG index_chain_end)
   {
-    // working in progress
+    PARTICLE[index_particle][P_TOKEN[index_particle]++] = index_chain_end;
+    return 0;
+  }
+  
+  MKL_LONG particle_del_CE(MKL_LONG index_particle, MKL_LONG index_chain_end)
+  {
+    /* MKL_LONG token = 0; */
+    /* while(PARTICLE[index_particle][token++]!=index_chain_end){} */
+    for(MKL_LONG i=get_hash_index(index_particle, index_chain_end); i<P_TOKEN[index_particle]-1; i++)
+      {
+        PARTICLE[index_particle][i] = PARTICLE[index_particle][i+1];
+      }
+    PARTICLE[index_particle][P_TOKEN[index_particle]] = -1;
+    P_TOKEN[index_particle]--;
+    return 0;
+  }
+
+
+  MKL_LONG get_index_degeneracy(MKL_LONG particle_subject, MKL_LONG particle_target)
+  {
+    /*
+      This index function is the core for the tracking algorithm.
+      Basically, the tracking individual chain related with the data structure.
+      The used adjacence list in our algorithm, it is not distingushable between different chain with the same pair of attachment, but counting multiple connection individually.
+      That is one of the reason to reduce computational time dramatically from the original code since we can extracting out the computational overhead for degeneracy.
+      To track individual chain, the degeneracy is matter which means we need one more selecting procedure in the degenerated chains.
+      This algorithm is selecting one of the degenerated chain using generated random number index.
+    */
+    MKL_LONG degeneracy=0;
+    // check the chain: HEAD - particle_subject, TAIL - particle_target
+    for(MKL_LONG i=0; i<P_TOKEN[particle_subject]; i++)
+      {
+        if(PARTICLE[particle_subject][i] == particle_target)
+          degeneracy_index_array[degeneracy++] = PARTICLE[particle_subject][i];
+      }
+    MKL_LONG count_head_degeneracy = degeneracy;
+    // check the chain: HEAD - particle_target, TAIL - particle_subject
+    for(MKL_LONG i=0; i<P_TOKEN[particle_target]; i++)
+      {
+        if(PARTICLE[particle_target][i] == particle_subject)
+          degeneracy_index_array[degeneracy++] = PARTICLE[particle_target][i];
+      }
+    MKL_LONG selecting_index = gsl_rng_uniform_int(r_degeneracy_check, degeneracy);
+    MKL_LONG subjected_chain_end = degeneracy_index_array[selecting_index];
+    if (selecting_index >= count_head_degeneracy) // when the subjected chain end attached on subjected particle in TAIL
+      subjected_chain_end = subjected_chain_end%N_chains;
+    return subjected_chain_end;
   }
     
-  TRACKING_ACTION(ASSOCIATION& CONNECT, MKL_LONG flag_ACTION, MKL_LONG *index_set)
+  MKL_LONG TRACKING_ACTION(ASSOCIATION& CONNECT, MKL_LONG flag_ACTION, INDEX_MC& IDX)
     {
       /*
         It is of importance to using ij indices by identify subjected chain end.
@@ -167,55 +208,42 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
         Keep in mind that there is no distingushable for the transition probability of both chain ends belong one chain.
        */
       MKL_LONG index_subject_chain_end = -1;
-      if(flag_ACTION == CONNECT.CANCEL)
+      if(flag_ACTION == INDEX_MC::CANCEL)
         return 0;
-      else if(flag_ACTION == CONNECT.ADD)
+      else if(flag_ACTION == INDEX_MC::ADD)
         {
-          index_subject_chain_end = get_index_degeneracy(index_set[CONNECT.flag_itself], index_set[CONNECT.flag_other]);
-          add_attachment(index_set[CONNECT.flag_new], index_subject_chain_end)
+          // head = subjected chain end, head = other chain end
+          index_subject_chain_end = get_index_degeneracy(IDX.beads[CONNECT.flag_itself], IDX.beads[CONNECT.flag_other]);
+          add_attachment(IDX.beads[CONNECT.flag_new], index_subject_chain_end);
         }
-      else if(flag_ACTION == CONNECT.DEL)
+      else if(flag_ACTION == INDEX_MC::OPP_DEL)
         {
-          index_subject_chain_end = get_index_degeneracy(index_set[CONNECT.flag_other], index_set[CONNECT.flag_itself]);
-          del_attachment(index_subject_chain_end)
-        }
-      else if(flag_ACTION == CONNECT.MOV)
-        {
-          /* mov_attachment(index_set[CONNECT.flag_new], index_subject_chain_end); */
-          index_subject_chain_end = get_index_degeneracy(index_set[CONNECT.flag_other], index_set[CONNECT.flag_itself]);
+          // head = other chain end, tail = subjected chain end
+          index_subject_chain_end = get_index_degeneracy(IDX.beads[CONNECT.flag_other], IDX.beads[CONNECT.flag_itself]);
+          // note that it calls the typical 'del' function rather than 'opp_del'
+          // since the given index already transposed.
           del_attachment(index_subject_chain_end);
-          add_attachment(index_set[CONNECT.flag_new], index_subject_chain_end);
+        }
+      else if(flag_ACTION == INDEX_MC::MOV)
+        {
+          /* mov_attachment(IDX.beads[CONNECT.flag_new], index_subject_chain_end); */
+          // the following delete scheme is exactly the same for OPP_DEL functionality.
+          index_subject_chain_end = get_index_degeneracy(IDX.beads[CONNECT.flag_other], IDX.beads[CONNECT.flag_itself]);
+          del_attachment(index_subject_chain_end);
+          // Because of the previous detachment (way back to the origin), both of chain ends are attached to the same particle.
+          // Therefore, selection HEAD or TAIL is NOT importance to make new bridge.
+          // Note that HEAD and TAIL are not related with the degeneracy, which means the checking degeneracy function 'get_index_degeneracy' checked for both pairs for HEAD-TAIL and TAIL-HEAD.
+          add_attachment(IDX.beads[CONNECT.flag_new], index_subject_chain_end);
         }
       else
         {
-          std::cout << "ERR: No left option\n";
+          std::cout << "ERR: No left option in the TRACKING_ACTION function in handle_association.h \n";
         }
       return 0;
     }
   
-  MKL_LONG hash_initial()
-  {
-    PARTICLE = (MKL_LONG**) mkl_malloc(N_particles*sizeof(MKL_LONG*), BIT);
-    P_TOKEN = (MKL_LONG*) mkl_malloc(N_particles*sizeof(MKL_LONG), BIT);
-    for(MKL_LONG i=0; i<N_particles; i++)
-      {
-        /* 
-           The PARTICLE is N_particles by 2*N_chains matrix.
-           For default test (1000 particles with 10 chains per particles), the array might have 160 Mb, which is quite large but not too much.
-         */
-        PARTICLE[i] = (MKL_LONG*) mkl_malloc(2*N_chains*sizeof(MKL_LONG), BIT);
-        for(MKL_LONG j=0; j<2*N_chains; j++)
-          {
-            PARTICLE[i][j] = -1; // this means the hash direct no chain ends (index for chain ends is started with 0)
-          }
-        P_TOKEN[i] = 0;
-      }
-    for(MKL_LONG i=0; i<2*N_chains; i++)
-      {
-        /* CE_ATTACHED(i) */
-        particle_add_CE(CE_ATTACHED(i), i);
-      }
-  }
+  MKL_LONG hash_initial();
+ CHAIN_HANDLE() : CHAIN_INFORMATION(){}
  CHAIN_HANDLE(MKL_LONG number_of_chains, MKL_LONG number_of_particles) : CHAIN_INFORMATION(number_of_chains, number_of_particles)
     {
       hash_initial();
@@ -224,18 +252,24 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
   {
     hash_initial();
   }
+  
   ~CHAIN_HANDLE()
     {
       if(INITIALIZATION)
         {
           for(MKL_LONG i=0; i<N_particles; i++)
             {
-              mkl_free(PARTICLES[i]);
+              mkl_free(PARTICLE[i]);
             }
-          mkl_free(PARTICLES);
+          mkl_free(PARTICLE);
           mkl_free(P_TOKEN);
+          gsl_rng_free(r_degeneracy_check);
+          mkl_free(degeneracy_index_array);
         }
     }
-}
+  MKL_LONG allocate_existing_bridges(ASSOCIATION& CONNECT);
+
+};
+
 
 #endif
