@@ -245,10 +245,10 @@ MKL_LONG CHAIN_HANDLE::allocate_existing_bridges(ASSOCIATION& CONNECT)
     {
       for(MKL_LONG k=0; k<CONNECT.TOKEN[i]; k++)
         {
-          MKL_LONG degeneracy = CONNECT.weight(i, k);
+          MKL_LONG degeneracy = CONNECT.weight[i](k);
           for(MKL_LONG p=0; p<degeneracy; p++)
             {
-              CE_ATTACHED_REF[chain_count++] = CONNECT.HASH[i,k];
+              CE_ATTACHED_REF(chain_count++) = (MKL_LONG)CONNECT.HASH[i](k);
               // CHAIN[chain_count].HEAD = i;
               // CHAIN[chain_count].TAIL = j;
             }
