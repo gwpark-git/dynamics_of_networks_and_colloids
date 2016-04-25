@@ -1,9 +1,9 @@
 
 CC=icpc
-CFLAGS=-c -Wall -mkl -L/usr/local/include/ -L/usr/local/lib/ -lgsl
-LDFLAGS=-Wall -mkl -L/usr/local/include/ -L/usr/local/lib/ -lgsl
+CFLAGS=-c -Wall -mkl -I/usr/local/include/ -L/usr/local/lib/ -lgsl 
+LDFLAGS=-Wall -mkl -I/usr/local/include/ -L/usr/local/lib/ -lgsl 
 OPTFLAGS=-openmp -O2
-DEBUGFLAGS=-Wl -no_pie -g
+DEBUGFLAGS=-no_pie -g
 SOURCES=src/stochastic_simulation.cpp lib/association.cpp lib/connectivity.cpp lib/geometry.cpp lib/handle_association.cpp lib/matrix.cpp lib/parallel.cpp lib/potential.cpp lib/random.cpp lib/read_file_condition.cpp lib/time_evolution.cpp lib/trajectory.cpp lib/cell_list.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=stochastic_simulation
