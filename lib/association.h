@@ -179,12 +179,12 @@ class CHAIN_INFORMATION
   /*   } */
 
   
-  MKL_LONG mov_attachment(MKL_LONG index_particle, MKL_LONG given_chain_index, MKL_LONG flag_HEAD_TAIL)
+  MKL_LONG mov_attachment(MKL_LONG target_particle, MKL_LONG given_chain_index, MKL_LONG flag_HEAD_TAIL)
   {
     /*
       flag_HEAD_TAIL is 0 for HEAD while 1 for TAIL.
      */
-    ATTACHED(given_chain_index, flag_HEAD_TAIL) = index_particle;
+    ATTACHED(given_chain_index, flag_HEAD_TAIL) = target_particle;
 
     return 0;
   }

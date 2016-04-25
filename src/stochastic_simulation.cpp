@@ -83,11 +83,11 @@ int main(int argc, char* argv[])
               FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
               if (given_condition("tracking_individual_chain") == "TRUE")
                 {
-		  printf("PRE_INIT_CHAIN\n");
                   CHAIN_HANDLE CHAIN(given_condition);
-		  printf("PRE_ALLOC_CHAIN\n");
-                  CHAIN.allocate_existing_bridges(CONNECT);
-		  printf("AFT_CHAIN\n");
+		  if(given_condition("CONTINUATION_CONNECTION") == "TRUE")
+		    {
+		      CHAIN.allocate_existing_bridges(CONNECT);
+		    }
                   main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJ, POTs, CONNECT, CHAIN, given_condition);
                 }
               else
@@ -866,6 +866,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
   string filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
   string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
+  string filename_chain = (given_condition("output_path") + '/' + given_condition("filename_base") + ".chain").c_str();
   string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
   // string filename_info = (given_condition("output_path") + '/' + given_condition("file_base") + ".info").c_str();
   
@@ -1251,7 +1252,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
 
                   // ACTION::ACT(TRAJ, index_t_now, POTs, CONNECT, IDX_ARR[it], R_minimum_distance_boost, IDENTIFIER_ACTION); // RDIST
                   ACTION::ACT(TRAJ, index_t_now, POTs, CONNECT, IDX_ARR[it], R_boost.Rsca, IDENTIFIER_ACTION);
-                  // CHAIN.TRACKING_ACTION(CONNECT, IDENTIFIER_ACTION, IDX_ARR[it]); // it will track individual chain information
+                  CHAIN.TRACKING_ACTION(CONNECT, IDENTIFIER_ACTION, IDX_ARR[it]); // it will track individual chain information
                   
                   time_MC_end_ACTION = dsecnd();
                   ACTION::UPDATE_INFORMATION(CONNECT, IDX_ARR[it], cnt_arr, IDENTIFIER_ACTION);
@@ -1360,6 +1361,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
               CONNECT.HASH[ip].fprint_LONG_skip_transpose_LIMROWS(filename_HASH.c_str(), 1, CONNECT.TOKEN[ip]);
               CONNECT.weight[ip].fprint_LONG_skip_transpose_LIMROWS(filename_weight.c_str(), 1, CONNECT.TOKEN[ip]);
             }
+	  CHAIN.write(filename_chain.c_str());
         }
       
 

@@ -221,11 +221,19 @@ MKL_LONG CHAIN_HANDLE::hash_initial()
         }
       P_TOKEN[i] = 0;
     }
-  for(MKL_LONG i=0; i<2*N_chains; i++)
+
+  for(MKL_LONG i=0; i<N_chains; i++)
     {
-      /* CE_ATTACHED(i) */
-      particle_add_CE(CE_ATTACHED_REF(i), i);
+      // note that the initial in association.h already allocate HEAD(i) and TAIL(i) as i%N_particles (all connections are loop)
+      // hence, this initialization is only allocate the PARTICLE HASH table for further approaches
+      PARTICLE[HEAD(i)][P_TOKEN[HEAD(i)]++] = i;
+      PARTICLE[TAIL(i)][P_TOKEN[TAIL(i)]++] = i + N_chains;
     }
+  // for(MKL_LONG i=0; i<2*N_chains; i++)
+  //   {
+  //     /* CE_ATTACHED(i) */
+  //     particle_add_CE(CE_ATTACHED_REF(i), i);
+  //   }
 
   // this is for generating random number stream which will be necessary for selecting chain in degenerated state
   const gsl_rng_type *T;
@@ -238,23 +246,84 @@ MKL_LONG CHAIN_HANDLE::hash_initial()
   return 0;
 }
 
+// MKL_LONG CHAIN_HANDLE::initialize_without_connection()
+// {
+//   // zeroing PARTICLE array 
+//   for(MKL_LONG i=0; i<N_particles; i++)
+//     {
+//       P_TOKEN[i] = 0;
+//       for(MKL_LONG j=0; j<2*N_chains; j++)
+// 	{
+// 	  PARTICLE[i][j] = 0;
+// 	}
+//     }
+//   for(MKL_LONG i=0; i<N_chains; i++)
+//     {
+//       PARTICLE[(MKL_LONG)CE_ATTACHED_REF(i)
+//     }
+//   return 0;
+// }
+
 MKL_LONG CHAIN_HANDLE::allocate_existing_bridges(ASSOCIATION& CONNECT)
 {
+  /*
+    This function is of importance when simulation inherit the existing connectivity information.
+    At this moment, however, the function is not fully functional. There are bugs inside (logically).
+   */
+  // zeroing PARTICLE array 
+  for(MKL_LONG i=0; i<N_particles; i++)
+    {
+      P_TOKEN[i] = 0;
+      for(MKL_LONG j=0; j<2*N_chains; j++)
+	{
+	  PARTICLE[i][j] = 0;
+	}
+    }
+  // zeroing CHAIN information
+  for(MKL_LONG i=0; i<2*N_chains; i++)
+    CE_ATTACHED_REF(i) = -1;
+
+  MKL_LONG **PAIR_CHECK = (MKL_LONG**)mkl_malloc(N_particles*sizeof(MKL_LONG*), BIT);
+  for(MKL_LONG i=0; i<N_particles; i++)
+    {
+      PAIR_CHECK[i] = (MKL_LONG*)mkl_malloc(N_particles*sizeof(MKL_LONG), BIT);
+      for(MKL_LONG j=0; j<N_particles; j++)
+	{
+	  PAIR_CHECK[i][j] = -1;
+	}
+    }
+  
   MKL_LONG chain_count = 0;
   for(MKL_LONG i=0; i<N_particles; i++)
     {
       for(MKL_LONG k=0; k<CONNECT.TOKEN[i]; k++)
         {
-          MKL_LONG degeneracy = CONNECT.weight[i](k);
-          for(MKL_LONG p=0; p<degeneracy; p++)
-            {
-              CE_ATTACHED_REF(chain_count++) = (MKL_LONG)CONNECT.HASH[i](k);
-              // CHAIN[chain_count].HEAD = i;
-              // CHAIN[chain_count].TAIL = j;
-            }
+	  MKL_LONG connected_particle = (MKL_LONG)CONNECT.HASH[i](k);
+	  if(PAIR_CHECK[i][connected_particle] == -1 && PAIR_CHECK[connected_particle][i] == -1)
+	    {
+	      MKL_LONG degeneracy = CONNECT.weight[i](k);
+	      for(MKL_LONG p=0; p<degeneracy; p++)
+		{
+		  // CE_ATTACHED_REF(chain_count) = (MKL_LONG)CONNECT.HASH[i](k); // individual chain information
+		  CE_ATTACHED_REF(chain_count) = i;
+		  CE_ATTACHED_REF(chain_count + N_chains) = connected_particle;
+		  // PARTICLE[i][P_TOKEN[i]++] = (MKL_LONG)CONNECT.HASH[i](k); // hash table information
+		  PARTICLE[i][P_TOKEN[i]++] = chain_count;
+		  PARTICLE[connected_particle][P_TOKEN[connected_particle]++] = chain_count + N_chains;
+		  chain_count++;
+		  // CHAIN[chain_count].HEAD = i;
+		  // CHAIN[chain_count].TAIL = j;
+		}
+	      PAIR_CHECK[i][connected_particle] = degeneracy;
+	      PAIR_CHECK[connected_particle][i] = degeneracy;
+	    }
         }
     }
+  for(MKL_LONG i=0; i<N_particles; i++)
+    mkl_free(PAIR_CHECK[i]);
+  mkl_free(PAIR_CHECK);
+
   if (chain_count != N_chains)
-    std::cout << "ERR: allocating_existing_brdiges have unbalanced number between chain_count and N_chains\n";
+    printf("ERR: allocating_existing_brdiges have unbalanced number between chain_count (%ld) and N_chains (%ld)\n", chain_count, N_chains);
   return 0;
 }

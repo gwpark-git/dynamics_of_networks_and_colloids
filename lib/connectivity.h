@@ -53,7 +53,7 @@ class CHAIN_NODE
       /*
 	It prevent the complicate interface design which contains duplicated definition.
        */
-      if (flag_HEAD_TAIL)
+      if (flag_HEAD_TAIL == 1)
 	return TAIL;
       return HEAD;
       // note that the reference variable can omit the & symbol when return its values.
