@@ -246,10 +246,12 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
  CHAIN_HANDLE() : CHAIN_INFORMATION(){}
  CHAIN_HANDLE(MKL_LONG number_of_chains, MKL_LONG number_of_particles) : CHAIN_INFORMATION(number_of_chains, number_of_particles)
     {
+      /* printf("CHECK\n"); */
       hash_initial();
     }
  CHAIN_HANDLE(COND& given_condition) : CHAIN_INFORMATION(given_condition)
   {
+    /* printf("CHECK\n"); */
     hash_initial();
   }
   

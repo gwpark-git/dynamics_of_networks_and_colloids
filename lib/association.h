@@ -156,19 +156,21 @@ class CHAIN_INFORMATION
   MKL_LONG N_particles;
 
   bool INITIALIZATION;
-
   MKL_LONG& HEAD(MKL_LONG given_chain_index)
     {
-      return CHAIN[given_chain_index].HEAD();
+      return CHAIN[given_chain_index].HEAD;
     }
   MKL_LONG& TAIL(MKL_LONG given_chain_index)
     {
-      return CHAIN[given_chain_index].TAIL();
+      return CHAIN[given_chain_index].TAIL;
     }
 
+  /*
+    On the same reason, the ATTACHED will return pointer variable rather than reference variable. This break the existing interface.
+   */
   MKL_LONG& ATTACHED(MKL_LONG given_chain_index, MKL_LONG flag_HEAD_TAIL)
     {
-      return CHAIN[given_chain_index].index[flag_HEAD_TAIL];
+      return CHAIN[given_chain_index].index(flag_HEAD_TAIL);
     }
   
   /* MKL_LONG& CE_ATTACHED(MKL_LONG given_chain_end_index) */
@@ -204,9 +206,11 @@ class CHAIN_INFORMATION
     
   MKL_LONG initial(MKL_LONG number_of_chains, MKL_LONG number_of_particles)
   {
+    printf("ST:initial:CHAIN_INFORMATION\n");
     N_chains = number_of_chains;
     N_particles = number_of_particles;
     CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT);
+    printf("end_dynamic_allocate\n");
     for(MKL_LONG i=0; i<N_chains; i++)
       {
         /*
@@ -217,7 +221,7 @@ class CHAIN_INFORMATION
         /* CHAIN[i].HEAD = i%N_particles; */
         /* CHAIN[i].TAIL = i%N_particles; */
       }
-
+    printf("end_particle_allocation\n");
     INITIALIZATION = TRUE;
     return INITIALIZATION;
   }
@@ -231,7 +235,9 @@ class CHAIN_INFORMATION
     }
   CHAIN_INFORMATION(COND& given_condition)
     {
+      printf("ST:Constructor:CHAIN_INFORMATION\n");
       initial(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str()));
+      printf("END:Constructor:CHAIN_INFORMATION\n");
     }
   virtual ~CHAIN_INFORMATION()
     {

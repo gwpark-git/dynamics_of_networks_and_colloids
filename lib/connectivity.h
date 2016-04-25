@@ -46,23 +46,38 @@ class CHAIN_NODE
  public:
   /* MKL_LONG &HEAD; */
   /* MKL_LONG &TAIL; */
-  MKL_LONG &HEAD()
+  MKL_LONG HEAD, TAIL; // the design is changed according to the design interface.
+
+  MKL_LONG& index(MKL_LONG flag_HEAD_TAIL)
     {
-      return index[0];
+      /*
+	It prevent the complicate interface design which contains duplicated definition.
+       */
+      if (flag_HEAD_TAIL)
+	return TAIL;
+      return HEAD;
+      // note that the reference variable can omit the & symbol when return its values.
     }
-  MKL_LONG &TAIL()
-    {
-      return index[1];
-    }
-  MKL_LONG *index;
+  /* MKL_LONG &HEAD() */
+  /*   { */
+  /*     return index[0]; */
+  /*   } */
+  /* MKL_LONG &TAIL() */
+  /*   { */
+  /*     return index[1]; */
+  /*   } */
+  /* MKL_LONG **index; */
   CHAIN_NODE()
     {
-      index = (MKL_LONG*) mkl_malloc(2*sizeof(MKL_LONG), BIT);
-    /* HEAD = index[0]; */
+      /* index = (MKL_LONG**) mkl_malloc(2*sizeof(MKL_LONG*), BIT); */
+      /* index[0] = &HEAD; */
+      /* index[1] = &TAIL; */
+      /* HEAD = index[0]; */
     /* TAIL = index[1]; */
     }
   virtual ~CHAIN_NODE(){
-    mkl_free(index);
+    /* mkl_free(index); */
+    /* mkl_free(index); */
     /* HEAD = NULL; */
     /* TAIL = NULL; */
   }
