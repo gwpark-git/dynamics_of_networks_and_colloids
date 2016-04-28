@@ -18,10 +18,8 @@ def plot_Rsca(Rvec, colP, label):
 plt.close()
 plt.ion()
 plt.figure(figsize=(6,6))
-colP = ['blue', 'cyan', 'green', 'brown', 'red']
+colP = ['blue', 'green', 'red']
 cnt = 0
-plot_Rsca(loadtxt('tracking_individual_chain/Rvec_%06d.dat'%cnt), colP[cnt/1000], label = 'chain index = %d'%cnt); cnt+=1000;
-plot_Rsca(loadtxt('tracking_individual_chain/Rvec_%06d.dat'%cnt), colP[cnt/1000], label = 'chain index = %d'%cnt); cnt+=1000;
 plot_Rsca(loadtxt('tracking_individual_chain/Rvec_%06d.dat'%cnt), colP[cnt/1000], label = 'chain index = %d'%cnt); cnt+=1000;
 plot_Rsca(loadtxt('tracking_individual_chain/Rvec_%06d.dat'%cnt), colP[cnt/1000], label = 'chain index = %d'%cnt); cnt+=1000;
 plot_Rsca(loadtxt('tracking_individual_chain/Rvec_%06d.dat'%cnt), colP[cnt/1000], label = 'chain index = %d'%cnt); cnt+=1000;

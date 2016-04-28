@@ -14,12 +14,15 @@ init_cut        = 2000
 chain_index     = int(sys.argv[1])
 Rvec_history    = loadtxt('%s/Rvec_%06d.dat'%(input_path, chain_index))[init_cut:]
 
+
 Nt = shape(Rvec_history)[0]
-Rsca = zeros(Nt)
-for i in range(Nt):
-    Rsca[i] = norm(Rvec_history[i])
-acf_Rsca = acf_gro(Rsca)
-dat = zeros([size(acf_Rsca), 2])
-dat[:,0] = arange(size(acf_Rsca))/100.
-dat[:,1] = acf_Rsca
-savetxt('%s/acf_Rsca_%06d.dat'%(input_path, chain_index), dat)
+RxRy = Rvec_history[:,0]*Rvec_history[:,1]
+acf_RxRy = acf_gro(RxRy)
+# Rsca = zeros(Nt)
+# for i in range(Nt):
+#     Rsca[i] = norm(Rvec_history[i])
+# acf_Rsca = acf_gro(Rsca)
+dat = zeros([size(acf_RxRy), 2])
+dat[:,0] = arange(size(acf_RxRy))/100.
+dat[:,1] = acf_RxRy
+savetxt('%s/acf_RxRy_%06d.dat'%(input_path, chain_index), dat)
