@@ -13,6 +13,8 @@
 class POTENTIAL_SET
 {
  public:
+  
+  // member variables
   double *force_variables;
   double (*f_connector)(double distance, double* given_variables);
   double (*e_connector)(double distance, double* given_variables);

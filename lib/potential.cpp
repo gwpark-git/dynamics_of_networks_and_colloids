@@ -206,6 +206,7 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
   given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
   given_POT.force_variables[3] = atol(given_cond("N_dimension").c_str());
   given_POT.force_variables[4] = atof(given_cond("l_cap").c_str());
+
   given_POT.f_repulsion = FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_force;
   given_POT.e_repulsion = FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_potential;
 

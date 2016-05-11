@@ -358,7 +358,14 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
  CHAIN_HANDLE(COND& given_condition) : CHAIN_INFORMATION(given_condition)
   {
     /* printf("CHECK\n"); */
-    hash_initial();
+    if(given_condition("tracking_individual_chain") == "TRUE")
+      {
+        hash_initial();
+      }
+    else
+      {
+        INITIALIZATION = FALSE;
+      }
   }
   
   ~CHAIN_HANDLE()

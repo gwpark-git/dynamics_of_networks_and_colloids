@@ -235,9 +235,12 @@ class CHAIN_INFORMATION
     }
   CHAIN_INFORMATION(COND& given_condition)
     {
-      printf("ST:Constructor:CHAIN_INFORMATION\n");
-      initial(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str()));
-      printf("END:Constructor:CHAIN_INFORMATION\n");
+      if(given_condition("tracking_individual_chain") == "TRUE")
+        {
+          printf("ST:Constructor:CHAIN_INFORMATION\n");
+          initial(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str()));
+          printf("END:Constructor:CHAIN_INFORMATION\n");
+        }
     }
   virtual ~CHAIN_INFORMATION()
     {
