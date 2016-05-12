@@ -24,7 +24,7 @@ MKL_LONG TRAJECTORY::read_exist_traj(const char* fn_given_traj)
     {
       for(MKL_LONG i_RV=0; i_RV<=1; i_RV++)
         {
-          for(MKL_LONG k=0; k<dimension; k++)
+          for(MKL_LONG k=0; k<N_dimension; k++)
             {
               GIVEN_FILE >> (*this)(i_RV, 0, i, k); // modified version for all the record
             }
@@ -40,7 +40,7 @@ TRAJECTORY::TRAJECTORY() : MATRIX(N_t_test, 2*2*N_p_test + 1)
   std::cout << "## TRAJECTORY class must used with input arguments such as total number of time and number of columns." << std::endl;
   std::cout << "## At the moment, it is temporally called by test functionality with Nt = " << N_t_test << " and Np = " << N_p_test << std::endl;
   std::cout << "As default, dimension is set to 2d" << std::endl;
-  dimension = 2;
+  N_dimension = 2;
   initialization(N_t_test, N_p_test, 0.001);
 }
 
@@ -65,8 +65,8 @@ MKL_LONG TRAJECTORY::initialization(MKL_LONG N_time, MKL_LONG N_particle, double
   Nt = N_time;
   c_t = 0;
   Np = N_particle;
-  box_dimension = (double*)mkl_malloc(dimension*sizeof(double), BIT);
-  for (MKL_LONG k=0; k<dimension; k++)
+  box_dimension = (double*)mkl_malloc(N_dimension*sizeof(double), BIT);
+  for (MKL_LONG k=0; k<N_dimension; k++)
     {
       box_dimension[k] = 10.0;
     }
@@ -83,9 +83,9 @@ MKL_LONG TRAJECTORY::initialization_COND(COND& given_condition)
     Nt = 2;
   c_t = 0;
   Np = atol(given_condition("Np").c_str());
-  dimension = atol(given_condition("N_dimension").c_str());
-  box_dimension = (double*)mkl_malloc(dimension*sizeof(double), BIT);
-  for (MKL_LONG k=0; k<dimension; k++)
+  N_dimension = atol(given_condition("N_dimension").c_str());
+  box_dimension = (double*)mkl_malloc(N_dimension*sizeof(double), BIT);
+  for (MKL_LONG k=0; k<N_dimension; k++)
     {
       box_dimension[k] = atof(given_condition("box_dimension").c_str());
     }
@@ -116,14 +116,14 @@ double& TRAJECTORY::operator()(MKL_LONG time_t)
 
 double& TRAJECTORY::operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
 {
-  MKL_LONG index_position = 2*dimension*bead_i + 1 + dimension_k;
+  MKL_LONG index_position = 2*N_dimension*bead_i + 1 + dimension_k;
   // printf("INDEX(%ld, %ld, %ld) = %ld", time_t, bead_i, dimension_k, index_position);
   return data[index(time_t, index_position)];
 }
 
 double& TRAJECTORY::operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
 {
-  MKL_LONG index_position = 2*dimension*bead_i + 1 + dimension_k + dimension*i_RV;
+  MKL_LONG index_position = 2*N_dimension*bead_i + 1 + dimension_k + N_dimension*i_RV;
   return data[index(time_t, index_position)];
 }
 
@@ -131,12 +131,12 @@ double& TRAJECTORY::operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, 
 
 MKL_LONG GENERATOR::random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VEC_TRANS)
 {
-  if (R_VEC_TRANS.rows != TRAJ.Np || R_VEC_TRANS.cols != TRAJ.dimension)
+  if (R_VEC_TRANS.rows != TRAJ.Np || R_VEC_TRANS.cols != TRAJ.N_dimension)
     {
-      R_VEC_TRANS.initial(TRAJ.Np, TRAJ.dimension, 0.);
+      R_VEC_TRANS.initial(TRAJ.Np, TRAJ.N_dimension, 0.);
     }
   RANDOM::random_vector_generator(R_VEC_TRANS);
-  for (MKL_LONG k=0; k<TRAJ.dimension; k++)
+  for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
     {
       for (MKL_LONG i=0; i<TRAJ.Np; i++)
         {
@@ -149,7 +149,7 @@ MKL_LONG GENERATOR::random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VE
 
 MKL_LONG GENERATOR::random_position_generator(TRAJECTORY& TRAJ)
 {
-  MATRIX R_VEC_TRANS(TRAJ.Np, TRAJ.dimension, 0.);
+  MATRIX R_VEC_TRANS(TRAJ.Np, TRAJ.N_dimension, 0.);
   GENERATOR::random_position_generator_REF(TRAJ, R_VEC_TRANS);
   return 0;
 }

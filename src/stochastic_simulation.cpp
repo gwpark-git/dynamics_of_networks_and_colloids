@@ -140,12 +140,12 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_c
   printf("DONE\n");
   printf("GENERATING BOOSTING VECTORS\n");
 
-  MKL_LONG *tmp_index_vec = (MKL_LONG*) mkl_malloc(TRAJ.dimension*sizeof(MKL_LONG), BIT);
+  MKL_LONG *tmp_index_vec = (MKL_LONG*) mkl_malloc(TRAJ.N_dimension*sizeof(MKL_LONG), BIT);
   MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); 
 
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
-      vec_boost_Nd_parallel[i].initial(TRAJ.dimension, 1, 0.);
+      vec_boost_Nd_parallel[i].initial(TRAJ.N_dimension, 1, 0.);
     }
   RDIST R_boost(given_condition);
   
@@ -157,8 +157,8 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_c
   MATRIX *force_random = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
-      force_repulsion[i].initial(TRAJ.dimension, 1, 0.);
-      force_random[i].initial(TRAJ.dimension, 1, 0.);
+      force_repulsion[i].initial(TRAJ.N_dimension, 1, 0.);
+      force_random[i].initial(TRAJ.N_dimension, 1, 0.);
     }
   printf("DONE\n"); 
   printf("SET SIMULATION PARAMETERS ...");
@@ -170,14 +170,15 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_c
   // // 6: (xx)[RF], 7: (yy)[RF], 8: (zz)[RF], 9: (xy)[RF], 10: (xz)[RF], 11:(yz)[RF]
   // MATRIX energy(1, 12, 0.);
 
-  ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, 0);
+  // ANALYSIS::CAL_ENERGY_R_boost(POTs, energy, 0);
+  ANALYSIS::CAL_ENERGY_R_boost(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
 
   MKL_LONG Nt = atol(given_condition("Nt").c_str());
   MKL_LONG N_basic = TRAJ.rows;
 
   double tolerance_association = atof(given_condition("tolerance_association").c_str());
   printf("DONE\n");
-  MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
+  MATRIX tmp_vec(TRAJ.N_dimension, 1, 0.);
   // The following condition duplicate and may violate the inheritance scheme from the previous association
   // CONNECT.initial();
   // for(MKL_LONG i=0; i<CONNECT.Np; i++)
@@ -268,9 +269,12 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_c
           force_repulsion[i].set_value(0);
           force_random[i].set_value(0);
 
-          INTEGRATOR::EULER::cal_repulsion_force_R_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_boost);
-          INTEGRATOR::EULER::cal_random_force_boost(TRAJ, POTs, force_random[i], index_t_now, r_boost_arr[it]); 
-          for (MKL_LONG k=0; k<TRAJ.dimension; k++)
+          // INTEGRATOR::EULER::cal_repulsion_force_R_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_boost);
+          // INTEGRATOR::EULER::cal_random_force_boost(TRAJ, POTs, force_random[i], index_t_now, r_boost_arr[it]);
+          INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
+          INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], r_boost_arr[it]); 
+          
+          for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
             {
               TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*(force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
             }
@@ -357,13 +361,13 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   printf("DONE\n");
   printf("GENERATING BOOSTING VECTORS\n");
   LOCK LOCKER(TRAJ.Np);
-  MKL_LONG *tmp_index_vec = (MKL_LONG*) mkl_malloc(TRAJ.dimension*sizeof(MKL_LONG), BIT);
+  MKL_LONG *tmp_index_vec = (MKL_LONG*) mkl_malloc(TRAJ.N_dimension*sizeof(MKL_LONG), BIT);
   MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); 
   // MATRIX **R_minimum_vec_boost = (MATRIX**) mkl_malloc(TRAJ.Np*sizeof(MATRIX*), BIT); //RDIST
   // MATRIX *R_minimum_distance_boost = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); // RDIST
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
-      vec_boost_Nd_parallel[i].initial(TRAJ.dimension, 1, 0.);
+      vec_boost_Nd_parallel[i].initial(TRAJ.N_dimension, 1, 0.);
       // R_minimum_vec_boost[i] = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); // RDIST
       // for(MKL_LONG j=0; j<TRAJ.Np; j++)
       //   R_minimum_vec_boost[i][j].initial(3, 1, 0.); // RDIST
@@ -384,9 +388,9 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   MATRIX *force_random = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
-      force_spring[i].initial(TRAJ.dimension, 1, 0.);
-      force_repulsion[i].initial(TRAJ.dimension, 1, 0.);
-      force_random[i].initial(TRAJ.dimension, 1, 0.);
+      force_spring[i].initial(TRAJ.N_dimension, 1, 0.);
+      force_repulsion[i].initial(TRAJ.N_dimension, 1, 0.);
+      force_random[i].initial(TRAJ.N_dimension, 1, 0.);
     }
   printf("DONE\n"); 
   if(given_condition("MC_LOG") == "TRUE")
@@ -403,8 +407,9 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   // // 6: (xx)[RF], 7: (yy)[RF], 8: (zz)[RF], 9: (xy)[RF], 10: (xz)[RF], 11:(yz)[RF]
   // MATRIX energy(1, 12, 0.);
 
-  ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, 0);
-
+  // ANALYSIS::CAL_ENERGY(TRAJ, POTs, energy, 0);
+  ANALYSIS::CAL_ENERGY_R_boost(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
+                               
   MKL_LONG Nt = atol(given_condition("Nt").c_str());
   MKL_LONG N_basic = TRAJ.rows;
 
@@ -420,7 +425,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
       INDEX_dCDF_U[i].initial(TRAJ.Np, 1, 0);
     }
   printf("DONE\n");
-  MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
+  MATRIX tmp_vec(TRAJ.N_dimension, 1, 0.);
   // The following condition duplicate and may violate the inheritance scheme from the previous association
   // CONNECT.initial();
   // for(MKL_LONG i=0; i<CONNECT.Np; i++)
@@ -795,13 +800,17 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
           // if(given_condition("Step")!="EQUILIBRATION") // EQUILIBRIATION is disabled
           //   {
           // INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJ, POTs, CONNECT, force_spring[i], index_t_now, i, R_minimum_vec_boost, R_minimum_distance_boost); // RDIST
-          INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJ, POTs, CONNECT, force_spring[i], index_t_now, i, R_boost.Rvec, R_boost.Rsca);
+          // INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(TRAJ, POTs, CONNECT, force_spring[i], index_t_now, i, R_boost.Rvec, R_boost.Rsca);
           // }
           // INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_minimum_vec_boost, R_minimum_distance_boost); // RDIST
           // INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_boost.Rvec, R_boost.Rsca);
-          INTEGRATOR::EULER::cal_repulsion_force_R_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_boost);
-          INTEGRATOR::EULER::cal_random_force_boost(TRAJ, POTs, force_random[i], index_t_now, r_boost_arr[it]); 
-          for (MKL_LONG k=0; k<TRAJ.dimension; k++)
+          // INTEGRATOR::EULER::cal_repulsion_force_R_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_boost);
+          // INTEGRATOR::EULER::cal_random_force_boost(TRAJ, POTs, force_random[i], index_t_now, r_boost_arr[it]);
+          INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
+          INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
+          INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], r_boost_arr[it]); 
+          
+          for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
             {
               TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
             }
@@ -815,7 +824,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
           energy(0) = TRAJ(index_t_now);
           energy(4) = (double)N_associations;
           energy(5) = dsecnd() - time_st_simulation;
-          ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY(TRAJ, POTs, CONNECT, energy, index_t_now, vec_boost_Nd_parallel[0]);
+          ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, vec_boost_Nd_parallel[0], R_boost);
           time_end_AN = dsecnd();
           double total_dt = dt_1 + dt_2 + dt_3 + dt_4 + dt_5 + dt_6 + dt_7;
           double total_dt_pdf = dt_rdist + dt_pdf + dt_sort;
@@ -830,15 +839,15 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
           printf("computing rdist: %6.3e (%3.1f), computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_rdist, 100.*dt_rdist/total_dt_pdf, dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
           printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, N_tot_asso = %ld, ratio = %6.3e, NAS = %ld, fraction=%4.3f, total time=%4.3e ####\n\n", cnt, N_diff, N_tot_associable_chain, N_diff/N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain, energy(5));
           
-          // TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
-          // energy.fprint_row(filename_energy.c_str(), 0);
-          // for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
-          //   {
-          //     CONNECT.HASH[ip].fprint_LONG_skip_transpose_LIMROWS(filename_HASH.c_str(), 1, CONNECT.TOKEN[ip]);
-          //     CONNECT.weight[ip].fprint_LONG_skip_transpose_LIMROWS(filename_weight.c_str(), 1, CONNECT.TOKEN[ip]);
-          //   }
-          // if(CHAIN.INITIALIZATION)
-          //   CHAIN.write(filename_chain.c_str());
+          TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
+          energy.fprint_row(filename_energy.c_str(), 0);
+          for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
+            {
+              CONNECT.HASH[ip].fprint_LONG_skip_transpose_LIMROWS(filename_HASH.c_str(), 1, CONNECT.TOKEN[ip]);
+              CONNECT.weight[ip].fprint_LONG_skip_transpose_LIMROWS(filename_weight.c_str(), 1, CONNECT.TOKEN[ip]);
+            }
+          if(CHAIN.INITIALIZATION)
+            CHAIN.write(filename_chain.c_str());
         }
       
 
@@ -917,13 +926,13 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
 //   printf("DONE\n");
 //   printf("GENERATING BOOSTING VECTORS\n");
 //   LOCK LOCKER(TRAJ.Np);
-//   MKL_LONG *tmp_index_vec = (MKL_LONG*) mkl_malloc(TRAJ.dimension*sizeof(MKL_LONG), BIT);
+//   MKL_LONG *tmp_index_vec = (MKL_LONG*) mkl_malloc(TRAJ.N_dimension*sizeof(MKL_LONG), BIT);
 //   MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); 
 //   // MATRIX **R_minimum_vec_boost = (MATRIX**) mkl_malloc(TRAJ.Np*sizeof(MATRIX*), BIT); //RDIST
 //   // MATRIX *R_minimum_distance_boost = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); // RDIST
 //   for(MKL_LONG i=0; i<TRAJ.Np; i++)
 //     {
-//       vec_boost_Nd_parallel[i].initial(TRAJ.dimension, 1, 0.);
+//       vec_boost_Nd_parallel[i].initial(TRAJ.N_dimension, 1, 0.);
 //       // R_minimum_vec_boost[i] = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); // RDIST
 //       // for(MKL_LONG j=0; j<TRAJ.Np; j++)
 //       //   R_minimum_vec_boost[i][j].initial(3, 1, 0.); // RDIST
@@ -944,9 +953,9 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
 //   MATRIX *force_random = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
 //   for(MKL_LONG i=0; i<TRAJ.Np; i++)
 //     {
-//       force_spring[i].initial(TRAJ.dimension, 1, 0.);
-//       force_repulsion[i].initial(TRAJ.dimension, 1, 0.);
-//       force_random[i].initial(TRAJ.dimension, 1, 0.);
+//       force_spring[i].initial(TRAJ.N_dimension, 1, 0.);
+//       force_repulsion[i].initial(TRAJ.N_dimension, 1, 0.);
+//       force_random[i].initial(TRAJ.N_dimension, 1, 0.);
 //     }
 //   printf("DONE\n"); 
 //   if(given_condition("MC_LOG") == "TRUE")
@@ -980,7 +989,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
 //       INDEX_dCDF_U[i].initial(TRAJ.Np, 1, 0);
 //     }
 //   printf("DONE\n");
-//   MATRIX tmp_vec(TRAJ.dimension, 1, 0.);
+//   MATRIX tmp_vec(TRAJ.N_dimension, 1, 0.);
 //   // The following condition duplicate and may violate the inheritance scheme from the previous association
 //   // CONNECT.initial();
 //   // for(MKL_LONG i=0; i<CONNECT.Np; i++)
@@ -1358,7 +1367,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
 //           // INTEGRATOR::EULER::cal_repulsion_force_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_boost.Rvec, R_boost.Rsca);
 //           INTEGRATOR::EULER::cal_repulsion_force_R_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_boost);
 //           INTEGRATOR::EULER::cal_random_force_boost(TRAJ, POTs, force_random[i], index_t_now, r_boost_arr[it]); 
-//           for (MKL_LONG k=0; k<TRAJ.dimension; k++)
+//           for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
 //             {
 //               TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
 //             }

@@ -44,6 +44,8 @@ class CLIST
   MKL_LONG allocate_index_neighbor_cell_list();
   MKL_LONG identify_cell_from_given_position(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost);
   MKL_LONG allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost);
+  MKL_LONG identify_cell_from_given_position(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost);
+  MKL_LONG allocate_cells_from_positions(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost);
 
   // operator overloading
   MKL_LONG& operator()(MKL_LONG i, MKL_LONG j); // it will return the index for CELL[i][j] as reference variable

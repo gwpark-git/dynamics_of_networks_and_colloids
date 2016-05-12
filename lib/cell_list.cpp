@@ -88,13 +88,25 @@ CLIST::CLIST(COND& given_condition)
 MKL_LONG CLIST::identify_cell_from_given_position(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost)
 {
   MKL_LONG re = 0;  
-  for(MKL_LONG k=0; k<TRAJ.dimension; k++)
+  for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
     {
       index_vec_boost[k] = (MKL_LONG)(TRAJ(index_t_now, index_particle, k)/cell_length);
     }
   index_vec2sca(index_vec_boost, re);
   return re;
 }
+
+MKL_LONG CLIST::identify_cell_from_given_position(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost)
+{
+  MKL_LONG re = 0;  
+  for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
+    {
+      index_vec_boost[k] =(MKL_LONG)(TRAJ.data[index_t_now][index_particle][k]/cell_length);
+    }
+  index_vec2sca(index_vec_boost, re);
+  return re;
+}
+
 
 MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost)
 {
@@ -109,10 +121,25 @@ MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t
     }
   return 0;
 }
+
+MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost)
+{
+  for(MKL_LONG i=0; i<N_cells; i++)
+    TOKEN[i] = 0;
+  for(MKL_LONG i=0; i<TRAJ.Np; i++)
+    {
+      MKL_LONG index = identify_cell_from_given_position(TRAJ, index_t_now, i, index_vec_boost);
+      cell_index[i] = index;
+      CELL[index][TOKEN[index]++] = i;
+      // CELL[index](TOKEN[index]++) = i;
+    }
+  return 0;
+}
+
   // TRAJ(index_t_now, 
   // for(MKL_LONG i=0; i<TRAJ.Np; i++)
   //   {
-  //     for(MKL_LONG k=0; k<TRAJ.dimension; k++)
+  //     for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
   //       {
   //         index_vec_boost[i][k] = (MKL_LONG)(TRAJ(index_t_now, i, k)/cell_length);
   //       }
