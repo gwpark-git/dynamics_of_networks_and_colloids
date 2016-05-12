@@ -136,7 +136,7 @@ MKL_LONG ASSOCIATION::initial_inheritance() // it should not be called by outsid
   return 0;
 }
 
-ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY(given_condition)
+ASSOCIATION::ASSOCIATION(COND& given_condition) : CONNECTIVITY(given_condition)
 {
   Nc = atol(given_condition("N_chains_per_particle").c_str());
   Tec = atol(given_condition("tolerance_allowing_connections").c_str());

@@ -16,9 +16,9 @@ extern "C" {
 #include "matrix.h"
 #include "connectivity.h"
 #include "potential.h"
-#include "trajectory.h"
-#include "read_file_condition.h"
-
+/* #include "trajectory.h" */
+/* #include "read_file_condition.h" */
+#include "file_IO.h"
 
 class ASSOCIATION : public CONNECTIVITY
 {
@@ -83,7 +83,8 @@ class ASSOCIATION : public CONNECTIVITY
   
  ASSOCIATION() : CONNECTIVITY(){}
 
-  ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition);
+  ASSOCIATION(COND& given_condition);
+  
   ASSOCIATION(MKL_LONG number_of_particles, MKL_LONG number_of_chains_per_particles, MKL_LONG tolerance_connection, bool ALLOWING_MULTIPLE_CONNECTIONS);
   MKL_LONG dynamic_alloc();
   MKL_LONG set_initial_condition();

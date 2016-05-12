@@ -1,5 +1,4 @@
 
-
 // Trajectory class definition for first aim
 // As test purpose, it include 2-dimensional case, then extend to the 3-dimensional geometry.
 #ifndef TRAJECTORY_H
@@ -19,15 +18,13 @@
 #include "random.h"
 #include <omp.h>
 
-#include "read_file_condition.h"
-
-
+/* #include "read_file_condition.h" */
+#include "file_IO.h"
 class TRAJECTORY : public MATRIX
 {
- private:
-  enum {x = 0, y = 1, z = 2}; // this is for convenience
 
  public:
+  enum {x = 0, y = 1, z = 2}; // this is for convenience
 
   MKL_LONG init_ref();
   enum {N_t_test = 10, N_p_test = 3};
@@ -91,6 +88,12 @@ class TRAJECTORY : public MATRIX
 };
 
 
+/* class TRAJECTORY_HDF5 : public TRAJECTORY */
+/* { */
+/*   /\* MATRIX( *\/ */
+/* }; */
+
+
 MKL_LONG traj_count_line(char fn[]);
 
 namespace GENERATOR
@@ -102,6 +105,64 @@ namespace GENERATOR
 
 
 // namespace GENERATOR include test function for generating position and velocity for making handiful code for testing
+
+/* class TRAJECTORY_HDF5 */
+/* { */
+/*  public: */
+/*   double ***data;  */
+/*   MKL_LONG Np; */
+/*   MKL_LONG N_dimension; */
+/*   double *box_dimension; */
+
+/*   MKL_LONG c_t; */
+/*   double dt; */
+  
+/*   bool INITIALIZATION; */
+/*   TRAJECTORY_HDF5() */
+/*     { */
+/*       std::cout << "ERR: TRAJECTORY_HDF5 class is not support basic constructor\n"; */
+/*     } */
+/*   TRAJECTORY_HDF5(COND& given_condition, MKL_LONG N_basic) */
+/*     { */
+/*       Np = atoi(given_condition("Np").c_str()); */
+/*       N_dimension = atoi(given_condition("N_dimension").c_str()); */
+/*       c_t = 0; */
+/*       dt = atof(given_condition("dt").c_str()); */
+/*       box_dimension = (double*)mkl_malloc(dimension*sizeof(double), BIT); */
+/*       for(MKL_LONG k=0; k<dimension; k++) */
+/*         { */
+/*           box_dimension[k] = atof(given_condition("box_dimension").c_str()); */
+/*         } */
+/*       data = (double***)mkl_malloc(N_basic*sizeof(double**), BIT); */
+/*       for(MKL_LONG t=0; t<N_basic; t++) */
+/*         { */
+/*           data[t] = (double**)mkl_malloc(Np*sizeof(double*), BIT); */
+/*           for(MKL_LONG i=0; i<Np; i++) */
+/*             { */
+/*               data[t][i] = (double*)mkl_malloc(N_dimension*sizeof(double), BIT); */
+/*             } */
+/*         } */
+/*       INITIALIZATION = TRUE; */
+/*     } */
+/*   ~TRJAECTORY_HDF5() */
+/*     { */
+/*       if(INITIALIZATION) */
+/*         { */
+/*           for(MKL_LONG t=0; t<N_basic; t++) */
+/*             { */
+/*               for(MKL_LONG i=0; i<Np; i++) */
+/*                 { */
+/*                   delete data[t][i]; */
+/*                 } */
+/*               delete data[t]; */
+/*             } */
+/*           delete data; */
+/*           delete box_dimension; */
+/*           INITIALIZATION = FALSE; */
+/*         } */
+/*     } */
+  
+/* } */
 
 #endif
 

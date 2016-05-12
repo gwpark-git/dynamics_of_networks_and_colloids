@@ -9,7 +9,8 @@
 #include <iostream>
 #include <mkl.h>
 #include "matrix.h"
-#include "read_file_condition.h"
+/* #include "read_file_condition.h" */
+#include "file_IO.h"
 
 class CONNECTIVITY
 {

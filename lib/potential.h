@@ -5,7 +5,8 @@
 #include <iostream>
 #include <math.h>
 #include <mkl.h>
-#include "read_file_condition.h"
+/* #include "read_file_condition.h" */
+#include "file_IO.h"
 #include "matrix.h"
 #include <string>
 #define BIT 64

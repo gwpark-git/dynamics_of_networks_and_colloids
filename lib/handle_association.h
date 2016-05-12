@@ -8,7 +8,7 @@
 #include "association.h"
 #include "geometry.h"
 #include "potential.h"
-#include "trajectory.h"
+/* #include "trajectory.h" */ // the trajectory dependecy is removed since the R_boost is applied
 #include "random.h"
 
 // this library is designed to handle association in easiler way.
@@ -29,7 +29,8 @@ class INDEX_MC
   */
   // action_arry setting for boosting up the boolean identifier
   // ACTION_ARR[IDX.CANCEL] act CANCEL. The IDX.CANCEL can be changed by IDX.ADD, IDX.OPP_DEL, IDX.MOV, respectively.
-  MKL_LONG (*ACTION_ARR[4])(TRAJECTORY&, MKL_LONG, POTENTIAL_SET&, ASSOCIATION&, MKL_LONG[], MATRIX*);
+  MKL_LONG (*ACTION_ARR[4])(MKL_LONG, POTENTIAL_SET&, ASSOCIATION&, MKL_LONG[], MATRIX*);
+
   // Note that the last MATRIX* is related with R_minimum_distance_boost that has whole information
   
   /*
@@ -71,13 +72,16 @@ namespace SEARCHING
 
 namespace ACTION
 {
-  MKL_LONG ACT(TRAJECTORY& TRAJ, MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, INDEX_MC& IDX, MATRIX* R_minimum_distance_boost, MKL_LONG const IDENTIFIER_ACTION);
+  MKL_LONG ACT(MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, INDEX_MC& IDX, MATRIX* R_minimum_distance_boost, MKL_LONG const IDENTIFIER_ACTION);
+  
   MKL_LONG IDENTIFIER_ACTION_BOOLEAN_BOOST(ASSOCIATION& CONNECT, INDEX_MC& IDX);  
   MKL_LONG UPDATE_INFORMATION(ASSOCIATION& CONNECT, INDEX_MC& IDX, MKL_LONG cnt_arr[], MKL_LONG const IDENTIFIER_ACTION);
-  MKL_LONG CANCEL(TRAJECTORY& TRAJ, MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
-  MKL_LONG MOV(TRAJECTORY& TRAJ, MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
-  MKL_LONG OPP_DEL(TRAJECTORY& TRAJ, MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
-  MKL_LONG ADD(TRAJECTORY& TRAJ, MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
+
+  MKL_LONG CANCEL(MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
+  MKL_LONG MOV(MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
+  MKL_LONG OPP_DEL(MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
+  MKL_LONG ADD(MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
+  
 }
 
 class CHAIN_HANDLE : public CHAIN_INFORMATION
@@ -245,7 +249,7 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
     /*
       following reverse map is not necessary
      */
-    /*     MKL_LONG count_head_degeneracy = degeneracy;
+    /*     MKL_LONG count_head_degeneracy = degeneracy;  */
     /* // check the chain: HEAD - particle_target, TAIL - particle_subject */
     /* for(MKL_LONG i=0; i<P_TOKEN[particle_target]; i++) */
     /*   { */

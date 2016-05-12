@@ -4,7 +4,8 @@
 
 #include <iostream>
 #include "trajectory.h"
-#include "read_file_condition.h"
+/* #include "read_file_condition.h" */
+#include "file_IO.h"
 #include "cell_list.h"
 
 class RDIST : public CLIST
