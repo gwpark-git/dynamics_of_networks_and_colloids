@@ -45,6 +45,64 @@ public:
 };
 
 
+class RECORD_DATA
+{
+ public:
+  string filename_trajectory, filename_energy, filename_HASH, filename_weight, filename_chain, filename_MC_LOG;
+  ofstream traj, ener, hash, weight, chain, MC_LOG;
+
+  
+  RECORD_DATA()
+    {
+      std::cout << "ERR: Basic Constructor is not supported for RECORD_DATA class\n";
+    }
+
+  RECORD_DATA(COND& given_condition)
+    {
+      filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
+      traj.open(filename_trajectory, std::ios_base::app);
+      
+      filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
+      ener.open(filename_energy, std::ios_base::app);
+      
+      filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
+      hash.open(filename_HASH, std::ios_base::app);
+      
+      filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
+      weight.open(filename_weight, std::ios_base::app);
+
+      if(given_condition("tracking_individual_chain")=="TRUE")
+        {
+          filename_chain = (given_condition("output_path") + '/' + given_condition("filename_base") + ".chain").c_str();
+          chain.open(filename_chain, std::ios_base::app);
+        }
+
+      if(given_condition("MC_LOG")=="TRUE")
+        {
+          filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
+          MC_LOG.open(filename_MC_LOG, std::ios_base::app);
+        }
+    }
+  
+  ~RECORD_DATA()
+    {
+      if(traj)
+        traj.close();
+      if(ener)
+        ener.close();
+      if(hash)
+        hash.close();
+      if(weight)
+        weight.close();
+      if(chain)
+        chain.close();
+      if(MC_LOG)
+        MC_LOG.close();
+    }
+};
+
+
+
 /* class HDF5_FILE */
 /* { */
 /*  public: */

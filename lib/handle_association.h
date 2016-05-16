@@ -333,22 +333,22 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
       return 0;
     }
 
-  MKL_LONG write(const char *fn)
+  MKL_LONG write(std::ofstream& file)
   {
-    std::ofstream FILE1;
-    FILE1.open(fn, std::ios_base::app);
-    if(!FILE1)
-      {
-	std::cout << "ERROR OCCURS DURING WRITING CHAIN INFORMATION\n";
-	return -1;
-      }
+    /* std::ofstream FILE1; */
+    /* FILE1.open(fn, std::ios_base::app); */
+    /* if(!FILE1) */
+    /*   { */
+	/* std::cout << "ERROR OCCURS DURING WRITING CHAIN INFORMATION\n"; */
+	/* return -1; */
+    /*   } */
     MKL_LONG cnt = 0;
     for(MKL_LONG i=0; i<2*N_chains; i++)
       {
-	FILE1 << CE_ATTACHED_REF(i) << '\t';
+        file << CE_ATTACHED_REF(i) << '\t';
       }
-    FILE1 << std::endl;
-    FILE1.close();
+    file << std::endl;
+    /* FILE1.close(); */
     return 0;
   }
   

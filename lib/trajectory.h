@@ -55,13 +55,15 @@ class TRAJECTORY : public MATRIX
     return index(t, i_bead*2*N_dimension + 1 + N_dimension + direction);
   }
   
-  MKL_LONG traj_read(char fn[]);
-  MKL_LONG traj_write(char fn[])
-  {
-    fprint_out(fn);
-    return 0;
-  }
-
+  /* MKL_LONG traj_read(char fn[]); */
+  /* MKL_LONG traj_write(char fn[]) */
+  /* { */
+  /*   fprint_out(fn); */
+  /*   return 0; */
+  /* } */
+  /* MKL_LONG traj_read(std::ofstream& file); */
+  /* MKL_LONG traj_write(std::ofstrea& file); */
+  
   // initiator
   MKL_LONG initialization(MKL_LONG N_time, MKL_LONG N_particle, double given_dt);
   MKL_LONG initialization_COND(COND& given_condition);

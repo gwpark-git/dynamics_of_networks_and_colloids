@@ -41,9 +41,9 @@ int help()
 */
 
 // MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, COND& given_condition);
-MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, CHAIN_HANDLE& CHAIN, COND& given_condition);
+MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, CHAIN_HANDLE& CHAIN, RECORD_DATA& DATA, COND& given_condition);
 
-MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition);
+MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition);
 
 int main(int argc, char* argv[])
 {
@@ -70,12 +70,13 @@ int main(int argc, char* argv[])
         }
       TRAJECTORY TRAJ(given_condition, N_basic);
       POTENTIAL_SET POTs;
+      RECORD_DATA DATA(given_condition);
       if(given_condition("Method") == "NAPLE_ASSOCIATION")
         {
           if(given_condition("Step") == "EQUILIBRATION")
             {
               FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
-              main_EQUILIBRATION(TRAJ, POTs, given_condition);
+              main_EQUILIBRATION(TRAJ, POTs, DATA, given_condition);
             }
           else
             {
@@ -92,7 +93,7 @@ int main(int argc, char* argv[])
                     }
                   CHAIN.allocate_existing_bridges(CONNECT);
                 }
-              main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJ, POTs, CONNECT, CHAIN, given_condition);
+              main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJ, POTs, CONNECT, CHAIN, DATA, given_condition);
 
               // if (given_condition("tracking_individual_chain") == "TRUE")
               //   {
@@ -118,7 +119,7 @@ int main(int argc, char* argv[])
 }
 
 
-MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_condition)
+MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition)
 {
   printf("STARTING_MAIN_ROOT\n"); // ERR_TEST
   double time_st_simulation = dsecnd(); // ERR_TEST
@@ -128,7 +129,7 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_c
   string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
   string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
 
-  ofstream FILE_LOG;
+  // ofstream FILE_LOG;
   
   MKL_LONG N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
   printf("THREAD_SETTING: %ld ... ", N_THREADS_BD); //ERR_TEST
@@ -302,8 +303,11 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_c
           printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, LOCKING = %6.3f, action = %6.1f, update = %6.1f\n", dt_pdf_all*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
           printf("computing rdist: %6.3e (%3.1f), computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_rdist, 100.*dt_rdist/total_dt_pdf, dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
           printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, N_tot_asso = %ld, ratio = %6.3e, NAS = %ld, fraction=%4.3f, total time=%4.3e ####\n\n", cnt, N_diff, N_tot_associable_chain, N_diff/N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain, energy(5));
-          TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
-          energy.fprint_row(filename_energy.c_str(), 0);
+          // TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
+          // energy.fprint_row(filename_energy.c_str(), 0);
+          TRAJ.fprint_row(DATA.traj, index_t_now);
+          energy.fprint_row(DATA.ener, 0);
+          
         }
       
 
@@ -316,8 +320,8 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_c
 
   double time_simulation = dsecnd() - time_st_simulation;
   printf("Total simulation time = %6.3e\n", time_simulation);
-  if (given_condition("MC_LOG") == "TRUE")
-    FILE_LOG.close();
+  // if (given_condition("MC_LOG") == "TRUE")
+  //   FILE_LOG.close();
   mkl_free(vec_boost_Nd_parallel);
   mkl_free(force_repulsion);
   mkl_free(force_random);
@@ -333,22 +337,20 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, COND& given_c
   return 0;
 }
 
-MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, CHAIN_HANDLE& CHAIN, COND& given_condition)
+MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, CHAIN_HANDLE& CHAIN, RECORD_DATA& DATA, COND& given_condition)
 {
   printf("STARTING_MAIN_ROOT\n"); // ERR_TEST
   double time_st_simulation = dsecnd(); // ERR_TEST
-  // MKL_LONG N_max_steps = atol(given_condition("N_max_steps").c_str());
   MKL_LONG N_steps_block = atol(given_condition("N_steps_block").c_str());
-  // MKL_LONG N_max_blocks = N_max_steps/N_steps_block;
-  string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
-  string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
-  string filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
-  string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
-  string filename_chain = (given_condition("output_path") + '/' + given_condition("filename_base") + ".chain").c_str();
-  string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
-  // string filename_info = (given_condition("output_path") + '/' + given_condition("file_base") + ".info").c_str();
+  // RECORD_DATA DATA(given_condition);
+  // string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
+  // string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
+  // string filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
+  // string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
+  // string filename_chain = (given_condition("output_path") + '/' + given_condition("filename_base") + ".chain").c_str();
+  // string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
   
-  ofstream FILE_LOG;
+  // ofstream FILE_LOG;
   
   MKL_LONG N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
   MKL_LONG N_THREADS_SS = atol(given_condition("N_THREADS_SS").c_str());
@@ -395,8 +397,8 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   printf("DONE\n"); 
   if(given_condition("MC_LOG") == "TRUE")
     {
-      FILE_LOG.open(filename_MC_LOG.c_str(), std::ios_base::out);
-      FILE_LOG << "00_cnt"<< '\t'  << "01_index_itself"<< '\t'  << "02_roll_dCDF"<< '\t'  << "03_hash_index_target"<< '\t'  << "04_index_target"<< '\t'  << "05_roll_dCDF_U"<< '\t'  << "06_index_k_new_target"<< '\t'  << "07_index_new_target"<< '\t'  << "08_TOKEN(i_NT)"<< '\t'  << "09_N_CHAIN_ENDS" << '\t'<< "10_N_CHAIN_ITSELF" << '\t' << "11_N_TOTAL_ASSOCIATION*2" << '\t' << "12_cnt_add"<< '\t'  << "13_cnt_mov"<< '\t'  << "14_cnt_del"<< '\t'  << "15_cnt_cancel" << '\t' << "16_cnt_lock" << endl;
+      // FILE_LOG.open(filename_MC_LOG.c_str(), std::ios_base::out);
+      DATA.MC_LOG << "00_cnt"<< '\t'  << "01_index_itself"<< '\t'  << "02_roll_dCDF"<< '\t'  << "03_hash_index_target"<< '\t'  << "04_index_target"<< '\t'  << "05_roll_dCDF_U"<< '\t'  << "06_index_k_new_target"<< '\t'  << "07_index_new_target"<< '\t'  << "08_TOKEN(i_NT)"<< '\t'  << "09_N_CHAIN_ENDS" << '\t'<< "10_N_CHAIN_ITSELF" << '\t' << "11_N_TOTAL_ASSOCIATION*2" << '\t' << "12_cnt_add"<< '\t'  << "13_cnt_mov"<< '\t'  << "14_cnt_del"<< '\t'  << "15_cnt_cancel" << '\t' << "16_cnt_lock" << endl;
     }
   printf("SET SIMULATION PARAMETERS ...");
   MKL_LONG N_skip = atol(given_condition("N_skip").c_str());
@@ -475,8 +477,6 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   double max_try_ASSOC = tolerance_association;
   double N_diff = 0.;
   MKL_LONG N_tot_associable_chain = TRAJ.Np*atoi(given_condition("N_chains_per_particle").c_str());
-  // MKL_LONG count_M = cnt_add, pre_count_M = cnt_add;
-  // MKL_LONG count_M = cnt_add;
   
   for(MKL_LONG t = 0; t<Nt-1; t++)
     {
@@ -492,22 +492,6 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
       double time_st_rdist = dsecnd();
       R_boost.allocate_cells_from_positions(TRAJ, index_t_now, tmp_index_vec);
       
-      // MKL_LONG tmp_index = 397;
-      // MKL_LONG cell_tmp_index = R_boost.cell_index[tmp_index];
-      // for(MKL_LONG j=0; j<R_boost.TOKEN[tmp_index]; j++)
-      // 	{
-	  
-      // }
-      // for(MKL_LONG i=0; i<R_boost.N_cells; i++)
-      // 	{
-      // 	  for(MKL_LONG j=0; j<R_boost.TOKEN[i]; j++)
-      // 	    {
-      // 	      printf("C[%ld, %ld] = %ld\n", i, j, R_boost.CELL[i][j]);
-      // 	    }
-      // 	}
-      // #pragma omp parallel default(none) shared(given_condition, TRAJ, index_t_now, t, R_boost, POTs, CONNECT, dCDF_U, INDEX_dCDF_U, vec_boost_Nd_parallel, N_steps_block, cnt_arr, count_M, N_THREADS_BD, dt_rdist, dt_pdf, dt_sort, time_st_rdist) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
-      //       {
-      // #pragma omp for
 #pragma omp parallel for default(none) shared(TRAJ, index_t_now, R_boost, N_THREADS_BD) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
       /*
         Originally, this parallel regime is designed to use N_cells and TOKEN.
@@ -627,7 +611,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
           //   {
           //     printf("dCDF_U[%ld](399) = %4.1e\n", i, dCDF_U[i](399));
           //   }
-#pragma omp parallel for default(none) shared(given_condition, FILE_LOG, TRAJ, POTs, CONNECT, CHAIN, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dCDF_TOKEN, R_boost, dt_rdist, dt_pdf, dt_sort, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, cnt, N_THREADS_SS, N_associations, N_tot_associable_chain) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1) reduction(+:dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7)
+#pragma omp parallel for default(none) shared(given_condition, DATA, TRAJ, POTs, CONNECT, CHAIN, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dCDF_TOKEN, R_boost, dt_rdist, dt_pdf, dt_sort, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, r_boost_arr_SS, cnt, N_THREADS_SS, N_associations, N_tot_associable_chain) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1) reduction(+:dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7)
           // #pragma omp critical(TOPOLOGY_UPDATE)
           // {
           // for(MKL_LONG tp = 0; tp<N_steps_block; tp++)
@@ -777,7 +761,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
 			  
                         // MKL_LONG count_N_associagtions = cnt_add - cnt_del;
                         {
-                          FILE_LOG << cnt << '\t' << index_itself << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << index_attached_bead << '\t'  << index_new_attached_bead<< '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_attached_bead << '\t'  << CONNECT.TOKEN[index_itself]<< '\t'<< CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight[index_itself](0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << '\t' << cnt_lock << endl;
+                          DATA.MC_LOG << cnt << '\t' << index_itself << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << index_attached_bead << '\t'  << index_new_attached_bead<< '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << k<< '\t'  << index_new_attached_bead << '\t'  << CONNECT.TOKEN[index_itself]<< '\t'<< CONNECT.N_CONNECTED_ENDS(index_itself) << '\t' << CONNECT.weight[index_itself](0) <<'\t' <<  total_bonds << '\t'  << cnt_add<< '\t'  << cnt_mov<< '\t'  << cnt_del<< '\t'  << cnt_cancel << '\t' << cnt_lock << endl;
                         }
                         // FILE_LOG << boost::format("%10d\t%4d\t")
                       } // MC_LOG
@@ -838,16 +822,25 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
           printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, LOCKING = %6.3f, action = %6.1f, update = %6.1f\n", dt_pdf_all*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
           printf("computing rdist: %6.3e (%3.1f), computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_rdist, 100.*dt_rdist/total_dt_pdf, dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
           printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, N_tot_asso = %ld, ratio = %6.3e, NAS = %ld, fraction=%4.3f, total time=%4.3e ####\n\n", cnt, N_diff, N_tot_associable_chain, N_diff/N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain, energy(5));
-          
-          TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
-          energy.fprint_row(filename_energy.c_str(), 0);
+
+          // TRAJ.fprint_row(filename_trajectory.c_str(), index_t_now);
+          // energy.fprint_row(filename_energy.c_str(), 0);
+          // for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
+          //   {
+          //     CONNECT.HASH[ip].fprint_LONG_skip_transpose_LIMROWS(filename_HASH.c_str(), 1, CONNECT.TOKEN[ip]);
+          //     CONNECT.weight[ip].fprint_LONG_skip_transpose_LIMROWS(filename_weight.c_str(), 1, CONNECT.TOKEN[ip]);
+          //   }
+          // if(CHAIN.INITIALIZATION)
+          //   CHAIN.write(filename_chain.c_str());
+          TRAJ.fprint_row(DATA.traj, index_t_now);
+          energy.fprint_row(DATA.ener, 0);
           for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
             {
-              CONNECT.HASH[ip].fprint_LONG_skip_transpose_LIMROWS(filename_HASH.c_str(), 1, CONNECT.TOKEN[ip]);
-              CONNECT.weight[ip].fprint_LONG_skip_transpose_LIMROWS(filename_weight.c_str(), 1, CONNECT.TOKEN[ip]);
+              CONNECT.HASH[ip].fprint_LONG_skip_transpose_LIMROWS(DATA.hash, 1, CONNECT.TOKEN[ip]);
+              CONNECT.weight[ip].fprint_LONG_skip_transpose_LIMROWS(DATA.weight, 1, CONNECT.TOKEN[ip]);
             }
           if(CHAIN.INITIALIZATION)
-            CHAIN.write(filename_chain.c_str());
+            CHAIN.write(DATA.chain);
         }
       
 
@@ -860,8 +853,8 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
 
   double time_simulation = dsecnd() - time_st_simulation;
   printf("Total simulation time = %6.3e\n", time_simulation);
-  if (given_condition("MC_LOG") == "TRUE")
-    FILE_LOG.close();
+  // if (given_condition("MC_LOG") == "TRUE")
+  //   FILE_LOG.close();
   mkl_free(vec_boost_Nd_parallel);
   mkl_free(force_spring);
   mkl_free(force_repulsion);
