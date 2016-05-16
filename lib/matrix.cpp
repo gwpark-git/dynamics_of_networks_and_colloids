@@ -16,193 +16,9 @@ MKL_LONG nonzero(const MATRIX &A)
   return cnt;
 }
 
-MATRIX& MATRIX::operator=(const MATRIX &Mat)
-{
-  copy_obj(Mat);
-  return *this;
-}
-
-MATRIX& MATRIX::operator+=(const MATRIX &Mat)
-{
-  // std::cout << "the operator += for MATRIX class is in buggy status\n";
-  // std::cout << "if this operator is called, to check the internal problems\n";
-  if (size != Mat.size)
-    std::cout << "The += operator must happen when two size are the same\n";
-  // copy_obj(Mat);
-  // for(MKL_LONG i=0; i<size; i++)
-  //   {
-  //     data[i] += Mat.data[i];
-  //   }
-  cblas_daxpy(size, 1.0, Mat.data, 1, data, 1);
-  return *this;
-}
 
 
-// #### Unary Operator
-// MATRIX operator-(const MATRIX &A)
-// {
-//   std::cout << "Unary operator - has overhead. Avoiding this operator for performance\n";
-//   double x = -1.0;
-//   MATRIX C = x*A;
-//   return C;
-// }
 
-
-// #### Binary Operator
-// MATRIX Addition
-// MATRIX operator+(const MATRIX &A, const MATRIX &B)
-// {
-//   MATRIX C;
-//   if(!(A.rows == B.rows && A.cols == B.cols))
-//     {
-//       std::cout << "Dimension does NOT match.\n";
-//     }
-//   else
-//     {
-//       C.initial(A.rows, A.cols);
-//       for(MKL_LONG  i=0; i<A.size; i++)
-// 	{
-// 	  C.data[i] = A.data[i] + B.data[i];
-// 	} // i 
-//     } 
-//   return C;
-// }
-
-// MATRIX operator-(const MATRIX& A, const MATRIX &B)
-// {
-//   MATRIX C;
-//   if(!(A.rows == B.rows && A.cols == B.cols))
-//     {
-//       std::cout << "Dimension does NOT match.\n";
-//     }
-//   else
-//     {
-//       C.initial(A.rows, A.cols);
-//       for(MKL_LONG  i=0; i<A.size; i++)
-// 	{
-// 	  C.data[i] = A.data[i] - B.data[i];
-// 	} // i
-//     }
-//   return C;
-// }
-
-// Scalar Multiplification
-// MATRIX operator*(const double a, const MATRIX &A)
-// {
-//   MATRIX C = A;
-//   for(MKL_LONG  i=0; i<C.size; i++)
-//     {
-//       C.data[i] *= a;
-//     }
-//   return C;
-// }
-
-// MATRIX Multiplification
-// MATRIX operator*(const MATRIX &A, const MATRIX &B)
-// {
-//   MKL_LONG  C_rows = A.rows;
-//   MKL_LONG  C_cols = B.cols;
-//   MKL_LONG  cal_index = A.cols;
-//   MATRIX C(C_rows, C_cols, 0.0);
-//   if(A.cols == B.rows)
-//     {
-//       MKL_LONG  i, j, k;
-//       //  // here // #pragma omp parallel for private(i,j,k) schedule(guided)
-//       for(i=0; i<A.rows; i++)
-// 	{
-// 	  for(j=0; j<B.cols; j++)
-// 	    {
-// 	      for(k=0; k<A.cols; k++)
-// 		{
-// 		  C.data[i*C.cols+j] += A.data[i*A.cols+k]*B.data[k*B.cols+j];
-// 		  //	      C(i,j) += A(i,k)*B(k,j);
-// 		} // k
-// 	    }// j
-// 	} // i
-//     }
-//   else
-//     {
-//       std::cout << "DIMENSION NOT MATCHED DURING MATRIX MULTIPLIFICATION\n";
-//     }
-//   return C;
-// }
-// From Here. CLASS MATRIX
-
-// Operator Overloading
-double& MATRIX::operator()(MKL_LONG  i, MKL_LONG  j)
-{
-  return data[i*cols+j];
-}
-
-double& MATRIX::operator()(MKL_LONG  i)
-{
-  return data[i];
-}
-
-
-// Matrix Operator
-// MATRIX MATRIX::ROW(MKL_LONG  i)
-// {
-//   MATRIX C;
-//   C.initial(1, cols);
-//   for(MKL_LONG  j=0; j<cols; j++)
-//     {
-//       C.data[j] = data[i*cols+j];
-//     }
-//   return C;
-// }
-
-// MATRIX MATRIX::COL(MKL_LONG  j)
-// {
-//   MATRIX C;
-//   C.initial(rows, 1);
-//   for(MKL_LONG  i=0; i<rows; i++)
-//     {
-//       C.data[i] = data[i*cols+j];
-//     }
-//   return C;
-// }
-
-
-// MKL_LONG  MATRIX::ROW(const MATRIX &ROW_A, MKL_LONG  i)
-// {
-//   if(INITIALIZATION)
-//     {
-//       for(MKL_LONG  j=0; j<ROW_A.cols; j++)
-// 	{
-// 	  data[i*cols + j] = ROW_A.data[j];
-// 	}
-//     }
-//   else
-//     {
-//       initial(1,ROW_A.cols);
-//       for(MKL_LONG   j=0; j<ROW_A.cols; j++)
-// 	{
-// 	  data[j] = ROW_A.data[j];
-// 	}
-//     }
-//   return 0;
-// }
-
-// MKL_LONG  MATRIX::COL(const MATRIX &COL_A, MKL_LONG  j)
-// {
-//   if(INITIALIZATION)
-//     {
-//       for(MKL_LONG  i=0; i<COL_A.rows; i++)
-// 	{
-// 	  data[i*cols + j] = COL_A.data[i];
-// 	}
-//     }
-//   else
-//     {
-//       initial(COL_A.rows, 1);
-//       for(MKL_LONG  i=0; i<COL_A.rows; i++)
-// 	{
-// 	  data[i] = COL_A.data[i];
-// 	}
-//     }
-//   return 0;
-// }
 
 
 // Constructor
@@ -240,26 +56,10 @@ MATRIX::MATRIX(const MATRIX& Mat)
 {
   copy_obj(Mat);
 }
-  //std::cout << "COPY\n";
-  // initial(Mat.rows, Mat.cols);
-  // for(MKL_LONG  i=0; i<Mat.size; i++)
-  //   {
-  //     data[i] = Mat.data[i];
-  //   }    
-// }
-
-// int MATRIX::connect_copy_constructor(const MATRIX& Mat)
-// {
-//   MATRIX(Mat);
-//   return 0;
-// }
 
 // Destructor
 MATRIX::~MATRIX()
 {
-  //std::cout << "Destructor" << this << std::endl;
-  // std::cout << "MATRIX destructor is called" << std::endl;
-  // destructor is tested
   if (INITIALIZATION)
     {
       data_delete();
@@ -267,28 +67,30 @@ MATRIX::~MATRIX()
   if (DIAGONALIZATION)
     {
       mkl_free(eigen_value);
-      // delete[] eigen_value;
     }
 }
 
 
 // Public Member Function
 
-MKL_LONG  MATRIX::set_value(double x)
-{
-  if(INITIALIZATION)
-    {
-      for(MKL_LONG  i=0; i<size; i++)
-        {
-          data[i] = x;
-        } // i
-    }
-  else
-    {
-      undefined_error();
-    }
-  return 0;
-}
+// inlined
+// MKL_LONG  MATRIX::set_value(double x)
+// {
+//   if(INITIALIZATION)
+//     {
+//       for(MKL_LONG  i=0; i<size; i++)
+//         {
+//           data[i] = x;
+//         } // i
+//     }
+//   else
+//     {
+//       undefined_error();
+//     }
+//   return 0;
+// }
+
+
 MKL_LONG  MATRIX::print_eigen()
 {
   print_eigen(rows);
@@ -449,24 +251,6 @@ MKL_LONG MATRIX::fprint_LONG_skip_transpose(std::ofstream& file, MKL_LONG  N_ski
   MATRIX::fprint_LONG_skip_transpose_LIMROWS(file, N_skip, rows); // count all rows
   return 0;
 }
-  // std::ofstream FILE1;
-  // FILE1.open(fn, std::ios_base::app);
-  // if(!FILE1)
-  //   {
-  //     std::cout << "ERROR OCCURS DURING FILE OUT\n";
-  //     return -1;
-  //   }
-  // MKL_LONG  cnt = 0;
-  // for(MKL_LONG  j=0; j<cols; j++)
-  //   {
-  //     for(MKL_LONG  i=0; i<rows; i+=N_skip)
-  //       {
-  //         FILE1 << (MKL_LONG)data[index(i, j)] << '\t';
-  //       }
-  //     FILE1 << std::endl;
-  //   } // i
-  // FILE1.close();
-  // return 0;
 
 MKL_LONG  MATRIX::fprint_LONG_transpose(std::ofstream& file)
 {
@@ -538,9 +322,9 @@ MKL_LONG  MATRIX::nonzero()
   for(MKL_LONG  i=0; i<size; i++)
     {
       if(data[i]!=0)
-	{
-	  printf("nonzero (i,j) = (%ld, %ld) = %6.3e\n",(int)i/cols,(int)i%cols, data[i]);
-	}
+        {
+          printf("nonzero (i,j) = (%ld, %ld) = %6.3e\n",(int)i/cols,(int)i%cols, data[i]);
+        }
     }
   return 0;
 }
@@ -624,10 +408,11 @@ MKL_LONG  MATRIX::undefined_error()
 }
 
 
-MKL_LONG  MATRIX::index(MKL_LONG  i, MKL_LONG  j)
-{
-  return i*cols+j;
-}
+// inlined
+// MKL_LONG  MATRIX::index(MKL_LONG  i, MKL_LONG  j)
+// {
+//   return i*cols+j;
+// }
 
 
 MKL_LONG  MATRIX::test_arr()
@@ -666,15 +451,16 @@ double MATRIX::ABS_sum()
   return result;
 }
 
-double MATRIX::norm()
-{
-  double result = 0.0;
-  for(MKL_LONG  i=0; i<size; i++)
-    {
-      result += pow(data[i],2.0);
-    }
-  return sqrt(result);
-}
+// inlined
+// double MATRIX::norm()
+// {
+//   double result = 0.0;
+//   for(MKL_LONG  i=0; i<size; i++)
+//     {
+//       result += pow(data[i],2.0);
+//     }
+//   return sqrt(result);
+// }
 
 
 
@@ -693,50 +479,6 @@ double MATRIX::average()
   double result = sum();
   return result/(double)size;
 }
-
-MKL_LONG  make_unit_vector(MATRIX& given_vec)
-{
-  double norm = 0.;
-  for(MKL_LONG  i=0; i<given_vec.size; i++)
-    {
-      norm += pow(given_vec.data[i], 2.0);
-    }
-  norm = sqrt(norm);
-  for(MKL_LONG  i=0; i<given_vec.size; i++)
-    {
-      given_vec.data[i] /= norm;
-    }
-  return norm;
-}
-
-// MATRIX return_unit_vector(MATRIX& given_vec)
-// {
-//   MATRIX re = given_vec;
-//   double norm = 0.;
-//   for(MKL_LONG  i=0; i<given_vec.size; i++)
-//     {
-//       norm += pow(given_vec.data[i], 2.0);
-//     }
-//   norm = sqrt(norm);
-//   for(MKL_LONG  i=0; i<given_vec.size; i++)
-//     {
-//       re.data[i] /= norm;
-//     }
-//   return re;
-// }
-
-
-
-MKL_LONG matrix_mul(MATRIX& given_vec, double val)
-{
-  cblas_dscal(given_vec.size, val, given_vec.data, 1);
-  // for(MKL_LONG  k=0; k<given_vec.size; k++)
-  //   {
-  //     given_vec.data[k] *= val;
-  //   }
-  return 0;
-}
-
 
 MKL_LONG MATRIX::add(MATRIX& given_MAT)
 {
@@ -764,3 +506,211 @@ MKL_LONG MATRIX::sort2(MATRIX& index)
   gsl_sort2(data, 1, index.data, 1, size);
   return 0;
 }
+
+
+// inlined
+// MKL_LONG  make_unit_vector(MATRIX& given_vec)
+// {
+//   double norm = 0.;
+//   for(MKL_LONG  i=0; i<given_vec.size; i++)
+//     {
+//       norm += pow(given_vec.data[i], 2.0);
+//     }
+//   norm = sqrt(norm);
+//   for(MKL_LONG  i=0; i<given_vec.size; i++)
+//     {
+//       given_vec.data[i] /= norm;
+//     }
+//   return norm;
+// }
+
+// MATRIX return_unit_vector(MATRIX& given_vec)
+// {
+//   MATRIX re = given_vec;
+//   double norm = 0.;
+//   for(MKL_LONG  i=0; i<given_vec.size; i++)
+//     {
+//       norm += pow(given_vec.data[i], 2.0);
+//     }
+//   norm = sqrt(norm);
+//   for(MKL_LONG  i=0; i<given_vec.size; i++)
+//     {
+//       re.data[i] /= norm;
+//     }
+//   return re;
+// }
+
+
+
+// inlined
+// MKL_LONG matrix_mul(MATRIX& given_vec, double val)
+// {
+//   cblas_dscal(given_vec.size, val, given_vec.data, 1);
+//   // for(MKL_LONG  k=0; k<given_vec.size; k++)
+//   //   {
+//   //     given_vec.data[k] *= val;
+//   //   }
+//   return 0;
+// }
+
+
+
+// Operator Overloading
+
+
+// #### Unary Operator
+// MATRIX operator-(const MATRIX &A)
+// {
+//   std::cout << "Unary operator - has overhead. Avoiding this operator for performance\n";
+//   double x = -1.0;
+//   MATRIX C = x*A;
+//   return C;
+// }
+
+
+// #### Binary Operator
+// MATRIX Addition
+// MATRIX operator+(const MATRIX &A, const MATRIX &B)
+// {
+//   MATRIX C;
+//   if(!(A.rows == B.rows && A.cols == B.cols))
+//     {
+//       std::cout << "Dimension does NOT match.\n";
+//     }
+//   else
+//     {
+//       C.initial(A.rows, A.cols);
+//       for(MKL_LONG  i=0; i<A.size; i++)
+// 	{
+// 	  C.data[i] = A.data[i] + B.data[i];
+// 	} // i 
+//     } 
+//   return C;
+// }
+
+// MATRIX operator-(const MATRIX& A, const MATRIX &B)
+// {
+//   MATRIX C;
+//   if(!(A.rows == B.rows && A.cols == B.cols))
+//     {
+//       std::cout << "Dimension does NOT match.\n";
+//     }
+//   else
+//     {
+//       C.initial(A.rows, A.cols);
+//       for(MKL_LONG  i=0; i<A.size; i++)
+// 	{
+// 	  C.data[i] = A.data[i] - B.data[i];
+// 	} // i
+//     }
+//   return C;
+// }
+
+// Scalar Multiplification
+// MATRIX operator*(const double a, const MATRIX &A)
+// {
+//   MATRIX C = A;
+//   for(MKL_LONG  i=0; i<C.size; i++)
+//     {
+//       C.data[i] *= a;
+//     }
+//   return C;
+// }
+
+// MATRIX Multiplification
+// MATRIX operator*(const MATRIX &A, const MATRIX &B)
+// {
+//   MKL_LONG  C_rows = A.rows;
+//   MKL_LONG  C_cols = B.cols;
+//   MKL_LONG  cal_index = A.cols;
+//   MATRIX C(C_rows, C_cols, 0.0);
+//   if(A.cols == B.rows)
+//     {
+//       MKL_LONG  i, j, k;
+//       //  // here // #pragma omp parallel for private(i,j,k) schedule(guided)
+//       for(i=0; i<A.rows; i++)
+// 	{
+// 	  for(j=0; j<B.cols; j++)
+// 	    {
+// 	      for(k=0; k<A.cols; k++)
+// 		{
+// 		  C.data[i*C.cols+j] += A.data[i*A.cols+k]*B.data[k*B.cols+j];
+// 		  //	      C(i,j) += A(i,k)*B(k,j);
+// 		} // k
+// 	    }// j
+// 	} // i
+//     }
+//   else
+//     {
+//       std::cout << "DIMENSION NOT MATCHED DURING MATRIX MULTIPLIFICATION\n";
+//     }
+//   return C;
+// }
+// From Here. CLASS MATRIX
+
+
+
+// Matrix Operator
+// MATRIX MATRIX::ROW(MKL_LONG  i)
+// {
+//   MATRIX C;
+//   C.initial(1, cols);
+//   for(MKL_LONG  j=0; j<cols; j++)
+//     {
+//       C.data[j] = data[i*cols+j];
+//     }
+//   return C;
+// }
+
+// MATRIX MATRIX::COL(MKL_LONG  j)
+// {
+//   MATRIX C;
+//   C.initial(rows, 1);
+//   for(MKL_LONG  i=0; i<rows; i++)
+//     {
+//       C.data[i] = data[i*cols+j];
+//     }
+//   return C;
+// }
+
+
+// MKL_LONG  MATRIX::ROW(const MATRIX &ROW_A, MKL_LONG  i)
+// {
+//   if(INITIALIZATION)
+//     {
+//       for(MKL_LONG  j=0; j<ROW_A.cols; j++)
+// 	{
+// 	  data[i*cols + j] = ROW_A.data[j];
+// 	}
+//     }
+//   else
+//     {
+//       initial(1,ROW_A.cols);
+//       for(MKL_LONG   j=0; j<ROW_A.cols; j++)
+// 	{
+// 	  data[j] = ROW_A.data[j];
+// 	}
+//     }
+//   return 0;
+// }
+
+// MKL_LONG  MATRIX::COL(const MATRIX &COL_A, MKL_LONG  j)
+// {
+//   if(INITIALIZATION)
+//     {
+//       for(MKL_LONG  i=0; i<COL_A.rows; i++)
+// 	{
+// 	  data[i*cols + j] = COL_A.data[i];
+// 	}
+//     }
+//   else
+//     {
+//       initial(COL_A.rows, 1);
+//       for(MKL_LONG  i=0; i<COL_A.rows; i++)
+// 	{
+// 	  data[i] = COL_A.data[i];
+// 	}
+//     }
+//   return 0;
+// }
+

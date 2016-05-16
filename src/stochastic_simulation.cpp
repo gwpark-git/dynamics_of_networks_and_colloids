@@ -511,8 +511,6 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
                     cnt_arr[IDENTIFIER_ACTION]++;
                     N_associations = cnt_add - cnt_del;
 		    
-                    // count_M += N_associations;
-                      
                     if (given_condition("MC_LOG") == "TRUE")
                       {
                         MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
@@ -549,6 +547,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
             }
         }
       GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
+
       double time_end_LV = dsecnd();
       double time_end_AN = time_end_LV;
       if(t%N_skip==0)
@@ -583,6 +582,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
       
 
       double time_end_save = dsecnd();
+
       time_MC += time_end_MC - time_st_MC;
       time_LV += time_end_LV - time_end_MC;
       time_AN += time_end_AN - time_end_LV;
@@ -599,3 +599,4 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   mkl_free(IDX_ARR);
   return 0;
 }
+

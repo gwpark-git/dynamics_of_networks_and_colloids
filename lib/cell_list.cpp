@@ -1,9 +1,10 @@
 #include "cell_list.h"
 
-MKL_LONG& CLIST::operator()(MKL_LONG i, MKL_LONG j)
-{
-  return CELL[i][j];
-}
+// inlined
+// MKL_LONG& CLIST::operator()(MKL_LONG i, MKL_LONG j)
+// {
+//   return CELL[i][j];
+// }
 
 CLIST::CLIST(COND& given_condition)
 {

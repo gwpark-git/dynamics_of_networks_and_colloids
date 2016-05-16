@@ -1,0 +1,23 @@
+
+#+TITLE: Cell List
+#+AUTHOR: Gun Woo Park
+
+* Preface
+* Implementation of cell list
+The basic cell list implementation have been done. 
+
+* Improvement for efficiency
+The benefit the efficiency for cell list is given by
+\begin{equation}
+\varepsilon = \left(\frac{3}{L_D/L^\prime_c}\right)^{N_D},
+\end{equation}
+where $L_D$ is box dimension, $L^\prime_c$ is cell dimension, and $N_D$ is dimension for spatial. The basic cell uses the length of cell similar with the cut-off radius, say $L^\prime_c \geq r_c$, where $r_c$ represent the cut-off radius. In the [[file:../short_test.inp][default test]] system, the box is given by 10 in dimensionless distance while the cut-off radius is 2 in dimensionless distance, which make the efficiency factor as 0.216, which means 5 times faster than without cell list. Notice that the real improvement becomes 2~4 times faster since there is overhead to parition the particles into cell. 
+
+The efficiency becomes larger when we have bigger system size. In our simulation, at this moment, it is not so importance such a big box, so we need to further improvement for cell list. If we use length of cell by using $L_c = (L^\prime_c)/2$, we can have benefit as
+\begin{equation}
+\varepsilon = \left(\frac{5}{L_D/L_c}\right)^{N_D},
+\end{equation}
+which becomes 0.125 while the previous one is 0.216. Basically, the factor in numeriator has been changed since the previous identifier is check only for left, right, and itself. In the revised case, it becomes 5 becase the -2, -1, 0, +1, and +2 are related with the interaction. Basically, it introduce additional overhead to identify cell list but 
+
+
+

@@ -81,7 +81,12 @@ class CLIST
   
     
   // operator overloading
-  MKL_LONG& operator()(MKL_LONG i, MKL_LONG j); // it will return the index for CELL[i][j] as reference variable
+  /* MKL_LONG& operator()(MKL_LONG i, MKL_LONG j); // it will return the index for CELL[i][j] as reference variable */ // inlined
+  MKL_LONG& operator()(MKL_LONG i, MKL_LONG j)
+    {
+      return CELL[i][j];
+    }
+
 
   
   // constructor

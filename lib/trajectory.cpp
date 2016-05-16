@@ -112,25 +112,46 @@ MKL_LONG TRAJECTORY::initialization_COND(COND& given_condition)
   return 0;
 }
 
+// the following conflict positions are related with in-lining
+// <<<<<<< HEAD
+// double& TRAJECTORY::operator()(MKL_LONG time_t)
+// {
+//   // it will return the reference of time
+//   return data[index(time_t, 0)];
+// }
 
-double& TRAJECTORY::operator()(MKL_LONG time_t)
-{
-  // it will return the reference of time
-  return data[index(time_t, 0)];
-}
+// double& TRAJECTORY::operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
+// {
+//   MKL_LONG index_position = 2*N_dimension*bead_i + 1 + dimension_k;
+//   // printf("INDEX(%ld, %ld, %ld) = %ld", time_t, bead_i, dimension_k, index_position);
+//   return data[index(time_t, index_position)];
+// }
 
-double& TRAJECTORY::operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
-{
-  MKL_LONG index_position = 2*N_dimension*bead_i + 1 + dimension_k;
-  // printf("INDEX(%ld, %ld, %ld) = %ld", time_t, bead_i, dimension_k, index_position);
-  return data[index(time_t, index_position)];
-}
+// double& TRAJECTORY::operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
+// {
+//   MKL_LONG index_position = 2*N_dimension*bead_i + 1 + dimension_k + N_dimension*i_RV;
+//   return data[index(time_t, index_position)];
+// }
+// =======
+// // double& TRAJECTORY::operator()(MKL_LONG time_t)
+// // {
+// //   // it will return the reference of time
+// //   return data[index(time_t, 0)];
+// // }
 
-double& TRAJECTORY::operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
-{
-  MKL_LONG index_position = 2*N_dimension*bead_i + 1 + dimension_k + N_dimension*i_RV;
-  return data[index(time_t, index_position)];
-}
+// // double& TRAJECTORY::operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
+// // {
+// //   MKL_LONG index_position = 2*dimension*bead_i + 1 + dimension_k;
+// //   // printf("INDEX(%ld, %ld, %ld) = %ld", time_t, bead_i, dimension_k, index_position);
+// //   return data[index(time_t, index_position)];
+// // }
+
+// // double& TRAJECTORY::operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
+// // {
+// //   MKL_LONG index_position = 2*dimension*bead_i + 1 + dimension_k + dimension*i_RV;
+// //   return data[index(time_t, index_position)];
+// // }
+// >>>>>>> 8692b3ce744ba0597384a10095736b1f24e127f7
 
 
 

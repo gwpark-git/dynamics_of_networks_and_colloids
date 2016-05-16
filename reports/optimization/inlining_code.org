@@ -1,0 +1,7 @@
+
+
+#+TITLE: Boost code using inline function
+#+AUTHOR: Gun Woo Park
+
+* Preface
+Basically, the calling function introduce overhead since the function pointer has bigger (and scattered) compared with the common computation. If the time spending in the subjected function is quite long compared with the time to call the function, the overhead is not so obvious. In some case, however, the function just map one single operation and it is called more than million time during simulation, the overhead is visible by time analysis. This inlining process is under the consideration for such kind of function, so reducing the overhead time. This is quite common for operator overloading like index processing. For instance, we are using single dimensional array insteady of N-dimensional array, which means it is necessary to use mapping function that make simple for users. In this case, the mapping function will be called so many time just operating something like N*x + y. When it reduce overall computation time dramatically, it would be better inlining such kind of operator or function. If we define member function inside class declaration, it is automatically inlined by compiler. When we define operator outside definition for class declaration, it is not obvious so compiler has right to choice inline (most of the compiler will not do).
