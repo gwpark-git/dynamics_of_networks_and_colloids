@@ -1,0 +1,11 @@
+
+from numpy import *
+import matplotlib.pyplot as plt
+
+rdf_NP0400 = loadtxt('rdf_NP0400.dat')
+
+plt.close()
+plt.ion()
+plt.plot(rdf_NP0400[:,0], rdf_NP0400[:,2], 'b-')
+plt.grid()
+plt.show()

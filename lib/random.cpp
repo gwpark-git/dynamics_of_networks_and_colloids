@@ -4,6 +4,7 @@
 
 MKL_LONG RANDOM::return_LONG_INT_rand(MKL_LONG SUP)
 {
+  // it is using randomly generated seed
   const gsl_rng_type *T;
   gsl_rng *r;
   gsl_rng_env_setup();

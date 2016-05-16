@@ -60,18 +60,31 @@ MKL_LONG initial(MKL_LONG N_r, MKL_LONG N_c, double x);
 MKL_LONG set_value(double x);                          //@
 MKL_LONG print();                                      //@                     
 MKL_LONG print(MKL_LONG n_row, MKL_LONG n_col);                  //@
-MKL_LONG fprint_skip(const char *fn, MKL_LONG N_skip);
-MKL_LONG fprint_skip_transpose(const char *fn, MKL_LONG N_skip);
-MKL_LONG fprint_LONG_skip(const char *fn, MKL_LONG N_skip);
-MKL_LONG fprint_LONG_skip_transpose(const char *fn, MKL_LONG N_skip);
-MKL_LONG fprint_LONG_skip_transpose_LIMROWS(const char *fn, MKL_LONG N_skip, MKL_LONG N_lim_rows);
-MKL_LONG fprint(const char *fn);                             // ???
-MKL_LONG fprint_transpose(const char *fn);                             // ???
-MKL_LONG fprint_LONG(const char *fn);                             // ???
-MKL_LONG fprint_LONG_transpose(const char *fn);                             // ??? 
-MKL_LONG fprint_row(const char *fn, MKL_LONG given_row);
-MKL_LONG fprint_out_skip(const char *fn, MKL_LONG N_skip);
-MKL_LONG fprint_out(const char *fn);                             // ??? 
+/* MKL_LONG fprint_skip(const char *fn, MKL_LONG N_skip); */
+/* MKL_LONG fprint_skip_transpose(const char *fn, MKL_LONG N_skip); */
+/* MKL_LONG fprint_LONG_skip(const char *fn, MKL_LONG N_skip); */
+/* MKL_LONG fprint_LONG_skip_transpose(const char *fn, MKL_LONG N_skip); */
+/* MKL_LONG fprint_LONG_skip_transpose_LIMROWS(const char *fn, MKL_LONG N_skip, MKL_LONG N_lim_rows); */
+/* MKL_LONG fprint(const char *fn);                             // ??? */
+/* MKL_LONG fprint_transpose(const char *fn);                             // ??? */
+/* MKL_LONG fprint_LONG(const char *fn);                             // ??? */
+/* MKL_LONG fprint_LONG_transpose(const char *fn);                             // ???  */
+/* MKL_LONG fprint_row(const char *fn, MKL_LONG given_row); */
+/* MKL_LONG fprint_out_skip(const char *fn, MKL_LONG N_skip); */
+/* MKL_LONG fprint_out(const char *fn);                             // ??? */
+MKL_LONG fprint_skip(std::ofstream& file, MKL_LONG N_skip);
+MKL_LONG fprint_skip_transpose(std::ofstream& file, MKL_LONG N_skip);
+MKL_LONG fprint_LONG_skip(std::ofstream& file, MKL_LONG N_skip);
+MKL_LONG fprint_LONG_skip_transpose(std::ofstream& file, MKL_LONG N_skip);
+MKL_LONG fprint_LONG_skip_transpose_LIMROWS(std::ofstream& file, MKL_LONG N_skip, MKL_LONG N_lim_rows);
+MKL_LONG fprint(std::ofstream& file);                             // ???
+MKL_LONG fprint_transpose(std::ofstream& file);                             // ???
+MKL_LONG fprint_LONG(std::ofstream& file);                             // ???
+MKL_LONG fprint_LONG_transpose(std::ofstream& file);                             // ??? 
+MKL_LONG fprint_row(std::ofstream& file, MKL_LONG given_row);
+MKL_LONG fprint_out_skip(std::ofstream& file, MKL_LONG N_skip);
+MKL_LONG fprint_out(std::ofstream& file);                             // ??? 
+ 
 MKL_LONG test_arr();                                   //@
 MKL_LONG test_arr_symm();                              //@
 MKL_LONG nonzero();

@@ -1,7 +1,6 @@
 
 #include "association.h"
 
-
 MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
 {
   ifstream GIVEN_WEIGHT;
@@ -47,51 +46,68 @@ MKL_LONG ASSOCIATION::set_initial_condition()
   for(MKL_LONG i=0; i<Np; i++)
     {
       HASH[i].initial(N_max, 1, -1); // this is temporal initialization
-      CASE[i].initial(N_max, 1, 0.);
-      dPDF[i].initial(N_max, 1, 0.);
-      dCDF[i].initial(N_max, 1, 0.);
-      Z[i] = 0.;
       weight[i].initial(N_max, 1, 0);
+
+      // related with suggestion probability
+      // note that it is related with N_max ~ 10*Nc + Tec << Np
+      CASE_SUGGESTION[i].initial(N_max, 1, 0.);
+      dPDF_SUGGESTION[i].initial(N_max, 1, 0.);
+      dCDF_SUGGESTION[i].initial(N_max, 1, 0.);
+      Z_SUGGESTION[i] = 0.;
+
+      // related with association probability
+      // note that the size of association is related with number of particles
+      TOKEN_ASSOCIATION[i] = 0;
+      dCDF_ASSOCIATION[i].initial(Np, 1, 0.);
+      INDEX_ASSOCIATION[i].initial(Np, 1, -1);
     }
   N_ASSOCIATION = 0;
 
   for(MKL_LONG i=0; i<Np; i++)
     {
-      dPDF[i](0) = 1.0;
-      dCDF[i](0) = 1.0;
-      Z[i] = 2*Nc;
       HASH[i](0) = i;
-      CASE[i](0) = 1.0;
       weight[i](0) = 2*Nc;
       TOKEN[i] = 1;
+
+      // related with suggestion probability
+      dPDF_SUGGESTION[i](0) = 1.0;
+      dCDF_SUGGESTION[i](0) = 1.0;
+      Z_SUGGESTION[i] = 2*Nc;
+      CASE_SUGGESTION[i](0) = 1.0;
     }
   return 0;
 }
 
 MKL_LONG ASSOCIATION::dynamic_alloc()
 {
-  CASE = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  dPDF = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  dCDF = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  Z = (double*) mkl_malloc(Np*sizeof(double), BIT);
-
+  // intrinsic association member functions
   weight = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   
+  // related with suggestion probability
+  CASE_SUGGESTION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  dPDF_SUGGESTION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  dCDF_SUGGESTION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  Z_SUGGESTION = (double*) mkl_malloc(Np*sizeof(double), BIT);
+
+  // related with association probability
+  dCDF_ASSOCIATION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  INDEX_ASSOCIATION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  TOKEN_ASSOCIATION = (MKL_LONG*) mkl_malloc(Np*sizeof(MKL_LONG), BIT);
 
   if(MULTIPLE_CONNECTIONS)
     {
       CHECK_N_ADD_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_ADD_BOOST;
       CHECK_N_MOV_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_MOV_BOOST;
-      CHECK_N_DEL_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_DEL_BOOST;
+      CHECK_N_OPP_DEL_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_OPP_DEL_BOOST;
     }
   else
     {
       CHECK_N_ADD_ASSOCIATION = TRUTH_MAP::SINGLE::CHECK_N_ADD_BOOST;
       CHECK_N_MOV_ASSOCIATION = TRUTH_MAP::SINGLE::CHECK_N_MOV_BOOST;
-      CHECK_N_DEL_ASSOCIATION = TRUTH_MAP::SINGLE::CHECK_N_DEL_BOOST;
+      CHECK_N_OPP_DEL_ASSOCIATION = TRUTH_MAP::SINGLE::CHECK_N_OPP_DEL_BOOST;
     }
   ADD_ASSOCIATION = TRUTH_MAP::ADD_ASSOCIATION_BOOST;
-  DEL_ASSOCIATION = TRUTH_MAP::DEL_ASSOCIATION_BOOST;
+  OPP_DEL_ASSOCIATION = TRUTH_MAP::OPP_DEL_ASSOCIATION_BOOST;
   CANCEL_ASSOCIATION = TRUTH_MAP::CANCEL_ASSOCIATION_BOOST;
 
   return 0;
@@ -120,26 +136,32 @@ MKL_LONG ASSOCIATION::initial_inheritance() // it should not be called by outsid
   // set_initial_condition();
   for(MKL_LONG i=0; i<Np; i++)
     {
-      CASE[i].initial(N_max, 1, 0.);
-      dPDF[i].initial(N_max, 1, 0.);
-      dCDF[i].initial(N_max, 1, 0.);
-      Z[i] = 0.;
       weight[i].initial(N_max, 1, 0);
+
+      // related with suggestion probability
+      CASE_SUGGESTION[i].initial(N_max, 1, 0.);
+      dPDF_SUGGESTION[i].initial(N_max, 1, 0.);
+      dCDF_SUGGESTION[i].initial(N_max, 1, 0.);
+      Z_SUGGESTION[i] = 0.;
+
+      // related with association probability
+      TOKEN_ASSOCIATION[i] = 0;
+      dCDF_ASSOCIATION[i].initial(Np, 1, 0.);
+      INDEX_ASSOCIATION[i].initial(Np, 1, -1);
+      
     }
   
   for(MKL_LONG i=0; i<Np; i++)
     {
-      dPDF[i](0) = 1.0;
-      dCDF[i](0) = 1.0;
-      CASE[i](0) = 1.0;
+      dPDF_SUGGESTION[i](0) = 1.0;
+      dCDF_SUGGESTION[i](0) = 1.0;
+      CASE_SUGGESTION[i](0) = 1.0;
     }
 
   return 0;
 }
 
-
-
-ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY(given_condition)
+ASSOCIATION::ASSOCIATION(COND& given_condition) : CONNECTIVITY(given_condition)
 {
   Nc = atol(given_condition("N_chains_per_particle").c_str());
   Tec = atol(given_condition("tolerance_allowing_connections").c_str());
@@ -153,15 +175,12 @@ ASSOCIATION::ASSOCIATION(TRAJECTORY& TRAJ, COND& given_condition) : CONNECTIVITY
       initial_inheritance();      
       read_exist_weight(given_condition("CONTINUATION_WEIGHT_FN").c_str());
       N_ASSOCIATION = N_TOTAL_ASSOCIATION();
-      
     }
   else
     {
       initial();
     }
 }
-
-
 
 ASSOCIATION::ASSOCIATION(MKL_LONG number_of_particles, MKL_LONG number_of_chains_per_particles, MKL_LONG tolerance_connection, bool ALLOWING_MULTIPLE_CONNECTIONS) : CONNECTIVITY(number_of_particles, 2*number_of_chains_per_particles + tolerance_connection)
 {
@@ -182,7 +201,7 @@ bool TRUTH_MAP::MULTIPLE::CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index
   return FALSE;
 }
 
-bool TRUTH_MAP::MULTIPLE::CHECK_N_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+bool TRUTH_MAP::MULTIPLE::CHECK_N_OPP_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
 {
   if (CONNECT.N_CONNECTED_ENDS(index_set[CONNECT.flag_itself]) < CONNECT.N_max && CONNECT.N_CONNECTED_ENDS(index_set[CONNECT.flag_other]) > CONNECT.N_min)
     return TRUE;
@@ -208,7 +227,7 @@ bool TRUTH_MAP::SINGLE::CHECK_N_MOV_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_s
   return TRUTH_MAP::SINGLE::CHECK_N_ADD_BOOST(CONNECT, index_set); // it has same condition
 }
 
-bool TRUTH_MAP::SINGLE::CHECK_N_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+bool TRUTH_MAP::SINGLE::CHECK_N_OPP_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
 {
   return TRUE; // this is because the single connection case
 }
@@ -228,14 +247,14 @@ bool TRUTH_MAP::ADD_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]
 }
 
 
-bool TRUTH_MAP::DEL_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+bool TRUTH_MAP::OPP_DEL_ASSOCIATION_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
 {
   if (index_set[CONNECT.flag_itself] == index_set[CONNECT.flag_new])
     return TRUE;
   return FALSE;
 }
 
-bool TRUTH_MAP::DEL_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new)
+bool TRUTH_MAP::OPP_DEL_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new)
 {
   if (index_new == index_itself && index_target != index_itself && CONNECT.N_CONNECTED_ENDS(index_itself) < CONNECT.N_max && CONNECT.N_CONNECTED_ENDS(index_target) > CONNECT.N_min)
     return TRUE;
@@ -256,9 +275,6 @@ bool TRUTH_MAP::MOV_ASSOCIATION_BASIC(ASSOCIATION& CONNECT, MKL_LONG index_itsel
     return TRUE;
   return FALSE;
 }
-
-
-
 
 bool TRUTH_MAP::NEW_ASSOCIATION_SINGLE(ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new)
 {
@@ -332,25 +348,25 @@ MKL_LONG ASSOCIATION::FIND_HASH_INDEX(MKL_LONG index_A, MKL_LONG index_B)
 }
 
 
-MKL_LONG ASSOCIATION::GET_INDEX_HASH_FROM_ROLL(MKL_LONG index_particle, double rolled_p)
+MKL_LONG ASSOCIATION::GET_INDEX_HASH_FROM_ROLL(const MKL_LONG index_particle, double rolled_p)
 {
   MKL_LONG i=0;
   for(i=0; i<TOKEN[index_particle]; i++)
     {
-      if (dCDF[index_particle](i) > rolled_p)
+      if (dCDF_SUGGESTION[index_particle](i) > rolled_p)
         return i;
     }
   return -1;
 }
 
-MKL_LONG ASSOCIATION::GET_HASH_FROM_ROLL(MKL_LONG index_particle, double rolled_p)
+MKL_LONG ASSOCIATION::GET_HASH_FROM_ROLL(const MKL_LONG index_particle, double rolled_p)
 {
   return (MKL_LONG)HASH[index_particle](GET_INDEX_HASH_FROM_ROLL(index_particle, rolled_p));
 }
 
 
 
-MKL_LONG ASSOCIATION::add_association(MKL_LONG index_particle, MKL_LONG index_target)
+MKL_LONG ASSOCIATION::add_association(const MKL_LONG index_particle, MKL_LONG index_target)
 {
   MKL_LONG hash_index_target = FIND_HASH_INDEX(index_particle, index_target); // if there is no connection, it will return TOKEN(index_particle)
 
@@ -379,18 +395,18 @@ MKL_LONG ASSOCIATION::add_association(MKL_LONG index_particle, MKL_LONG index_ta
   return 0;
 }
 
-MKL_LONG ASSOCIATION::add_association_INFO(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance)
+MKL_LONG ASSOCIATION::add_association_INFO(POTENTIAL_SET& POTs, const MKL_LONG index_particle, MKL_LONG index_target, double distance)
 {
-  double val_CASE = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
+  double val_CASE_SUGGESTION = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
   add_association(index_particle, index_target);
-  CASE[index_particle](FIND_HASH_INDEX(index_particle, index_target)) = val_CASE;
-  CASE[index_target](FIND_HASH_INDEX(index_target, index_particle)) = val_CASE;
+  CASE_SUGGESTION[index_particle](FIND_HASH_INDEX(index_particle, index_target)) = val_CASE_SUGGESTION;
+  CASE_SUGGESTION[index_target](FIND_HASH_INDEX(index_target, index_particle)) = val_CASE_SUGGESTION;
   return 0;
 }
 // note that the following code is using hash table.
 // however, this case have potential overhead compared with linked-list
 // for further implementation, the infrastructure for the interface should be refined.
-MKL_LONG ASSOCIATION::del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K)
+MKL_LONG ASSOCIATION::opp_del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K)
 {
   weight[index_I](hash_index_K) -= 1;
   if((MKL_LONG)weight[index_I](hash_index_K) == 0)
@@ -399,70 +415,76 @@ MKL_LONG ASSOCIATION::del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K
         {
           // draw for deleted hash position
           HASH[index_I](j) = HASH[index_I](j+1);
-          CASE[index_I](j) = CASE[index_I](j+1);
+          CASE_SUGGESTION[index_I](j) = CASE_SUGGESTION[index_I](j+1);
           weight[index_I](j) = weight[index_I](j+1);
         }
       // removing end-tail of the hash table
       HASH[index_I](TOKEN[index_I] - 1) = -1;
       weight[index_I](TOKEN[index_I] - 1) = 0;
-      CASE[index_I](TOKEN[index_I] - 1) = 0.;
+      CASE_SUGGESTION[index_I](TOKEN[index_I] - 1) = 0.;
       TOKEN[index_I] -= 1;
     }
   return 0; 
 }
 
-MKL_LONG ASSOCIATION::del_association_grab_IK(MKL_LONG index_I, MKL_LONG hash_index_K)
+MKL_LONG ASSOCIATION::opp_del_association_grab_IK(MKL_LONG index_I, MKL_LONG hash_index_K)
 {
-  del_association_IK(index_I, hash_index_K);
+  opp_del_association_IK(index_I, hash_index_K);
   // The same reason with add_association, the weight on here is increases by number of 2
   weight[index_I](0) += 2;
 
   return 0;
 }
 
-MKL_LONG ASSOCIATION::del_association_hash(MKL_LONG index_particle, MKL_LONG hash_index_target)
+MKL_LONG ASSOCIATION::opp_del_association_hash(const MKL_LONG index_particle, MKL_LONG hash_index_target)
 {
+  /*
+    This is the basic call for deleting the existing connection.
+    The subjected chain ends is opposite chain ends that selected at this moment, because for the association distribution subjected by itself particle, which means the subjected chains. 
+    The transition probability for chain ends in the same chain is the same with its opponents, which means we can tweak things by detachment opponent chain ends rather than subjected chain end.
+    This is the reason the function is called 'opp_del' rather than 'del'
+   */
   MKL_LONG index_target = (MKL_LONG)HASH[index_particle](hash_index_target);
-  del_association_grab_IK(index_particle, hash_index_target);
-  del_association_IK(index_target, FIND_HASH_INDEX(index_target, index_particle));
+  opp_del_association_grab_IK(index_particle, hash_index_target);
+  opp_del_association_IK(index_target, FIND_HASH_INDEX(index_target, index_particle));
   return 0;
 }
 
-MKL_LONG ASSOCIATION::del_association(MKL_LONG index_particle, MKL_LONG index_target)
+MKL_LONG ASSOCIATION::opp_del_association(const MKL_LONG index_particle, MKL_LONG index_target)
 {
   MKL_LONG hash_index_target = FIND_HASH_INDEX(index_particle, index_target);
-  del_association_hash(index_particle, hash_index_target);
+  opp_del_association_hash(index_particle, hash_index_target);
   return 0;
 }
 
 
-double KINETICS::CONNECTIVITY_update_CASE_particle_hash_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance)
+double KINETICS::CONNECTIVITY_update_CASE_SUGGESTION_particle_hash_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, const MKL_LONG index_particle, MKL_LONG hash_index_target, double distance)
 {
-  CONNECT->CASE[index_particle](hash_index_target) = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
-  return CONNECT->CASE[index_particle](hash_index_target);
+  CONNECT->CASE_SUGGESTION[index_particle](hash_index_target) = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
+  return CONNECT->CASE_SUGGESTION[index_particle](hash_index_target);
 }
 
-double KINETICS::CONNECTIVITY_update_CASE_particle_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance)
+double KINETICS::CONNECTIVITY_update_CASE_SUGGESTION_particle_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, const MKL_LONG index_particle, MKL_LONG index_target, double distance)
 {
   MKL_LONG hash_index_target = CONNECT->FIND_HASH_INDEX(index_particle, index_target);
-  return CONNECTIVITY_update_CASE_particle_hash_target(CONNECT, POTs, index_particle, hash_index_target, distance);
+  return CONNECTIVITY_update_CASE_SUGGESTION_particle_hash_target(CONNECT, POTs, index_particle, hash_index_target, distance);
 }
 
-double KINETICS::CONNECTIVITY_update_Z_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle)
+double KINETICS::CONNECTIVITY_update_Z_SUGGESTION_particle(ASSOCIATION* CONNECT, const MKL_LONG index_particle)
 {
   
   // result = dot(x, y)
-  CONNECT->Z[index_particle] = cblas_ddot(CONNECT->TOKEN[index_particle], // N
-                                         CONNECT->weight[index_particle].data, // x
-                                         1,
-                                         CONNECT->CASE[index_particle].data, // y
-                                         1);
-  return CONNECT->Z[index_particle];
+  CONNECT->Z_SUGGESTION[index_particle] = cblas_ddot(CONNECT->TOKEN[index_particle], // N
+                                                     CONNECT->weight[index_particle].data, // x
+                                                     1,
+                                                     CONNECT->CASE_SUGGESTION[index_particle].data, // y
+                                                     1);
+  return CONNECT->Z_SUGGESTION[index_particle];
 }
 
 
 
-double KINETICS::CONNECTIVITY_update_dPDF_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle)
+double KINETICS::CONNECTIVITY_update_dPDF_SUGGESTION_particle(ASSOCIATION* CONNECT, const MKL_LONG index_particle)
 {
   // Note that the element-wise multiplication can be done to make diagonalization. BLAS has good aspect for this functionality.
   // DSBMV which gave us y = alpha*A*x + beta*y,
@@ -474,50 +496,102 @@ double KINETICS::CONNECTIVITY_update_dPDF_particle(ASSOCIATION* CONNECT, MKL_LON
               CblasUpper,
               CONNECT->TOKEN[index_particle], // number of accounting
               0, // k is related with band. 0 for diagonal (or super-diagonal)
-              1./CONNECT->Z[index_particle], // alpha
+              1./CONNECT->Z_SUGGESTION[index_particle], // alpha
               CONNECT->weight[index_particle].data, // A (here is array for diagonal components)
               1,  // lda this is leading dimension which inc A. here is set as 1 because the A is only contained diagonal components
-              CONNECT->CASE[index_particle].data, // x
+              CONNECT->CASE_SUGGESTION[index_particle].data, // x
               1, // incx
               0., // beta. 0 is removing the previous history because 0*y
-              CONNECT->dPDF[index_particle].data, // y
+              CONNECT->dPDF_SUGGESTION[index_particle].data, // y
               1); // incy
   return 0;
 }
 
-double KINETICS::CONNECTIVITY_update_dCDF_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle)
+double KINETICS::CONNECTIVITY_update_dCDF_SUGGESTION_particle(ASSOCIATION* CONNECT, const MKL_LONG index_particle)
 {
-  CONNECT->dCDF[index_particle](0) = CONNECT->dPDF[index_particle](0);
+  CONNECT->dCDF_SUGGESTION[index_particle](0) = CONNECT->dPDF_SUGGESTION[index_particle](0);
   for(MKL_LONG k=1; k<CONNECT->TOKEN[index_particle]; k++)
     {
-      CONNECT->dCDF[index_particle](k) = CONNECT->dCDF[index_particle](k-1) + CONNECT->dPDF[index_particle](k);
+      CONNECT->dCDF_SUGGESTION[index_particle](k) = CONNECT->dCDF_SUGGESTION[index_particle](k-1) + CONNECT->dPDF_SUGGESTION[index_particle](k);
     }
-  return CONNECT->dCDF[index_particle](CONNECT->TOKEN[index_particle]);
+  return CONNECT->dCDF_SUGGESTION[index_particle](CONNECT->TOKEN[index_particle]);
 }
 
 
-double ASSOCIATION::update_CASE_particle_hash_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance)
+double ASSOCIATION::update_CASE_SUGGESTION_particle_hash_target(POTENTIAL_SET& POTs, const MKL_LONG index_particle, MKL_LONG hash_index_target, double distance)
 {
-  return KINETICS::CONNECTIVITY_update_CASE_particle_hash_target(this, POTs, index_particle, hash_index_target, distance);
+  return KINETICS::CONNECTIVITY_update_CASE_SUGGESTION_particle_hash_target(this, POTs, index_particle, hash_index_target, distance);
 }
 
-double ASSOCIATION::update_CASE_particle_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance)
+double ASSOCIATION::update_CASE_SUGGESTION_particle_target(POTENTIAL_SET& POTs, const MKL_LONG index_particle, MKL_LONG index_target, double distance)
 {
-  return KINETICS::CONNECTIVITY_update_CASE_particle_target(this, POTs, index_particle, index_target, distance);
+  return KINETICS::CONNECTIVITY_update_CASE_SUGGESTION_particle_target(this, POTs, index_particle, index_target, distance);
 }
-double ASSOCIATION::update_Z_particle(MKL_LONG index_particle)
+double ASSOCIATION::update_Z_SUGGESTION_particle(const MKL_LONG index_particle)
 {
-  return KINETICS::CONNECTIVITY_update_Z_particle(this, index_particle);
+  return KINETICS::CONNECTIVITY_update_Z_SUGGESTION_particle(this, index_particle);
 }
 
-double ASSOCIATION::update_dPDF_particle(MKL_LONG index_particle)
+double ASSOCIATION::update_dPDF_SUGGESTION_particle(const MKL_LONG index_particle)
 {
-  return KINETICS::CONNECTIVITY_update_dPDF_particle(this, index_particle);
+  return KINETICS::CONNECTIVITY_update_dPDF_SUGGESTION_particle(this, index_particle);
 }
 
-double ASSOCIATION::update_dCDF_particle(MKL_LONG index_particle)
+double ASSOCIATION::update_dCDF_SUGGESTION_particle(const MKL_LONG index_particle)
 {
-  return KINETICS::CONNECTIVITY_update_dCDF_particle(this, index_particle);
+  return KINETICS::CONNECTIVITY_update_dCDF_SUGGESTION_particle(this, index_particle);
 }
 
+double ASSOCIATION::update_CHAIN_SUGGESTION_MAP_particle(const MKL_LONG index_particle, POTENTIAL_SET& POTs, RDIST& R_boost)
+{
+  // 1. compute all the case (weight) for pair of particles
+  for(MKL_LONG j=0; j<TOKEN[index_particle]; j++)
+    {
+      // CONNECT.HASH[i](j) gave us the index for target
+      // which means we have to compute distance between i and k where k is given by CONNECT.HASH[i](j).
+      // CONNECT.update_CASE_SUGGESTION_particle_hash_target(POTs, i, j, R_minimum_distance_boost[i](CONNECT.HASH[i](j))); // RDIS      
+      update_CASE_SUGGESTION_particle_hash_target(POTs, index_particle, j, R_boost.Rsca[index_particle](this->HASH[index_particle](j)));
+    }
+  // 2. compute suggestion partition function
+  update_Z_SUGGESTION_particle(index_particle);
+  // 3. compute probability
+  update_dPDF_SUGGESTION_particle(index_particle);
+  // 4. cumulating probability
+  update_dCDF_SUGGESTION_particle(index_particle);
+  return 0;
+}
 
+double ASSOCIATION::update_ASSOCIATION_MAP_particle(const MKL_LONG index_particle, POTENTIAL_SET& POTs, RDIST& R_boost)
+{
+  MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
+  MKL_LONG count_CDF_TOKEN = 0;
+  dCDF_ASSOCIATION[index_particle].set_value(0);
+  INDEX_ASSOCIATION[index_particle].set_value(-1);
+  TOKEN_ASSOCIATION[index_particle] = 0;
+  for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
+    {
+      MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k];
+      for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
+        {
+          MKL_LONG index_target = R_boost(cell_index_neighbor, p);
+          double distance = R_boost.Rsca[index_particle](index_target);
+          INDEX_ASSOCIATION[index_particle](count_CDF_TOKEN) = index_target;
+          dCDF_ASSOCIATION[index_particle](count_CDF_TOKEN) = POTs.PDF_connector(distance, POTs.force_variables);
+          if(dCDF_ASSOCIATION[index_particle](count_CDF_TOKEN) > 0.)
+            {
+              TOKEN_ASSOCIATION[index_particle] ++;
+            }
+          count_CDF_TOKEN++;
+        }
+    }
+  dCDF_ASSOCIATION[index_particle].sort2(INDEX_ASSOCIATION[index_particle]);
+  for(MKL_LONG k=Np - TOKEN_ASSOCIATION[index_particle] + 1; k<Np; k++)
+    {
+      dCDF_ASSOCIATION[index_particle](k) += dCDF_ASSOCIATION[index_particle](k-1);
+    }
+  for(MKL_LONG k=Np - TOKEN_ASSOCIATION[index_particle]; k<Np; k++)
+    {
+      dCDF_ASSOCIATION[index_particle](k) /= dCDF_ASSOCIATION[index_particle](Np - 1);
+    }
+  return 0;
+}

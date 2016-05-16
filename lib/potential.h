@@ -5,7 +5,8 @@
 #include <iostream>
 #include <math.h>
 #include <mkl.h>
-#include "read_file_condition.h"
+/* #include "read_file_condition.h" */
+#include "file_IO.h"
 #include "matrix.h"
 #include <string>
 #define BIT 64
@@ -13,6 +14,8 @@
 class POTENTIAL_SET
 {
  public:
+  
+  // member variables
   double *force_variables;
   double (*f_connector)(double distance, double* given_variables);
   double (*e_connector)(double distance, double* given_variables);
@@ -116,6 +119,10 @@ namespace KINETICS
   }
 
   double dissociation_probability(double distance, double tension, double* given_variables);
+  namespace FIRST_ORDER
+  {
+    double dissociation_probability(double distance, double tension, double* given_variables);
+  }
   /*   double detachment_weight(double distance, double tension, double* given_variables); */
   /*   double transition_probability(double distance, double tension, double* given_varialbes); */
   /* } */

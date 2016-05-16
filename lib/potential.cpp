@@ -206,6 +206,7 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
   given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
   given_POT.force_variables[3] = atol(given_cond("N_dimension").c_str());
   given_POT.force_variables[4] = atof(given_cond("l_cap").c_str());
+
   given_POT.f_repulsion = FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_force;
   given_POT.e_repulsion = FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_potential;
 
@@ -263,7 +264,13 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
       // we have to check Dt for topological update
       // note that it is dt*N_steps_block
       given_POT.force_variables[6] = atof(given_cond("dt").c_str())*atof(given_cond("N_steps_block").c_str())/atof(given_cond("Rt").c_str());
-     }
+    }
+  else if (given_cond("transition_probability")=="FIRST_ORDER")
+    {
+      given_POT.transition = KINETICS::FIRST_ORDER::dissociation_probability;
+      given_POT.force_variables[6] = atof(given_cond("dt").c_str())*atof(given_cond("N_steps_block").c_str())/atof(given_cond("Rt").c_str());
+
+    }
   else
     {
       // this is default setting
@@ -341,5 +348,17 @@ double KINETICS::dissociation_probability(double distance, double tension, doubl
   double tpa = given_variables[6]*exp(tension*given_variables[4]);
   if (tpa > 1.0)
     return 1.0;
+  return tpa;
+}
+
+double KINETICS::FIRST_ORDER::dissociation_probability(double distance, double tension, double* given_variables)
+{
+  double Dt = given_variables[6];
+  double lcap = given_variables[4];
+  double beta = exp(tension*lcap);
+  double tpa = 1.0 - exp(-beta*Dt);
+  // double tpa = given_variables[6]*exp(tension*given_variables[4]);
+  // if (tpa > 1.0)
+  //   return 1.0;
   return tpa;
 }
