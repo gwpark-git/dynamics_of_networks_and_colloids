@@ -119,6 +119,10 @@ namespace KINETICS
   }
 
   double dissociation_probability(double distance, double tension, double* given_variables);
+  namespace FIRST_ORDER
+  {
+    double dissociation_probability(double distance, double tension, double* given_variables);
+  }
   /*   double detachment_weight(double distance, double tension, double* given_variables); */
   /*   double transition_probability(double distance, double tension, double* given_varialbes); */
   /* } */
