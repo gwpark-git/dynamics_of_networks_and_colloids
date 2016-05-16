@@ -71,9 +71,9 @@ MKL_LONG ACTION::UPDATE_INFORMATION(ASSOCIATION& CONNECT, INDEX_MC& IDX, MKL_LON
 {
   for(MKL_LONG i=0; i<IDX.N_BOOST_COUNT[IDENTIFIER_ACTION]; i++)
     {
-      CONNECT.update_Z_particle(IDX.beads[i]);
-      CONNECT.update_dPDF_particle(IDX.beads[i]);
-      CONNECT.update_dCDF_particle(IDX.beads[i]);
+      CONNECT.update_Z_SUGGESTION_particle(IDX.beads[i]);
+      CONNECT.update_dPDF_SUGGESTION_particle(IDX.beads[i]);
+      CONNECT.update_dCDF_SUGGESTION_particle(IDX.beads[i]);
     }
   return 0;
 }
@@ -193,7 +193,7 @@ MKL_LONG SEARCHING::backtrace_cell_list(MATRIX& given_arr, MKL_LONG TOKEN, doubl
 
   for(MKL_LONG k= given_arr.size - 1; k >= given_arr.size - TOKEN; k--)
     {
-      // printf("dCDF[%ld][%ld (min = %ld)] = %4.1e\n", index_particle, k, given_arr.size - TOKEN, given_arr(k));
+      // printf("dCDF_SUGGESTION[%ld][%ld (min = %ld)] = %4.1e\n", index_particle, k, given_arr.size - TOKEN, given_arr(k));
       if(given_arr(k) < p)
         {
           return k+1;

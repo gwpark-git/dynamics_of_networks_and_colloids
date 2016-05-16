@@ -31,7 +31,7 @@ class TRAJECTORY : public MATRIX
   // as mentioned in previously, the dimensionality on this class is set to 2 for testing purpose. In order to make generalized code, it will changed and implemented into initiator of this class, later.
 
   string Method;
-  MKL_LONG N_energy_frequency;
+  /* MKL_LONG N_energy_frequency; */
   
   MKL_LONG Nt;
   MKL_LONG Np;
@@ -55,13 +55,15 @@ class TRAJECTORY : public MATRIX
     return index(t, i_bead*2*N_dimension + 1 + N_dimension + direction);
   }
   
-  MKL_LONG traj_read(char fn[]);
-  MKL_LONG traj_write(char fn[])
-  {
-    fprint_out(fn);
-    return 0;
-  }
-
+  /* MKL_LONG traj_read(char fn[]); */
+  /* MKL_LONG traj_write(char fn[]) */
+  /* { */
+  /*   fprint_out(fn); */
+  /*   return 0; */
+  /* } */
+  /* MKL_LONG traj_read(std::ofstream& file); */
+  /* MKL_LONG traj_write(std::ofstrea& file); */
+  
   // initiator
   MKL_LONG initialization(MKL_LONG N_time, MKL_LONG N_particle, double given_dt);
   MKL_LONG initialization_COND(COND& given_condition);
