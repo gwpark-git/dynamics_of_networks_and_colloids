@@ -46,7 +46,40 @@ class CLIST
   MKL_LONG allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost);
   MKL_LONG identify_cell_from_given_position(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost);
   MKL_LONG allocate_cells_from_positions(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost);
+  /* MKL_LONG loop_all_pair(const MKL_LONG index_particle, MKL_LONG& index_target) */
+  /* { */
+  /*   MKL_LONG cell_index_particle = cell_index[index_particle]; */
+  /*   for(MKL_LONG k=0; k<R_boost.N_neighbor_cells;k++) */
+  /*     { */
+  /*       MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k]; */
+  /*       for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++) */
+  /*         { */
+  /*           MKL_LONG index_target = R_boost(cell_index_neighbor, p); */
+  /*         } */
 
+  /*     } */
+    
+  /*   return 0; */
+  /* } */
+  /* MKL_LONG get_index(const MKL_LONG index_particle, const MKL_LONG index_neighbor_cell, const MKL_LONG index_token) */
+  /* { */
+  /*   MKL_LONG cell_index_particle = cell_index[index_particle]; */
+  /*   MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k]; */
+  /*   return R_boost(cell_index_neighbor, index_token); */
+  /* } */
+
+  /* MKL_LONG get_pair(const MKL_LONG index_particle, MKL_LONG& index_neighbor_cell, MKL_LONG& index_token, MKL_LONG& index_target) */
+  /* { */
+  /*   index_target = R_boost(cell_index_neighbor, index_token); */
+    
+  /*   /\* MKL_LONG cell_index_particle = cell_index[index_particle]; *\/ */
+  /*   /\* MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k]; *\/ */
+  /*   /\* index_target = R_boost(cell_index_neighbor, index_token); *\/ */
+    
+  /* } */
+
+  
+    
   // operator overloading
   MKL_LONG& operator()(MKL_LONG i, MKL_LONG j); // it will return the index for CELL[i][j] as reference variable
 

@@ -20,27 +20,7 @@ int help()
   cout << "\tSTRING format: filename_trajectory, filename_energy, filename_energy_detail\n";
   return 0;
 }
-/*
 
-  Think: should I include internal time measurment after update of code?
-  The boosting mechanism is of importance for further implementation.
-  However, the measurment itself is somehow time consumming.
-  Do I bear it until end of my simulation? Think about it.
-
-  struct TIME
-  {
-  double ST_simulation;
-  double ST_MC;
-  double ST_PDF, END_PDF;
-  double PDF_ST_RDIST, PDF_ST_PDF, PDF_ST_SORT;
-
-  double 
-  
-  
-  }
-*/
-
-// MKL_LONG main_NAPLE_ASSOCIATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, COND& given_condition);
 MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, CHAIN_HANDLE& CHAIN, RECORD_DATA& DATA, COND& given_condition);
 
 MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition);
@@ -95,19 +75,6 @@ int main(int argc, char* argv[])
                 }
               main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJ, POTs, CONNECT, CHAIN, DATA, given_condition);
 
-              // if (given_condition("tracking_individual_chain") == "TRUE")
-              //   {
-              //     CHAIN_HANDLE CHAIN(given_condition);
-              //     if(given_condition("CONTINUATION_CONNECTION") == "TRUE")
-              //       {
-              //         CHAIN.allocate_existing_bridges(CONNECT);
-              //       }
-              //     main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJ, POTs, CONNECT, CHAIN, given_condition);
-              //   }
-              // else
-              //   {
-              //     main_NAPLE_ASSOCIATION(TRAJ, POTs, CONNECT, given_condition);
-              //   }
             }
         }
       else
@@ -196,17 +163,6 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& 
     Hence, it is of importance that the dynamic allocation set with its pointer type.
   */
   RNG_BOOST RNG(given_condition);
-  // const gsl_rng_type *T_boost;
-
-  // gsl_rng **r_boost_arr = (gsl_rng**)mkl_malloc(N_THREADS_BD*sizeof(gsl_rng*), BIT);
-  // gsl_rng_env_setup();
-  // T_boost = gsl_rng_default;
-  // for(MKL_LONG i=0; i<N_THREADS_BD; i++)
-  //   {
-  //     r_boost_arr[i] = gsl_rng_alloc(T_boost);
-  //     // gsl_rng_set(r_boost_arr[i], random());
-  //     gsl_rng_set(r_boost_arr[i], i);
-  //   }
   
   printf("DONE\n");
   printf("START SIMULATION\n");
@@ -270,8 +226,6 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& 
           force_repulsion[i].set_value(0);
           force_random[i].set_value(0);
 
-          // INTEGRATOR::EULER::cal_repulsion_force_R_boost(TRAJ, POTs, force_repulsion[i], index_t_now, i, R_boost);
-          // INTEGRATOR::EULER::cal_random_force_boost(TRAJ, POTs, force_random[i], index_t_now, r_boost_arr[it]);
           INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
           INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
           
@@ -325,15 +279,7 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& 
   mkl_free(vec_boost_Nd_parallel);
   mkl_free(force_repulsion);
   mkl_free(force_random);
-  //   for(MKL_LONG i=0; i<TRAJ.Np; i++)
-  //     mkl_free(R_minimum_vec_boost[i]); // RDIST
-  // mkl_free(R_minimum_vec_boost); // RDIST
-  // mkl_free(R_minimum_distance_boost); // RDIST
   mkl_free(tmp_index_vec);
-  // for(MKL_LONG i=0; i<N_THREADS_BD; i++)
-  //   gsl_rng_free(r_boost_arr[i]); // for boosting
-
-  // mkl_free(r_boost_arr);
   return 0;
 }
 
@@ -342,15 +288,6 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   printf("STARTING_MAIN_ROOT\n"); // ERR_TEST
   double time_st_simulation = dsecnd(); // ERR_TEST
   MKL_LONG N_steps_block = atol(given_condition("N_steps_block").c_str());
-  // RECORD_DATA DATA(given_condition);
-  // string filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
-  // string filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
-  // string filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
-  // string filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
-  // string filename_chain = (given_condition("output_path") + '/' + given_condition("filename_base") + ".chain").c_str();
-  // string filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
-  
-  // ofstream FILE_LOG;
   
   MKL_LONG N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
   MKL_LONG N_THREADS_SS = atol(given_condition("N_THREADS_SS").c_str());
@@ -365,15 +302,9 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   LOCK LOCKER(TRAJ.Np);
   MKL_LONG *tmp_index_vec = (MKL_LONG*) mkl_malloc(TRAJ.N_dimension*sizeof(MKL_LONG), BIT);
   MATRIX *vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); 
-  // MATRIX **R_minimum_vec_boost = (MATRIX**) mkl_malloc(TRAJ.Np*sizeof(MATRIX*), BIT); //RDIST
-  // MATRIX *R_minimum_distance_boost = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); // RDIST
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       vec_boost_Nd_parallel[i].initial(TRAJ.N_dimension, 1, 0.);
-      // R_minimum_vec_boost[i] = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT); // RDIST
-      // for(MKL_LONG j=0; j<TRAJ.Np; j++)
-      //   R_minimum_vec_boost[i][j].initial(3, 1, 0.); // RDIST
-      // R_minimum_distance_boost[i].initial(TRAJ.Np, 1, 0.); // RDIST
     }
   RDIST R_boost(given_condition);
   
@@ -428,10 +359,6 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
     }
   printf("DONE\n");
   MATRIX tmp_vec(TRAJ.N_dimension, 1, 0.);
-  // The following condition duplicate and may violate the inheritance scheme from the previous association
-  // CONNECT.initial();
-  // for(MKL_LONG i=0; i<CONNECT.Np; i++)
-  //   CONNECT.TOKEN[i] = 1;
 
   double dt_1 = 0., dt_2 = 0., dt_3 = 0., dt_4 = 0., dt_5 = 0., dt_6 = 0., dt_7 = 0.;
   double dt_det_pdf = 0.;
@@ -439,29 +366,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   double time_MC_1 = 0., time_MC_2 = 0., time_MC_3 = 0., time_MC_4 = 0., time_MC_5 = 0., time_MC_6 = 0., time_MC_7 = 0., time_MC_8 = 0.;
 
   printf("GENERATING RANDOM VECTOR BOOST ... ");
-  /*
-    "gsl_rng *r_boost;" is the basic notation. i.e., it is already given by pointer.
-    Hence, it is of importance that the dynamic allocation set with its pointer type.
-  */
   RNG_BOOST RNG(given_condition);
-  // const gsl_rng_type *T_boost;
-
-  // gsl_rng **r_boost_arr = (gsl_rng**)mkl_malloc(N_THREADS_BD*sizeof(gsl_rng*), BIT);
-  // gsl_rng_env_setup();
-  // T_boost = gsl_rng_default;
-  // for(MKL_LONG i=0; i<N_THREADS_BD; i++)
-  //   {
-  //     r_boost_arr[i] = gsl_rng_alloc(T_boost);
-  //     // gsl_rng_set(r_boost_arr[i], random());
-  //     gsl_rng_set(r_boost_arr[i], i);
-  //   }
-
-  // gsl_rng **RNG.BOOST_SS = (gsl_rng**)mkl_malloc(N_THREADS_SS*sizeof(gsl_rng*), BIT);  
-  // for(MKL_LONG i=0; i<N_THREADS_SS; i++)
-  //   {
-  //     RNG.BOOST_SS[i] = gsl_rng_alloc(T_boost);
-  //     gsl_rng_set(RNG.BOOST_SS[i], i+N_THREADS_BD);
-  //   }
   
   INDEX_MC *IDX_ARR = (INDEX_MC*) mkl_malloc(N_THREADS_BD*sizeof(INDEX_MC), BIT);
   for(MKL_LONG i=0; i<N_THREADS_SS; i++)
@@ -474,8 +379,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   printf("START SIMULATION\n");
   MKL_LONG N_associations = 0;
 
-  // MKL_LONG IDENTIFIER_ASSOC = TRUE; // the identification is disabled
-  double max_try_ASSOC = tolerance_association;
+  // double max_try_ASSOC = tolerance_association;
   double N_diff = 0.;
   MKL_LONG N_tot_associable_chain = TRAJ.Np*atoi(given_condition("N_chains_per_particle").c_str());
   
@@ -501,6 +405,8 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
       */
       for(MKL_LONG index_particle=0; index_particle<TRAJ.Np; index_particle++)
         {
+          // to get all pairs of particles in cell
+          MKL_LONG index_target;
           MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
           for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
             {
@@ -508,11 +414,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
               for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
                 {
                   MKL_LONG index_target = R_boost(cell_index_neighbor, p);
-                  // double distance = GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target]);
-                  // printf("(%4.1e, %4.1e, %4.1e), ", R_boost.Rvec[index_particle][index_target](0), R_boost.Rvec[index_particle][index_target](1), R_boost.Rvec[index_particle][index_target](2));
                   double distance = GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target], R_boost.BEYOND_BOX[cell_index_particle][k]);
-                  // printf("(%4.1e, %4.1e, %4.1e)\n ", R_boost.Rvec[index_particle][index_target](0), R_boost.Rvec[index_particle][index_target](1), R_boost.Rvec[index_particle][index_target](2));
-                  // printf("(%4.1e, %4.1e, %4.1e, d2 = %4.1e, %4.1e\n", GEOMETRY::get_minimum_distance(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target]), GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target], R_boost.BEYOND_BOX[cell_index_particle][k]));
                   R_boost.Rsca[index_particle](index_target) = distance;
                 } // p
             } // k
@@ -808,12 +710,12 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
           double dt_pdf_all = dt_pdf + dt_sort;
           
           printf("##### STEPS = %ld\tTIME_WR = %8.6e\tENERGY = %6.3e\n", TRAJ.c_t, TRAJ(index_t_now), energy(1));
-          printf("time consuming: MC, LV, AN, FILE, DIST = %8.6e, %8.6e, %8.6e, %8.6e, %8.6e\n", time_MC, time_LV, time_AN, time_file, total_dt_pdf);
-          printf("time fraction:  MC, LV, AN, FILE, DIST = %6.1f, %6.1f, %6.1f, %6.1f, %6.1f\n", time_MC*100/total_time, time_LV*100/total_time, time_AN*100/total_time, time_file*100/total_time, total_dt_pdf*100/total_time);
-          printf("MC step analysis: all pdf = %6.3e, basic_random = %6.3e, getting_hash = %6.3e, det_jump = %6.3e, new_end = %6.3e, LOCKING = %6.3e, action = %6.3e, update = %6.3e\n", dt_pdf_all, dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7);
-          printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, LOCKING = %6.3f, action = %6.1f, update = %6.1f\n", dt_pdf_all*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
-          printf("computing rdist: %6.3e (%3.1f), computing pdf: %6.3e (%3.1f), sorting pdf: %6.3e (%3.1f)\n", dt_rdist, 100.*dt_rdist/total_dt_pdf, dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
-          printf("LAST IDENTIFIER: cnt = %ld, N_diff = %6.3e, N_tot_asso = %ld, ratio = %6.3e, NAS = %ld, fraction=%4.3f, total time=%4.3e ####\n\n", cnt, N_diff, N_tot_associable_chain, N_diff/N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain, energy(5));
+          printf("time consuming: MC = %3.2e (%3.1f), LV = %3.2e (%3.1f), AN = %3.2e (%3.1f), FILE = %3.2e (%3.1f), DIST = %3.2e (%3.1f)\n", time_MC, time_MC*100/total_time, time_LV, time_LV*100/total_time, time_AN, time_AN*100/total_time, time_file, time_file*100/total_time, total_dt_pdf, total_dt_pdf*100/total_time);
+          // printf("time fraction:  MC, LV, AN, FILE, DIST = %6.1f, %6.1f, %6.1f, %6.1f, %6.1f\n", time_MC*100/total_time, time_LV*100/total_time, time_AN*100/total_time, time_file*100/total_time, total_dt_pdf*100/total_time);
+          printf("MC: all pdf = %3.2e (%3.1f), basic_random = %3.2e (%3.1f), getting_hash = %3.2e (%3.1f), det_jump = %3.2e (%3.1f), new_end = %3.2e (%3.1f), LOCKING = %3.2e (%3.1f), action = %3.2e (%3.1f), update = %3.2e (%3.1f)\n", dt_pdf_all, dt_pdf_all*100./total_dt, dt_1, dt_1*100/total_dt, dt_2, dt_2*100./total_dt, dt_3, dt_3*100./total_dt, dt_4, dt_4*100./total_dt, dt_5, dt_5*100./total_dt, dt_6, dt_6*100./total_dt, dt_7, dt_7*100./total_dt);
+          // printf("frac MC step analysis: all pdf = %6.1f, basic_random = %6.1f, getting_hash = %6.1f, det_jump = %6.1f, new_end = %6.1f, LOCKING = %6.3f, action = %6.1f, update = %6.1f\n", dt_pdf_all*100./total_dt, dt_1*100./total_dt, dt_2*100./total_dt, dt_3*100./total_dt, dt_4*100./total_dt, dt_5*100./total_dt, dt_6*100./total_dt, dt_7*100./total_dt);
+          printf("DIST: rdist = %6.3e (%3.1f), computing pdf = %6.3e (%3.1f), sorting pdf = %6.3e (%3.1f)\n", dt_rdist, 100.*dt_rdist/total_dt_pdf, dt_pdf, 100.*dt_pdf/total_dt_pdf, dt_sort, dt_sort*100./total_dt_pdf);
+          printf("CHECK LAST STATISTICS: N_tot_asso = %ld, NAS = %ld, fraction=%4.3f, total time=%4.3e ####\n\n", N_tot_associable_chain, N_associations, N_associations/(double)N_tot_associable_chain, energy(5));
 
           TRAJ.fprint_row(DATA.traj, index_t_now);
           energy.fprint_row(DATA.ener, 0);
@@ -850,10 +752,6 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   mkl_free(dCDF_U);
   mkl_free(INDEX_dCDF_U);
   mkl_free(dCDF_TOKEN);  
-  // for(MKL_LONG i=0; i<N_THREADS_BD; i++)
-  //   gsl_rng_free(r_boost_arr[i]); // for boosting
-
-  // mkl_free(r_boost_arr);
   mkl_free(IDX_ARR);
   return 0;
 }
