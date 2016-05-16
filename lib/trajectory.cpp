@@ -93,8 +93,10 @@ MKL_LONG TRAJECTORY::initialization_COND(COND& given_condition)
     }
   dt = atof(given_condition("dt").c_str());
 
-  N_energy_frequency = atol(given_condition("N_energy_frequency").c_str());
+  // N_energy_frequency = atol(given_condition("N_energy_frequency").c_str());
   // srandom(0);
+  // MKL_LONG random_seed = atoi(given_condition("basic_random_seed").c_str());
+  // srandom(random_seed);
   srandom(atoi(given_condition("basic_random_seed").c_str()));
 
   if (given_condition("CONTINUATION_TRAJ")=="TRUE")

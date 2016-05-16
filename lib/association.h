@@ -19,6 +19,7 @@ extern "C" {
 /* #include "trajectory.h" */
 /* #include "read_file_condition.h" */
 #include "file_IO.h"
+#include "geometry.h"
 
 class ASSOCIATION : public CONNECTIVITY
 {
@@ -29,12 +30,18 @@ class ASSOCIATION : public CONNECTIVITY
   MKL_LONG N_max; // 2Nc + Tec
   MKL_LONG N_ASSOCIATION;
   bool MULTIPLE_CONNECTIONS;
-  MATRIX *CASE;
-  MATRIX *dPDF;
-  MATRIX *dCDF;
-  double *Z;
 
   MATRIX *weight;
+  // related with suggestion probability (selecting a degenerated pair)
+  MATRIX *CASE_SUGGESTION;
+  MATRIX *dPDF_SUGGESTION;
+  MATRIX *dCDF_SUGGESTION;
+  double *Z_SUGGESTION;
+
+  // related with association probability
+  MATRIX *dCDF_ASSOCIATION;
+  MATRIX *INDEX_ASSOCIATION;
+  MKL_LONG *TOKEN_ASSOCIATION;
 
   // member variables
   
@@ -56,30 +63,33 @@ class ASSOCIATION : public CONNECTIVITY
   MKL_LONG N_TOTAL_CONNECTED_ENDS();
   bool CHECK_EXIST(MKL_LONG index_A, MKL_LONG index_B);
   bool CHECK_EXIST_1D(MKL_LONG index_A, MKL_LONG index_B);
-  MKL_LONG add_association(MKL_LONG index_particle, MKL_LONG index_target);
-  MKL_LONG add_association_INFO(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance);
-  MKL_LONG opp_del_association(MKL_LONG index_particle, MKL_LONG index_target);
-  MKL_LONG opp_del_association_hash(MKL_LONG index_particle, MKL_LONG hash_index_target);
+  MKL_LONG add_association(const MKL_LONG index_particle, MKL_LONG index_target);
+  MKL_LONG add_association_INFO(POTENTIAL_SET& POTs, const MKL_LONG index_particle, MKL_LONG index_target, double distance);
+  MKL_LONG opp_del_association(const MKL_LONG index_particle, MKL_LONG index_target);
+  MKL_LONG opp_del_association_hash(const MKL_LONG index_particle, MKL_LONG hash_index_target);
   MKL_LONG opp_del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K);
   MKL_LONG opp_del_association_grab_IK(MKL_LONG index_I, MKL_LONG hash_index_K);
   
-  MKL_LONG GET_INDEX_HASH_FROM_ROLL(MKL_LONG index_particle, double rolled_p);
-  MKL_LONG GET_HASH_FROM_ROLL(MKL_LONG index_particle, double rolled_p);
+  MKL_LONG GET_INDEX_HASH_FROM_ROLL(const MKL_LONG index_particle, double rolled_p);
+  MKL_LONG GET_HASH_FROM_ROLL(const MKL_LONG index_particle, double rolled_p);
   MKL_LONG FIND_HASH_INDEX(MKL_LONG index_A, MKL_LONG index_B);
 
 
   // At the moment, there is no namespace dependence between KINETICS::NORMALIZED and KINETICS::METROPOLIS.
   // The dependency is set with the w_function and transtion_probability that is developed with lib_potential.
   // For better performance, it would be better to tune the following with specific dependencies (future works).
-  double update_CASE_particle_hash_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance);
+  double update_CASE_SUGGESTION_particle_hash_target(POTENTIAL_SET& POTs, const MKL_LONG index_particle, MKL_LONG hash_index_target, double distance);
 
-  double update_CASE_particle_target(POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance);
-  /* MKL_LONG CONNECTIVITY_update_CASE_particle(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, double distance); */
-  double update_Z_particle(MKL_LONG index_particle);
-  double update_dPDF_particle(MKL_LONG index_particle);
-  double update_dCDF_particle(MKL_LONG index_particle);
+  double update_CASE_SUGGESTION_particle_target(POTENTIAL_SET& POTs, const MKL_LONG index_particle, MKL_LONG index_target, double distance);
+  /* MKL_LONG CONNECTIVITY_update_CASE_SUGGESTION_particle(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, const MKL_LONG index_particle, double distance); */
+  double update_Z_SUGGESTION_particle(const MKL_LONG index_particle);
+  double update_dPDF_SUGGESTION_particle(const MKL_LONG index_particle);
+  double update_dCDF_SUGGESTION_particle(const MKL_LONG index_particle);
+  double update_CHAIN_SUGGESTION_MAP_particle(const MKL_LONG index_particle, POTENTIAL_SET& POTs, RDIST& R_boost);
 
 
+  double update_ASSOCIATION_MAP_particle(const MKL_LONG index_particle, POTENTIAL_SET& POTs, RDIST& R_boost);
+  
   
  ASSOCIATION() : CONNECTIVITY(){}
 
@@ -92,11 +102,18 @@ class ASSOCIATION : public CONNECTIVITY
   MKL_LONG initial_inheritance();
   virtual ~ASSOCIATION()
     {
-      mkl_free(CASE);
-      mkl_free(dPDF);
-      mkl_free(dCDF);
-      mkl_free(Z);
       mkl_free(weight);
+
+      // related with suggestion probability
+      mkl_free(CASE_SUGGESTION);
+      mkl_free(dPDF_SUGGESTION);
+      mkl_free(dCDF_SUGGESTION);
+      mkl_free(Z_SUGGESTION);
+
+      // related with association probability
+      mkl_free(dCDF_ASSOCIATION);
+      mkl_free(INDEX_ASSOCIATION);
+      mkl_free(TOKEN_ASSOCIATION);
     }
 
   MKL_LONG read_exist_weight(const char* fn_weight);
@@ -135,12 +152,12 @@ namespace TRUTH_MAP
 
 namespace KINETICS
 {
-  double CONNECTIVITY_update_dCDF_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle);
-  double CONNECTIVITY_update_CASE_particle_hash_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG hash_index_target, double distance);
-  double CONNECTIVITY_update_CASE_particle_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, MKL_LONG index_particle, MKL_LONG index_target, double distance);
+  double CONNECTIVITY_update_dCDF_SUGGESTION_particle(ASSOCIATION* CONNECT, const MKL_LONG index_particle);
+  double CONNECTIVITY_update_CASE_SUGGESTION_particle_hash_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, const MKL_LONG index_particle, MKL_LONG hash_index_target, double distance);
+  double CONNECTIVITY_update_CASE_SUGGESTION_particle_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, const MKL_LONG index_particle, MKL_LONG index_target, double distance);
 
-  double CONNECTIVITY_update_Z_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle);
-  double CONNECTIVITY_update_dPDF_particle(ASSOCIATION* CONNECT, MKL_LONG index_particle);
+  double CONNECTIVITY_update_Z_SUGGESTION_particle(ASSOCIATION* CONNECT, const MKL_LONG index_particle);
+  double CONNECTIVITY_update_dPDF_SUGGESTION_particle(ASSOCIATION* CONNECT, const MKL_LONG index_particle);
 }
 
 
@@ -190,7 +207,7 @@ class CHAIN_INFORMATION
     return 0;
   }
 
-  MKL_LONG add_attachment(MKL_LONG index_particle, MKL_LONG given_chain_index, MKL_LONG flag_HEAD_TAIL)
+  MKL_LONG add_attachment(const MKL_LONG index_particle, MKL_LONG given_chain_index, MKL_LONG flag_HEAD_TAIL)
   {
     // there is no distingushable between add and mov attachment for chain node
     mov_attachment(index_particle, given_chain_index, flag_HEAD_TAIL);

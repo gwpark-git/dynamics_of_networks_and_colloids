@@ -1,6 +1,23 @@
 
 #include "geometry.h"
 
+MKL_LONG RDIST::compute_RDIST_particle(const MKL_LONG index_particle, TRAJECTORY& TRAJ, MKL_LONG index_t)
+{
+  MKL_LONG cell_index_particle = cell_index[index_particle];
+  for(MKL_LONG k=0; k<N_neighbor_cells; k++)
+    {
+      MKL_LONG cell_index_neighbor = NEIGHBOR_CELLS[cell_index_particle][k];
+      for(MKL_LONG p=0; p<TOKEN[cell_index_neighbor]; p++)
+        {
+          MKL_LONG index_target = (*this)(cell_index_neighbor, p);
+          double distance = GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], BEYOND_BOX[cell_index_particle][k]);
+          Rsca[index_particle](index_target) = distance;
+        } // p
+    } // k
+  return 0;
+}
+
+
 RDIST::RDIST(COND& given_condition) : CLIST(given_condition)
 {
   Rvec = (MATRIX**)mkl_malloc(Np*sizeof(MATRIX*), BIT);

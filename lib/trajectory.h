@@ -31,7 +31,7 @@ class TRAJECTORY : public MATRIX
   // as mentioned in previously, the dimensionality on this class is set to 2 for testing purpose. In order to make generalized code, it will changed and implemented into initiator of this class, later.
 
   string Method;
-  MKL_LONG N_energy_frequency;
+  /* MKL_LONG N_energy_frequency; */
   
   MKL_LONG Nt;
   MKL_LONG Np;

@@ -30,6 +30,9 @@ class RDIST : public CLIST
         }
       mkl_free(Rvec);
     }
+
+  // member function
+  MKL_LONG compute_RDIST_particle(const MKL_LONG index_particle, TRAJECTORY& TRAJ, MKL_LONG index_t);
 };
 
 namespace GEOMETRY

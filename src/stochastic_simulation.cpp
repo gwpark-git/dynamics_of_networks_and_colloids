@@ -49,6 +49,7 @@ int main(int argc, char* argv[])
 
         }
       TRAJECTORY TRAJ(given_condition, N_basic);
+
       POTENTIAL_SET POTs;
       RECORD_DATA DATA(given_condition);
       if(given_condition("Method") == "NAPLE_ASSOCIATION")
@@ -61,7 +62,9 @@ int main(int argc, char* argv[])
           else
             {
               // ASSOCIATION CONNECT(TRAJ, given_condition); // association class no longer depends on trajectory
+              // printf("TMP\n");              
               ASSOCIATION CONNECT(given_condition);
+              // printf("TMP\n");              
               FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
               CHAIN_HANDLE CHAIN(given_condition);
               if(given_condition("CONTINUATION_CONNECTION") == "TRUE")
@@ -131,7 +134,7 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& 
   printf("DONE\n"); 
   printf("SET SIMULATION PARAMETERS ...");
   MKL_LONG N_skip = atol(given_condition("N_skip").c_str());
-  MKL_LONG N_energy_frequency = atol(given_condition("N_energy_frequency").c_str()); 
+  // MKL_LONG N_energy_frequency = atol(given_condition("N_energy_frequency").c_str()); 
 
   MATRIX energy(1, 6, 0.);
   // // 0: time step to write 1-3: energy, 4: NAS, 5: real time
@@ -146,7 +149,7 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& 
 
   double tolerance_association = atof(given_condition("tolerance_association").c_str());
   printf("DONE\n");
-  MATRIX tmp_vec(TRAJ.N_dimension, 1, 0.);
+  // MATRIX tmp_vec(TRAJ.N_dimension, 1, 0.);
   // The following condition duplicate and may violate the inheritance scheme from the previous association
   // CONNECT.initial();
   // for(MKL_LONG i=0; i<CONNECT.Np; i++)
@@ -182,7 +185,7 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& 
       TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
       ++TRAJ.c_t;
       
-      tmp_vec.set_value(0.);
+      // tmp_vec.set_value(0.);
 
       MKL_LONG cnt = 1;
 
@@ -333,7 +336,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
     }
   printf("SET SIMULATION PARAMETERS ...");
   MKL_LONG N_skip = atol(given_condition("N_skip").c_str());
-  MKL_LONG N_energy_frequency = atol(given_condition("N_energy_frequency").c_str()); 
+  // MKL_LONG N_energy_frequency = atol(given_condition("N_energy_frequency").c_str()); 
 
   MATRIX energy(1, 6, 0.);
   // // 0: time step to write 1-3: energy, 4: NAS, 5: real time
@@ -348,17 +351,17 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
 
   double tolerance_association = atof(given_condition("tolerance_association").c_str());
   printf("DONE\n");
-  printf("GENERATING CDF and INDEX_CDF VECTORS ...");
-  MATRIX *dCDF_U = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
-  MKL_LONG *dCDF_TOKEN = (MKL_LONG*) mkl_malloc(TRAJ.Np*sizeof(MKL_LONG), BIT);
-  MATRIX *INDEX_dCDF_U = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
-  for(MKL_LONG i=0; i<TRAJ.Np; i++)
-    {
-      dCDF_U[i].initial(TRAJ.Np, 1, 0.);
-      INDEX_dCDF_U[i].initial(TRAJ.Np, 1, 0);
-    }
-  printf("DONE\n");
-  MATRIX tmp_vec(TRAJ.N_dimension, 1, 0.);
+  // printf("GENERATING CDF and INDEX_CDF VECTORS ...");
+  // MATRIX *dCDF_U = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+  // MKL_LONG *dCDF_TOKEN = (MKL_LONG*) mkl_malloc(TRAJ.Np*sizeof(MKL_LONG), BIT);
+  // MATRIX *INDEX_dCDF_U = (MATRIX*) mkl_malloc(TRAJ.Np*sizeof(MATRIX), BIT);
+  // for(MKL_LONG i=0; i<TRAJ.Np; i++)
+  //   {
+  //     dCDF_U[i].initial(TRAJ.Np, 1, 0.);
+  //     INDEX_dCDF_U[i].initial(TRAJ.Np, 1, 0);
+  //   }
+  // printf("DONE\n");
+  // MATRIX tmp_vec(TRAJ.N_dimension, 1, 0.);
 
   double dt_1 = 0., dt_2 = 0., dt_3 = 0., dt_4 = 0., dt_5 = 0., dt_6 = 0., dt_7 = 0.;
   double dt_det_pdf = 0.;
@@ -390,7 +393,7 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
       TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
       ++TRAJ.c_t;
       
-      tmp_vec.set_value(0.);
+      // tmp_vec.set_value(0.);
 
       MKL_LONG cnt = 1;
 
@@ -406,18 +409,18 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
       for(MKL_LONG index_particle=0; index_particle<TRAJ.Np; index_particle++)
         {
           // to get all pairs of particles in cell
-          MKL_LONG index_target;
-          MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
-          for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
-            {
-              MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k];
-              for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
-                {
-                  MKL_LONG index_target = R_boost(cell_index_neighbor, p);
-                  double distance = GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target], R_boost.BEYOND_BOX[cell_index_particle][k]);
-                  R_boost.Rsca[index_particle](index_target) = distance;
-                } // p
-            } // k
+          // MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
+          // for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
+          //   {
+          //     MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k];
+          //     for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
+          //       {
+          //         MKL_LONG index_target = R_boost(cell_index_neighbor, p);
+          //         double distance = GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t_now, index_particle, index_target, R_boost.Rvec[index_particle][index_target], R_boost.BEYOND_BOX[cell_index_particle][k]);
+          //         R_boost.Rsca[index_particle](index_target) = distance;
+          //       } // p
+          //   } // k
+          R_boost.compute_RDIST_particle(index_particle, TRAJ, index_t_now);
         } // index_particle
       dt_rdist += dsecnd() - time_st_rdist;
       double time_st_MC = dsecnd();
@@ -437,84 +440,87 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
             }
           else // MC_renewal check
             {
+              double time_st_pdf = dsecnd();
               
               /*
                 The following will check only for the existing brdige.
                 Since the bridges will only occurred withing neighbouring cell-list, this bridge chain will not violate the condition for cell-list.
-              */	      
+              */
 #pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, index_t_now, R_boost, vec_boost_Nd_parallel) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
               for(MKL_LONG i=0; i<TRAJ.Np; i++)
                 {
-                  for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
-                    {
-                      // CONNECT.HASH[i](j) gave us the index for target
-                      // which means we have to compute distance between i and k where k is given by CONNECT.HASH[i](j).
-                      // CONNECT.update_CASE_particle_hash_target(POTs, i, j, R_minimum_distance_boost[i](CONNECT.HASH[i](j))); // RDIST
-                      // if(R_boost.Rsca[i](CONNECT.HASH[i](j)) > 2.0)
-                      // 	{
-                      // 	  printf("d=%4.1f\n", R_boost.Rsca[i](CONNECT.HASH[i](j)));
-                      // 	}
-                      CONNECT.update_CASE_particle_hash_target(POTs, i, j, R_boost.Rsca[i](CONNECT.HASH[i](j)));
-                    }
-                  CONNECT.update_Z_particle(i);
-                  CONNECT.update_dPDF_particle(i);
-                  CONNECT.update_dCDF_particle(i);
-                  // printf("Z[%ld] = %3.2lf, TOKEN[%ld] = %ld\n", i, CONNECT.Z[i], i, (MKL_LONG)CONNECT.TOKEN[i]);
-                } 
+                  CONNECT.update_CHAIN_SUGGESTION_MAP_particle(i, POTs, R_boost);
+                  //   for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
+                  //     {
+                  //       // CONNECT.HASH[i](j) gave us the index for target
+                  //       // which means we have to compute distance between i and k where k is given by CONNECT.HASH[i](j).
+                  //       // CONNECT.update_CASE_particle_hash_target(POTs, i, j, R_minimum_distance_boost[i](CONNECT.HASH[i](j))); // RDIST
+                  //       // if(R_boost.Rsca[i](CONNECT.HASH[i](j)) > 2.0)
+                  //       // 	{
+                  //       // 	  printf("d=%4.1f\n", R_boost.Rsca[i](CONNECT.HASH[i](j)));
+                  //       // 	}
+                  //       CONNECT.update_CASE_particle_hash_target(POTs, i, j, R_boost.Rsca[i](CONNECT.HASH[i](j)));
+                  //     }
+                  //   CONNECT.update_Z_particle(i);
+                  //   CONNECT.update_dPDF_particle(i);
+                  //   CONNECT.update_dCDF_particle(i);
+                  //   // printf("Z[%ld] = %3.2lf, TOKEN[%ld] = %ld\n", i, CONNECT.Z[i], i, (MKL_LONG)CONNECT.TOKEN[i]);
+                  // }
+                }
             }  // else for MC_renewal check
-          double time_st_pdf = dsecnd();
           // #pragma omp for
-#pragma omp parallel for default(none) shared(TRAJ, POTs, dCDF_U, INDEX_dCDF_U, dCDF_TOKEN, R_boost, N_THREADS_BD, dt_pdf, dt_sort) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+#pragma omp parallel for default(none) shared(TRAJ, POTs, CONNECT, R_boost, N_THREADS_BD, dt_pdf, dt_sort) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
           for(MKL_LONG index_particle=0; index_particle<TRAJ.Np; index_particle++)
             {
-              MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
-              MKL_LONG count_CDF_TOKEN = 0;
-              dCDF_TOKEN[index_particle] = 0;
-              INDEX_dCDF_U[index_particle].set_value(-1);
-              dCDF_U[index_particle].set_value(0);
-              for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
-                {
-                  MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k];
-                  // if(index_particle==1)
-                  //   {
-                  //     printf("CELL_INFO: %ld, %ld\n", k, cell_index_neighbor);
-                  //   }
-                  for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
-                    {
-                      MKL_LONG index_target = R_boost(cell_index_neighbor, p);
-                      double distance = R_boost.Rsca[index_particle](index_target);
-                      INDEX_dCDF_U[index_particle](count_CDF_TOKEN) = index_target;
-                      dCDF_U[index_particle](count_CDF_TOKEN) = POTs.PDF_connector(distance, POTs.force_variables);
-                      if(dCDF_U[index_particle](count_CDF_TOKEN) > 0.0)
-                        {
-                          dCDF_TOKEN[index_particle] ++;
-                        }
-                      // if(index_particle==1)
-                      // 	{
-                      // 	  printf("ts=%ld: Rsca[%ld](%ld) = %4.1e (dCDF=%4.1e), k=%ld, CI=%ld, p=%ld, NCI=%ld, TOKEN_NCI=%ld\n", TRAJ.c_t, index_particle, index_target, R_boost.Rsca[index_particle](index_target), dCDF_U[index_particle](count_CDF_TOKEN), k, cell_index_particle, p, cell_index_neighbor, R_boost.TOKEN[cell_index_neighbor]);
-                      // 	}
+              CONNECT.update_ASSOCIATION_MAP_particle(index_particle, POTs, R_boost);
+              // MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
+              // MKL_LONG count_CDF_TOKEN = 0;
+              // dCDF_TOKEN[index_particle] = 0;
+              // INDEX_dCDF_U[index_particle].set_value(-1);
+              // dCDF_U[index_particle].set_value(0);
+              // for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
+              //   {
+              //     MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k];
+              //     // if(index_particle==1)
+              //     //   {
+              //     //     printf("CELL_INFO: %ld, %ld\n", k, cell_index_neighbor);
+              //     //   }
+              //     for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
+              //       {
+              //         MKL_LONG index_target = R_boost(cell_index_neighbor, p);
+              //         double distance = R_boost.Rsca[index_particle](index_target);
+              //         INDEX_dCDF_U[index_particle](count_CDF_TOKEN) = index_target;
+              //         dCDF_U[index_particle](count_CDF_TOKEN) = POTs.PDF_connector(distance, POTs.force_variables);
+              //         if(dCDF_U[index_particle](count_CDF_TOKEN) > 0.0)
+              //           {
+              //             dCDF_TOKEN[index_particle] ++;
+              //           }
+              //         // if(index_particle==1)
+              //         // 	{
+              //         // 	  printf("ts=%ld: Rsca[%ld](%ld) = %4.1e (dCDF=%4.1e), k=%ld, CI=%ld, p=%ld, NCI=%ld, TOKEN_NCI=%ld\n", TRAJ.c_t, index_particle, index_target, R_boost.Rsca[index_particle](index_target), dCDF_U[index_particle](count_CDF_TOKEN), k, cell_index_particle, p, cell_index_neighbor, R_boost.TOKEN[cell_index_neighbor]);
+              //         // 	}
 		      
-                      count_CDF_TOKEN ++;
+              //         count_CDF_TOKEN ++;
 		      
-                    } // p
-                } // k
-              // dCDF_TOKEN[index_particle] = count_CDF_TOKEN;
-              dCDF_U[index_particle].sort2(INDEX_dCDF_U[index_particle]);
-              for(MKL_LONG k=TRAJ.Np-dCDF_TOKEN[index_particle] + 1; k<TRAJ.Np; k++)
-                {
-                  dCDF_U[index_particle](k) += dCDF_U[index_particle](k-1);
-                }
-              for(MKL_LONG k=TRAJ.Np-dCDF_TOKEN[index_particle]; k<TRAJ.Np; k++)
-                {
-                  dCDF_U[index_particle](k) /= dCDF_U[index_particle](TRAJ.Np - 1);
-                }
+              //       } // p
+              //   } // k
+              // // dCDF_TOKEN[index_particle] = count_CDF_TOKEN;
+              // dCDF_U[index_particle].sort2(INDEX_dCDF_U[index_particle]);
+              // for(MKL_LONG k=TRAJ.Np-dCDF_TOKEN[index_particle] + 1; k<TRAJ.Np; k++)
+              //   {
+              //     dCDF_U[index_particle](k) += dCDF_U[index_particle](k-1);
+              //   }
+              // for(MKL_LONG k=TRAJ.Np-dCDF_TOKEN[index_particle]; k<TRAJ.Np; k++)
+              //   {
+              //     dCDF_U[index_particle](k) /= dCDF_U[index_particle](TRAJ.Np - 1);
+              //   }
             } // index_particle, local parallel
           // printf("tmp_check\n");
           // for(MKL_LONG i=0; i<TRAJ.Np; i++)
           //   {
           //     printf("dCDF_U[%ld](399) = %4.1e\n", i, dCDF_U[i](399));
           //   }
-#pragma omp parallel for default(none) shared(given_condition, DATA, TRAJ, POTs, CONNECT, CHAIN, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, INDEX_dCDF_U, dCDF_U, dCDF_TOKEN, R_boost, dt_rdist, dt_pdf, dt_sort, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, RNG, cnt, N_THREADS_SS, N_associations, N_tot_associable_chain) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1) reduction(+:dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7)
+#pragma omp parallel for default(none) shared(given_condition, DATA, TRAJ, POTs, CONNECT, CHAIN, LOCKER, IDX_ARR, index_t_now, vec_boost_Nd_parallel, R_boost, dt_rdist, dt_pdf, dt_sort, cnt_arr, cnt_add, cnt_del, cnt_mov, cnt_cancel, cnt_lock, N_steps_block, RNG, cnt, N_THREADS_SS, N_associations, N_tot_associable_chain) private(time_MC_1, time_MC_2, time_MC_3, time_MC_4, time_MC_5, time_MC_6, time_MC_7, time_MC_8) num_threads(N_THREADS_SS) if(N_THREADS_SS > 1) reduction(+:dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7)
           // #pragma omp critical(TOPOLOGY_UPDATE)
           // {
           // for(MKL_LONG tp = 0; tp<N_steps_block; tp++)
@@ -543,8 +549,11 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
               time_MC_4 = dsecnd();
               
               // MKL_LONG k = SEARCHING::backtrace(dCDF_U[index_itself], rolling_dCDF_U);
-              MKL_LONG k = SEARCHING::backtrace_cell_list(dCDF_U[index_itself], dCDF_TOKEN[index_itself], rolling_dCDF_U, index_itself, R_boost);
-              index_new_attached_bead = INDEX_dCDF_U[index_itself](k);
+              // MKL_LONG k = SEARCHING::backtrace_cell_list(dCDF_U[index_itself], dCDF_TOKEN[index_itself], rolling_dCDF_U, index_itself, R_boost);
+              // index_new_attached_bead = INDEX_dCDF_U[index_itself](k);
+              
+              MKL_LONG k = SEARCHING::backtrace_cell_list(CONNECT.dCDF_ASSOCIATION[index_itself], CONNECT.TOKEN_ASSOCIATION[index_itself], rolling_dCDF_U, index_itself, R_boost);
+              index_new_attached_bead = CONNECT.INDEX_ASSOCIATION[index_itself](k);
               // if(k!=TRAJ.Np - 1)
               // 	{
               // 	  printf("k, index=%ld, %ld\n", k, index_new_attached_bead);
@@ -749,9 +758,9 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
   // mkl_free(R_minimum_vec_boost); // RDIST
   // mkl_free(R_minimum_distance_boost); // RDIST
   mkl_free(tmp_index_vec);
-  mkl_free(dCDF_U);
-  mkl_free(INDEX_dCDF_U);
-  mkl_free(dCDF_TOKEN);  
+  // mkl_free(dCDF_U);
+  // mkl_free(INDEX_dCDF_U);
+  // mkl_free(dCDF_TOKEN);  
   mkl_free(IDX_ARR);
   return 0;
 }
