@@ -474,7 +474,11 @@ MKL_LONG main_NAPLE_ASSOCIATION_TRACKING_CHAINS(TRAJECTORY& TRAJ, POTENTIAL_SET&
 
                   ACTION::ACT(index_t_now, POTs, CONNECT, IDX_ARR[it], R_boost.Rsca, IDENTIFIER_ACTION);
                   if(CHAIN.INITIALIZATION)
-                    CHAIN.TRACKING_ACTION(CONNECT, IDENTIFIER_ACTION, IDX_ARR[it]); // it will track individual chain information
+                    {
+                      // note that this is affected by LOCKING scheme for parallelism of stochastic simulation part
+                      // hence the tracking individual chain is not affected by the SS parallelisation scheme.
+                      CHAIN.TRACKING_ACTION(CONNECT, IDENTIFIER_ACTION, IDX_ARR[it]); // it will track individual chain information
+                    }
                   
                   time_MC_end_ACTION = dsecnd();
                   ACTION::UPDATE_INFORMATION(CONNECT, IDX_ARR[it], cnt_arr, IDENTIFIER_ACTION);
