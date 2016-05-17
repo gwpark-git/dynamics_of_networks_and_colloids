@@ -29,14 +29,14 @@ MKL_LONG LOCK::RESET()
 }
 
 
-bool LOCK::CHECKER(MKL_LONG const index_target)
-{
-  if(locker[index_target])
-    return TRUE;
-  return FALSE;
-}
+// bool LOCK::CHECKER(MKL_LONG const index_target)
+// {
+//   if(locker[index_target])
+//     return TRUE;
+//   return FALSE;
+// }
 
-bool& LOCK::operator()(MKL_LONG const index_target)
-{
-  return locker[index_target];
-}
+// bool& LOCK::operator()(MKL_LONG const index_target)
+// {
+//   return locker[index_target];
+// }

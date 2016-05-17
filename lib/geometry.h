@@ -81,7 +81,7 @@ namespace GEOMETRY
     //     // -: direction to the target bead
     //     given_vec(k) -= TRAJ(index_t, given_index, k);
     //   }
-    for(MKL_LONG k=0; k<TRAJ.dimension; k++)
+    for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
       {
         double PBC_coord_target = TRAJ(index_t, target_index, k) + (double)beyond_box_check[k]*TRAJ.box_dimension[k];
         given_vec(k) = PBC_coord_target - TRAJ(index_t, given_index, k);
@@ -100,7 +100,7 @@ namespace GEOMETRY
   
   inline MKL_LONG minimum_image_convention_particle(TRAJECTORY& TRAJ, MKL_LONG target_t, MKL_LONG index_particle)
   {
-    for(MKL_LONG k=0; k<TRAJ.dimension; k++)
+    for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
       {
         double diff = TRAJ(target_t, index_particle, k) - 0.5*TRAJ.box_dimension[k];
         double sign = diff/fabs(diff);

@@ -2,7 +2,7 @@
 
 #include "handle_association.h"
 
-MKL_LONG CHAIN_HDNALE::write(std::ofstream& file)
+MKL_LONG CHAIN_HANDLE::write(std::ofstream& file)
 {
   MKL_LONG cnt = 0;
   for(MKL_LONG i=0; i<2*N_chains; i++)

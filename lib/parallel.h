@@ -17,9 +17,19 @@ class LOCK
  public:
   bool *locker;
   MKL_LONG NL;
+    
+  bool& operator()(MKL_LONG const index_target)
+    {
+      return locker[index_target];
 
-  bool& operator()(MKL_LONG const index_target);
-  bool CHECKER(MKL_LONG const index_target);
+    }
+  bool CHECKER(MKL_LONG const index_target)
+  {
+    if(locker[index_target])
+      return TRUE;
+    return FALSE;
+
+  }
   MKL_LONG RESET();
   LOCK();
   LOCK(MKL_LONG N_target);
