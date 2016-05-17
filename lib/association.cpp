@@ -403,6 +403,7 @@ MKL_LONG ASSOCIATION::add_association_INFO(POTENTIAL_SET& POTs, const MKL_LONG i
   CASE_SUGGESTION[index_target](FIND_HASH_INDEX(index_target, index_particle)) = val_CASE_SUGGESTION;
   return 0;
 }
+
 // note that the following code is using hash table.
 // however, this case have potential overhead compared with linked-list
 // for further implementation, the infrastructure for the interface should be refined.

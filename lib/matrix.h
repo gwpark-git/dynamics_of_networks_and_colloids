@@ -58,21 +58,8 @@ class MATRIX
   MKL_LONG initial();
   MKL_LONG initial(MKL_LONG N_r, MKL_LONG N_c);                    //@
   MKL_LONG initial(MKL_LONG N_r, MKL_LONG N_c, double x);
-  /* MKL_LONG set_value(double x);                          //@ */ // inlined
   MKL_LONG print();                                      //@                     
   MKL_LONG print(MKL_LONG n_row, MKL_LONG n_col);                  //@
-  /* MKL_LONG fprint_skip(const char *fn, MKL_LONG N_skip); */
-  /* MKL_LONG fprint_skip_transpose(const char *fn, MKL_LONG N_skip); */
-  /* MKL_LONG fprint_LONG_skip(const char *fn, MKL_LONG N_skip); */
-  /* MKL_LONG fprint_LONG_skip_transpose(const char *fn, MKL_LONG N_skip); */
-  /* MKL_LONG fprint_LONG_skip_transpose_LIMROWS(const char *fn, MKL_LONG N_skip, MKL_LONG N_lim_rows); */
-  /* MKL_LONG fprint(const char *fn);                             // ??? */
-  /* MKL_LONG fprint_transpose(const char *fn);                             // ??? */
-  /* MKL_LONG fprint_LONG(const char *fn);                             // ??? */
-  /* MKL_LONG fprint_LONG_transpose(const char *fn);                             // ???  */
-  /* MKL_LONG fprint_row(const char *fn, MKL_LONG given_row); */
-  /* MKL_LONG fprint_out_skip(const char *fn, MKL_LONG N_skip); */
-  /* MKL_LONG fprint_out(const char *fn);                             // ???  */
 
   MKL_LONG fprint_skip(std::ofstream& file, MKL_LONG N_skip);
   MKL_LONG fprint_skip_transpose(std::ofstream& file, MKL_LONG N_skip);
@@ -92,7 +79,6 @@ class MATRIX
   MKL_LONG nonzero();
   MKL_LONG ABS_cond(double x);
   double ABS_sum();
-  /* double norm(); */ // inlined
   MKL_LONG force_clean(double TOLERANCE);
   double sum();
   double average();
@@ -100,12 +86,6 @@ class MATRIX
 
 
   
-  /* MKL_LONG ROW(const MATRIX &ROW_A, MKL_LONG i); */
-  /* MKL_LONG COL(const MATRIX &COL_A, MKL_LONG j); */
-
-  // Matrix Operator
-  /* MATRIX ROW(MKL_LONG i);                                //@  */
-  /* MATRIX COL(MKL_LONG j);                                //@ */
 
   // Constructor
   MATRIX();                                         //@
@@ -162,12 +142,6 @@ class MATRIX
   }
   
   // operator
-  /* the following declaration will be changed to definition in order to inlining */
-  /* double& operator()(MKL_LONG i, MKL_LONG j);                 //@ */
-  /* double& operator()(MKL_LONG i); */
-  /* MATRIX& operator=(const MATRIX &Mat); */
-  /* MATRIX& operator+=(const MATRIX &Mat); */
-
   // inlined operator overloading
   MATRIX& operator=(const MATRIX &Mat)
     {
@@ -203,9 +177,6 @@ class MATRIX
   
 };
 
-MKL_LONG nonzero(const MATRIX &A);
-/* MKL_LONG matrix_mul(MATRIX& given_vec, double val); */
-/* MKL_LONG make_unit_vector(MATRIX& given_vec); */
 
 inline MKL_LONG  make_unit_vector(MATRIX& given_vec)
 {
@@ -225,71 +196,10 @@ inline MKL_LONG  make_unit_vector(MATRIX& given_vec)
 inline MKL_LONG matrix_mul(MATRIX& given_vec, double val)
 {
   cblas_dscal(given_vec.size, val, given_vec.data, 1);
-  // for(MKL_LONG  k=0; k<given_vec.size; k++)
-  //   {
-  //     given_vec.data[k] *= val;
-  //   }
   return 0;
 }
 
 
-
-/* /\* from here, the inline operator overloading is used *\/ */
-/* /\* note that if the operator is defined inside class bracket, it automatically inlined *\/ */
-/* /\* here is just following recommendation for readability *\/ */
-/*  MATRIX& MATRIX::operator=(const MATRIX &Mat) */
-/* { */
-/*   copy_obj(Mat); */
-/*   return *this; */
-/* } */
-
-/*  MATRIX& MATRIX::operator+=(const MATRIX &Mat) */
-/* { */
-/*   // std::cout << "the operator += for MATRIX class is in buggy status\n"; */
-/*   // std::cout << "if this operator is called, to check the internal problems\n"; */
-/*   if (size != Mat.size) */
-/*     std::cout << "The += operator must happen when two size are the same\n"; */
-/*   // copy_obj(Mat); */
-/*   // for(MKL_LONG i=0; i<size; i++) */
-/*   //   { */
-/*   //     data[i] += Mat.data[i]; */
-/*   //   } */
-/*   cblas_daxpy(size, 1.0, Mat.data, 1, data, 1); */
-/*   return *this; */
-/* } */
-
-/* // Operator Overloading */
-/*  double& MATRIX::operator()(MKL_LONG  i, MKL_LONG  j) */
-/* { */
-/*   return data[i*cols+j]; */
-/* } */
-
-/*  double& MATRIX::operator()(MKL_LONG  i) */
-/* { */
-/*   return data[i]; */
-/* } */
-
-
-/* MATRIX partition(const MATRIX &A, MKL_LONG st_row, MKL_LONG end_row, MKL_LONG st_col, MKL_LONG end_col); */
-/* MATRIX identity(MKL_LONG RANK);                          //@ */
-/* MATRIX diagonal(double *vals, MKL_LONG RANK);            //@  */
-// Basic MATRIX Operation
-
-/* MKL_LONG get_unit_vector(MATRIX& given_vec); */
-/* MATRIX return_unit_vector(MATRIX& given_vec); */
-
-
-// MATRIX Addition : C = A+B
-/* MATRIX operator+(const MATRIX &A, const MATRIX &B); //@ */
-
-/* MATRIX operator-(const MATRIX &A, const MATRIX &B); //@ */
-// Scalar Multiplification : C = a*A
-/* MATRIX operator*(const double a, const MATRIX &A);  //@ */
-// MATRIX Multiplification : C = A*B
-/* MATRIX operator*(const MATRIX &A, const MATRIX &B); //@ */
-
-// Unary operator
-/* MATRIX operator-(const MATRIX &A);                        //@ */
-
+MKL_LONG nonzero(const MATRIX &A);
 
 #endif 
