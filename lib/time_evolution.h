@@ -25,14 +25,14 @@ namespace INTEGRATOR
 
 namespace ANALYSIS
 {
-  MKL_LONG CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, MATRIX& mat_energy, double time, RDIST& R_boost);
+  double CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, MATRIX& mat_energy, double time, RDIST& R_boost);
 
   double cal_potential_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boost);
   double cal_total_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boost);
 
   namespace ANAL_ASSOCIATION
   {
-    MKL_LONG CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, double time, MATRIX& tmp_vec, RDIST& R_boost);
+    double CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, double time, MATRIX& tmp_vec, RDIST& R_boost);
     double cal_potential_energy_R_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& tmp_vec, RDIST& R_boost);
   }
 }

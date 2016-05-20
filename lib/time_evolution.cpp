@@ -99,23 +99,25 @@ double ANALYSIS::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boos
   return energy;
 }
 
-MKL_LONG ANALYSIS::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, MATRIX& mat_energy, double time, RDIST& R_boost)
+double ANALYSIS::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, MATRIX& mat_energy, double time, RDIST& R_boost)
 {
+  double time_st = dsecnd();
   mat_energy(0) = time;
   mat_energy(2) = cal_potential_energy_R_boost(POTs, R_boost);
   // the functionality for kinetic energy is disabled since the evolution equation on this code is using Weiner process that does not support differentiability for the position. On this regards, measuring the velocity cannot be obtained by this environment. For further detail, see the documents.
   mat_energy(1) = mat_energy(2) + mat_energy(3);
-  return 0;
+  return dsecnd() - time_st;
 }
 
-MKL_LONG ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, double time, MATRIX& tmp_vec, RDIST& R_boost)
+double ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, double time, MATRIX& tmp_vec, RDIST& R_boost)
 {
   // mat_energy(0) = (TRAJ.c_t - 1)*TRAJ.dt;
+  double time_st = dsecnd();
   mat_energy(0) = time;
   mat_energy(2) = ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_R_boost(POTs, CONNECT, tmp_vec, R_boost);
   
   // the functionality for kinetic energy is disabled since the evolution equation on this code is using Weiner process that does not support differentiability for the position. On this regards, measuring the velocity cannot be obtained by this environment. For further detail, see the documents.
   mat_energy(1) = mat_energy(2) + mat_energy(3);
-  return 0;
+  return dsecnd() - time_st;
 }
 

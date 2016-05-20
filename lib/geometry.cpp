@@ -112,8 +112,9 @@ double GEOMETRY::return_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL
 //   return rel_vec.norm();
 // }
 
-MKL_LONG GEOMETRY::minimum_image_convention(TRAJECTORY& TRAJ, MKL_LONG target_t)
+double GEOMETRY::minimum_image_convention(TRAJECTORY& TRAJ, MKL_LONG target_t)
 {
+  double time_st = dsecnd();
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
@@ -126,7 +127,7 @@ MKL_LONG GEOMETRY::minimum_image_convention(TRAJECTORY& TRAJ, MKL_LONG target_t)
             }
         }
     }
-  return 0;
+  return dsecnd() - time_st;
 }
 
 // MKL_LONG GEOMETRY::minimum_image_convention(TRAJECTORY_HDF5& TRAJ, MKL_LONG target_t)

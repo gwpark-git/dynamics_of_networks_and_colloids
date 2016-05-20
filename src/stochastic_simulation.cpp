@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
           if(given_condition("Step") == "EQUILIBRATION")
             {
               FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
-              main_EQUILIBRATION(TRAJ, POTs, DATA, given_condition);
+              REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJ, POTs, DATA, given_condition);
             }
           else
             {

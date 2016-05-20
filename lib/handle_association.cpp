@@ -218,30 +218,31 @@ MKL_LONG INDEX_MC::set_initial_variables()
 }
 
 
-MKL_LONG ACTION::ACT(MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, INDEX_MC& IDX, MATRIX* R_minimum_distance_boost, MKL_LONG const IDENTIFIER_ACTION)
+MKL_LONG ACTION::ACT(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, INDEX_MC& IDX, MATRIX* R_minimum_distance_boost, MKL_LONG const IDENTIFIER_ACTION)
 {
-  IDX.ACTION_ARR[IDENTIFIER_ACTION](index_t_now, POTs, CONNECT, IDX.beads, R_minimum_distance_boost);
+  IDX.ACTION_ARR[IDENTIFIER_ACTION](POTs, CONNECT, IDX.beads, R_minimum_distance_boost);
   return 0;
 }
 
 
-MKL_LONG ACTION::UPDATE_INFORMATION(ASSOCIATION& CONNECT, INDEX_MC& IDX, MKL_LONG cnt_arr[], MKL_LONG const IDENTIFIER_ACTION)
+double ACTION::UPDATE_INFORMATION(ASSOCIATION& CONNECT, INDEX_MC& IDX, MKL_LONG cnt_arr[], MKL_LONG const IDENTIFIER_ACTION)
 {
+  double time_st = dsecnd();
   for(MKL_LONG i=0; i<IDX.N_BOOST_COUNT[IDENTIFIER_ACTION]; i++)
     {
       CONNECT.update_Z_SUGGESTION_particle(IDX.beads[i]);
       CONNECT.update_dPDF_SUGGESTION_particle(IDX.beads[i]);
       CONNECT.update_dCDF_SUGGESTION_particle(IDX.beads[i]);
     }
-  return 0;
+  return dsecnd() - time_st;
 }
 
-MKL_LONG ACTION::CANCEL(MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
+MKL_LONG ACTION::CANCEL(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
 {
   return 0;
 }
 
-MKL_LONG ACTION::MOV(MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
+MKL_LONG ACTION::MOV(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
 {
   /*
     It is of importance to nocie that the opp_del_association (i and j) are detaching j chain ends rather than i chain end.
@@ -257,13 +258,13 @@ MKL_LONG ACTION::MOV(MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CON
   return 0;
 }
 
-MKL_LONG ACTION::OPP_DEL(MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
+MKL_LONG ACTION::OPP_DEL(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
 {
   CONNECT.opp_del_association_hash(index_set[CONNECT.flag_itself], index_set[CONNECT.flag_hash_other]);
   return 0;
 }
 
-MKL_LONG ACTION::ADD(MKL_LONG index_t_now, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
+MKL_LONG ACTION::ADD(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
 {
   CONNECT.add_association_INFO(POTs, index_set[CONNECT.flag_itself], index_set[CONNECT.flag_new], R_minimum_distance_boost[index_set[CONNECT.flag_itself]](index_set[CONNECT.flag_new]));
   return 0;

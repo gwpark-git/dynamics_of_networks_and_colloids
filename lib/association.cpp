@@ -545,6 +545,7 @@ double ASSOCIATION::update_dCDF_SUGGESTION_particle(const MKL_LONG index_particl
 
 double ASSOCIATION::update_CHAIN_SUGGESTION_MAP_particle(const MKL_LONG index_particle, POTENTIAL_SET& POTs, RDIST& R_boost)
 {
+  double time_st = dsecnd();
   // 1. compute all the case (weight) for pair of particles
   for(MKL_LONG j=0; j<TOKEN[index_particle]; j++)
     {
@@ -559,11 +560,12 @@ double ASSOCIATION::update_CHAIN_SUGGESTION_MAP_particle(const MKL_LONG index_pa
   update_dPDF_SUGGESTION_particle(index_particle);
   // 4. cumulating probability
   update_dCDF_SUGGESTION_particle(index_particle);
-  return 0;
+  return dsecnd() - time_st;
 }
 
 double ASSOCIATION::update_ASSOCIATION_MAP_particle(const MKL_LONG index_particle, POTENTIAL_SET& POTs, RDIST& R_boost)
 {
+  double time_st = dsecnd();
   MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
   MKL_LONG count_CDF_TOKEN = 0;
   dCDF_ASSOCIATION[index_particle].set_value(0);
@@ -594,5 +596,5 @@ double ASSOCIATION::update_ASSOCIATION_MAP_particle(const MKL_LONG index_particl
     {
       dCDF_ASSOCIATION[index_particle](k) /= dCDF_ASSOCIATION[index_particle](Np - 1);
     }
-  return 0;
+  return dsecnd() - time_st;
 }
