@@ -120,11 +120,11 @@ double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, co
   double time_st = dsecnd();
   double time_LV_init = 0., time_LV_force = 0., time_LV_update = 0.;
   double time_LV_force_repulsion = 0., time_LV_force_random = 0., time_LV_force_connector = 0.;
+
 #pragma omp parallel for default(none) shared(TRAJ, CONNECT, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, force_spring, RNG, given_condition) num_threads(N_THREADS_BD) reduction(+: time_LV_init, time_LV_force, time_LV_update, time_LV_force_repulsion, time_LV_force_random, time_LV_force_connector) if(N_THREADS_BD > 1)
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
-
       double time_st_init = dsecnd();
       force_repulsion[i].set_value(0);
       force_random[i].set_value(0);
@@ -134,7 +134,8 @@ double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, co
       time_LV_force_repulsion +=
 	INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
       time_LV_force_random +=
-	INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]);
+	INTEGRATOR::EULER::cal_random_force_boost_simplified(POTs, force_random[i], RNG.BOOST_BD[it]);
+	// INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]);
       time_LV_force_connector +=
 	INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
       double time_st_update = dsecnd();

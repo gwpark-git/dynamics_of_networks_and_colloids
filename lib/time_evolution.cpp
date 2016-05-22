@@ -38,12 +38,17 @@ double INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTENTIAL_SET& POTs, MATRI
           if (index_target != index_particle)
             {
               double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
-              cblas_daxpy(given_vec.size,
-                          repulsion/distance,
-                          R_boost.Rvec[index_particle][index_target].data,
-                          1,
-                          given_vec.data,
-                          1);
+	      for(MKL_LONG d=0; d<R_boost.N_dimension; d++)
+		{
+		  given_vec(d) += repulsion*R_boost.Rvec[index_particle][index_target](d);
+		}
+	      // the following make overhead.
+              // cblas_daxpy(given_vec.size,
+              //             repulsion/distance,
+              //             R_boost.Rvec[index_particle][index_target].data,
+              //             1,
+              //             given_vec.data,
+              //             1);
             }
         }
     }
@@ -57,6 +62,20 @@ double INTEGRATOR::EULER::cal_random_force_boost(POTENTIAL_SET& POTs, MATRIX& gi
   RANDOM::single_random_vector_generator_variance_boost(given_vec, 1.0, r_boost);
   matrix_mul(given_vec, sqrt(2.0));
   POTs.scale_random(given_vec, POTs.force_variables);
+  return dsecnd() - time_st;
+}
+
+double INTEGRATOR::EULER::cal_random_force_boost_simplified(POTENTIAL_SET& POTs, MATRIX& given_vec, gsl_rng* r_boost)
+{
+  // this is duplicate one with INTEGRATOR::EULER::cal_random_force_boost
+  // however, it simplified and reduce the overhead
+  double time_st = dsecnd();
+  double variance = 1.0;
+  double pre_factor = sqrt(3.0)*sqrt(2.0);
+  for(MKL_LONG k=0; k<given_vec.size; k++)
+    {
+      given_vec(k) = pre_factor*variance*(2.0*(gsl_rng_uniform(r_boost) - 0.5));
+    }
   return dsecnd() - time_st;
 }
 
