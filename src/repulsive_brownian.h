@@ -35,6 +35,7 @@ struct REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE
   MATRIX *force_random;
   MKL_LONG N_skip;
   MKL_LONG Nt;
+  MKL_LONG Np;
   MKL_LONG N_basic;
   double time_LV, time_DIST, time_file, time_AN, time_RECORDED;
   double simulation_time;

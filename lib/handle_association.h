@@ -29,7 +29,7 @@ class INDEX_MC
   */
   // action_arry setting for boosting up the boolean identifier
   // ACTION_ARR[IDX.CANCEL] act CANCEL. The IDX.CANCEL can be changed by IDX.ADD, IDX.OPP_DEL, IDX.MOV, respectively.
-  MKL_LONG (*ACTION_ARR[4])(MKL_LONG, POTENTIAL_SET&, ASSOCIATION&, MKL_LONG[], MATRIX*);
+  MKL_LONG (*ACTION_ARR[4])(POTENTIAL_SET&, ASSOCIATION&, MKL_LONG[], MATRIX*);
 
   // Note that the last MATRIX* is related with R_minimum_distance_boost that has whole information
   

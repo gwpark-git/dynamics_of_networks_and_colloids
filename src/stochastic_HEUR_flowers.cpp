@@ -51,7 +51,7 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
         REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, index_t_now, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
 
       VAR.time_SS +=
-        OMP_SS_topological_time_evolution(CONNECT, CHAIN, POTs, DATA, given_condition, VAR);
+        OMP_SS_topological_time_evolution(t, CONNECT, CHAIN, POTs, R_boost, RNG, IDX_ARR, DATA, given_condition, LOCKER, VAR);
       
       VAR.time_LV +=
         OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, CONNECT, POTs, R_boost, VAR.vec_boost_Nd_parallel, VAR.force_repulsion, VAR.force_random, VAR.force_spring, RNG, VAR.N_THREADS_BD, given_condition);
@@ -65,7 +65,7 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
         {
           VAR.time_AN +=
             ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, VAR.vec_boost_Nd_parallel[0], R_boost);
-          time_end_LV = dsecnd();
+
           energy(4) = (double)VAR.N_associations; // number of associations
           energy(5) = dsecnd() - time_st_simulation; // record computation time
 
@@ -106,7 +106,7 @@ double report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABL
   double total_time = VAR.time_SS + VAR.time_LV + VAR.time_AN + VAR.time_file + VAR.time_DIST;
   printf("##### STEPS = %ld\tTIME = %8.6e tau_B\tENERGY = %6.3e (computing time: %4.3e)\n", TRAJ.c_t, VAR.simulation_time, energy(1), energy(5));
   printf("time consuming: LV = %3.2e (%3.1f), AN = %3.2e (%3.1f), FILE = %3.2e (%3.1f), DIST = %3.2e (%3.1f) ###\n\n", VAR.time_LV, VAR.time_LV*100/total_time, VAR.time_AN, VAR.time_AN*100/total_time, VAR.time_file, VAR.time_file*100/total_time, VAR.time_DIST, VAR.time_DIST*100/total_time);
-  printf("SS: index process = %3.2e (%3.1f), LOCKING = %3.2e (%3.1f), check_dissociation = %3.2e (%3.1f), transition = %3.2e (%3.1f), update info. = %3.2e (%3.1f) (pre-ASSOCIATION = %3.2e (%3.1f), pre-SUGGESTION = %3.2e (%3.1f))  \n", VAR.time_SS_index, 100.*VAR.time_SS_index/VAR.time_SS, VAR.time_SS_LOCK, 100.*VAR.time_SS_LOCK/VAR.time_SS, VAR.time_SS_check, 100.*VAR.time_SS_check/VAR.time_SS, VAR.time_SS_transition, 100.*VAR.time_SS_transition/VAR.time_SS, VAR.time_SS_update, 100.*VAR.time_SS_update/VAR.time_SS, VAR.time_SS_update_ASSOCIATION, VAR.time_SS_update_ASSOCIATION/VAR.time_SS_update, VAR.time_SS_update_CHAIN_SUGGESTION, VAR.time_SS_update_CHAIN_SUGGESTION/VAR.time_SS_update);
+  printf("SS: index process = %3.2e (%3.1f), LOCKING = %3.2e (%3.1f), check_dissociation = %3.2e (%3.1f), transition = %3.2e (%3.1f), update info. = %3.2e (%3.1f) (pre-ASSOCIATION = %3.2e (%3.1f), pre-SUGGESTION = %3.2e (%3.1f))  \n", VAR.time_SS_index, 100.*VAR.time_SS_index/VAR.time_SS, VAR.time_SS_LOCK, 100.*VAR.time_SS_LOCK/VAR.time_SS, VAR.time_SS_check, 100.*VAR.time_SS_check/VAR.time_SS, VAR.time_SS_transition, 100.*VAR.time_SS_transition/VAR.time_SS, VAR.time_SS_update, 100.*VAR.time_SS_update/VAR.time_SS, VAR.time_SS_update_ASSOCIATION_MAP, VAR.time_SS_update_ASSOCIATION_MAP/VAR.time_SS_update, VAR.time_SS_update_CHAIN_SUGGESTION, VAR.time_SS_update_CHAIN_SUGGESTION/VAR.time_SS_update);
   printf("CHECK LAST STATISTICS: N_tot_asso = %ld, NAS = %ld, fraction=%4.3f ####\n\n", VAR.N_tot_associable_chain, VAR.N_associations, VAR.N_associations/(double)VAR.N_tot_associable_chain);
   return total_time;
 }
@@ -115,7 +115,7 @@ double report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABL
 double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, MATRIX* force_spring, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition)
 {
   double time_st = dsecnd();
-#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, RNG, N_THREADS_BD, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+#pragma omp parallel for default(none) shared(TRAJ, CONNECT, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, force_spring, RNG, N_THREADS_BD, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
@@ -137,7 +137,7 @@ double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, co
   return dsecnd() - time_st;
 }
 
-double write_MC_LOG_if_TRUE(bool flag_MC_LOG, RECORD_DATA& DATA, ASSOCIATION& CONNECT, const MKL_LONG cnt, const INDEX_MC& IDX, const double MKL_LONG* cnt_arr, const double rolling_dCDF, const double rolling_dCDF_U) 
+double write_MC_LOG_if_TRUE(bool flag_MC_LOG, RECORD_DATA& DATA, ASSOCIATION& CONNECT, const INDEX_MC& IDX, const MKL_LONG cnt, const MKL_LONG* cnt_arr, const double rolling_dCDF, const double rolling_dCDF_U) 
                             // const MKL_LONG index_itself, const double rolling_dCDF, const MKL_LONG index_attached_bead, const MKL_LONG index_new_attached_bead, const double rolling_dCDF_U, const MKL_LONG k, MKL_LONG* cnt_arr)
 {
   double time_st = dsecnd();
@@ -147,17 +147,17 @@ double write_MC_LOG_if_TRUE(bool flag_MC_LOG, RECORD_DATA& DATA, ASSOCIATION& CO
 			  
       // MKL_LONG count_N_associagtions = cnt_add - cnt_del;
       {
-        DATA.MC_LOG << cnt << '\t' << IDX.beads[CONNECT.flag_itself] << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << IDX.beads[CONNECT.flag_other] << '\t'  << IDX.beads[CONNECT.flag_new] << '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << "SKIP"<< '\t'  << IDX.beads[CONNECT.flag_new] << '\t'  << CONNECT.TOKEN[IDX.beads[CONNECT.flag_itself]]<< '\t'<< CONNECT.N_CONNECTED_ENDS(IDX.beads[CONNECT.flag_itself]) << '\t' << CONNECT.weight[index_itself](0) <<'\t' <<  total_bonds << '\t'  << cnt_add[INDEX_MC::CANCEL]<< '\t'  << cnt_ar[INDEX_MC::MOV]<< '\t'  << cnt_arr[INDEX_MC::DEL]<< '\t'  << cnt_arr[INDEX_MC::CANCEL] << '\t' << cnt_arr[INDEX_MC::LOCK] << endl;
+        DATA.MC_LOG << cnt << '\t' << IDX.beads[CONNECT.flag_itself] << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << IDX.beads[CONNECT.flag_other] << '\t'  << IDX.beads[CONNECT.flag_new] << '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << "SKIP"<< '\t'  << IDX.beads[CONNECT.flag_new] << '\t'  << CONNECT.TOKEN[IDX.beads[CONNECT.flag_itself]]<< '\t'<< CONNECT.N_CONNECTED_ENDS(IDX.beads[CONNECT.flag_itself]) << '\t' << CONNECT.weight[IDX.beads[CONNECT.flag_itself]](0) <<'\t' <<  total_bonds << '\t'  << cnt_arr[INDEX_MC::CANCEL]<< '\t'  << cnt_arr[INDEX_MC::MOV]<< '\t'  << cnt_arr[INDEX_MC::OPP_DEL]<< '\t'  << cnt_arr[INDEX_MC::CANCEL] << '\t' << cnt_arr[INDEX_MC::LOCK] << endl;
       }
       // FILE_LOG << boost::format("%10d\t%4d\t")
     } // MC_LOG
   return dsecnd() - time_st;
 }
 
-double transition_single_chain_end(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, INDEX_MC& IDX)
+double transition_single_chain_end(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, CHAIN_HANDLE& CHAIN, RDIST& R_boost, INDEX_MC& IDX, const MKL_LONG IDENTIFIER_ACTION)
 {
   double time_st = dsecnd();
-  ACTION::ACT(index_t_now, POTs, CONNECT, IDX, R_boost.Rsca, IDENTIFIER_ACTION);
+  ACTION::ACT(POTs, CONNECT, IDX, R_boost.Rsca, IDENTIFIER_ACTION);
   if(CHAIN.INITIALIZATION)
     {
       // note that this is affected by LOCKING scheme for parallelism of stochastic simulation part
@@ -167,7 +167,7 @@ double transition_single_chain_end(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RD
   return dsecnd() - time_st;
 }
 
-double check_dissociation_probability(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, INDEX_MC& IDX, RNG_BOOST& RNG)
+double check_dissociation_probability(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, INDEX_MC& IDX, gsl_rng* RNG_BOOST_SS_IT, MKL_LONG& IDENTIFIER_ACTION)
 {
   double time_st = dsecnd();
   MKL_LONG index_itself = IDX.beads[CONNECT.flag_itself];
@@ -181,7 +181,7 @@ double check_dissociation_probability(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs,
     }
   else
     {
-      double rolling_transition = RANDOM::return_double_rand_SUP1_boost(RNG.BOOST_SS[index_thread]);
+      double rolling_transition = RANDOM::return_double_rand_SUP1_boost(RNG_BOOST_SS_IT);
       if (rolling_transition < tpa)
         {
           IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);
@@ -192,10 +192,9 @@ double check_dissociation_probability(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs,
   return dsecnd() - time_st;
 }
 
-double LOCKING_PARALLEL(LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR, const MKL_LONG index_thread)
+double LOCKING_PARALLEL(LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR, const INDEX_MC& IDX, MKL_LONG& IDENTIFIER_ACTION, MKL_LONG& IDENTIFIER_LOCKING)
 {
   double time_st = dsecnd();
-  cnt_SS ++;
   /*
     On the omp critical region, the block will work only one thread.
     If the other thread reaching this reason while there is one thread already working on this block, then the reached thread will wait until finishing the job of the other thread.
@@ -205,9 +204,9 @@ double LOCKING_PARALLEL(LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR, const MKL_LON
 
   for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++)
     {
-      if(LOCKER(IDX_ARR[index_thread].beads[I_BEADS]))
+      if(LOCKER(IDX.beads[I_BEADS]))
         {
-          IDENTIFIER_ACTION = IDX_ARR[index_thread].CANCEL;
+          IDENTIFIER_ACTION = IDX.CANCEL;
           IDENTIFIER_LOCKING = TRUE;
           break;
         }
@@ -216,16 +215,17 @@ double LOCKING_PARALLEL(LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR, const MKL_LON
   // this is LOCKING procedure
   if(!IDENTIFIER_LOCKING)
     {
-      cnt++;  // preventing LOCKING affect to the IDENTIFICATION of stochastic balance
+      VAR.cnt_SS ++;
+      // cnt++;  // preventing LOCKING affect to the IDENTIFICATION of stochastic balance
       // for(MKL_LONG I_BEADS = 0; I_BEADS < 3 && N_THREADS_SS > 1; I_BEADS++) // N_THREADS_SS > 1 is not necessary
       for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++) 
         {
-          LOCKER(IDX_ARR[index_thread].beads[I_BEADS]) = TRUE;
+          LOCKER(IDX.beads[I_BEADS]) = TRUE;
         }
     }
   else
     {
-      cnt_lock ++;
+      VAR.cnt_arr[INDEX_MC::LOCK] ++;
     }
   return dsecnd() - time_st;
 }
@@ -240,27 +240,44 @@ double release_LOCKING(LOCK& LOCKER, INDEX_MC& IDX)
   return dsecnd() - time_st;
 }
 
-double micelle_selection(ASSOCIATION& CONNECT, RNG_BOOST& RNG, MKL_LONG& index_itself, MKL_LONG& index_hash_attached_bead, MKL_LONG& index_attached_bead, MKL_LONG& index_new_attached_bead, const MKL_LONG index_thread)
+// double micelle_selection(ASSOCIATION& CONNECT, RNG_BOOST& RNG, MKL_LONG& index_itself, MKL_LONG& index_hash_attached_bead, MKL_LONG& index_attached_bead, MKL_LONG& index_new_attached_bead, const MKL_LONG index_thread)
+double micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_MC& IDX, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR, double& rolling_dCDF, double& rolling_dCDF_U)
 {
-  index_itself = RANDOM::return_LONG_INT_rand_boost(RNG.BOOST_SS[index_thread], VAR.Np);
+  double time_st = dsecnd();
+  // index_itself = RANDOM::return_LONG_INT_rand_boost(RNG.BOOST_SS[index_thread], VAR.Np);
+  IDX.beads[CONNECT.flag_itself] = RANDOM::return_LONG_INT_rand_boost(RNG_BOOST_SS_IT, VAR.Np);
+  
   // choice for selected chain end
-  double rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(RNG.BOOST_SS[index_thread]);
-  index_hash_attached_bead = CONNECT.GET_INDEX_HASH_FROM_ROLL(index_itself, rolling_dCDF); 
-  index_attached_bead = CONNECT.HASH[index_itself](index_hash_attached_bead); 
+  // double rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(RNG.BOOST_SS[index_thread]);
+  rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(RNG_BOOST_SS_IT);
+  
+  // index_hash_attached_bead = CONNECT.GET_INDEX_HASH_FROM_ROLL(index_itself, rolling_dCDF);
+  IDX.beads[CONNECT.flag_hash_other] = CONNECT.GET_INDEX_HASH_FROM_ROLL(IDX.beads[CONNECT.flag_itself], rolling_dCDF); 
+  
+  // index_attached_bead = CONNECT.HASH[index_itself](index_hash_attached_bead);
+  IDX.beads[CONNECT.flag_other] = CONNECT.HASH[IDX.beads[CONNECT.flag_itself]](IDX.beads[CONNECT.flag_hash_other]); 
+  
   // choice for behaviour of selected chain end
-  double rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(RNG.BOOST_SS[index_thread]);
+  // double rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(RNG.BOOST_SS[index_thread]);
+  rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(RNG_BOOST_SS_IT);
+  
   // the PDF is already computed in the previous map
               
-  MKL_LONG k = SEARCHING::backtrace_cell_list(CONNECT.dCDF_ASSOCIATION[index_itself], CONNECT.TOKEN_ASSOCIATION[index_itself], rolling_dCDF_U, index_itself, R_boost);
-  index_new_attached_bead = CONNECT.INDEX_ASSOCIATION[index_itself](k);
+  // MKL_LONG k = SEARCHING::backtrace_cell_list(CONNECT.dCDF_ASSOCIATION[index_itself], CONNECT.TOKEN_ASSOCIATION[index_itself], rolling_dCDF_U, index_itself, R_boost);
+  MKL_LONG k = SEARCHING::backtrace_cell_list(CONNECT.dCDF_ASSOCIATION[IDX.beads[CONNECT.flag_itself]], CONNECT.TOKEN_ASSOCIATION[IDX.beads[CONNECT.flag_itself]], rolling_dCDF_U, IDX.beads[CONNECT.flag_itself], R_boost);
+  
+  // index_new_attached_bead = CONNECT.INDEX_ASSOCIATION[index_itself](k);
+  IDX.beads[CONNECT.flag_new] = CONNECT.INDEX_ASSOCIATION[IDX.beads[CONNECT.flag_itself]](k);
+  
   return dsecnd() - time_st;
 }
 
-double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, CHAIN_HANDLE& CHAIN, RECORD_DATA& DATA, INDEX_MC* IDX_ARR, TEMPORAL_VARIABLE_HEUR& VAR)
+double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, CHAIN_HANDLE& CHAIN, RNG_BOOST& RNG, RECORD_DATA& DATA, INDEX_MC* IDX_ARR, LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR)
 {
   double time_st = dsecnd();
   double time_SS_index = 0., time_SS_LOCK = 0., time_SS_check = 0., time_SS_transition = 0., time_SS_update = 0.;
-#pragma omp parallel for default(none) shared(DATA, POTs, CONNECT, CHAIN, LOCKER, IDX_ARR, VAR, index_t_now, R_boost, RNG, cnt, cnt_arr) num_threads(VAR.N_THREADS_SS) if(VAR.N_THREADS_SS > 1) reduction(+: time_SS_index, time_SS_LOCK, time_SS_action, time_SS_update)
+  
+#pragma omp parallel for default(none) shared(DATA, POTs, CONNECT, CHAIN, LOCKER, IDX_ARR, VAR, R_boost, RNG) num_threads(VAR.N_THREADS_SS) reduction(+: time_SS_index, time_SS_LOCK, time_SS_check, time_SS_transition, time_SS_update) if(VAR.N_THREADS_SS > 1) 
   // reduction(+:dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7)
   for(MKL_LONG tp=0; tp<VAR.N_tot_associable_chain; tp++)
     {
@@ -275,8 +292,11 @@ double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& 
       MKL_LONG &index_new_attached_bead = IDX_ARR[it].beads[CONNECT.flag_new];
       MKL_LONG &index_hash_attached_bead = IDX_ARR[it].beads[CONNECT.flag_hash_other];
 
+      double rolling_dCDF = 0., rolling_dCDF_U = 0.;
+      
       time_SS_index +=
-        micelle_selection(CONNECT, RNG, index_itself, index_hash_attached_bead, index_attached_bead, index_new_attached_bead, it);
+	micelle_selection(CONNECT, RNG.BOOST_SS[it], IDX_ARR[it], R_boost, VAR, rolling_dCDF, rolling_dCDF_U);
+        // micelle_selection(CONNECT, RNG, index_itself, index_hash_attached_bead, index_attached_bead, index_new_attached_bead, it);
           
       MKL_LONG IDENTIFIER_ACTION = TRUE; // it can be 1 (IDX.ADD) but just true value
       MKL_LONG IDENTIFIER_LOCKING = FALSE;
@@ -285,31 +305,29 @@ double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& 
         {
 #pragma omp critical (LOCKING)  // LOCKING is the name for this critical blocks
           {
-          time_SS_LOCK +=
-            LOCKING_PARALLEL(LOCKER, VAR);
-          }
-        }
-      time_MC_6 = dsecnd();
+	  time_SS_LOCK += // this is differ from time_SS_LOCK since it is inside critical directive
+	    LOCKING_PARALLEL(LOCKER, VAR, IDX_ARR[it], IDENTIFIER_ACTION, IDENTIFIER_LOCKING);
+	}
+    }
       // Note that the critical region only applicable with single thread while the others will be used in parallel regime.
       // In addition, the gap for passing the critical region will tune further gaps, then the computation speed for passing critical region will not be real critical issue.
-      double time_MC_pre_ACTION = 0., time_MC_end_ACTION = 0., time_MC_end_UPDATE=0.;
       if(!IDENTIFIER_LOCKING) 
         {
           // This block only compute when the thread is NOT LOCKED
           time_SS_check +=
-            check_dissociation_probability(CONNECT, POTs, R_boost, IDX_ARR[it], RNG);
+            check_dissociation_probability(CONNECT, POTs, R_boost, IDX_ARR[it], RNG.BOOST_SS[it], IDENTIFIER_ACTION);
 
           time_SS_transition +=
-            transition_single_chain_end(CONNECT, POTs, R_boost, IDX_ARR[it]);
+            transition_single_chain_end(CONNECT, POTs, CHAIN, R_boost, IDX_ARR[it], IDENTIFIER_ACTION);
 
           time_SS_update +=
-            ACTION::UPDATE_INFORMATION(CONNECT, IDX_ARR[it], cnt_arr, IDENTIFIER_ACTION);
+            ACTION::UPDATE_INFORMATION(CONNECT, IDX_ARR[it], VAR.cnt_arr, IDENTIFIER_ACTION);
 
           // UNLOCKING
           // The critical directive is no more necessarly since only one thread visited each beads
           if(VAR.N_THREADS_SS > 1)
             time_SS_LOCK +=
-              release_LOCKING(LOCKER, IDX[it]);
+              release_LOCKING(LOCKER, IDX_ARR[it]);
           
 #pragma omp critical (COUNTING)
           {
@@ -319,9 +337,10 @@ double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& 
               Notice that the writing MC_LOG file is inside of this COUNTING critical directive, since all the information should be the same for writing (temporal)
             */
             
-            cnt_arr[IDENTIFIER_ACTION] ++;
+            VAR.cnt_arr[IDENTIFIER_ACTION] ++;
 
-            write_MC_LOG_if_TRUE(VAR.MC_LOG, DATA, CONNECT, cnt, IDX_ARR[it], index_itself, rolling_dCDF, index_attached_bead, index_new_attached_bead, rolling_dCDF_U, VAR.cnt_arr);
+            // write_MC_LOG_if_TRUE(VAR.MC_LOG, DATA, CONNECT, VAR.cnt_SS, IDX_ARR[it], index_itself, rolling_dCDF, index_attached_bead, index_new_attached_bead, rolling_dCDF_U, VAR.cnt_arr);
+	    write_MC_LOG_if_TRUE(VAR.MC_LOG, DATA, CONNECT, IDX_ARR[it], VAR.cnt_SS, VAR.cnt_arr, rolling_dCDF, rolling_dCDF_U);
           }
 
         } // if(!IDENTIFIER_LOCKING)
@@ -347,29 +366,30 @@ double OMP_SS_update_STATISTICS(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST
         VAR.cnt_arr[i] = 0;
     }
 
-  MKL_LONG time_update_ASSOCIATION_MAP = 0.;
-  MKL_LONG time_update_CHAIN_SUGGESTION_MAP = 0.;
-#pragma omp parallel for default(none) shared(Np, POTs, CONNECT, R_boost, N_THREADS_BD) num_threads(VAR.N_THREADS_BD) if (VAR.N_THREADS_BD > 1) reduction(+: time_update_ASSOCIATION, time_update_CHAIN_SUGGESTION);
+  double time_update_ASSOCIATION_MAP = 0;
+  double time_update_CHAIN_SUGGESTION = 0;
+  
+#pragma omp parallel for default(none) shared(Np, POTs, CONNECT, R_boost) num_threads(VAR.N_THREADS_BD) reduction(+: time_update_ASSOCIATION_MAP, time_update_CHAIN_SUGGESTION) if(VAR.N_THREADS_BD > 1)
   for(MKL_LONG index_particle = 0; index_particle < Np; index_particle++)
     {
       // update association map after time evolution of Langevin equation
-      time_update_ASSOCIATION +=
+      time_update_ASSOCIATION_MAP +=
         CONNECT.update_ASSOCIATION_MAP_particle(index_particle, POTs, R_boost);
       // update suggestion map after time evolution of Langevin equation
       time_update_CHAIN_SUGGESTION +=
-        CONNECT.update_CHAIN_SUGGESTION_MAP_particle(i, POTs, R_boost);
+        CONNECT.update_CHAIN_SUGGESTION_MAP_particle(index_particle, POTs, R_boost);
     }
-  VAR.time_SS_update_ASSOCIATION_MAP += time_update_ASSOCIATION;
+  VAR.time_SS_update_ASSOCIATION_MAP += time_update_ASSOCIATION_MAP;
   VAR.time_SS_update_CHAIN_SUGGESTION += time_update_CHAIN_SUGGESTION;
   return dsecnd() - time_st;
 }
 
 
-double OMP_SS_topological_time_evolution(ASSOCIATION& CONNECT, CHAIN_HANDLE& CHAIN, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition, TEMPORAL_VARIABLE_HEUR& VAR)
+double OMP_SS_topological_time_evolution(const MKL_LONG time_step_LV, ASSOCIATION& CONNECT, CHAIN_HANDLE& CHAIN, POTENTIAL_SET& POTs, RDIST& R_boost, RNG_BOOST& RNG, INDEX_MC* IDX_ARR, RECORD_DATA& DATA, COND& given_condition, LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR)
 // note that the TRJECTORY class dependency is deleted because of RDIST class.
 {
   double time_st = dsecnd();
-  if(t%VAR.N_steps_block == 0) // the equilibration functionality is disabled at this moment. (it will be seperated for future works)
+  if(time_step_LV%VAR.N_steps_block == 0) // the equilibration functionality is disabled at this moment. (it will be seperated for future works)
     {
       // this is rearranged in order to use the previously updated information when MC_renewal is not turned on.
       // #pragma omp for
@@ -379,7 +399,7 @@ double OMP_SS_topological_time_evolution(ASSOCIATION& CONNECT, CHAIN_HANDLE& CHA
         OMP_SS_update_STATISTICS(CONNECT, POTs, R_boost, VAR);
 
       VAR.time_SS_CORE +=
-        OMP_SS_update_topology(CONNECT, POTs, R_boost, CHAIN, DATA, IDX_ARR, VAR);
+        OMP_SS_update_topology(CONNECT, POTs, R_boost, CHAIN, RNG, DATA, IDX_ARR, LOCKER, VAR);
     }
   return dsecnd() - time_st;
 }

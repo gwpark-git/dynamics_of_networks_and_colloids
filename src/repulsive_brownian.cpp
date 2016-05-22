@@ -2,7 +2,7 @@
 
 using namespace REPULSIVE_BROWNIAN;
 
-double OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, RDIST& R_boost, MKL_LONG* tmp_index_vec, const MKL_LONG N_THREADS_BD)
+double REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, RDIST& R_boost, MKL_LONG* tmp_index_vec, const MKL_LONG N_THREADS_BD)
 {
   double time_st_rdist = dsecnd();
   R_boost.allocate_cells_from_positions(TRAJ, index_t_now, tmp_index_vec);
@@ -21,7 +21,7 @@ double OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, RDIST& R_
   return dsecnd() - time_st_rdist;
 }
 
-double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition)
+double REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition)
 {
   double time_st = dsecnd();
 #pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, RNG, N_THREADS_BD, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
@@ -44,7 +44,7 @@ double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, co
 }
 
 
-MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition)
+MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition)
 {
   using namespace std;
   
@@ -108,7 +108,7 @@ MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& 
   return 0;
 }
 
-double record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energy, const MKL_LONG index_t_now)
+double REPULSIVE_BROWNIAN::record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energy, const MKL_LONG index_t_now)
 {
   double time_st = dsecnd();
   TRAJ.fprint_row(DATA.traj, index_t_now);
@@ -116,7 +116,7 @@ double record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energ
   return dsecnd() - time_st;
 }
 
-double report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABLE& VAR)
+double REPULSIVE_BROWNIAN::report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABLE& VAR)
 {
   double total_time = VAR.time_LV + VAR.time_AN + VAR.time_file + VAR.time_DIST;
   printf("##### STEPS = %ld\tTIME = %8.6e tau_B\tENERGY = %6.3e (computing time: %4.3e)\n", TRAJ.c_t, VAR.simulation_time, energy(1), energy(5));
@@ -126,9 +126,9 @@ double report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABL
 
 
 
-TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, MKL_LONG given_N_basic)
+REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, MKL_LONG given_N_basic)
 {
-  MKL_LONG Np = atoi(given_condition("Np").c_str());
+  Np = atoi(given_condition("Np").c_str());
   MKL_LONG N_dimension = atoi(given_condition("Np").c_str());
   N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
   tmp_index_vec = (MKL_LONG*) mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
@@ -157,7 +157,7 @@ TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, MKL_LONG given_N_bas
 };
 
 // double destruct_VAR(TEMPORAL_VARIABLES& VAR)
-TEMPORAL_VARIABLE::~TEMPORAL_VARIABLE()
+REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::~TEMPORAL_VARIABLE()
 {
   if(INITIALIZATION)
     {

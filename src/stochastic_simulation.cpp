@@ -6,7 +6,6 @@
 #include "../lib/potential.h"               // POTENTIAL_SET class
 #include "../lib/file_IO.h"                 // RECORD_DATA class, COND class
 
-
 #include <string>
 
 #include "repulsive_brownian.h"             // EQUILIBRATION simulation
