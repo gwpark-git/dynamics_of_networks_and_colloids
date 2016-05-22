@@ -1,8 +1,9 @@
 
 #include "time_evolution.h"
 
-MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG given_index, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost)
+double INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG given_index, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost)
 {
+  double time_st = dsecnd();
   given_vec.set_value(0.);
   for (MKL_LONG j=1; j<CONNECT.TOKEN[given_index]; j++)
     {
@@ -19,11 +20,12 @@ MKL_LONG INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTENTIAL_SET&
                   1);
       
     }
-  return 0;
+  return dsecnd() - time_st;
 }
 
-MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_particle, RDIST& R_boost)
+double INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_particle, RDIST& R_boost)
 {
+  double time_st = dsecnd();
   given_vec.set_value(0.);
   MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
   for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
@@ -45,16 +47,17 @@ MKL_LONG INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTENTIAL_SET& POTs, MAT
             }
         }
     }
-  return 0;
+  return dsecnd() - time_st;
 }
 
 
-MKL_LONG INTEGRATOR::EULER::cal_random_force_boost(POTENTIAL_SET& POTs, MATRIX& given_vec, gsl_rng* r_boost)
+double INTEGRATOR::EULER::cal_random_force_boost(POTENTIAL_SET& POTs, MATRIX& given_vec, gsl_rng* r_boost)
 {
+  double time_st = dsecnd();
   RANDOM::single_random_vector_generator_variance_boost(given_vec, 1.0, r_boost);
   matrix_mul(given_vec, sqrt(2.0));
   POTs.scale_random(given_vec, POTs.force_variables);
-  return 0;
+  return dsecnd() - time_st;
 }
 
 double ANALYSIS::cal_total_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boost)

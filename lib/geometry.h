@@ -16,13 +16,12 @@ class RDIST : public CLIST
   /* double** Rmin; */
   MATRIX** Rvec; // Rvec[i][j] will be the relative vector between i- and j-th particles
   MATRIX* Rsca; // Rsca[i](j) will be the relative distance between i- and j-th particles. The form is differ from the original.
-  
   RDIST()
     {
       std::cout << "There is no empty constructor for RDIST class\n" << std::endl;
     }
   RDIST(COND& given_condition);
-  ~RDIST()
+  virtual ~RDIST()
     {
       mkl_free(Rsca);
       for(MKL_LONG i=0; i<Np; i++)

@@ -52,12 +52,12 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
 
       VAR.time_SS +=
         OMP_SS_topological_time_evolution(t, CONNECT, CHAIN, POTs, R_boost, RNG, IDX_ARR, DATA, given_condition, LOCKER, VAR);
+
+      VAR.time_LV +=
+        OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, CONNECT, POTs, R_boost, VAR.vec_boost_Nd_parallel, VAR.force_repulsion, VAR.force_random, VAR.force_spring, RNG, VAR.N_THREADS_BD, given_condition, VAR);
       
       VAR.time_LV +=
-        OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, CONNECT, POTs, R_boost, VAR.vec_boost_Nd_parallel, VAR.force_repulsion, VAR.force_random, VAR.force_spring, RNG, VAR.N_THREADS_BD, given_condition);
-      
-      VAR.time_LV +=
-        GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
+	GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
 
       VAR.N_associations = cnt_add - cnt_del;
       
@@ -104,36 +104,55 @@ double record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, ASSOCIATION& 
 double report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABLE_HEUR& VAR)
 {
   double total_time = VAR.time_SS + VAR.time_LV + VAR.time_AN + VAR.time_file + VAR.time_DIST;
+  double sum_time_LV = VAR.time_LV_init + VAR.time_LV_force + VAR.time_LV_update;
   printf("##### STEPS = %ld\tTIME = %8.6e tau_B\tENERGY = %6.3e (computing time: %4.3e)\n", TRAJ.c_t, VAR.simulation_time, energy(1), energy(5));
-  printf("time consuming: LV = %3.2e (%3.1f), AN = %3.2e (%3.1f), FILE = %3.2e (%3.1f), DIST = %3.2e (%3.1f) ###\n\n", VAR.time_LV, VAR.time_LV*100/total_time, VAR.time_AN, VAR.time_AN*100/total_time, VAR.time_file, VAR.time_file*100/total_time, VAR.time_DIST, VAR.time_DIST*100/total_time);
-  printf("SS: index process = %3.2e (%3.1f), LOCKING = %3.2e (%3.1f), check_dissociation = %3.2e (%3.1f), transition = %3.2e (%3.1f), update info. = %3.2e (%3.1f) (pre-ASSOCIATION = %3.2e (%3.1f), pre-SUGGESTION = %3.2e (%3.1f))  \n", VAR.time_SS_index, 100.*VAR.time_SS_index/VAR.time_SS, VAR.time_SS_LOCK, 100.*VAR.time_SS_LOCK/VAR.time_SS, VAR.time_SS_check, 100.*VAR.time_SS_check/VAR.time_SS, VAR.time_SS_transition, 100.*VAR.time_SS_transition/VAR.time_SS, VAR.time_SS_update, 100.*VAR.time_SS_update/VAR.time_SS, VAR.time_SS_update_ASSOCIATION_MAP, VAR.time_SS_update_ASSOCIATION_MAP/VAR.time_SS_update, VAR.time_SS_update_CHAIN_SUGGESTION, VAR.time_SS_update_CHAIN_SUGGESTION/VAR.time_SS_update);
+  printf("time consuming: LV = %3.2e (%3.1f%%), SS = %3.2e (%3.1f%%), AN = %3.2e (%3.1f%%), FILE = %3.2e (%3.1f%%), DIST = %3.2e (%3.1f%%)\n", VAR.time_LV, VAR.time_LV*100/total_time, VAR.time_SS, VAR.time_SS*100/total_time, VAR.time_AN, VAR.time_AN*100/total_time, VAR.time_file, VAR.time_file*100/total_time, VAR.time_DIST, VAR.time_DIST*100/total_time);
+  printf("LV: init = %3.1f%%, force = %3.1f%% (repulsion = %3.1f%%, random = %3.1f%%, connector = %3.1f%%), update = %3.1f%%\n", 100.*VAR.time_LV_init/sum_time_LV, 100.*VAR.time_LV_force/sum_time_LV, 100.*VAR.time_LV_force_repulsion/VAR.time_LV_force, 100.*VAR.time_LV_force_random/VAR.time_LV_force, 100.*VAR.time_LV_force_connector/VAR.time_LV_force, 100.*VAR.time_LV_update/sum_time_LV);
+  printf("SS: index process = %3.1f%%, LOCKING = %3.1f%%, check_dissociation = %3.1f%%, transition = %3.1f%%, update info. = %3.1f%%, pre-ASSOCIATION = %3.1f%%, pre-SUGGESTION = %3.1f%%)  \n", 100.*VAR.time_SS_index/VAR.time_SS, 100.*VAR.time_SS_LOCK/VAR.time_SS, 100.*VAR.time_SS_check/VAR.time_SS, 100.*VAR.time_SS_transition/VAR.time_SS, 100.*VAR.time_SS_update_info/VAR.time_SS, 100.*VAR.time_SS_update_ASSOCIATION_MAP/VAR.time_SS, 100.*VAR.time_SS_update_CHAIN_SUGGESTION/VAR.time_SS);
+  // 	 100.*VAR.time_SS_update/VAR.time_SS, VAR.time_SS_update_ASSOCIATION_MAP, VAR.time_SS_update_ASSOCIATION_MAP/VAR.time_SS_update, VAR.time_SS_update_CHAIN_SUGGESTION, VAR.time_SS_update_CHAIN_SUGGESTION/VAR.time_SS_update);
   printf("CHECK LAST STATISTICS: N_tot_asso = %ld, NAS = %ld, fraction=%4.3f ####\n\n", VAR.N_tot_associable_chain, VAR.N_associations, VAR.N_associations/(double)VAR.N_tot_associable_chain);
   return total_time;
 }
 
 
-double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, MATRIX* force_spring, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition)
+double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, MATRIX* force_spring, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, TEMPORAL_VARIABLE_HEUR& VAR)
 {
   double time_st = dsecnd();
-#pragma omp parallel for default(none) shared(TRAJ, CONNECT, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, force_spring, RNG, N_THREADS_BD, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+  double time_LV_init = 0., time_LV_force = 0., time_LV_update = 0.;
+  double time_LV_force_repulsion = 0., time_LV_force_random = 0., time_LV_force_connector = 0.;
+#pragma omp parallel for default(none) shared(TRAJ, CONNECT, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, force_spring, RNG, given_condition) num_threads(N_THREADS_BD) reduction(+: time_LV_init, time_LV_force, time_LV_update, time_LV_force_repulsion, time_LV_force_random, time_LV_force_connector) if(N_THREADS_BD > 1)
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
-          
+
+      double time_st_init = dsecnd();
       force_repulsion[i].set_value(0);
       force_random[i].set_value(0);
       force_spring[i].set_value(0);
-      
-      INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
-      INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]);
-      INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
-          
+      double time_st_force = dsecnd();
+      time_LV_init += time_st_force - time_st_init;
+      time_LV_force_repulsion +=
+	INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
+      time_LV_force_random +=
+	INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]);
+      time_LV_force_connector +=
+	INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
+      double time_st_update = dsecnd();
+      time_LV_force += time_st_update - time_st_force;
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
         {
           // TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*(force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
         }
+      time_LV_update += dsecnd() - time_st_update;
     }
+  VAR.time_LV_init += time_LV_init;
+  VAR.time_LV_force += time_LV_force;
+  VAR.time_LV_update += time_LV_update;
+
+  VAR.time_LV_force_repulsion += time_LV_force_repulsion;
+  VAR.time_LV_force_random += time_LV_force_random;
+  VAR.time_LV_force_connector += time_LV_force_connector;
   return dsecnd() - time_st;
 }
 
@@ -275,9 +294,8 @@ double micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_M
 double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, CHAIN_HANDLE& CHAIN, RNG_BOOST& RNG, RECORD_DATA& DATA, INDEX_MC* IDX_ARR, LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR)
 {
   double time_st = dsecnd();
-  double time_SS_index = 0., time_SS_LOCK = 0., time_SS_check = 0., time_SS_transition = 0., time_SS_update = 0.;
-  
-#pragma omp parallel for default(none) shared(DATA, POTs, CONNECT, CHAIN, LOCKER, IDX_ARR, VAR, R_boost, RNG) num_threads(VAR.N_THREADS_SS) reduction(+: time_SS_index, time_SS_LOCK, time_SS_check, time_SS_transition, time_SS_update) if(VAR.N_THREADS_SS > 1) 
+  double time_SS_index = 0., time_SS_LOCK = 0., time_SS_check = 0., time_SS_transition = 0., time_SS_update_info = 0.;
+#pragma omp parallel for default(none) shared(DATA, POTs, CONNECT, CHAIN, LOCKER, IDX_ARR, VAR, R_boost, RNG) num_threads(VAR.N_THREADS_SS) reduction(+: time_SS_index, time_SS_LOCK, time_SS_check, time_SS_transition, time_SS_update_info) if(VAR.N_THREADS_SS > 1) 
   // reduction(+:dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7)
   for(MKL_LONG tp=0; tp<VAR.N_tot_associable_chain; tp++)
     {
@@ -320,7 +338,7 @@ double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& 
           time_SS_transition +=
             transition_single_chain_end(CONNECT, POTs, CHAIN, R_boost, IDX_ARR[it], IDENTIFIER_ACTION);
 
-          time_SS_update +=
+          time_SS_update_info +=
             ACTION::UPDATE_INFORMATION(CONNECT, IDX_ARR[it], VAR.cnt_arr, IDENTIFIER_ACTION);
 
           // UNLOCKING
@@ -345,12 +363,13 @@ double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& 
 
         } // if(!IDENTIFIER_LOCKING)
 }
+
   // adding the measured time to the variable structure
   VAR.time_SS_index += time_SS_index;
 VAR.time_SS_LOCK += time_SS_LOCK;
 VAR.time_SS_check += time_SS_check;
 VAR.time_SS_transition += time_SS_transition;
-VAR.time_SS_update += time_SS_update;
+VAR.time_SS_update_info += time_SS_update_info;
 
   return dsecnd() - time_st;
 }

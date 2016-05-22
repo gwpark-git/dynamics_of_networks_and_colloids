@@ -12,14 +12,17 @@
 #include "../lib/geometry.h"
 
 #include "repulsive_brownian.h"
+#include "omp.h"
 
 struct TEMPORAL_VARIABLE_HEUR : REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE
 {
   MKL_LONG N_steps_block;
   MKL_LONG N_THREADS_SS;
   double time_SS, time_SS_CORE;
-  double time_SS_index, time_SS_LOCK, time_SS_check, time_SS_transition;
+  double time_SS_index, time_SS_LOCK, time_SS_check, time_SS_transition, time_SS_update_info;
   double time_SS_update, time_SS_update_ASSOCIATION_MAP, time_SS_update_CHAIN_SUGGESTION;
+
+  double time_LV_force_repulsion, time_LV_force_random, time_LV_force_connector;
   MKL_LONG cnt_arr[6];
   MKL_LONG cnt_SS; // counting number of steps for stochastic simulations
   MKL_LONG N_associations;
@@ -47,10 +50,15 @@ struct TEMPORAL_VARIABLE_HEUR : REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE
       time_SS_LOCK = 0.;
       time_SS_check = 0.;
       time_SS_transition = 0.;
+      time_SS_update_info = 0.;
 
       time_SS_update = 0.;
       time_SS_update_ASSOCIATION_MAP = 0.;
       time_SS_update_CHAIN_SUGGESTION = 0.;
+
+      time_LV_force_repulsion = 0.;
+      time_LV_force_random = 0.;
+      time_LV_force_connector = 0.;
       
       for(MKL_LONG i=0; i<6; i++)
         cnt_arr[i] = 0;
@@ -89,7 +97,7 @@ double record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, ASSOCIATION& 
 
 double report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABLE_HEUR& VAR);
 
-double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, MATRIX* force_spring, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition);
+double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, MATRIX* force_spring, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, TEMPORAL_VARIABLE_HEUR& VAR);
 
 double write_MC_LOG_if_TRUE(bool flag_MC_LOG, RECORD_DATA& DATA, ASSOCIATION& CONNECT, const INDEX_MC& IDX, const MKL_LONG cnt, const MKL_LONG* cnt_arr, const double rolling_dCDF, const double rolling_dCDF_U);
 

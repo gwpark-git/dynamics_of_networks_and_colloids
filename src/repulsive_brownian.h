@@ -9,10 +9,12 @@
 #include "../lib/parallel.h"
 #include "../lib/geometry.h"
 
+#include "omp.h"
+
 namespace REPULSIVE_BROWNIAN
 {
   struct TEMPORAL_VARIABLE; // tell compiler to expect struct def.
-
+  
   MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition);
 
   double record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energy, const MKL_LONG index_t_now);
@@ -38,6 +40,7 @@ struct REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE
   MKL_LONG Np;
   MKL_LONG N_basic;
   double time_LV, time_DIST, time_file, time_AN, time_RECORDED;
+  double time_LV_init, time_LV_force, time_LV_update;
   double simulation_time;
 
   bool INITIALIZATION;

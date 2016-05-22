@@ -2,6 +2,7 @@
 
 using namespace REPULSIVE_BROWNIAN;
 
+
 double REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, RDIST& R_boost, MKL_LONG* tmp_index_vec, const MKL_LONG N_THREADS_BD)
 {
   double time_st_rdist = dsecnd();
@@ -20,6 +21,7 @@ double REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG in
   // dt_rdist += dsecnd() - time_st_rdist;
   return dsecnd() - time_st_rdist;
 }
+
 
 double REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition)
 {
@@ -153,6 +155,7 @@ REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, 
   N_basic = given_N_basic;
 
   time_LV = 0.; time_DIST = 0.; time_file = 0.; time_AN = 0.; time_RECORDED = 0.;
+  time_LV_init = 0.; time_LV_force = 0.; time_LV_update = 0.;
   INITIALIZATION = TRUE;
 };
 
