@@ -1,6 +1,0 @@
-
-#+TITLE: Parallelization Through OpenMP
-#+AUTHOR: Gun Woo Park
-
-* Preface
-The technical details for parallelization is of importance to simulate bigger system and longer computation time. Previously, the code is only parallelized for time evolution and also for 
