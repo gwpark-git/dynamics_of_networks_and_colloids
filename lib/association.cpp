@@ -1,6 +1,15 @@
 
 #include "association.h"
 
+MKL_LONG index_set_val(size_t* index, MKL_LONG given_val, MKL_LONG size_of_arr)
+{
+  for(MKL_LONG i=0; i<size_of_arr; i++)
+    {
+      index[i] = given_val;
+    }
+  return 0;
+}
+
 MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
 {
   ifstream GIVEN_WEIGHT;
@@ -60,6 +69,7 @@ MKL_LONG ASSOCIATION::set_initial_condition()
       TOKEN_ASSOCIATION[i] = 0;
       dCDF_ASSOCIATION[i].initial(Np, 1, 0.);
       INDEX_ASSOCIATION[i].initial(Np, 1, -1);
+      // index_set_val(INDEX_ASSOCIATION[i], -1, Np);
     }
   N_ASSOCIATION = 0;
 
@@ -92,6 +102,10 @@ MKL_LONG ASSOCIATION::dynamic_alloc()
   // related with association probability
   dCDF_ASSOCIATION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   INDEX_ASSOCIATION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  // INDEX_ASSOCIATION = (size_t**) mkl_malloc(Np*sizeof(size_t*), BIT);
+  // for(MKL_LONG i=0; i<Np; i++)
+  //   INDEX_ASSOCIATION[i] = (size_t*) mkl_malloc(Np*sizeof(size_t), BIT);
+  
   TOKEN_ASSOCIATION = (MKL_LONG*) mkl_malloc(Np*sizeof(MKL_LONG), BIT);
 
   if(MULTIPLE_CONNECTIONS)
@@ -148,7 +162,7 @@ MKL_LONG ASSOCIATION::initial_inheritance() // it should not be called by outsid
       TOKEN_ASSOCIATION[i] = 0;
       dCDF_ASSOCIATION[i].initial(Np, 1, 0.);
       INDEX_ASSOCIATION[i].initial(Np, 1, -1);
-      
+      // index_set_val(INDEX_ASSOCIATION[i], -1, Np);
     }
   
   for(MKL_LONG i=0; i<Np; i++)
@@ -570,6 +584,7 @@ double ASSOCIATION::update_ASSOCIATION_MAP_particle(const MKL_LONG index_particl
   MKL_LONG count_CDF_TOKEN = 0;
   dCDF_ASSOCIATION[index_particle].set_value(0);
   INDEX_ASSOCIATION[index_particle].set_value(-1);
+  // index_set_val(INDEX_ASSOCIATION[index_particle], -1, dCDF_ASSOCIATION[index_particle].size);
   TOKEN_ASSOCIATION[index_particle] = 0;
   for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
     {
@@ -579,6 +594,7 @@ double ASSOCIATION::update_ASSOCIATION_MAP_particle(const MKL_LONG index_particl
           MKL_LONG index_target = R_boost(cell_index_neighbor, p);
           double distance = R_boost.Rsca[index_particle](index_target);
           INDEX_ASSOCIATION[index_particle](count_CDF_TOKEN) = index_target;
+          // INDEX_ASSOCIATION[index_particle][count_CDF_TOKEN] = index_target;
           dCDF_ASSOCIATION[index_particle](count_CDF_TOKEN) = POTs.PDF_connector(distance, POTs.force_variables);
           if(dCDF_ASSOCIATION[index_particle](count_CDF_TOKEN) > 0.)
             {

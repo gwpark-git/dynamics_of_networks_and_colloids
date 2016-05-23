@@ -113,7 +113,7 @@ double check_dissociation_probability(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs,
 double LOCKING_PARALLEL(LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR, const INDEX_MC& IDX, MKL_LONG& IDENTIFIER_ACTION, MKL_LONG& IDENTIFIER_LOCKING);
 double release_LOCKING(LOCK& LOCKER, INDEX_MC& IDX);
 
-/* double micelle_selection(ASSOCIATION& CONNECT, RNG_BOOST& RNG, MKL_LONG& index_itself, MKL_LONG& index_hash_attached_bead, MKL_LONG& index_attached_bead, MKL_LONG& index_new_attached_bead, const MKL_LONG index_thread); */
+/* double micelle_selection(ASSOCIATION& CONNECT, RNG_BOOST& RNG, MKL_LONG& index_itself, MKL_LONG& index_hash_attached_bead, MKL_LONG& index_attached_bead, MKL_LONG& index_new_attached_bead, const MKL_LONG index_thread, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR); */
 double micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_MC& IDX, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR, double& rolling_dCDF, double& rolling_dCDF_U);
 
 /* double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, CHAIN_HANDLE& CHAIN, RECORD_DATA& DATA, INDEX_MC* IDX_ARR, TEMPORAL_VARIABLE_HEUR& VAR); */

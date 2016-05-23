@@ -406,8 +406,30 @@ MKL_LONG MATRIX::sort()
   return 0;
 }
 
+
+// MKL_LONG MATRIX::sort2(MATRIX& index)
+// {
+
+// MKL_LONG MATRIX::sort2(MATRIX& index)
+// {
+//   gsl_sort2(data, 1, index.data, 1, size);
+//   return 0;
+// }
+
+// MKL_LONG MATRIX::sort2(size_t* index)
+// {
+//   // it is of importance that the gsl_sort2 is not supported by the SCOPE_GRID server.
+//   // hence, we are applying new scheme
+//   // gsl_sort2(data, 1, index.data, 1, size);
+  
+//   gsl_sort_index(index, data, 1, size);
+//   gsl_sort(data, 1, size);
+//   return 0;
+// }
+
 MKL_LONG MATRIX::sort2(MATRIX& index)
 {
+
   gsl_sort2(data, 1, index.data, 1, size);
   return 0;
 }

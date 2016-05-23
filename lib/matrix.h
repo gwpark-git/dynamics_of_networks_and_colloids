@@ -102,8 +102,8 @@ class MATRIX
   MKL_LONG undefined_error();                            //@
   /* MKL_LONG index(MKL_LONG i, MKL_LONG j);                          //@ */ // inlined
   MKL_LONG sort();
-  MKL_LONG sort2(MATRIX& index);
-
+  MKL_LONG sort2(MATRIX& given_index);
+  /* MKL_LONG sort2(size_t* index); */
   // inlined functions
   // note that function inside class definition is inlined
   // these are frequently called function that have small amount of computation

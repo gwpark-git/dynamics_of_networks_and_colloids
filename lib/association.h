@@ -40,6 +40,7 @@ class ASSOCIATION : public CONNECTIVITY
 
   // related with association probability
   MATRIX *dCDF_ASSOCIATION;
+  /* size_t **INDEX_ASSOCIATION; */
   MATRIX *INDEX_ASSOCIATION;
   MKL_LONG *TOKEN_ASSOCIATION;
 
@@ -113,12 +114,18 @@ class ASSOCIATION : public CONNECTIVITY
       // related with association probability
       mkl_free(dCDF_ASSOCIATION);
       mkl_free(INDEX_ASSOCIATION);
+      /* for(MKL_LONG i=0; i<Np; i++) */
+      /*   mkl_free(INDEX_ASSOCIATION[i]); */
+      /* mkl_free(INDEX_ASSOCIATION); */
+      
       mkl_free(TOKEN_ASSOCIATION);
     }
 
   MKL_LONG read_exist_weight(const char* fn_weight);
   
 };
+
+MKL_LONG index_set_val(size_t* index, MKL_LONG given_val, MKL_LONG size_of_arr);
 
 
 namespace TRUTH_MAP
