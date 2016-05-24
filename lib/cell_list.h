@@ -21,6 +21,7 @@ class CLIST
   bool CELL_LIST_BOOST;
   MKL_LONG N_dimension; // spatial dimension
   double box_dimension; // box dimension for one axis
+  bool INITIALIZATION;
   /*
     Based on the given critical radius, rc, the real length for cell is computed based on proper divisor of whole box. For instance, if the given box length is 10 and the critical length scale is 0.9, then the length for cell becomes 1.0, which is the slight larger than the critical length scale.
   */
@@ -97,19 +98,22 @@ class CLIST
   // destructor
   virtual ~CLIST()
     {
-      mkl_free(TOKEN);
-      for(MKL_LONG i=0; i<N_cells; i++)
+      if(INITIALIZATION)
         {
-          mkl_free(CELL[i]);
-          mkl_free(NEIGHBOR_CELLS[i]);
-	  for(MKL_LONG j=0; j<N_neighbor_cells; j++)
-	    mkl_free(BEYOND_BOX[i][j]);
-	  mkl_free(BEYOND_BOX[i]);
+          mkl_free(TOKEN);
+          for(MKL_LONG i=0; i<N_cells; i++)
+            {
+              mkl_free(CELL[i]);
+              mkl_free(NEIGHBOR_CELLS[i]);
+              for(MKL_LONG j=0; j<N_neighbor_cells; j++)
+                mkl_free(BEYOND_BOX[i][j]);
+              mkl_free(BEYOND_BOX[i]);
+            }
+          mkl_free(CELL);
+          mkl_free(NEIGHBOR_CELLS);
+          mkl_free(BEYOND_BOX);
+          mkl_free(cell_index);
         }
-      mkl_free(CELL);
-      mkl_free(NEIGHBOR_CELLS);
-      mkl_free(BEYOND_BOX);
-      mkl_free(cell_index);
     }
 };
 

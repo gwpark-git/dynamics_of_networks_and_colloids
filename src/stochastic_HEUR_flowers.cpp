@@ -31,7 +31,7 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
 
   RNG_BOOST RNG(given_condition);
   
-  INDEX_MC *IDX_ARR = (INDEX_MC*) mkl_malloc(VAR.N_THREADS_BD*sizeof(INDEX_MC), BIT);
+  INDEX_MC *IDX_ARR = (INDEX_MC*) mkl_malloc(VAR.N_THREADS_SS*sizeof(INDEX_MC), BIT);
   for(MKL_LONG i=0; i<VAR.N_THREADS_SS; i++)
     {
       IDX_ARR[i].initial();
@@ -47,13 +47,10 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
       TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
       ++TRAJ.c_t;
       MKL_LONG cnt = 1;
-
       VAR.time_DIST +=
         REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, index_t_now, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
-
       VAR.time_SS +=
         OMP_SS_topological_time_evolution(t, CONNECT, CHAIN, POTs, R_boost, RNG, IDX_ARR, DATA, given_condition, LOCKER, VAR);
-
       VAR.time_LV +=
         OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, CONNECT, POTs, R_boost, VAR.vec_boost_Nd_parallel, VAR.force_repulsion, VAR.force_random, VAR.force_spring, RNG, VAR.N_THREADS_BD, given_condition, VAR);
       
@@ -140,16 +137,11 @@ double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, co
       
       double time_st_update = dsecnd();
       time_LV_force += time_st_update - time_st_force;
-      printf("force_random (%d) = ", i);
       
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
         {
-          // TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*(force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
-          printf("%lf\t", force_random[i](k));
-          
         }
-      printf("\n");
       
       time_LV_update += dsecnd() - time_st_update;
     }

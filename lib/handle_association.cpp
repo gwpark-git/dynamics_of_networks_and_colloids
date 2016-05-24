@@ -174,13 +174,15 @@ const MKL_LONG INDEX_MC::N_BOOST_COUNT[] = {0, 2, 2, 3};
 /*
   the reason for inheritance for reference variable is that the reference variables cannot be along without given variables. In this way, the reference variables automatically allocated with exiting variables with beads array.
 */
-INDEX_MC::INDEX_MC() : bead_selected_chain_end(beads[ASSOCIATION::flag_itself]), bead_opp_selected_chain_end(beads[ASSOCIATION::flag_other]), bead_new_opp_selected_chain_end(beads[ASSOCIATION::flag_new]), hash_opp_selected_chain_end(beads[ASSOCIATION::flag_hash_other]), hash_backtrace(beads[ASSOCIATION::flag_hash_backtrace])
+// INDEX_MC::INDEX_MC() : bead_selected_chain_end(beads[ASSOCIATION::flag_itself]), bead_opp_selected_chain_end(beads[ASSOCIATION::flag_other]), bead_new_opp_selected_chain_end(beads[ASSOCIATION::flag_new]), hash_opp_selected_chain_end(beads[ASSOCIATION::flag_hash_other]), hash_backtrace(beads[ASSOCIATION::flag_hash_backtrace])
+INDEX_MC::INDEX_MC()
 {
   initial();
   set_initial_variables();
 }
 
-INDEX_MC::INDEX_MC(const INDEX_MC& given_IDX) : bead_selected_chain_end(beads[ASSOCIATION::flag_itself]), bead_opp_selected_chain_end(beads[ASSOCIATION::flag_other]), bead_new_opp_selected_chain_end(beads[ASSOCIATION::flag_new]), hash_opp_selected_chain_end(beads[ASSOCIATION::flag_hash_other]), hash_backtrace(beads[ASSOCIATION::flag_hash_backtrace])
+// INDEX_MC::INDEX_MC(const INDEX_MC& given_IDX) : bead_selected_chain_end(beads[ASSOCIATION::flag_itself]), bead_opp_selected_chain_end(beads[ASSOCIATION::flag_other]), bead_new_opp_selected_chain_end(beads[ASSOCIATION::flag_new]), hash_opp_selected_chain_end(beads[ASSOCIATION::flag_hash_other]), hash_backtrace(beads[ASSOCIATION::flag_hash_backtrace])
+INDEX_MC::INDEX_MC(const INDEX_MC& given_IDX)                                                
 {
   copy_INDEX(given_IDX);
 }
@@ -198,7 +200,7 @@ MKL_LONG INDEX_MC::copy_INDEX(const INDEX_MC& given_IDX)
 {
   initial();
   set_initial_variables();
-  for(MKL_LONG i=0; i<4; i++)
+  for(MKL_LONG i=0; i<5; i++)
     beads[i] = given_IDX.beads[i];
   return 0;
 }
@@ -212,7 +214,7 @@ INDEX_MC& INDEX_MC::operator=(const INDEX_MC& given_IDX)
 MKL_LONG INDEX_MC::set_initial_variables()
 {
   // Handling the -1 value as initialization is good part for re-usability from other library.
-  for(MKL_LONG i=0; i<4; i++)
+  for(MKL_LONG i=0; i<5; i++)
     beads[i] = -1; // -1 flag means nothing allocated
   return 0;
 }

@@ -24,7 +24,7 @@ class INDEX_MC
   // For better understanding, the reference variables are tagged and initialized in the constructor. For details, see the constructor in the sourcecode.
 
   MKL_LONG beads[5];
-  MKL_LONG &bead_selected_chain_end, &bead_opp_selected_chain_end, &bead_new_opp_selected_chain_end, &hash_opp_selected_chain_end, &hash_backtrace; // this will be initialize when constructor have been called
+  /* MKL_LONG &bead_selected_chain_end, &bead_opp_selected_chain_end, &bead_new_opp_selected_chain_end, &hash_opp_selected_chain_end, &hash_backtrace; // this will be initialize when constructor have been called */
   
   /* // Commented for copy constructor validity. the references will be defined outside class object
      MKL_LONG &itself, &attached_bead, &new_attached_bead, &hash_attached_bead, &hash_backtrace;

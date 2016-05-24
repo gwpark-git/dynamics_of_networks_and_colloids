@@ -12,6 +12,7 @@ CLIST::CLIST(COND& given_condition)
   /* N_dimension = given_N_dimension; */
   /* box_dimension = given_box_dimension; */
   printf("\tCLIST initialization");
+  INITIALIZATION = TRUE;
   box_dimension = atof(given_condition("box_dimension").c_str());
   N_dimension = atoi(given_condition("N_dimension").c_str());
   cut_off_radius = atof(given_condition("cutoff_connection").c_str());

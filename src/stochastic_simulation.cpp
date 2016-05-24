@@ -33,6 +33,11 @@ int main(int argc, char* argv[])
   else
     {
       COND given_condition(argv[1]);
+      if(atoi(given_condition("N_THREADS_BD").c_str())==1)
+        {
+          std::cout << "ERR: N_THREADS_BD = 1 has bug at this moment\n";
+          return -1;
+        }
       given_condition.cond_print();
 
       MKL_LONG N_basic = 2;

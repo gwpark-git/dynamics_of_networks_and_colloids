@@ -126,12 +126,11 @@ double REPULSIVE_BROWNIAN::report_simulation_info(TRAJECTORY& TRAJ, MATRIX& ener
   return total_time;
 }
 
-
-
 REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, MKL_LONG given_N_basic)
 {
   Np = atoi(given_condition("Np").c_str());
   MKL_LONG N_dimension = atoi(given_condition("N_dimension").c_str());
+  // MKL_LONG N_dimension = Np;
   N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
   tmp_index_vec = (MKL_LONG*) mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
   vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT); 

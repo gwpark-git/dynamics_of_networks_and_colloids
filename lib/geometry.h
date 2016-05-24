@@ -23,12 +23,15 @@ class RDIST : public CLIST
   RDIST(COND& given_condition);
   virtual ~RDIST()
     {
-      mkl_free(Rsca);
-      for(MKL_LONG i=0; i<Np; i++)
+      if(INITIALIZATION)
         {
-          mkl_free(Rvec[i]);
+          mkl_free(Rsca);
+          for(MKL_LONG i=0; i<Np; i++)
+            {
+              mkl_free(Rvec[i]);
+            }
+          mkl_free(Rvec);
         }
-      mkl_free(Rvec);
     }
 
   // member function

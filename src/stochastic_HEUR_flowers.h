@@ -39,7 +39,7 @@ struct TEMPORAL_VARIABLE_HEUR : REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE
     {};
  TEMPORAL_VARIABLE_HEUR(COND& given_condition, MKL_LONG given_N_basic) : REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE(given_condition, given_N_basic)
     {
-      MKL_LONG Np = atoi(given_condition("Np").c_str());
+      /* MKL_LONG Np = atoi(given_condition("Np").c_str()); */
       MKL_LONG N_dimension = atoi(given_condition("N_dimension").c_str());
       N_steps_block = atol(given_condition("N_steps_block").c_str());
       N_THREADS_SS = atol(given_condition("N_THREADS_SS").c_str());
@@ -85,7 +85,6 @@ struct TEMPORAL_VARIABLE_HEUR : REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE
       if(INITIALIZATION)
         {
           mkl_free(force_spring);
-          
         }
     }
 };
