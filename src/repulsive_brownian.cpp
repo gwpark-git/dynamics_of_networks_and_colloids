@@ -8,7 +8,7 @@ double REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG in
   double time_st_rdist = dsecnd();
   R_boost.allocate_cells_from_positions(TRAJ, index_t_now, tmp_index_vec);
   
-#pragma omp parallel for default(none) shared(TRAJ, index_t_now, R_boost, N_THREADS_BD) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+#pragma omp parallel for default(none) shared(TRAJ, index_t_now, R_boost) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
   /*
     Originally, this parallel regime is designed to use N_cells and TOKEN.
     Because the chunk size is not easily specified, it is used to parallel with index of particles instead of cell-based.

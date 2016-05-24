@@ -51,6 +51,8 @@ class ASSOCIATION : public CONNECTIVITY
   static const MKL_LONG flag_new = 1;
   static const MKL_LONG flag_itself = 2;
   static const MKL_LONG flag_hash_other = 3;
+  static const MKL_LONG flag_hash_backtrace = 4;
+  
   bool (*ADD_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   bool (*OPP_DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   bool (*CANCEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);

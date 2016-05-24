@@ -174,13 +174,13 @@ const MKL_LONG INDEX_MC::N_BOOST_COUNT[] = {0, 2, 2, 3};
 /*
   the reason for inheritance for reference variable is that the reference variables cannot be along without given variables. In this way, the reference variables automatically allocated with exiting variables with beads array.
 */
-INDEX_MC::INDEX_MC()
+INDEX_MC::INDEX_MC() : bead_selected_chain_end(beads[ASSOCIATION::flag_itself]), bead_opp_selected_chain_end(beads[ASSOCIATION::flag_other]), bead_new_opp_selected_chain_end(beads[ASSOCIATION::flag_new]), hash_opp_selected_chain_end(beads[ASSOCIATION::flag_hash_other]), hash_backtrace(beads[ASSOCIATION::flag_hash_backtrace])
 {
   initial();
   set_initial_variables();
 }
 
-INDEX_MC::INDEX_MC(const INDEX_MC& given_IDX)
+INDEX_MC::INDEX_MC(const INDEX_MC& given_IDX) : bead_selected_chain_end(beads[ASSOCIATION::flag_itself]), bead_opp_selected_chain_end(beads[ASSOCIATION::flag_other]), bead_new_opp_selected_chain_end(beads[ASSOCIATION::flag_new]), hash_opp_selected_chain_end(beads[ASSOCIATION::flag_hash_other]), hash_backtrace(beads[ASSOCIATION::flag_hash_backtrace])
 {
   copy_INDEX(given_IDX);
 }
@@ -217,13 +217,11 @@ MKL_LONG INDEX_MC::set_initial_variables()
   return 0;
 }
 
-
 MKL_LONG ACTION::ACT(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, INDEX_MC& IDX, MATRIX* R_minimum_distance_boost, MKL_LONG const IDENTIFIER_ACTION)
 {
   IDX.ACTION_ARR[IDENTIFIER_ACTION](POTs, CONNECT, IDX.beads, R_minimum_distance_boost);
   return 0;
 }
-
 
 double ACTION::UPDATE_INFORMATION(ASSOCIATION& CONNECT, INDEX_MC& IDX, MKL_LONG cnt_arr[], MKL_LONG const IDENTIFIER_ACTION)
 {
@@ -284,7 +282,7 @@ MKL_LONG ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(ASSOCIATION& CONNECT, INDEX_MC&
   else if (CONNECT.ADD_ASSOCIATION(CONNECT, IDX.beads))
     {
       if (CONNECT.CHECK_N_ADD_ASSOCIATION(CONNECT, IDX.beads))
-	return IDX.ADD;
+        return IDX.ADD;
       else
         return IDX.CANCEL;
     }

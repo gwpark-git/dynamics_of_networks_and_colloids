@@ -23,9 +23,11 @@ class INDEX_MC
   // Shortly, index_itself refers beads[2] this is because boolean optimization and handling indce easiler ways, and beads[0] is refer index_other and beads[1] is index_new. beads[3] is added in order to handle hash for index_other.
   // For better understanding, the reference variables are tagged and initialized in the constructor. For details, see the constructor in the sourcecode.
 
-  MKL_LONG beads[4];
+  MKL_LONG beads[5];
+  MKL_LONG &bead_selected_chain_end, &bead_opp_selected_chain_end, &bead_new_opp_selected_chain_end, &hash_opp_selected_chain_end, &hash_backtrace; // this will be initialize when constructor have been called
+  
   /* // Commented for copy constructor validity. the references will be defined outside class object
-     MKL_LONG &itself, &attached_bead, &new_attached_bead, &hash_attached_bead;
+     MKL_LONG &itself, &attached_bead, &new_attached_bead, &hash_attached_bead, &hash_backtrace;
   */
   // action_arry setting for boosting up the boolean identifier
   // ACTION_ARR[IDX.CANCEL] act CANCEL. The IDX.CANCEL can be changed by IDX.ADD, IDX.OPP_DEL, IDX.MOV, respectively.

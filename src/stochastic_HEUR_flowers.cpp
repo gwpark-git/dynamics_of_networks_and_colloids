@@ -58,7 +58,7 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
         OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, CONNECT, POTs, R_boost, VAR.vec_boost_Nd_parallel, VAR.force_repulsion, VAR.force_random, VAR.force_spring, RNG, VAR.N_THREADS_BD, given_condition, VAR);
       
       VAR.time_LV +=
-	GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
+        GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
 
       VAR.N_associations = cnt_add - cnt_del;
       
@@ -75,9 +75,7 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
 
           VAR.time_RECORDED +=
             report_simulation_info(TRAJ, energy, VAR);
-
         }
-
     }
 
   double time_simulation = dsecnd() - time_st_simulation;
@@ -132,20 +130,27 @@ double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, co
       force_spring[i].set_value(0);
       double time_st_force = dsecnd();
       time_LV_init += time_st_force - time_st_init;
-      time_LV_force_repulsion +=
-	INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
-      time_LV_force_random +=
-	INTEGRATOR::EULER::cal_random_force_boost_simplified(POTs, force_random[i], RNG.BOOST_BD[it]);
-	// INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]);
       time_LV_force_connector +=
-	INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
+        INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
+      time_LV_force_repulsion +=
+        INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
+      time_LV_force_random +=
+        // INTEGRATOR::EULER::cal_random_force_boost_simplified(POTs, force_random[i], RNG.BOOST_BD[it]);
+        INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]);
+      
       double time_st_update = dsecnd();
       time_LV_force += time_st_update - time_st_force;
+      printf("force_random (%d) = ", i);
+      
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
         {
           // TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*(force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
+          printf("%lf\t", force_random[i](k));
+          
         }
+      printf("\n");
+      
       time_LV_update += dsecnd() - time_st_update;
     }
   VAR.time_LV_init += time_LV_init;
@@ -159,7 +164,7 @@ double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, co
 }
 
 double write_MC_LOG_if_TRUE(bool flag_MC_LOG, RECORD_DATA& DATA, ASSOCIATION& CONNECT, const INDEX_MC& IDX, const MKL_LONG cnt, const MKL_LONG* cnt_arr, const double rolling_dCDF, const double rolling_dCDF_U) 
-                            // const MKL_LONG index_itself, const double rolling_dCDF, const MKL_LONG index_attached_bead, const MKL_LONG index_new_attached_bead, const double rolling_dCDF_U, const MKL_LONG k, MKL_LONG* cnt_arr)
+// const MKL_LONG index_itself, const double rolling_dCDF, const MKL_LONG index_attached_bead, const MKL_LONG index_new_attached_bead, const double rolling_dCDF_U, const MKL_LONG k, MKL_LONG* cnt_arr)
 {
   double time_st = dsecnd();
   if(flag_MC_LOG)
@@ -168,7 +173,7 @@ double write_MC_LOG_if_TRUE(bool flag_MC_LOG, RECORD_DATA& DATA, ASSOCIATION& CO
 			  
       // MKL_LONG count_N_associagtions = cnt_add - cnt_del;
       {
-        DATA.MC_LOG << cnt << '\t' << IDX.beads[CONNECT.flag_itself] << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << IDX.beads[CONNECT.flag_hash_other] << '\t'  << IDX.beads[CONNECT.flag_other] << '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << "SKIP"<< '\t'  << IDX.beads[CONNECT.flag_new] << '\t'  << CONNECT.TOKEN[IDX.beads[CONNECT.flag_itself]]<< '\t'<< CONNECT.N_CONNECTED_ENDS(IDX.beads[CONNECT.flag_itself]) << '\t' << CONNECT.weight[IDX.beads[CONNECT.flag_itself]](0) <<'\t' <<  total_bonds << '\t'  << cnt_arr[INDEX_MC::ADD]<< '\t'  << cnt_arr[INDEX_MC::MOV]<< '\t'  << cnt_arr[INDEX_MC::OPP_DEL]<< '\t'  << cnt_arr[INDEX_MC::CANCEL] << '\t' << cnt_arr[INDEX_MC::LOCK] << endl;
+        DATA.MC_LOG << cnt << '\t' << IDX.beads[CONNECT.flag_itself] << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << IDX.beads[CONNECT.flag_hash_other] << '\t'  << IDX.beads[CONNECT.flag_other] << '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << IDX.beads[CONNECT.flag_hash_backtrace] << '\t'  << IDX.beads[CONNECT.flag_new] << '\t'  << CONNECT.TOKEN[IDX.beads[CONNECT.flag_itself]]<< '\t'<< CONNECT.N_CONNECTED_ENDS(IDX.beads[CONNECT.flag_itself]) << '\t' << CONNECT.weight[IDX.beads[CONNECT.flag_itself]](0) <<'\t' <<  total_bonds << '\t'  << cnt_arr[INDEX_MC::ADD]<< '\t'  << cnt_arr[INDEX_MC::MOV]<< '\t'  << cnt_arr[INDEX_MC::OPP_DEL]<< '\t'  << cnt_arr[INDEX_MC::CANCEL] << '\t' << cnt_arr[INDEX_MC::LOCK] << endl;
       }
       // FILE_LOG << boost::format("%10d\t%4d\t")
     } // MC_LOG
@@ -274,23 +279,15 @@ double micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_M
   // index_new_attached_bead = CONNECT.INDEX_ASSOCIATION[index_itself](k);
   
   IDX.beads[CONNECT.flag_itself] = RANDOM::return_LONG_INT_rand_boost(RNG_BOOST_SS_IT, VAR.Np);
-  
   // choice for selected chain end
   rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(RNG_BOOST_SS_IT);
-  
   IDX.beads[CONNECT.flag_hash_other] = CONNECT.GET_INDEX_HASH_FROM_ROLL(IDX.beads[CONNECT.flag_itself], rolling_dCDF); 
-  
   IDX.beads[CONNECT.flag_other] = CONNECT.HASH[IDX.beads[CONNECT.flag_itself]](IDX.beads[CONNECT.flag_hash_other]); 
-  
   // choice for behaviour of selected chain end
   rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(RNG_BOOST_SS_IT);
-  
   // the PDF is already computed in the previous map
-              
-
-  MKL_LONG k = SEARCHING::backtrace_cell_list(CONNECT.dCDF_ASSOCIATION[IDX.beads[CONNECT.flag_itself]], CONNECT.TOKEN_ASSOCIATION[IDX.beads[CONNECT.flag_itself]], rolling_dCDF_U, IDX.beads[CONNECT.flag_itself], R_boost);
-  
-  IDX.beads[CONNECT.flag_new] = CONNECT.INDEX_ASSOCIATION[IDX.beads[CONNECT.flag_itself]](k);
+  IDX.beads[CONNECT.flag_hash_backtrace] = SEARCHING::backtrace_cell_list(CONNECT.dCDF_ASSOCIATION[IDX.beads[CONNECT.flag_itself]], CONNECT.TOKEN_ASSOCIATION[IDX.beads[CONNECT.flag_itself]], rolling_dCDF_U, IDX.beads[CONNECT.flag_itself], R_boost);
+  IDX.beads[CONNECT.flag_new] = CONNECT.INDEX_ASSOCIATION[IDX.beads[CONNECT.flag_itself]](IDX.beads[CONNECT.flag_hash_backtrace]);
   // IDX.beads[CONNECT.flag_new] = CONNECT.INDEX_ASSOCIATION[IDX.beads[CONNECT.flag_itself]][k];
   
   return dsecnd() - time_st;
@@ -319,7 +316,7 @@ double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& 
       
       time_SS_index +=
         micelle_selection(CONNECT, RNG.BOOST_SS[it], IDX_ARR[it], R_boost, VAR, rolling_dCDF, rolling_dCDF_U);
-        // micelle_selection(CONNECT, RNG, index_itself, index_hash_attached_bead, index_attached_bead, index_new_attached_bead, it, R_boost, VAR);
+      // micelle_selection(CONNECT, RNG, index_itself, index_hash_attached_bead, index_attached_bead, index_new_attached_bead, it, R_boost, VAR);
           
       MKL_LONG IDENTIFIER_ACTION = TRUE; // it can be 1 (IDX.ADD) but just true value
       MKL_LONG IDENTIFIER_LOCKING = FALSE;
@@ -363,7 +360,7 @@ double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& 
             VAR.cnt_arr[IDENTIFIER_ACTION] ++;
 
             // write_MC_LOG_if_TRUE(VAR.MC_LOG, DATA, CONNECT, VAR.cnt_SS, IDX_ARR[it], index_itself, rolling_dCDF, index_attached_bead, index_new_attached_bead, rolling_dCDF_U, VAR.cnt_arr);
-            write_MC_LOG_if_TRUE(VAR.MC_LOG, DATA, CONNECT, IDX_ARR[it], VAR.cnt_SS, VAR.cnt_arr, rolling_dCDF, rolling_dCDF_U);
+            write_MC_LOG_if_TRUE(VAR.MC_LOG, DATA, CONNECT, IDX_ARR[it], VAR.cnt_SS + 1, VAR.cnt_arr, rolling_dCDF, rolling_dCDF_U);
           }
 
         } // if(!IDENTIFIER_LOCKING)
@@ -376,7 +373,7 @@ VAR.time_SS_check += time_SS_check;
 VAR.time_SS_transition += time_SS_transition;
 VAR.time_SS_update_info += time_SS_update_info;
 
-  return dsecnd() - time_st;
+return dsecnd() - time_st;
 }
 
 double OMP_SS_update_STATISTICS(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR)

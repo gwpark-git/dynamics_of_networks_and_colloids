@@ -38,17 +38,17 @@ double INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTENTIAL_SET& POTs, MATRI
           if (index_target != index_particle)
             {
               double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
-	      for(MKL_LONG d=0; d<R_boost.N_dimension; d++)
-		{
-		  given_vec(d) += repulsion*R_boost.Rvec[index_particle][index_target](d);
-		}
+              // for(MKL_LONG d=0; d<R_boost.N_dimension; d++)
+              //   {
+              //     given_vec(d) += repulsion*R_boost.Rvec[index_particle][index_target](d);
+              //   }
 	      // the following make overhead.
-              // cblas_daxpy(given_vec.size,
-              //             repulsion/distance,
-              //             R_boost.Rvec[index_particle][index_target].data,
-              //             1,
-              //             given_vec.data,
-              //             1);
+              cblas_daxpy(given_vec.size,
+                          repulsion/distance,
+                          R_boost.Rvec[index_particle][index_target].data,
+                          1,
+                          given_vec.data,
+                          1);
             }
         }
     }
