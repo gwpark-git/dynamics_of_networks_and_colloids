@@ -1,7 +1,8 @@
 
 CC=icpc
-CFLAGS=-c -Wall -mkl -I/usr/local/include/ -L/usr/local/lib/ -lgsl 
-LDFLAGS=-Wall -mkl -I/usr/local/include/ -L/usr/local/lib/ -lgsl 
+CFLAGS=-c -Wall -mkl -I/usr/local/include/ -I/opt/exp_soft/unina.it/gsl-2.1/include/ 
+LDFLAGS=-Wall -mkl -L/usr/local/lib/ -L/opt/exp_soft/unina.it/gsl-2.1/lib/ -lgsl 
+
 OPTFLAGS=-openmp -O2
 DEBUGFLAGS=-no_pie -g
 SOURCES=src/stochastic_simulation.cpp src/repulsive_brownian.cpp src/stochastic_HEUR_flowers.cpp lib/association.cpp lib/connectivity.cpp lib/geometry.cpp lib/handle_association.cpp lib/matrix.cpp lib/parallel.cpp lib/potential.cpp lib/random.cpp lib/file_IO.cpp lib/time_evolution.cpp lib/trajectory.cpp lib/cell_list.cpp

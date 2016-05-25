@@ -1,0 +1,14 @@
+Type = "Job";
+
+Executable = "stochastic_HEUR.sh";
+Arguments = "run.inp";
+
+StdOutput = "stochastic_HEUR.log";
+StdError = "stochastic_HEUR.log";
+
+Requirement = RegExp("emi2-ce0[1-2].scope.unina.it:8443/cream-pbs-unina_hpc",other.GlueCEUniqueID);
+SMPGranularity = 8;
+CpuNumber = 8;
+
+InputSandbox = {"stochastic_HEUR.sh","run.inp"};
+OutputSandbox = {"stochastic_HEUR.sh"};
