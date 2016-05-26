@@ -59,29 +59,59 @@ class RECORD_DATA
 
   RECORD_DATA(COND& given_condition)
     {
-      filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
-      traj.open(filename_trajectory.c_str(), std::ios_base::app);
+      if(given_condition("output_path")=="FALSE")
+	{
+	  filename_trajectory = (given_condition("filename_base") + ".traj").c_str();
+	  traj.open(filename_trajectory.c_str(), std::ios_base::app);
       
-      filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
-      ener.open(filename_energy.c_str(), std::ios_base::app);
+	  filename_energy = (given_condition("filename_base") + ".ener").c_str();
+	  ener.open(filename_energy.c_str(), std::ios_base::app);
       
-      filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
-      hash.open(filename_HASH.c_str(), std::ios_base::app);
+	  filename_HASH = (given_condition("filename_base") + ".hash").c_str();
+	  hash.open(filename_HASH.c_str(), std::ios_base::app);
       
-      filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
-      weight.open(filename_weight.c_str(), std::ios_base::app);
+	  filename_weight = (given_condition("filename_base") + ".weight").c_str();
+	  weight.open(filename_weight.c_str(), std::ios_base::app);
 
-      if(given_condition("tracking_individual_chain")=="TRUE")
-        {
-          filename_chain = (given_condition("output_path") + '/' + given_condition("filename_base") + ".chain").c_str();
-          chain.open(filename_chain.c_str(), std::ios_base::app);
-        }
+	  if(given_condition("tracking_individual_chain")=="TRUE")
+	    {
+	      filename_chain = (given_condition("filename_base") + ".chain").c_str();
+	      chain.open(filename_chain.c_str(), std::ios_base::app);
+	    }
 
-      if(given_condition("MC_LOG")=="TRUE")
-        {
-          filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
-          MC_LOG.open(filename_MC_LOG.c_str(), std::ios_base::app);
-        }
+	  if(given_condition("MC_LOG")=="TRUE")
+	    {
+	      filename_MC_LOG = (given_condition("filename_base") + ".MC_LOG").c_str();
+	      MC_LOG.open(filename_MC_LOG.c_str(), std::ios_base::app);
+	    }
+	  
+	}
+      else
+	{
+	  filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
+	  traj.open(filename_trajectory.c_str(), std::ios_base::app);
+      
+	  filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
+	  ener.open(filename_energy.c_str(), std::ios_base::app);
+      
+	  filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
+	  hash.open(filename_HASH.c_str(), std::ios_base::app);
+      
+	  filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
+	  weight.open(filename_weight.c_str(), std::ios_base::app);
+
+	  if(given_condition("tracking_individual_chain")=="TRUE")
+	    {
+	      filename_chain = (given_condition("output_path") + '/' + given_condition("filename_base") + ".chain").c_str();
+	      chain.open(filename_chain.c_str(), std::ios_base::app);
+	    }
+
+	  if(given_condition("MC_LOG")=="TRUE")
+	    {
+	      filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
+	      MC_LOG.open(filename_MC_LOG.c_str(), std::ios_base::app);
+	    }
+	}
     }
   
   ~RECORD_DATA()
