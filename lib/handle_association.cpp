@@ -361,9 +361,7 @@ MKL_LONG SEARCHING::backtrace_cell_list(MATRIX& given_arr, MKL_LONG TOKEN, doubl
   return given_arr.size - TOKEN;
 }
 
-
-
-MKL_LONG CHAIN_HANDLE::hash_initial()
+MKL_LONG CHAIN_HANDLE::allocate_array()
 {
   PARTICLE = (MKL_LONG**) mkl_malloc(N_particles*sizeof(MKL_LONG*), BIT);
   P_TOKEN = (MKL_LONG*) mkl_malloc(N_particles*sizeof(MKL_LONG), BIT);
@@ -380,7 +378,12 @@ MKL_LONG CHAIN_HANDLE::hash_initial()
         }
       P_TOKEN[i] = 0;
     }
+  return 0;
+}
 
+MKL_LONG CHAIN_HANDLE::hash_initial(MKL_LONG seed)
+{
+  allocate_array();
   for(MKL_LONG i=0; i<N_chains; i++)
     {
       // note that the initial in association.h already allocate HEAD(i) and TAIL(i) as i%N_particles (all connections are loop)
@@ -400,10 +403,11 @@ MKL_LONG CHAIN_HANDLE::hash_initial()
   gsl_rng_env_setup();
   T = gsl_rng_default;
   r_degeneracy_check = gsl_rng_alloc(T);
-  gsl_rng_set(r_degeneracy_check, random());
+  gsl_rng_set(r_degeneracy_check, seed);
   degeneracy_index_array = (MKL_LONG*)mkl_malloc(N_chains*sizeof(MKL_LONG), BIT);
   return 0;
 }
+
 
 // MKL_LONG CHAIN_HANDLE::initialize_without_connection()
 // {

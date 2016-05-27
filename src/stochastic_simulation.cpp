@@ -69,15 +69,18 @@ int main(int argc, char* argv[])
               ASSOCIATION CONNECT(given_condition);
               // printf("TMP\n");              
               FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
-              CHAIN_HANDLE CHAIN(given_condition);
+              CHAIN_HANDLE CHAIN(given_condition, CONNECT);
               if(given_condition("CONTINUATION_CONNECTION") == "TRUE")
                 {
                   if(given_condition("tracking_individual_chain") == "TRUE")
                     {
-                      printf("inheritance the association map is not tested for 'tracking individual chain' mode\n");
-                      return -1;
+                      if(given_condition("CONTINUATION_CHAIN")=="TRUE")
+                        {
+                          printf("CONTINUATION the chain information is not tested for 'tracking individual chain' mode\n");
+                          return -1;
+                        }
                     }
-                  CHAIN.allocate_existing_bridges(CONNECT);
+                  // CHAIN.allocate_existing_bridges(CONNECT);
                 }
               stochastic_simulation_HEUR_flowers(TRAJ, POTs, CONNECT, CHAIN, DATA, given_condition);
 

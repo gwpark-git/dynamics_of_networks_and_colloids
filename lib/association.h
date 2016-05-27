@@ -92,7 +92,17 @@ class ASSOCIATION : public CONNECTIVITY
 
 
   double update_ASSOCIATION_MAP_particle(const MKL_LONG index_particle, POTENTIAL_SET& POTs, RDIST& R_boost);
-  
+
+  MKL_LONG return_multiplicity(const MKL_LONG index_particle, const MKL_LONG target_particle)
+  // this additional function is useful for tracking individual chain
+  {
+    for(MKL_LONG j=0; j<TOKEN[index_particle]; j++)
+      {
+        if(HASH[index_particle](j) == target_particle)
+          return weight[index_particle](j);
+      }
+    return 0;
+  }
   
  ASSOCIATION() : CONNECTIVITY(){}
 
@@ -245,6 +255,33 @@ class CHAIN_INFORMATION
     INITIALIZATION = TRUE;
     return INITIALIZATION;
   }
+
+  MKL_LONG initial(ASSOCIATION& CONNECT)
+  {
+    printf("ST:initial:CHAIN_INFORMATION\n");
+    N_chains = CONNECT.Nc*CONNECT.Np;
+    N_particles = CONNECT.Np;
+    CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT);
+    printf("end_dynamic_allocate\n");
+    MKL_LONG cnt = 0;
+    for(MKL_LONG i=0; i<N_particles; i++)
+      {
+        for(MKL_LONG j=i; j<N_particles; j++) // it include i=j which is itself
+          {
+            MKL_LONG wij = CONNECT.return_multiplicity(i, j);
+            for(MKL_LONG w=0; w<wij; w++)
+              {
+                HEAD(cnt) = i;
+                TAIL(cnt) = j;
+                cnt++;
+              }
+          }
+      }
+    printf("end_particle_allocation\n");
+    INITIALIZATION = TRUE;
+    return INITIALIZATION;
+  }
+
   
   CHAIN_INFORMATION() 
     {
@@ -260,6 +297,16 @@ class CHAIN_INFORMATION
         {
           printf("ST:Constructor:CHAIN_INFORMATION\n");
           initial(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str()));
+          printf("END:Constructor:CHAIN_INFORMATION\n");
+        }
+    }
+  CHAIN_INFORMATION(COND& given_condition, ASSOCIATION& CONNECT)
+    // it initialize based on the CONNECT information 
+    {
+      if(given_condition("tracking_individual_chain") == "TRUE")
+        {
+          printf("ST:Constructor:CHAIN_INFORMATION\n");
+          initial(CONNECT);
           printf("END:Constructor:CHAIN_INFORMATION\n");
         }
     }
