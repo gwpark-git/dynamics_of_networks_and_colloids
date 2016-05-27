@@ -1,7 +1,7 @@
 Type = "Job";
 
 Executable = "stochastic_HEUR.sh";
-Arguments = "run.inp";
+Arguments = "run.inp simulation_result.tgz";
 
 StdOutput = "stochastic_HEUR.log";
 StdError = "stochastic_HEUR.log";
@@ -10,5 +10,5 @@ Requirement = RegExp("emi2-ce0[1-2].scope.unina.it:8443/cream-pbs-unina_hpc",oth
 SMPGranularity = 8;
 CpuNumber = 8;
 
-InputSandbox = {"stochastic_HEUR.sh","run.inp"};
-OutputSandbox = {"stochastic_HEUR.sh"};
+InputSandbox = {"stochastic_HEUR.sh","stochastic_simulation","run.inp","LD10P3/EQ3D_NP0400_LD10P3.traj"};
+OutputSandbox = {"stochastic_HEUR.log"};

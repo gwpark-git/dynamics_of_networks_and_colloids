@@ -1,13 +1,15 @@
 #!/bin/sh
-out_path='result_HEUR'
-out_file='simulation_result.tgz'
-inp_file='run.inp'
+inp_file=$1
+out_file=$2
 
 export OMP_NUM_THREADS=2
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/exp_soft/unina.it/gsl-2.1/lib/
+export execute_path=$(pwd)
+chmod u+x $execute_path/stochastic_simulation
+$execute_path/stochastic_simulation $inp_file
 
-export HEUR_PATH=/home/gpark/stochastic_HEUR
-./stochastic_simulation run.inp
-
-tar czvf /ustre/home/$USER/$out_file $out_path/*
-mv /lustre/home/$USER/$out_file .
+export LFC_HOST=lfc02.scope.unina.it
+tar czvf $out_file *
 lcg-cr $out_file --vo unina.it -l lfn://grid/unina.it/gpark_dir/$out_file
+
+
