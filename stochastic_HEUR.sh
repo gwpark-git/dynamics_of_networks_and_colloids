@@ -2,7 +2,8 @@
 inp_file=$1
 out_file=$2
 
-export OMP_NUM_THREADS=2
+export OMP_NUM_THREADS=8
+source /opt/exp_soft/unina.it/intel/composer_xe_2013_sp1.3.174/mkl/bin/mklvars.sh intel64
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/exp_soft/unina.it/gsl-2.1/lib/
 export execute_path=$(pwd)
 chmod u+x $execute_path/stochastic_simulation
