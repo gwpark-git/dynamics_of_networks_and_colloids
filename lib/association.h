@@ -266,9 +266,16 @@ class CHAIN_INFORMATION
     MKL_LONG cnt = 0;
     for(MKL_LONG i=0; i<N_particles; i++)
       {
-        for(MKL_LONG j=i; j<N_particles; j++) // it include i=j which is itself
+        for(MKL_LONG j=i; j<N_particles; j++) // it includes i=j which is loop and prevents j<i means all the pair is once accounted. 
           {
             MKL_LONG wij = CONNECT.return_multiplicity(i, j);
+            if(i==j)
+              {
+                // note that weight count chain end rather than chain
+                // when i != j, the duplication is removed because we only count the pair with condition j>i
+                // when i == j, the duplication happens in the wij.
+                wij /=2;
+              }
             for(MKL_LONG w=0; w<wij; w++)
               {
                 HEAD(cnt) = i;
