@@ -289,6 +289,31 @@ class CHAIN_INFORMATION
     return INITIALIZATION;
   }
 
+  MKL_LONG inheritance_chain(COND& given_condition, ASSOCIATION& CONNECT)
+  {
+    N_chains = CONNECT.Nc*CONNECT.Np;
+    N_particles = CONNECT.Np;
+    CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT);
+    MKL_LONG cnt = 0;
+    ifstream GIVEN_CHAIN_FILE;
+    GIVEN_CHAIN_FILE.open(given_condition("CONTINUATION_CHAIN_FN").c_str());
+    string line;
+    while(getline(GIVEN_CHAIN_FILE, line))
+      cnt ++;
+    GIVEN_CHAIN_FILE.clear();
+    GIVEN_CHAIN_FILE.seekg(0);
+    for(MKL_LONG i=0; i<cnt-1; i++)
+      getline(GIVEN_CHAIN_FILE, line);
+
+    for(MKL_LONG k=0; k<N_chains; k++)
+      GIVEN_CHAIN_FILE >> HEAD(k); // index from 0 to N_chains-1 : HEAD
+    
+    for(MKL_LONG k=0; k<N_chains; k++)
+      GIVEN_CHAIN_FILE >> TAIL(k); // index from N_chains to 2*N_chains-1 : TAIL
+    GIVEN_CHAIN_FILE.close();
+    INITIALIZATION = TRUE;
+    return INITIALIZATION;
+  }
   
   CHAIN_INFORMATION() 
     {
@@ -302,9 +327,17 @@ class CHAIN_INFORMATION
     {
       if(given_condition("tracking_individual_chain") == "TRUE")
         {
-          printf("ST:Constructor:CHAIN_INFORMATION\n");
-          initial(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str()));
-          printf("END:Constructor:CHAIN_INFORMATION\n");
+          if(given_condition("CONTINUATION_CHAIN") == "TRUE")
+            {
+              printf("ERR: Without CONTINUATION TOPOLOGICAL INFORMATION (.hash, .weight), the tracking individual chain cannot inherit existing .chain file information\n");
+              /* inheritance_chain(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str())); */
+            }
+          else
+            {
+              printf("ST:Constructor:CHAIN_INFORMATION\n");
+              initial(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str()));
+              printf("END:Constructor:CHAIN_INFORMATION\n");
+            }
         }
     }
   CHAIN_INFORMATION(COND& given_condition, ASSOCIATION& CONNECT)
@@ -312,9 +345,16 @@ class CHAIN_INFORMATION
     {
       if(given_condition("tracking_individual_chain") == "TRUE")
         {
-          printf("ST:Constructor:CHAIN_INFORMATION\n");
-          initial(CONNECT);
-          printf("END:Constructor:CHAIN_INFORMATION\n");
+          if(given_condition("CONTINUATION_CHAIN") == "TRUE")
+            {
+              inheritance_chain(given_condition, CONNECT);
+            }
+          else
+            {
+              printf("ST:Constructor:CHAIN_INFORMATION\n");
+              initial(CONNECT);
+              printf("END:Constructor:CHAIN_INFORMATION\n");
+            }
         }
     }
   virtual ~CHAIN_INFORMATION()

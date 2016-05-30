@@ -156,7 +156,14 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
   {
     if(given_condition("tracking_individual_chain") == "TRUE")
       {
-        hash_initial(atoi(given_condition("basic_random_seed_SS").c_str()));
+        /* if(given_condition("CONTINUATION_CHAIN") == "TRUE") */
+        /*   { */
+        /*     hash_initial_ */
+        /*   } */
+        /* else */
+        /*   { */
+            hash_initial(atoi(given_condition("basic_random_seed_SS").c_str()));
+          /* } */
       }
   }
   
