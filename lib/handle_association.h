@@ -133,7 +133,7 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
 
   MKL_LONG write(std::ofstream& file);
   MKL_LONG allocate_array();
-  MKL_LONG hash_initial();
+  MKL_LONG hash_initial(MKL_LONG seed);
  CHAIN_HANDLE() : CHAIN_INFORMATION(){}
  CHAIN_HANDLE(MKL_LONG number_of_chains, MKL_LONG number_of_particles) : CHAIN_INFORMATION(number_of_chains, number_of_particles)
     {
