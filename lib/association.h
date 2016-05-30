@@ -241,7 +241,11 @@ class CHAIN_INFORMATION
     printf("ST:initial:CHAIN_INFORMATION\n");
     N_chains = number_of_chains;
     N_particles = number_of_particles;
-    CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT);
+    /* CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT); */
+    CHAIN = new CHAIN_NODE [N_chains];
+    /* for(MKL_LONG k=0; k<N_chains; k++) */
+    /*   CHAIN[k] = new CHAIN_NODE(); */
+    
     printf("end_dynamic_allocate\n");
     for(MKL_LONG i=0; i<N_chains; i++)
       {
@@ -261,7 +265,10 @@ class CHAIN_INFORMATION
     printf("ST:initial:CHAIN_INFORMATION\n");
     N_chains = CONNECT.Nc*CONNECT.Np;
     N_particles = CONNECT.Np;
-    CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT);
+    CHAIN = new CHAIN_NODE [N_chains];
+    /* for(MKL_LONG k=0; k<N_chains; k++) */
+    /*   CHAIN[k] = new CHAIN_NODE(); */
+    /* CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT); */
     printf("end_dynamic_allocate\n");
     MKL_LONG cnt = 0;
     for(MKL_LONG i=0; i<N_particles; i++)
@@ -293,7 +300,12 @@ class CHAIN_INFORMATION
   {
     N_chains = CONNECT.Nc*CONNECT.Np;
     N_particles = CONNECT.Np;
-    CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT);
+    /* CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT); */
+    // the problem of the original is that 'malloc' will not call the constructor
+    CHAIN = new CHAIN_NODE [N_chains];
+    /* for(MKL_LONG k=0; k<N_chains; k++) */
+    /*   CHAIN[k] = new CHAIN_NODE(); */
+
     MKL_LONG cnt = 0;
     ifstream GIVEN_CHAIN_FILE;
     GIVEN_CHAIN_FILE.open(given_condition("CONTINUATION_CHAIN_FN").c_str());
@@ -310,6 +322,7 @@ class CHAIN_INFORMATION
     
     for(MKL_LONG k=0; k<N_chains; k++)
       GIVEN_CHAIN_FILE >> TAIL(k); // index from N_chains to 2*N_chains-1 : TAIL
+    
     GIVEN_CHAIN_FILE.close();
     INITIALIZATION = TRUE;
     return INITIALIZATION;
@@ -360,7 +373,8 @@ class CHAIN_INFORMATION
   virtual ~CHAIN_INFORMATION()
     {
       if(INITIALIZATION)
-        mkl_free(CHAIN);
+        delete[] CHAIN;
+        /* mkl_free(CHAIN); */
     }
 };
 
