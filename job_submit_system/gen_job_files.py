@@ -23,3 +23,5 @@ def gen_jdl(given_condition):
         f.write('CpuNumber = %d;\n'%(int(given_condition['N_THREADS_BD'])))
         f.write('InputSandbox = {"%s", "%s", "%s", "%s"};\n'%('stochastic_HEUR.sh', 'stochastic_siulation', base_fn + '.inp', given_cond['CONTINUATION_TRAJ_FN']))
         f.write('OutputSandbox = {"%s"};\n'%(base_fn + '.log'))
+        f.write('PerusalFileEnable = true;')
+        f.write('PerusalTimeInterval = 1800;')
