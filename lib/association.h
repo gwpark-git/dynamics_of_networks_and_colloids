@@ -92,7 +92,17 @@ class ASSOCIATION : public CONNECTIVITY
 
 
   double update_ASSOCIATION_MAP_particle(const MKL_LONG index_particle, POTENTIAL_SET& POTs, RDIST& R_boost);
-  
+
+  MKL_LONG return_multiplicity(const MKL_LONG index_particle, const MKL_LONG target_particle)
+  // this additional function is useful for tracking individual chain
+  {
+    for(MKL_LONG j=0; j<TOKEN[index_particle]; j++)
+      {
+        if(HASH[index_particle](j) == target_particle)
+          return weight[index_particle](j);
+      }
+    return 0;
+  }
   
  ASSOCIATION() : CONNECTIVITY(){}
 
@@ -231,7 +241,11 @@ class CHAIN_INFORMATION
     printf("ST:initial:CHAIN_INFORMATION\n");
     N_chains = number_of_chains;
     N_particles = number_of_particles;
-    CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT);
+    /* CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT); */
+    CHAIN = new CHAIN_NODE [N_chains];
+    /* for(MKL_LONG k=0; k<N_chains; k++) */
+    /*   CHAIN[k] = new CHAIN_NODE(); */
+    
     printf("end_dynamic_allocate\n");
     for(MKL_LONG i=0; i<N_chains; i++)
       {
@@ -242,6 +256,74 @@ class CHAIN_INFORMATION
         TAIL(i) = i%N_particles;
       }
     printf("end_particle_allocation\n");
+    INITIALIZATION = TRUE;
+    return INITIALIZATION;
+  }
+
+  MKL_LONG initial(ASSOCIATION& CONNECT)
+  {
+    printf("ST:initial:CHAIN_INFORMATION\n");
+    N_chains = CONNECT.Nc*CONNECT.Np;
+    N_particles = CONNECT.Np;
+    CHAIN = new CHAIN_NODE [N_chains];
+    /* for(MKL_LONG k=0; k<N_chains; k++) */
+    /*   CHAIN[k] = new CHAIN_NODE(); */
+    /* CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT); */
+    printf("end_dynamic_allocate\n");
+    MKL_LONG cnt = 0;
+    for(MKL_LONG i=0; i<N_particles; i++)
+      {
+        for(MKL_LONG j=i; j<N_particles; j++) // it includes i=j which is loop and prevents j<i means all the pair is once accounted. 
+          {
+            MKL_LONG wij = CONNECT.return_multiplicity(i, j);
+            if(i==j)
+              {
+                // note that weight count chain end rather than chain
+                // when i != j, the duplication is removed because we only count the pair with condition j>i
+                // when i == j, the duplication happens in the wij.
+                wij /=2;
+              }
+            for(MKL_LONG w=0; w<wij; w++)
+              {
+                HEAD(cnt) = i;
+                TAIL(cnt) = j;
+                cnt++;
+              }
+          }
+      }
+    printf("end_particle_allocation\n");
+    INITIALIZATION = TRUE;
+    return INITIALIZATION;
+  }
+
+  MKL_LONG inheritance_chain(COND& given_condition, ASSOCIATION& CONNECT)
+  {
+    N_chains = CONNECT.Nc*CONNECT.Np;
+    N_particles = CONNECT.Np;
+    /* CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT); */
+    // the problem of the original is that 'malloc' will not call the constructor
+    CHAIN = new CHAIN_NODE [N_chains];
+    /* for(MKL_LONG k=0; k<N_chains; k++) */
+    /*   CHAIN[k] = new CHAIN_NODE(); */
+
+    MKL_LONG cnt = 0;
+    ifstream GIVEN_CHAIN_FILE;
+    GIVEN_CHAIN_FILE.open(given_condition("CONTINUATION_CHAIN_FN").c_str());
+    string line;
+    while(getline(GIVEN_CHAIN_FILE, line))
+      cnt ++;
+    GIVEN_CHAIN_FILE.clear();
+    GIVEN_CHAIN_FILE.seekg(0);
+    for(MKL_LONG i=0; i<cnt-1; i++)
+      getline(GIVEN_CHAIN_FILE, line);
+
+    for(MKL_LONG k=0; k<N_chains; k++)
+      GIVEN_CHAIN_FILE >> HEAD(k); // index from 0 to N_chains-1 : HEAD
+    
+    for(MKL_LONG k=0; k<N_chains; k++)
+      GIVEN_CHAIN_FILE >> TAIL(k); // index from N_chains to 2*N_chains-1 : TAIL
+    
+    GIVEN_CHAIN_FILE.close();
     INITIALIZATION = TRUE;
     return INITIALIZATION;
   }
@@ -258,15 +340,41 @@ class CHAIN_INFORMATION
     {
       if(given_condition("tracking_individual_chain") == "TRUE")
         {
-          printf("ST:Constructor:CHAIN_INFORMATION\n");
-          initial(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str()));
-          printf("END:Constructor:CHAIN_INFORMATION\n");
+          if(given_condition("CONTINUATION_CHAIN") == "TRUE")
+            {
+              printf("ERR: Without CONTINUATION TOPOLOGICAL INFORMATION (.hash, .weight), the tracking individual chain cannot inherit existing .chain file information\n");
+              /* inheritance_chain(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str())); */
+            }
+          else
+            {
+              printf("ST:Constructor:CHAIN_INFORMATION\n");
+              initial(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str()));
+              printf("END:Constructor:CHAIN_INFORMATION\n");
+            }
+        }
+    }
+  CHAIN_INFORMATION(COND& given_condition, ASSOCIATION& CONNECT)
+    // it initialize based on the CONNECT information 
+    {
+      if(given_condition("tracking_individual_chain") == "TRUE")
+        {
+          if(given_condition("CONTINUATION_CHAIN") == "TRUE")
+            {
+              inheritance_chain(given_condition, CONNECT);
+            }
+          else
+            {
+              printf("ST:Constructor:CHAIN_INFORMATION\n");
+              initial(CONNECT);
+              printf("END:Constructor:CHAIN_INFORMATION\n");
+            }
         }
     }
   virtual ~CHAIN_INFORMATION()
     {
       if(INITIALIZATION)
-        mkl_free(CHAIN);
+        delete[] CHAIN;
+        /* mkl_free(CHAIN); */
     }
 };
 

@@ -132,23 +132,38 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
 
 
   MKL_LONG write(std::ofstream& file);
-  MKL_LONG hash_initial();
+  MKL_LONG allocate_array();
+  MKL_LONG hash_initial(MKL_LONG seed);
  CHAIN_HANDLE() : CHAIN_INFORMATION(){}
  CHAIN_HANDLE(MKL_LONG number_of_chains, MKL_LONG number_of_particles) : CHAIN_INFORMATION(number_of_chains, number_of_particles)
     {
       /* printf("CHECK\n"); */
-      hash_initial();
+      hash_initial(random());
     }
  CHAIN_HANDLE(COND& given_condition) : CHAIN_INFORMATION(given_condition)
   {
     /* printf("CHECK\n"); */
     if(given_condition("tracking_individual_chain") == "TRUE")
       {
-        hash_initial();
+        hash_initial(atoi(given_condition("basic_random_seed_SS").c_str()));
       }
     else
       {
         INITIALIZATION = FALSE;
+      }
+  }
+ CHAIN_HANDLE(COND& given_condition, ASSOCIATION& CONNECT) : CHAIN_INFORMATION(given_condition, CONNECT)
+  {
+    if(given_condition("tracking_individual_chain") == "TRUE")
+      {
+        /* if(given_condition("CONTINUATION_CHAIN") == "TRUE") */
+        /*   { */
+        /*     hash_initial_ */
+        /*   } */
+        /* else */
+        /*   { */
+            hash_initial(atoi(given_condition("basic_random_seed_SS").c_str()));
+          /* } */
       }
   }
   
