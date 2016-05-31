@@ -31,7 +31,8 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
 
   RNG_BOOST RNG(given_condition);
   
-  INDEX_MC *IDX_ARR = (INDEX_MC*) mkl_malloc(VAR.N_THREADS_SS*sizeof(INDEX_MC), BIT);
+  // INDEX_MC *IDX_ARR = (INDEX_MC*) mkl_malloc(VAR.N_THREADS_SS*sizeof(INDEX_MC), BIT);
+  INDEX_MC *IDX_ARR = new INDEX_MC [VAR.N_THREADS_SS];
   for(MKL_LONG i=0; i<VAR.N_THREADS_SS; i++)
     {
       IDX_ARR[i].initial();
@@ -77,7 +78,8 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
 
   double time_simulation = dsecnd() - time_st_simulation;
   printf("Total simulation time = %6.3e, recorded time = %6.3e (record/total = %3.1f)\n", time_simulation, VAR.time_RECORDED, VAR.time_RECORDED/time_simulation);
-  mkl_free(IDX_ARR);
+  // mkl_free(IDX_ARR);
+  delete[] IDX_ARR;
   return 0;
 }
 

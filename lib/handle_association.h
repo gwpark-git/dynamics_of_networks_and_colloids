@@ -173,12 +173,16 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
         {
           for(MKL_LONG i=0; i<N_particles; i++)
             {
-              mkl_free(PARTICLE[i]);
+              /* mkl_free(PARTICLE[i]); */
+              delete[] PARTICLE[i];
             }
-          mkl_free(PARTICLE);
-          mkl_free(P_TOKEN);
+          /* mkl_free(PARTICLE); */
+          /* mkl_free(P_TOKEN); */
           gsl_rng_free(r_degeneracy_check);
-          mkl_free(degeneracy_index_array);
+          /* mkl_free(degeneracy_index_array); */
+          delete[] PARTICLE;
+          delete[] P_TOKEN;
+          delete[] degeneracy_index_array;
         }
     }
   MKL_LONG allocate_existing_bridges(ASSOCIATION& CONNECT);

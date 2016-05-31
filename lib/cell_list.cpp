@@ -62,22 +62,33 @@ CLIST::CLIST(COND& given_condition)
   // Np=400;
   // N_neighbor_cells=1;
   printf("\tdynamic allocating CLIST member variables");
-  cell_index = (MKL_LONG*)mkl_malloc(Np*sizeof(MKL_LONG), BIT);
-  TOKEN = (MKL_LONG*)mkl_malloc(N_cells*sizeof(MKL_LONG), BIT);
-  CELL = (MKL_LONG**)mkl_malloc(N_cells*sizeof(MKL_LONG*), BIT);
-  NEIGHBOR_CELLS = (MKL_LONG**)mkl_malloc(N_cells*sizeof(MKL_LONG*), BIT);
-  BEYOND_BOX = (MKL_LONG***)mkl_malloc(N_cells*sizeof(MKL_LONG**), BIT);
+  // cell_index = (MKL_LONG*)mkl_malloc(Np*sizeof(MKL_LONG), BIT);
+  // TOKEN = (MKL_LONG*)mkl_malloc(N_cells*sizeof(MKL_LONG), BIT);
+  // CELL = (MKL_LONG**)mkl_malloc(N_cells*sizeof(MKL_LONG*), BIT);
+  // NEIGHBOR_CELLS = (MKL_LONG**)mkl_malloc(N_cells*sizeof(MKL_LONG*), BIT);
+  // BEYOND_BOX = (MKL_LONG***)mkl_malloc(N_cells*sizeof(MKL_LONG**), BIT);
+
+  cell_index = new MKL_LONG [Np];
+  TOKEN = new MKL_LONG [N_cells];
+  CELL = new MKL_LONG* [N_cells];
+  NEIGHBOR_CELLS = new MKL_LONG* [N_cells];
+  BEYOND_BOX = new MKL_LONG** [N_cells];
+  
   for(MKL_LONG i=0; i<N_cells; i++)
     {
       // CELL[i].initial(MAX_IN_CELL, 1, 0.);
       TOKEN[i] = -1; // -1 is default value when there is no index (note that the particle index is started with 0, which is the reason to avoid using 0 identifier
-      CELL[i] = (MKL_LONG*)mkl_malloc(MAX_IN_CELL*sizeof(MKL_LONG), BIT);
-      NEIGHBOR_CELLS[i] = (MKL_LONG*)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG), BIT);
-      BEYOND_BOX[i] = (MKL_LONG**)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG*), BIT);
+      // CELL[i] = (MKL_LONG*)mkl_malloc(MAX_IN_CELL*sizeof(MKL_LONG), BIT);
+      CELL[i] = new MKL_LONG [MAX_IN_CELL];
+      // NEIGHBOR_CELLS[i] = (MKL_LONG*)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG), BIT);
+      // BEYOND_BOX[i] = (MKL_LONG**)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG*), BIT);
+      NEIGHBOR_CELLS[i] = new MKL_LONG [N_neighbor_cells];
+      BEYOND_BOX[i] = new MKL_LONG* [N_neighbor_cells];
       for(MKL_LONG j=0; j<N_neighbor_cells; j++)
-	{
-	  BEYOND_BOX[i][j] = (MKL_LONG*)mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
-	}
+        {
+          // BEYOND_BOX[i][j] = (MKL_LONG*)mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
+          BEYOND_BOX[i][j] = new MKL_LONG [N_dimension];
+        }
       /* get_neighbor_cell_list(i,  */
     }
   printf("\tallocating neighbor cell list information");
@@ -180,8 +191,10 @@ MKL_LONG CLIST::allocate_index_neighbor_cell_list()
 {
   if(CELL_LIST_BOOST)
     {
-      MKL_LONG* index_vec_boost = (MKL_LONG*)mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
-      MKL_LONG* sf_vec_boost = (MKL_LONG*)mkl_malloc(3*sizeof(MKL_LONG), BIT); // 3 means number of shift factors {-1, 0, +1}
+      // MKL_LONG* index_vec_boost = (MKL_LONG*)mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
+      // MKL_LONG* sf_vec_boost = (MKL_LONG*)mkl_malloc(3*sizeof(MKL_LONG), BIT); // 3 means number of shift factors {-1, 0, +1}
+      MKL_LONG* index_vec_boost = new MKL_LONG [N_dimension];
+      MKL_LONG* sf_vec_boost = new MKL_LONG [3];
       // for(MKL_LONG i=0; i<N_neighbor_cells; i++) // this was bug.
       for(MKL_LONG i=0; i<N_cells; i++) // this is right. 
         {
@@ -189,8 +202,10 @@ MKL_LONG CLIST::allocate_index_neighbor_cell_list()
 	  // for instance, if the PBC is divided by 5 cells for each axis, N_cells = 5^3 = 125 while the N_neighbor_cells = 3^3 = 9
           get_neighbor_cell_list(i, NEIGHBOR_CELLS[i], index_vec_boost, sf_vec_boost);
         }
-      mkl_free(index_vec_boost);
-      mkl_free(sf_vec_boost);
+      // mkl_free(index_vec_boost);
+      // mkl_free(sf_vec_boost);
+      delete[] index_vec_boost;
+      delete[] sf_vec_boost;
     }
   else
     {

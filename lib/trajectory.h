@@ -102,7 +102,8 @@ class TRAJECTORY : public MATRIX
  
  virtual ~TRAJECTORY()
     {
-      mkl_free(box_dimension);
+      /* mkl_free(box_dimension); */
+      delete[] box_dimension;
       // The MATRIX and REF_MATRIX objects are automatically killed-by virtual destructor option of the library. This fact is tested with packages.
     }
 
@@ -147,18 +148,22 @@ class TRAJECTORY_HDF5
       N_basic = given_N_basic; // it report how many time step should be stored in memory
       c_t = 0;
       dt = atof(given_condition("dt").c_str());
-      box_dimension = (double*)mkl_malloc(N_dimension*sizeof(double), BIT);
+      /* box_dimension = (double*)mkl_malloc(N_dimension*sizeof(double), BIT); */
+      box_dimension = new double [N_dimension];
       for(MKL_LONG k=0; k<N_dimension; k++)
         {
           box_dimension[k] = atof(given_condition("box_dimension").c_str());
         }
-      data = (double***)mkl_malloc(N_basic*sizeof(double**), BIT);
+      /* data = (double***)mkl_malloc(N_basic*sizeof(double**), BIT); */
+      data = new double** [N_basic];
       for(MKL_LONG t=0; t<N_basic; t++)
         {
-          data[t] = (double**)mkl_malloc(Np*sizeof(double*), BIT);
+          /* data[t] = (double**)mkl_malloc(Np*sizeof(double*), BIT); */
+          data[t] = new double* [Np];
           for(MKL_LONG i=0; i<Np; i++)
             {
-              data[t][i] = (double*)mkl_malloc(N_dimension*sizeof(double), BIT);
+              /* data[t][i] = (double*)mkl_malloc(N_dimension*sizeof(double), BIT); */
+              data[t][i] = new double [N_dimension];
             }
         }
       INITIALIZATION = TRUE;
@@ -171,12 +176,12 @@ class TRAJECTORY_HDF5
             {
               for(MKL_LONG i=0; i<Np; i++)
                 {
-                  delete data[t][i];
+                  delete[] data[t][i];
                 }
-              delete data[t];
+              delete[] data[t];
             }
-          delete data;
-          delete box_dimension;
+          delete[] data;
+          delete[] box_dimension;
           INITIALIZATION = FALSE;
         }
     }

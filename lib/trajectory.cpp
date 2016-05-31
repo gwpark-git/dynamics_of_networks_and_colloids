@@ -65,7 +65,8 @@ MKL_LONG TRAJECTORY::initialization(MKL_LONG N_time, MKL_LONG N_particle, double
   Nt = N_time;
   c_t = 0;
   Np = N_particle;
-  box_dimension = (double*)mkl_malloc(N_dimension*sizeof(double), BIT);
+  // box_dimension = (double*)mkl_malloc(N_dimension*sizeof(double), BIT);
+  box_dimension = new double [N_dimension];
   for (MKL_LONG k=0; k<N_dimension; k++)
     {
       box_dimension[k] = 10.0;
@@ -86,7 +87,8 @@ MKL_LONG TRAJECTORY::initialization_COND(COND& given_condition)
   c_t = 0;
   Np = atol(given_condition("Np").c_str());
   N_dimension = atol(given_condition("N_dimension").c_str());
-  box_dimension = (double*)mkl_malloc(N_dimension*sizeof(double), BIT);
+  // box_dimension = (double*)mkl_malloc(N_dimension*sizeof(double), BIT);
+  box_dimension = new double [N_dimension];
   for (MKL_LONG k=0; k<N_dimension; k++)
     {
       box_dimension[k] = atof(given_condition("box_dimension").c_str());

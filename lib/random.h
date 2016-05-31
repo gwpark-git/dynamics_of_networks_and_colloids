@@ -32,7 +32,8 @@ class RNG_BOOST
       INITIALIZATION_BD = TRUE;
       const gsl_rng_type *T_boost;
       N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
-      BOOST_BD = (gsl_rng**)mkl_malloc(N_THREADS_BD*sizeof(gsl_rng*), BIT);
+      /* BOOST_BD = (gsl_rng**)mkl_malloc(N_THREADS_BD*sizeof(gsl_rng*), BIT); */
+      BOOST_BD = new gsl_rng* [N_THREADS_BD];
       gsl_rng_env_setup();
       T_boost = gsl_rng_default;
       for(MKL_LONG i=0; i<N_THREADS_BD; i++)
@@ -45,7 +46,8 @@ class RNG_BOOST
         {
           INITIALIZATION_SS = TRUE;
           N_THREADS_SS = atol(given_condition("N_THREADS_SS").c_str());
-          BOOST_SS = (gsl_rng**)mkl_malloc(N_THREADS_SS*sizeof(gsl_rng*), BIT);
+          /* BOOST_SS = (gsl_rng**)mkl_malloc(N_THREADS_SS*sizeof(gsl_rng*), BIT); */
+          BOOST_SS = new gsl_rng* [N_THREADS_SS];
           for(MKL_LONG i=0; i<N_THREADS_SS; i++)
             {
               BOOST_SS[i] = gsl_rng_alloc(T_boost);
@@ -63,14 +65,16 @@ class RNG_BOOST
             {
               gsl_rng_free(BOOST_BD[i]);
             }
-          mkl_free(BOOST_BD);
+          /* mkl_free(BOOST_BD); */
+          delete[] BOOST_BD;
           if(INITIALIZATION_SS)
             {
               for(MKL_LONG i=0; i<N_THREADS_SS; i++)
                 {
                   gsl_rng_free(BOOST_SS[i]);
                 }
-              mkl_free(BOOST_SS);
+              /* mkl_free(BOOST_SS); */
+              delete[] BOOST_SS;
             }
         }
     }

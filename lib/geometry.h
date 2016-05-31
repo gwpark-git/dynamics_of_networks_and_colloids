@@ -25,12 +25,15 @@ class RDIST : public CLIST
     {
       if(INITIALIZATION)
         {
-          mkl_free(Rsca);
+          /* mkl_free(Rsca); */
+          delete[] Rsca;
           for(MKL_LONG i=0; i<Np; i++)
             {
-              mkl_free(Rvec[i]);
+              /* mkl_free(Rvec[i]); */
+              delete[] Rvec[i];
             }
-          mkl_free(Rvec);
+          /* mkl_free(Rvec); */
+          delete[] Rvec;
         }
     }
 

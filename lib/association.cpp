@@ -91,23 +91,30 @@ MKL_LONG ASSOCIATION::set_initial_condition()
 MKL_LONG ASSOCIATION::dynamic_alloc()
 {
   // intrinsic association member functions
-  weight = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  
+  // weight = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  weight = new MATRIX [Np];
   // related with suggestion probability
-  CASE_SUGGESTION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  dPDF_SUGGESTION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  dCDF_SUGGESTION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  Z_SUGGESTION = (double*) mkl_malloc(Np*sizeof(double), BIT);
-
+  // CASE_SUGGESTION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  // dPDF_SUGGESTION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  // dCDF_SUGGESTION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  CASE_SUGGESTION = new MATRIX [Np];
+  dPDF_SUGGESTION = new MATRIX [Np];
+  dCDF_SUGGESTION = new MATRIX [Np];
+  // Z_SUGGESTION = (double*) mkl_malloc(Np*sizeof(double), BIT);
+  Z_SUGGESTION = new double [Np];
+  
   // related with association probability
-  dCDF_ASSOCIATION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  INDEX_ASSOCIATION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  // dCDF_ASSOCIATION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  // INDEX_ASSOCIATION = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  dCDF_ASSOCIATION = new MATRIX [Np];
+  INDEX_ASSOCIATION = new MATRIX [Np];
   // INDEX_ASSOCIATION = (size_t**) mkl_malloc(Np*sizeof(size_t*), BIT);
   // for(MKL_LONG i=0; i<Np; i++)
   //   INDEX_ASSOCIATION[i] = (size_t*) mkl_malloc(Np*sizeof(size_t), BIT);
   
-  TOKEN_ASSOCIATION = (MKL_LONG*) mkl_malloc(Np*sizeof(MKL_LONG), BIT);
-
+  // TOKEN_ASSOCIATION = (MKL_LONG*) mkl_malloc(Np*sizeof(MKL_LONG), BIT);
+  TOKEN_ASSOCIATION = new MKL_LONG [Np];
+    
   if(MULTIPLE_CONNECTIONS)
     {
       CHECK_N_ADD_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_ADD_BOOST;

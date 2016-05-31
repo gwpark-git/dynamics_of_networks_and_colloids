@@ -29,8 +29,10 @@ class CONNECTIVITY
   CONNECTIVITY(COND& given_condition);
   virtual ~CONNECTIVITY()
     {
-      mkl_free(HASH);
-      mkl_free(TOKEN);
+      /* mkl_free(HASH); */
+      delete[] HASH;
+      /* mkl_free(TOKEN); */
+      delete[] TOKEN;
     }
 
   MKL_LONG read_exist_hash(const char* fn_hash);

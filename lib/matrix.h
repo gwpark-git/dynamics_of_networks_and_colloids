@@ -47,7 +47,8 @@ class MATRIX
   MKL_LONG DIAGONALIZATION_INITIAL()                     //@ 
   {
     /* eigen_value = new double [rows]; */
-    eigen_value = (double*) mkl_malloc(rows*sizeof(double), BIT);
+    /* eigen_value = (double*) mkl_malloc(rows*sizeof(double), BIT); */
+    eigen_value = new double [rows];
     DIAGONALIZATION = TRUE;
     return 0;
   }

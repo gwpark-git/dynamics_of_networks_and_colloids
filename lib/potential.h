@@ -32,7 +32,8 @@ class POTENTIAL_SET
   virtual ~POTENTIAL_SET()
     {
       if(force_variables)
-        mkl_free(force_variables);
+        /* mkl_free(force_variables); */
+        delete[] force_variables;
     }
 };
 

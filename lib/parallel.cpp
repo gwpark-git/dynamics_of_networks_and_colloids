@@ -9,14 +9,18 @@ LOCK::LOCK()
 LOCK::LOCK(MKL_LONG N_target)
 {
   NL = N_target;
-  locker = (bool*) mkl_calloc(NL, sizeof(bool), BIT);
+  // locker = (bool*) mkl_calloc(NL, sizeof(bool), BIT);
+  locker = new bool [NL];
+  for(MKL_LONG i=0; i<NL; i++)
+    locker[i] = FALSE;
   INITIALIZATION = TRUE;
 }
 
 LOCK::~LOCK()
 {
   if(INITIALIZATION)
-    mkl_free(locker);
+    delete[] locker;
+    // mkl_free(locker);
 }
 
 MKL_LONG LOCK::RESET()

@@ -363,16 +363,19 @@ MKL_LONG SEARCHING::backtrace_cell_list(MATRIX& given_arr, MKL_LONG TOKEN, doubl
 
 MKL_LONG CHAIN_HANDLE::allocate_array()
 {
-  PARTICLE = (MKL_LONG**) mkl_malloc(N_particles*sizeof(MKL_LONG*), BIT);
-  P_TOKEN = (MKL_LONG*) mkl_malloc(N_particles*sizeof(MKL_LONG), BIT);
+  // PARTICLE = (MKL_LONG**) mkl_malloc(N_particles*sizeof(MKL_LONG*), BIT);
+  // P_TOKEN = (MKL_LONG*) mkl_malloc(N_particles*sizeof(MKL_LONG), BIT);
+  PARTICLE = new MKL_LONG* [N_particles];
+  P_TOKEN = new MKL_LONG [N_particles];
+  
   for(MKL_LONG i=0; i<N_particles; i++)
     {
       /* 
-         The PARTICLE is N_particles by 2*N_chains matrix.
-         For default test (1000 particles with 10 chains per particles), the array might have 160 Mb, which is quite large but not too much.
+         The PARTICLE is N_particles by N_CE_MAX matrix.
       */
-      PARTICLE[i] = (MKL_LONG*) mkl_malloc(2*N_chains*sizeof(MKL_LONG), BIT);
-      for(MKL_LONG j=0; j<2*N_chains; j++)
+      // PARTICLE[i] = (MKL_LONG*) mkl_malloc(2*N_chains*sizeof(MKL_LONG), BIT);
+      PARTICLE[i] = new MKL_LONG [N_CE_MAX];
+      for(MKL_LONG j=0; j<N_CE_MAX; j++)
         {
           PARTICLE[i][j] = -1; // this means the hash direct no chain ends (index for chain ends is started with 0)
         }
@@ -404,7 +407,8 @@ MKL_LONG CHAIN_HANDLE::hash_initial(MKL_LONG seed)
   T = gsl_rng_default;
   r_degeneracy_check = gsl_rng_alloc(T);
   gsl_rng_set(r_degeneracy_check, seed);
-  degeneracy_index_array = (MKL_LONG*)mkl_malloc(N_chains*sizeof(MKL_LONG), BIT);
+  // degeneracy_index_array = (MKL_LONG*)mkl_malloc(N_chains*sizeof(MKL_LONG), BIT);
+  degeneracy_index_array = new MKL_LONG [N_chains];
   return 0;
 }
 
@@ -446,10 +450,12 @@ MKL_LONG CHAIN_HANDLE::allocate_existing_bridges(ASSOCIATION& CONNECT)
   for(MKL_LONG i=0; i<2*N_chains; i++)
     CE_ATTACHED_REF(i) = -1;
 
-  MKL_LONG **PAIR_CHECK = (MKL_LONG**)mkl_malloc(N_particles*sizeof(MKL_LONG*), BIT);
+  // MKL_LONG **PAIR_CHECK = (MKL_LONG**)mkl_malloc(N_particles*sizeof(MKL_LONG*), BIT);
+  MKL_LONG **PAIR_CHECK = new MKL_LONG* [N_particles];
   for(MKL_LONG i=0; i<N_particles; i++)
     {
-      PAIR_CHECK[i] = (MKL_LONG*)mkl_malloc(N_particles*sizeof(MKL_LONG), BIT);
+      // PAIR_CHECK[i] = (MKL_LONG*)mkl_malloc(N_particles*sizeof(MKL_LONG), BIT);
+      PAIR_CHECK[i] = new MKL_LONG [N_particles];
       for(MKL_LONG j=0; j<N_particles; j++)
 	{
 	  PAIR_CHECK[i][j] = -1;
@@ -483,9 +489,11 @@ MKL_LONG CHAIN_HANDLE::allocate_existing_bridges(ASSOCIATION& CONNECT)
         }
     }
   for(MKL_LONG i=0; i<N_particles; i++)
-    mkl_free(PAIR_CHECK[i]);
-  mkl_free(PAIR_CHECK);
-
+    // mkl_free(PAIR_CHECK[i]);
+    delete[] PAIR_CHECK[i];
+  // mkl_free(PAIR_CHECK);
+  delete[] PAIR_CHECK;
+  
   if (chain_count != N_chains)
     printf("ERR: allocating_existing_brdiges have unbalanced number between chain_count (%ld) and N_chains (%ld)\n", chain_count, N_chains);
   return 0;

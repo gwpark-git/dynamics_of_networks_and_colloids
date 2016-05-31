@@ -65,8 +65,8 @@ struct TEMPORAL_VARIABLE_HEUR : REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE
 
       cnt_SS = 0;
       
-      force_spring = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-      
+      /* force_spring = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT); */
+      force_spring = new MATRIX [Np];
       for(MKL_LONG i=0; i<Np; i++)
         force_spring[i].initial(N_dimension, 1, 0.);
 
@@ -84,7 +84,8 @@ struct TEMPORAL_VARIABLE_HEUR : REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE
     {
       if(INITIALIZATION)
         {
-          mkl_free(force_spring);
+          /* mkl_free(force_spring); */
+          delete[] force_spring;
         }
     }
 };

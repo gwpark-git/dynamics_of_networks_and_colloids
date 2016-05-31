@@ -62,7 +62,8 @@ MATRIX::~MATRIX()
     }
   if (DIAGONALIZATION)
     {
-      mkl_free(eigen_value);
+      // mkl_free(eigen_value);
+      delete[] eigen_value;
     }
 }
 
@@ -304,7 +305,10 @@ MKL_LONG  MATRIX::initial(MKL_LONG  N_r, MKL_LONG  N_c)
       size = rows*cols;
       // note that the dynamic allocation should be defined callocation
       // otherwise, it should be set with the valid initial variable
-      data = (double*) mkl_calloc(size, sizeof(double), BIT);
+      // data = (double*) mkl_calloc(size, sizeof(double), BIT);
+      data = new double [size];
+      for(MKL_LONG i=0; i<size; i++)
+        data[i] = 0.;
       // data = new double [size];
     }
   return 0;
@@ -324,7 +328,8 @@ MKL_LONG  MATRIX::initial(MKL_LONG  N_r, MKL_LONG  N_c, double x)
 MKL_LONG MATRIX::data_delete()
 {
   // delete[] data;
-  mkl_free(data);
+  // mkl_free(data);
+  delete[] data;
   INITIALIZATION = FALSE;
   data = NULL;
   return 0;

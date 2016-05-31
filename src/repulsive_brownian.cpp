@@ -132,16 +132,19 @@ REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, 
   MKL_LONG N_dimension = atoi(given_condition("N_dimension").c_str());
   // MKL_LONG N_dimension = Np;
   N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
-  tmp_index_vec = (MKL_LONG*) mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
-  vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT); 
-
+  // tmp_index_vec = (MKL_LONG*) mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
+  // vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT); 
+  tmp_index_vec = new MKL_LONG [N_dimension];
+  vec_boost_Nd_parallel = new MATRIX [Np];
   for(MKL_LONG i=0; i<Np; i++)
     {
       vec_boost_Nd_parallel[i].initial(N_dimension, 1, 0.);
     }
 
-  force_repulsion = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  force_random = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  // force_repulsion = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  // force_random = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  force_repulsion = new MATRIX [Np];
+  force_random = new MATRIX [Np];
   for(MKL_LONG i=0; i<Np; i++)
     {
       force_repulsion[i].initial(N_dimension, 1, 0.);
@@ -163,9 +166,13 @@ REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::~TEMPORAL_VARIABLE()
 {
   if(INITIALIZATION)
     {
-      mkl_free(vec_boost_Nd_parallel);
-      mkl_free(force_repulsion);
-      mkl_free(force_random);
-      mkl_free(tmp_index_vec);
+      // mkl_free(vec_boost_Nd_parallel);
+      // mkl_free(force_repulsion);
+      // mkl_free(force_random);
+      // mkl_free(tmp_index_vec);
+      delete[] vec_boost_Nd_parallel;
+      delete[] force_repulsion;
+      delete[] force_random;
+      delete[] tmp_index_vec;
     }
 }

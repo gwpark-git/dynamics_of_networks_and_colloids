@@ -13,7 +13,8 @@ MKL_LONG FORCE::DEFAULT::EMPTY_force_set(POTENTIAL_SET& given_POT, COND& given_c
 
 MKL_LONG FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
 {
-  given_POT.force_variables = (double*) mkl_calloc(3, sizeof(double), BIT);
+  // given_POT.force_variables = (double*) mkl_calloc(3, sizeof(double), BIT);
+  given_POT.force_variables = new double [3];
   given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
   given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
   given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
@@ -32,7 +33,8 @@ MKL_LONG FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTENTIAL_SET& given_
 
 MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
 {
-  given_POT.force_variables = (double*) mkl_calloc(8, sizeof(double), BIT);
+  // given_POT.force_variables = (double*) mkl_calloc(8, sizeof(double), BIT);
+  given_POT.force_variables = new double [8];
   given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
   given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
   given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);

@@ -115,22 +115,29 @@ class ASSOCIATION : public CONNECTIVITY
   MKL_LONG initial_inheritance();
   virtual ~ASSOCIATION()
     {
-      mkl_free(weight);
-
+      /* mkl_free(weight); */
+      delete[] weight;
+      
       // related with suggestion probability
-      mkl_free(CASE_SUGGESTION);
-      mkl_free(dPDF_SUGGESTION);
-      mkl_free(dCDF_SUGGESTION);
-      mkl_free(Z_SUGGESTION);
-
+      /* mkl_free(CASE_SUGGESTION); */
+      /* mkl_free(dPDF_SUGGESTION); */
+      /* mkl_free(dCDF_SUGGESTION); */
+      delete[] CASE_SUGGESTION;
+      delete[] dPDF_SUGGESTION;
+      delete[] dCDF_SUGGESTION;
+      /* mkl_free(Z_SUGGESTION); */
+      delete[] Z_SUGGESTION;
       // related with association probability
-      mkl_free(dCDF_ASSOCIATION);
-      mkl_free(INDEX_ASSOCIATION);
+      /* mkl_free(dCDF_ASSOCIATION); */
+      /* mkl_free(INDEX_ASSOCIATION); */
+      delete[] dCDF_ASSOCIATION;
+      delete[] INDEX_ASSOCIATION;
       /* for(MKL_LONG i=0; i<Np; i++) */
       /*   mkl_free(INDEX_ASSOCIATION[i]); */
       /* mkl_free(INDEX_ASSOCIATION); */
       
-      mkl_free(TOKEN_ASSOCIATION);
+      /* mkl_free(TOKEN_ASSOCIATION); */
+      delete[] TOKEN_ASSOCIATION;
     }
 
   MKL_LONG read_exist_weight(const char* fn_weight);
@@ -191,7 +198,8 @@ class CHAIN_INFORMATION
   CHAIN_NODE *CHAIN;
   MKL_LONG N_chains;
   MKL_LONG N_particles;
-
+  MKL_LONG N_CE_MAX;
+  
   bool INITIALIZATION;
   MKL_LONG& HEAD(MKL_LONG given_chain_index)
     {
@@ -246,7 +254,6 @@ class CHAIN_INFORMATION
     /* for(MKL_LONG k=0; k<N_chains; k++) */
     /*   CHAIN[k] = new CHAIN_NODE(); */
     
-    printf("end_dynamic_allocate\n");
     for(MKL_LONG i=0; i<N_chains; i++)
       {
         /*
@@ -255,21 +262,18 @@ class CHAIN_INFORMATION
         HEAD(i) = i%N_particles;
         TAIL(i) = i%N_particles;
       }
-    printf("end_particle_allocation\n");
     INITIALIZATION = TRUE;
     return INITIALIZATION;
   }
 
   MKL_LONG initial(ASSOCIATION& CONNECT)
   {
-    printf("ST:initial:CHAIN_INFORMATION\n");
     N_chains = CONNECT.Nc*CONNECT.Np;
     N_particles = CONNECT.Np;
     CHAIN = new CHAIN_NODE [N_chains];
     /* for(MKL_LONG k=0; k<N_chains; k++) */
     /*   CHAIN[k] = new CHAIN_NODE(); */
     /* CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT); */
-    printf("end_dynamic_allocate\n");
     MKL_LONG cnt = 0;
     for(MKL_LONG i=0; i<N_particles; i++)
       {
@@ -287,7 +291,8 @@ class CHAIN_INFORMATION
               {
                 HEAD(cnt) = i;
                 TAIL(cnt) = j;
-                cnt++;
+                if(cnt++ > N_chains)
+                  printf("Err: counted number of chain overflood\n");
               }
           }
       }
@@ -340,6 +345,7 @@ class CHAIN_INFORMATION
     {
       if(given_condition("tracking_individual_chain") == "TRUE")
         {
+          N_CE_MAX = 2*(atoi(given_condition("N_chains_per_particle").c_str()) + atoi(given_condition("tolerance_allowing_condition").c_str())); // note that the later is not related with multiplication with 2. But it is used to be on the safe side
           if(given_condition("CONTINUATION_CHAIN") == "TRUE")
             {
               printf("ERR: Without CONTINUATION TOPOLOGICAL INFORMATION (.hash, .weight), the tracking individual chain cannot inherit existing .chain file information\n");
@@ -358,6 +364,8 @@ class CHAIN_INFORMATION
     {
       if(given_condition("tracking_individual_chain") == "TRUE")
         {
+          N_CE_MAX = 2*(atoi(given_condition("N_chains_per_particle").c_str()) + atoi(given_condition("tolerance_allowing_condition").c_str())); // note that the later is not related with multiplication with 2. But it is used to be on the safe side
+          
           if(given_condition("CONTINUATION_CHAIN") == "TRUE")
             {
               inheritance_chain(given_condition, CONNECT);
