@@ -198,7 +198,6 @@ class CHAIN_INFORMATION
   CHAIN_NODE *CHAIN;
   MKL_LONG N_chains;
   MKL_LONG N_particles;
-  MKL_LONG N_CE_MAX;
   
   bool INITIALIZATION;
   MKL_LONG& HEAD(MKL_LONG given_chain_index)
@@ -345,7 +344,7 @@ class CHAIN_INFORMATION
     {
       if(given_condition("tracking_individual_chain") == "TRUE")
         {
-          N_CE_MAX = 2*(atoi(given_condition("N_chains_per_particle").c_str()) + atoi(given_condition("tolerance_allowing_condition").c_str())); // note that the later is not related with multiplication with 2. But it is used to be on the safe side
+          /* N_CE_MAX = 2*(atoi(given_condition("N_chains_per_particle").c_str()) + atoi(given_condition("tolerance_allowing_condition").c_str())); // note that the later is not related with multiplication with 2. But it is used to be on the safe side */
           if(given_condition("CONTINUATION_CHAIN") == "TRUE")
             {
               printf("ERR: Without CONTINUATION TOPOLOGICAL INFORMATION (.hash, .weight), the tracking individual chain cannot inherit existing .chain file information\n");
@@ -364,8 +363,7 @@ class CHAIN_INFORMATION
     {
       if(given_condition("tracking_individual_chain") == "TRUE")
         {
-          N_CE_MAX = 2*(atoi(given_condition("N_chains_per_particle").c_str()) + atoi(given_condition("tolerance_allowing_condition").c_str())); // note that the later is not related with multiplication with 2. But it is used to be on the safe side
-          
+          /* N_CE_MAX = 2*(atoi(given_condition("N_chains_per_particle").c_str()) + atoi(given_condition("tolerance_allowing_condition").c_str())); // note that the later is not related with multiplication with 2. But it is used to be on the safe side */
           if(given_condition("CONTINUATION_CHAIN") == "TRUE")
             {
               inheritance_chain(given_condition, CONNECT);

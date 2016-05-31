@@ -98,7 +98,7 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
     For performance issue, almost of all member functions are defined inside class declaration in order to make inline function. These functions are not so long, which means the function call takes relatively high time compared with the overall time to excute the function.
   */
  public:
-
+  MKL_LONG N_CE_MAX;
   MKL_LONG **PARTICLE;
   MKL_LONG *P_TOKEN;
   gsl_rng *r_degeneracy_check;
@@ -145,6 +145,7 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
     /* printf("CHECK\n"); */
     if(given_condition("tracking_individual_chain") == "TRUE")
       {
+        N_CE_MAX = 2*N_chains;
         hash_initial(atoi(given_condition("basic_random_seed_SS").c_str()));
       }
     else
@@ -162,7 +163,8 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
         /*   } */
         /* else */
         /*   { */
-            hash_initial(atoi(given_condition("basic_random_seed_SS").c_str()));
+        N_CE_MAX = 2*N_chains;
+        hash_initial(atoi(given_condition("basic_random_seed_SS").c_str()));
           /* } */
       }
   }
