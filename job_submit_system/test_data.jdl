@@ -1,0 +1,11 @@
+Type = "Job";
+Executable = "test_data.sh";
+Arguments = "test_data.inp test_data.tgz 8";
+StdOutput = "test_data.log";
+StdError = "test_data.log";
+Requirement = RegExp("emi2-ce0[1-2].scope.unina.it:8443/cream-pbs-unina_hpc",other.GlueCEUniqueID);
+SMPGranularity = 8;
+CpuNumber = 8;
+InputSandbox = {"stochastic_HEUR.sh", "stochastic_siulation", "test_data.inp", "EQ3D_NP0400_LD10P3.traj"};
+OutputSandbox = {"test_data.log"};
+PerusalFileEnable = true;PerusalTimeInterval = 1800;

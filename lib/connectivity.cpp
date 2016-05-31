@@ -35,7 +35,7 @@ CONNECTIVITY::CONNECTIVITY(MKL_LONG number_of_particles, MKL_LONG maximum_connec
   TOKEN = (MKL_LONG*) mkl_malloc(Np*sizeof(MKL_LONG), BIT);
   for(MKL_LONG i=0; i<Np; i++)
     {
-      HASH.initial(Mc, 1, -1); // this is omitted initializer
+      HASH[i].initial(Mc, 1, -1); // this is omitted initializer
       HASH[i](0) = i;
       TOKEN[i] = 1;
     }
