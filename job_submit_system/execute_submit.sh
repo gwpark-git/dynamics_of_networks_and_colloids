@@ -2,7 +2,7 @@ if [[ $1 == "run" ]]
 then 
     for fn in *.jdl
     do
-	echo glite-wms-job-submit -o jobID.txt -a $fn
+	glite-wms-job-submit -o jobID.txt -a $fn
     done
 else
     echo 'Script for job submitting'
