@@ -176,7 +176,7 @@ MKL_LONG UTILITY::index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca, 
   MKL_LONG re = 0;
   for(MKL_LONG n=0; n<N_dimension; n++)
     {
-      re += index_vec[n]*pow(N_div, N_dimension - (n+1));
+      re += index_vec[n]*(MKL_LONG)pow(N_div, N_dimension - (n+1));
     }
   index_sca = re;
   return re;
