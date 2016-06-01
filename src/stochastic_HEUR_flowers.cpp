@@ -32,12 +32,12 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
   RNG_BOOST RNG(given_condition);
   
   // INDEX_MC *IDX_ARR = (INDEX_MC*) mkl_malloc(VAR.N_THREADS_SS*sizeof(INDEX_MC), BIT);
-  INDEX_MC *IDX_ARR = new INDEX_MC [VAR.N_THREADS_SS];
-  for(MKL_LONG i=0; i<VAR.N_THREADS_SS; i++)
-    {
-      IDX_ARR[i].initial();
-      IDX_ARR[i].set_initial_variables();
-    }
+  INDEX_MC *IDX_ARR = new INDEX_MC [VAR.N_THREADS_SS]; // it will call default constructor
+  // for(MKL_LONG i=0; i<VAR.N_THREADS_SS; i++)
+  //   {
+  //     IDX_ARR[i].initial();
+  //     IDX_ARR[i].set_initial_variables();
+  //   }
 
   printf("DONE\nSTART SIMULATION\n\n");
   
