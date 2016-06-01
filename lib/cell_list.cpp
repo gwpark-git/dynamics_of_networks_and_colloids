@@ -14,7 +14,7 @@ CLIST::CLIST(COND& given_condition)
   printf("\tCLIST initialization");
   INITIALIZATION = TRUE;
   box_dimension = atof(given_condition("box_dimension").c_str());
-  N_dimension = atoi(given_condition("N_dimension").c_str());
+  N_dimension = atol(given_condition("N_dimension").c_str());
   cut_off_radius = atof(given_condition("cutoff_connection").c_str());
   Np = atol(given_condition("Np").c_str());
   MAX_IN_CELL = Np; // default
@@ -48,9 +48,9 @@ CLIST::CLIST(COND& given_condition)
       N_div = (MKL_LONG) box_dimension/cut_off_radius; // floor refine the given divisor
       cell_length = (double) box_dimension/(double)N_div; // real length scale of cells in each axis
       N_cells = (MKL_LONG)pow(N_div, N_dimension); // N_cells = N_div^N_dimension
-      N_neighbor_cells = pow(3, N_dimension); // 3 means number for shift factor {-1, 0, +1}
+      N_neighbor_cells = (MKL_LONG)pow(3, N_dimension); // 3 means number for shift factor {-1, 0, +1}
     }
-
+  // printf("given cond: N_div = %ld, cell_length = %ld, N_cells = %ld, N_neighbor_cells = %ld, N_dimension = %ld\n", N_div, cell_length, N_cells, N_neighbor_cells, N_dimension);
   // the following structure will not be affected either the cell list is turned on or off.
   // this is of importance to use the same interface for the main function
   // N_cells = 1;
@@ -67,6 +67,7 @@ CLIST::CLIST(COND& given_condition)
   cell_index = new MKL_LONG [Np];
   for(MKL_LONG i=0; i<Np; i++)
     cell_index[i] = -1;
+
   TOKEN = new MKL_LONG [N_cells];
   CELL = new MKL_LONG* [N_cells];
   NEIGHBOR_CELLS = new MKL_LONG* [N_cells];
@@ -74,11 +75,12 @@ CLIST::CLIST(COND& given_condition)
   
   for(MKL_LONG i=0; i<N_cells; i++)
     {
+      // printf("%d\n", i);
       // CELL[i].initial(MAX_IN_CELL, 1, 0.);
       TOKEN[i] = -1; // -1 is default value when there is no index (note that the particle index is started with 0, which is the reason to avoid using 0 identifier
       // CELL[i] = (MKL_LONG*)mkl_malloc(MAX_IN_CELL*sizeof(MKL_LONG), BIT);
       CELL[i] = new MKL_LONG [MAX_IN_CELL];
-      for(MKL_LONG j=0; i<MAX_IN_CELL; i++)
+      for(MKL_LONG j=0; j<MAX_IN_CELL; j++)
         CELL[i][j] = -1;
       // NEIGHBOR_CELLS[i] = (MKL_LONG*)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG), BIT);
       // BEYOND_BOX[i] = (MKL_LONG**)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG*), BIT);
@@ -148,6 +150,7 @@ MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY_HDF5& TRAJ, MKL_LONG in
       MKL_LONG index = identify_cell_from_given_position(TRAJ, index_t_now, i, index_vec_boost);
       cell_index[i] = index;
       CELL[index][TOKEN[index]++] = i;
+      // printf("cell_index[%d] = %d\n", i, index);
       // CELL[index](TOKEN[index]++) = i;
     }
   return 0;
@@ -231,6 +234,7 @@ MKL_LONG CLIST::get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* inde
   // MKL_LONG shift_factors[3] = {-1, 0, 1};
   MKL_LONG N_sf = 3; // {-1, 0, +1}
   // printf("=========\n");
+  
   for(MKL_LONG nsf=0; nsf<pow(N_sf, N_dimension); nsf++)
     {
       UTILITY::index_sca2vec(nsf, sf_vec_boost, N_dimension, N_sf);

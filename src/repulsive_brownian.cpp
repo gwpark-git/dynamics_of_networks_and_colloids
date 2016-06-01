@@ -158,6 +158,7 @@ REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, 
 
   time_LV = 0.; time_DIST = 0.; time_file = 0.; time_AN = 0.; time_RECORDED = 0.;
   time_LV_init = 0.; time_LV_force = 0.; time_LV_update = 0.;
+  simulation_time = 0.;
   INITIALIZATION = TRUE;
 };
 

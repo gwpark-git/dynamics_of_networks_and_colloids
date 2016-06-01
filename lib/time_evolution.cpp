@@ -106,9 +106,11 @@ double ANALYSIS::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boos
   for(MKL_LONG index_particle=0; index_particle<R_boost.Np; index_particle++)
     {
       MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
+      // printf("cell_index[%d] = %d\n", index_particle, cell_index_particle);
       for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
         {
           MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k];
+	  // printf("NEIGHBOR_CELLS[%d][%d] = %d\n", cell_index_particle, k, cell_index_neighbor);
           for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
             {
               MKL_LONG index_target = R_boost(cell_index_neighbor, p);
