@@ -101,6 +101,7 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
   MKL_LONG N_CE_MAX;
   MKL_LONG **PARTICLE;
   MKL_LONG *P_TOKEN;
+  
   gsl_rng *r_degeneracy_check;
   MKL_LONG *degeneracy_index_array;
   MKL_LONG& CE_ATTACHED_REF(MKL_LONG given_chain_end_index)

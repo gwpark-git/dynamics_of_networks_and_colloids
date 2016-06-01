@@ -31,6 +31,7 @@ MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
     {
       getline(GIVEN_WEIGHT, line);
     }
+
   for(MKL_LONG i=0; i<Np; i++)
     {
       MKL_LONG weight_k = 0;

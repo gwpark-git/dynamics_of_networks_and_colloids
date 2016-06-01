@@ -51,6 +51,7 @@ int main(int argc, char* argv[])
           N_basic = 2;
 
         }
+
       TRAJECTORY TRAJ(given_condition, N_basic);
 
       POTENTIAL_SET POTs;
@@ -65,6 +66,7 @@ int main(int argc, char* argv[])
           else
             {
               ASSOCIATION CONNECT(given_condition);
+
               FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
               CHAIN_HANDLE CHAIN(given_condition, CONNECT);
               // if(given_condition("CONTINUATION_CONNECTION") == "TRUE")

@@ -386,13 +386,19 @@ MKL_LONG CHAIN_HANDLE::allocate_array()
 
 MKL_LONG CHAIN_HANDLE::hash_initial(MKL_LONG seed)
 {
+
   allocate_array();
+  // for(MKL_LONG i=0; i<100; i++)
+  //   printf("HEAD(%d) = %d, TAIL(%d) = %d\n", i, HEAD(i), i, TAIL(i));
+
   for(MKL_LONG i=0; i<N_chains; i++)
     {
       // note that the initial in association.h already allocate HEAD(i) and TAIL(i) as i%N_particles (all connections are loop)
       // hence, this initialization is only allocate the PARTICLE HASH table for further approaches
       PARTICLE[HEAD(i)][P_TOKEN[HEAD(i)]++] = i;
       PARTICLE[TAIL(i)][P_TOKEN[TAIL(i)]++] = i + N_chains;
+      // P_TOKEN[HEAD(i)] += 1;
+      // P_TOKEN[TAIL(i)] += 1;
     }
   // for(MKL_LONG i=0; i<2*N_chains; i++)
   //   {

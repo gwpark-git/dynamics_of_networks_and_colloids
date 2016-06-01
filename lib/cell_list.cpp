@@ -16,14 +16,13 @@ CLIST::CLIST(COND& given_condition)
   box_dimension = atof(given_condition("box_dimension").c_str());
   N_dimension = atoi(given_condition("N_dimension").c_str());
   cut_off_radius = atof(given_condition("cutoff_connection").c_str());
-  Np = atoi(given_condition("Np").c_str());
+  Np = atol(given_condition("Np").c_str());
   MAX_IN_CELL = Np; // default
+  CELL_LIST_BOOST = FALSE;
   if (given_condition("cell_list") == "TRUE")
     CELL_LIST_BOOST = TRUE;
-  else
-    CELL_LIST_BOOST = FALSE;
   printf("\tcheck cut-off scheme");
-  
+
   if((cut_off_radius <= 0 || cut_off_radius > box_dimension/3.) || (!CELL_LIST_BOOST))
     {
       // it prevent to use wrong value of cut_off_radius
@@ -39,20 +38,17 @@ CLIST::CLIST(COND& given_condition)
           printf("\tcell list is turned off\n");
         }
     }
-      
+
+  N_div = 1;
+  cell_length = box_dimension;
+  N_cells = 1;
+  N_neighbor_cells = 1;
   if(CELL_LIST_BOOST)
     {
       N_div = (MKL_LONG) box_dimension/cut_off_radius; // floor refine the given divisor
       cell_length = (double) box_dimension/(double)N_div; // real length scale of cells in each axis
       N_cells = (MKL_LONG)pow(N_div, N_dimension); // N_cells = N_div^N_dimension
       N_neighbor_cells = pow(3, N_dimension); // 3 means number for shift factor {-1, 0, +1}
-    }
-  else // in the case for cell list is turned off
-    {
-      N_div = 1;
-      cell_length = box_dimension;
-      N_cells = 1;
-      N_neighbor_cells = 1;
     }
 
   // the following structure will not be affected either the cell list is turned on or off.
@@ -69,6 +65,8 @@ CLIST::CLIST(COND& given_condition)
   // BEYOND_BOX = (MKL_LONG***)mkl_malloc(N_cells*sizeof(MKL_LONG**), BIT);
 
   cell_index = new MKL_LONG [Np];
+  for(MKL_LONG i=0; i<Np; i++)
+    cell_index[i] = -1;
   TOKEN = new MKL_LONG [N_cells];
   CELL = new MKL_LONG* [N_cells];
   NEIGHBOR_CELLS = new MKL_LONG* [N_cells];
@@ -80,6 +78,8 @@ CLIST::CLIST(COND& given_condition)
       TOKEN[i] = -1; // -1 is default value when there is no index (note that the particle index is started with 0, which is the reason to avoid using 0 identifier
       // CELL[i] = (MKL_LONG*)mkl_malloc(MAX_IN_CELL*sizeof(MKL_LONG), BIT);
       CELL[i] = new MKL_LONG [MAX_IN_CELL];
+      for(MKL_LONG j=0; i<MAX_IN_CELL; i++)
+        CELL[i][j] = -1;
       // NEIGHBOR_CELLS[i] = (MKL_LONG*)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG), BIT);
       // BEYOND_BOX[i] = (MKL_LONG**)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG*), BIT);
       NEIGHBOR_CELLS[i] = new MKL_LONG [N_neighbor_cells];
@@ -88,6 +88,10 @@ CLIST::CLIST(COND& given_condition)
         {
           // BEYOND_BOX[i][j] = (MKL_LONG*)mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
           BEYOND_BOX[i][j] = new MKL_LONG [N_dimension];
+          for(MKL_LONG k=0; k<N_dimension; k++)
+            BEYOND_BOX[i][j][k] = 0;
+
+          NEIGHBOR_CELLS[i][j] = -1;
         }
       /* get_neighbor_cell_list(i,  */
     }

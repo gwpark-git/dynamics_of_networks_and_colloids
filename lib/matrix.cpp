@@ -287,30 +287,35 @@ MKL_LONG MATRIX::initial()
 MKL_LONG  MATRIX::initial(MKL_LONG  N_r, MKL_LONG  N_c)
 {
   // std::cout << "CONSTRUCTOR " << this << std::endl;
-  if (size == N_r*N_c && INITIALIZATION == TRUE)
-    {
-      rows = N_r;
-      cols = N_c;
-      return 0;
-    }
-  else
-    {
+  // if (INITIALIZATION == TRUE)
+  //   {
+  //     rows = N_r;
+  //     cols = N_c;
+  //     size = rows*cols;
+  //     delete[] data;
+  //     data = new double [size];
+  //     for(MKL_LONG i=0; i<size; i++)
+  //       data[i] = 0.;
+  //     return 0;
+  //   }
+  // else
+  //   {
       // this is of importance to prevent memory leak
-      if (INITIALIZATION == TRUE)
-        data_delete();
-      INITIALIZATION = TRUE;
-      DIAGONALIZATION = FALSE;
-      rows = N_r;
-      cols = N_c;
-      size = rows*cols;
-      // note that the dynamic allocation should be defined callocation
-      // otherwise, it should be set with the valid initial variable
-      // data = (double*) mkl_calloc(size, sizeof(double), BIT);
-      data = new double [size];
-      for(MKL_LONG i=0; i<size; i++)
-        data[i] = 0.;
-      // data = new double [size];
-    }
+  // if (INITIALIZATION == TRUE)
+  //   data_delete();
+  INITIALIZATION = TRUE;
+  DIAGONALIZATION = FALSE;
+  rows = N_r;
+  cols = N_c;
+  size = rows*cols;
+  // note that the dynamic allocation should be defined callocation
+  // otherwise, it should be set with the valid initial variable
+  // data = (double*) mkl_calloc(size, sizeof(double), BIT);
+  data = new double [size];
+  for(MKL_LONG i=0; i<size; i++)
+    data[i] = 0.;
+    //   // data = new double [size];
+    // }
   return 0;
 }
 

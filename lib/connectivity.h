@@ -62,8 +62,7 @@ class CHAIN_NODE
       // note that the reference variable can omit the & symbol when return its values.
     }
   CHAIN_NODE()
-    {
-    }
+    { HEAD = -1; TAIL = -1; }
   virtual ~CHAIN_NODE(){
   }
 };

@@ -200,6 +200,7 @@ class CHAIN_INFORMATION
   MKL_LONG N_particles;
   
   bool INITIALIZATION;
+  
   MKL_LONG& HEAD(MKL_LONG given_chain_index)
     {
       return CHAIN[given_chain_index].HEAD;
@@ -274,6 +275,15 @@ class CHAIN_INFORMATION
     /*   CHAIN[k] = new CHAIN_NODE(); */
     /* CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT); */
     MKL_LONG cnt = 0;
+    // for(MKL_LONG i=0; i<N_particles; i++)
+    //   {
+    //     for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
+    //       {
+    //         printf("weight[%d](%d)=%d
+    //       }
+    //   }
+    // printf("HASH[%ld](%ld)=%ld, weight[%ld](%ld)=%ld, wij=%ld\n", 3, 5, CONNECT.HASH[3](1), 3, 1, CONNECT.weight[3](1), CONNECT.return_multiplicity(3, CONNECT.HASH[3](1)));
+    
     for(MKL_LONG i=0; i<N_particles; i++)
       {
         for(MKL_LONG j=i; j<N_particles; j++) // it includes i=j which is loop and prevents j<i means all the pair is once accounted. 

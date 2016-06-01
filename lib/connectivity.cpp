@@ -83,10 +83,11 @@ MKL_LONG CONNECTIVITY::read_exist_hash(const char* fn_hash)
       istringstream ss(str);
       MKL_LONG hash_index;
       MKL_LONG tmp_cnt = 0;
-      while(ss >> HASH[i](tmp_cnt))
-	{
-	  tmp_cnt++;
-	}
+      while(ss >> hash_index)
+        {
+          HASH[i](tmp_cnt) = hash_index;
+          tmp_cnt++;
+        }
       TOKEN[i] = tmp_cnt;
       i++;
     }
