@@ -6,8 +6,8 @@ then
     echo "2: number of different runs (>1 means the seed will be re-generated)"
     echo "3 > given data"
 else
-    # server=emi2-ce0[1-2].scope.unina.it:8443/cream-pbs-unina_hpc
-    server=recasna-ce01.unina.it:8443/cream-pbs-recas-normal
+    server=emi2-ce0[1-2].scope.unina.it:8443/cream-pbs-unina_hpc
+    # server=recasna-ce01.unina.it:8443/cream-pbs-recas-normal
     file_inp=$1 # input file 
     N_runs=$2
     if [ $N_runs -ne 1 ];
