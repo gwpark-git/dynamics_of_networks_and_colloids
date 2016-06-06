@@ -24,6 +24,10 @@ debug: CFLAGS += $(DEBUGFLAGS)
 debug: LDFLAGS += $(DEBUGFLAGS)
 debug: $(SOURCES) $(EXECUTABLE)
 
+debug_scope_opt: CFLAGS += $(DEBUGFLAGS) $(SCOPE_FLAGS_I) $(OPTFLAGS)
+debug_scope_opt: LDFLAGS += $(DEBUGFLAGS) $(SCOPE_FLAGS_L) $(OPTFLAGS)
+debug_scope_opt: $(SOURCES) $(EXECUTABLE)
+
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
