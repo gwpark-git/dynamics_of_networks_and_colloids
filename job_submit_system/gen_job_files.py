@@ -63,7 +63,7 @@ if __name__=="__main__":
         for i in range(N_runs):
             if(N_runs <> 1):
                 given_condition['basic_random_seed']=i*100 + 100
-                given_condition['basic_random_seed_SS']=i*10 + 10
+                given_condition['basic_random_seed_SS']=i + 1 # changed from i*10 + 10
             given_condition['filename_base'] = base_filename + '_%02d'%(i+1)
             given_condition['output_path'] = 'FALSE'
             # jdl_file_name = out_path + '/' + basic_filename + '_%02d.jdl'%(i)
