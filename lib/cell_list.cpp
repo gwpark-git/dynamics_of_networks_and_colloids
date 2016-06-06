@@ -134,6 +134,8 @@ MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG index = identify_cell_from_given_position(TRAJ, index_t_now, i, index_vec_boost);
+      // if(index > N_cells)
+      // 	printf("cell_index[%d] = %d with (%d, %d, %d)\n", i, index, index_vec_boost[0], index_vec_boost[1], index_vec_boost[2]);
       cell_index[i] = index;
       CELL[index][TOKEN[index]++] = i;
       // CELL[index](TOKEN[index]++) = i;
