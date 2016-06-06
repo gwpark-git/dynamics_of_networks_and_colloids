@@ -67,6 +67,10 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
   // MATRIX energy(1, 12, 0.);
   
   printf("DONE\nSTART SIMULATION\n\n");
+
+  VAR.time_DIST +=         // compute RDIST with cell_list advantage
+    REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, 0, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
+
   
   VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
     ANALYSIS::CAL_ENERGY_R_boost(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
