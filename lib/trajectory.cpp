@@ -93,7 +93,7 @@ MKL_LONG TRAJECTORY::initialization_COND(COND& given_condition)
     {
       box_dimension[k] = atof(given_condition("box_dimension").c_str());
     }
-  dt = atof(given_condition("dt").c_str());
+  dt = atof(given_condition("dt/tauR").c_str());
 
   srandom(atoi(given_condition("basic_random_seed").c_str()));
 

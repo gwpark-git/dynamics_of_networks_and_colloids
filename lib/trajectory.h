@@ -147,7 +147,7 @@ class TRAJECTORY_HDF5
       N_dimension = atoi(given_condition("N_dimension").c_str());
       N_basic = given_N_basic; // it report how many time step should be stored in memory
       c_t = 0;
-      dt = atof(given_condition("dt").c_str());
+      dt = atof(given_condition("dt/tauR").c_str());
       /* box_dimension = (double*)mkl_malloc(N_dimension*sizeof(double), BIT); */
       box_dimension = new double [N_dimension];
       for(MKL_LONG k=0; k<N_dimension; k++)
