@@ -32,61 +32,67 @@ int main(int argc, char* argv[])
     }
   else
     {
-      COND given_condition(argv[1]);
-      // if(atoi(given_condition("N_THREADS_BD").c_str())==1)
-      //   {
-      //     std::cout << "ERR: N_THREADS_BD = 1 has bug at this moment\n";
-      //     return -1;
-      //   }
-      given_condition.cond_print();
-
-      MKL_LONG N_basic = 2;
-      if (given_condition("Integrator") == "Euler") 
+      // inp_cnt started with index 1 since 0 is itself
+      // single input file case, argc==2, argv[0] == execution, argv[1] == inputfile
+      for(MKL_LONG inp_cnt = 1; inp_cnt < argc; inp_cnt ++)
         {
-          // at the moment, the only method available is simple Euler integrator
-          // for this reason, this condition will not be varied during condition test
-          // however, the explicit description should be needed for condition data
-          // that is because to prevent potential errors when we implement higher order methods.
-          // Note that the only needed information for Euler is the previous time step. Therefore, we need previous and now which is in 2.
-          N_basic = 2;
+          /*
+            This for-loop is deisgn to perform sequence of jobs using the given input file.
+            The sequence is exactly the same with the given index for arguments.
+            Note that the all the controls should be properly set with the given input files, which means the inheritance from the previous computation in the given input file is exactly matched with the output file name from the previous input file.
+           */
+          
+          COND given_condition(argv[inp_cnt]);
+          given_condition.cond_print();
 
-        }
-
-      TRAJECTORY TRAJ(given_condition, N_basic);
-
-      POTENTIAL_SET POTs;
-      RECORD_DATA DATA(given_condition);
-      if(given_condition("Method") == "NAPLE_ASSOCIATION")
-        {
-          if(given_condition("Step") == "EQUILIBRATION")
+          MKL_LONG N_basic = 2;
+          if (given_condition("Integrator") == "Euler") 
             {
-              FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
-              REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJ, POTs, DATA, given_condition);
+              // at the moment, the only method available is simple Euler integrator
+              // for this reason, this condition will not be varied during condition test
+              // however, the explicit description should be needed for condition data
+              // that is because to prevent potential errors when we implement higher order methods.
+              // Note that the only needed information for Euler is the previous time step. Therefore, we need previous and now which is in 2.
+              N_basic = 2;
+
+            }
+
+          TRAJECTORY TRAJ(given_condition, N_basic);
+
+          POTENTIAL_SET POTs;
+          RECORD_DATA DATA(given_condition);
+          if(given_condition("Method") == "NAPLE_ASSOCIATION")
+            {
+              if(given_condition("Step") == "EQUILIBRATION")
+                {
+                  FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
+                  REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJ, POTs, DATA, given_condition);
+                }
+              else
+                {
+                  ASSOCIATION CONNECT(given_condition);
+
+                  FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
+                  CHAIN_HANDLE CHAIN(given_condition, CONNECT);
+                  // if(given_condition("CONTINUATION_CONNECTION") == "TRUE")
+                  //   {
+                  //     if(given_condition("tracking_individual_chain") == "TRUE")
+                  //       {
+                  //         if(given_condition("CONTINUATION_CHAIN")=="TRUE")
+                  //           {
+                  //             printf("CONTINUATION the chain information is not tested for 'tracking individual chain' mode\n");
+                  //             return -1;
+                  //           }
+                  //       }
+                  //     // CHAIN.allocate_existing_bridges(CONNECT);
+                  //   }
+                  stochastic_simulation_HEUR_flowers(TRAJ, POTs, CONNECT, CHAIN, DATA, given_condition);
+                }
             }
           else
             {
-              ASSOCIATION CONNECT(given_condition);
-
-              FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
-              CHAIN_HANDLE CHAIN(given_condition, CONNECT);
-              // if(given_condition("CONTINUATION_CONNECTION") == "TRUE")
-              //   {
-              //     if(given_condition("tracking_individual_chain") == "TRUE")
-              //       {
-              //         if(given_condition("CONTINUATION_CHAIN")=="TRUE")
-              //           {
-              //             printf("CONTINUATION the chain information is not tested for 'tracking individual chain' mode\n");
-              //             return -1;
-              //           }
-              //       }
-              //     // CHAIN.allocate_existing_bridges(CONNECT);
-              //   }
-              stochastic_simulation_HEUR_flowers(TRAJ, POTs, CONNECT, CHAIN, DATA, given_condition);
+              printf("Method except NAPLE_ASSOCIATION is not clearly defined. The given Method input is %s", given_condition("Method").c_str());
             }
-        }
-      else
-        {
-          printf("Method except NAPLE_ASSOCIATION is not clearly defined. The given Method input is %s", given_condition("Method").c_str());
         }
     }
   return 0;
