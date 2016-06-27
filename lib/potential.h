@@ -25,7 +25,7 @@ class POTENTIAL_SET
   double (*scale_random)(MATRIX& basic_random_var_unity, double* given_variables);
   double (*w_function)(double distance, double tension, double* given_variables);
   double (*transition)(double distance, double tension, double* given_varialbes);
-
+  
   POTENTIAL_SET()
     {
     }

@@ -15,7 +15,6 @@ namespace INTEGRATOR
     double cal_repulsion_force_R_boost(POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_particle, RDIST& R_boost);
     double cal_random_force_boost(POTENTIAL_SET& POTs, MATRIX& given_vec, gsl_rng* r_boost);
     double cal_random_force_boost_simplified(POTENTIAL_SET& POTs, MATRIX& given_vec, gsl_rng* r_boost);
-    
   }
   namespace EULER_ASSOCIATION
   {

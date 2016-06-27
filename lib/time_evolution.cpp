@@ -1,6 +1,23 @@
 
 #include "time_evolution.h"
 
+double INTEGRATOR::time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, const MKL_LONG index_bead, MATRIX** contributions, const MKL_LONG N_forces) 
+{
+  // contributions[0] represent the Euler
+  // contributions[1] represent mechanical perturbation (if exist)
+  // contributions[2] represent repulsive potential (if exist)
+  // contributions[3] represent interaction through association (if exist)
+  for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
+    {
+      TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k); // inheritance the current positions
+      for(MKL_LONG ind_f=0; ind_f<N_forces; ind_f++)
+        {
+          // TRAJ(index_t_next, i, k) += TRAJ.dt*force_array[ind_f][i](k);
+        }
+    }
+  return 0;
+}
+
 double INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG given_index, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost)
 {
   double time_st = dsecnd();
