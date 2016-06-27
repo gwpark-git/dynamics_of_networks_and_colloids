@@ -1,15 +1,16 @@
 
 #include <iostream>
-#include "../lib/trajectory.h"              // TRAJECTORY class
-#include "../lib/association.h"             // ASSOCIATION class
-#include "../lib/handle_association.h"      // CHAIN class
-#include "../lib/potential.h"               // POTENTIAL_SET class
-#include "../lib/file_IO.h"                 // RECORD_DATA class, COND class
+#include "../lib/trajectory.h"         // TRAJECTORY class
+#include "../lib/association.h"        // ASSOCIATION class
+#include "../lib/handle_association.h" // CHAIN class
+#include "../lib/potential.h"          // POTENTIAL_SET class
+#include "../lib/file_IO.h"            // RECORD_DATA class, COND class
 
 #include <string>
 
-#include "repulsive_brownian.h"             // EQUILIBRATION simulation
-#include "stochastic_HEUR_flowers.h"        // stochastic simulation for HEUR flowers
+#include "brownian.h"                  // basic Brownian motion
+#include "repulsive_brownian.h"        // EQUILIBRATION simulation
+#include "stochastic_HEUR_flowers.h"   // stochastic simulation for HEUR flowers
 using namespace std;
 
 int help()
@@ -63,6 +64,8 @@ int main(int argc, char* argv[])
           RECORD_DATA DATA(given_condition);
           if(given_condition("Method") == "NAPLE_ASSOCIATION")
             {
+              // note that the time scale for Langevin dynamics on here is affected by repulsive coefficient, C_rep, which have differ non-dimensional form compared with pure Brownian motion
+              
               if(given_condition("Step") == "EQUILIBRATION")
                 {
                   FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
@@ -70,24 +73,27 @@ int main(int argc, char* argv[])
                 }
               else
                 {
+                  // if(given_condition("SIMPLE_SHEAR") == "TRUE")
+                  //   {
+                  //     ASSOCIATION CONNECT(given_condition);
+                  //     FORCE::NAPLE::MC_
+                  //   }
+                  // else
+                  //   {
                   ASSOCIATION CONNECT(given_condition);
 
                   FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
                   CHAIN_HANDLE CHAIN(given_condition, CONNECT);
-                  // if(given_condition("CONTINUATION_CONNECTION") == "TRUE")
-                  //   {
-                  //     if(given_condition("tracking_individual_chain") == "TRUE")
-                  //       {
-                  //         if(given_condition("CONTINUATION_CHAIN")=="TRUE")
-                  //           {
-                  //             printf("CONTINUATION the chain information is not tested for 'tracking individual chain' mode\n");
-                  //             return -1;
-                  //           }
-                  //       }
-                  //     // CHAIN.allocate_existing_bridges(CONNECT);
-                  //   }
+
                   stochastic_simulation_HEUR_flowers(TRAJ, POTs, CONNECT, CHAIN, DATA, given_condition);
+                    // }
                 }
+            }
+          else if(given_condition("Method") == "BROWNIAN")
+            {
+              // As mentioned in repulsive Brownian motion, here the time scale is used as the basic Brownian motion. Therefore, the conditional file has time step dt/tauB instead of dt/tauR.
+              FORCE::BROWNIAN::MAP_potential_set(POTs, given_condition); // null allocator
+              BROWNIAN::main_PURE_BROWNIAN(TRAJ, POTs, DATA, given_condition);
             }
           else
             {

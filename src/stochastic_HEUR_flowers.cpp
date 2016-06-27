@@ -298,6 +298,8 @@ double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& 
   // reduction(+:dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7)
   for(MKL_LONG tp=0; tp<VAR.N_tot_associable_chain; tp++)
     {
+      MKL_LONG IDENTIFIER_ACTION = TRUE; // it can be 1 (IDX.ADD) but just true value
+      MKL_LONG IDENTIFIER_LOCKING = FALSE;
       /*
         'it' have the identity number for current thread. Then, the reference variables IDX and r_boost will be used in order to usability and readability. In this case, IDX, r_boost is just reference of existing one, but IDX and r_boost itself is local reference variables which will varied thread to thread
       */
@@ -313,16 +315,18 @@ double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& 
       
       time_SS_index +=
         micelle_selection(CONNECT, RNG.BOOST_SS[it], IDX_ARR[it], R_boost, VAR, rolling_dCDF, rolling_dCDF_U);
+      if(CONNECT.TOKEN[IDX_ARR[it].beads[CONNECT.flag_itself]] == 0) // if there is no chain end attached for selected bead
+        IDENTIFIER_ACTION = FALSE;                                   // there are not action take
+      
+        
       // micelle_selection(CONNECT, RNG, index_itself, index_hash_attached_bead, index_attached_bead, index_new_attached_bead, it, R_boost, VAR);
           
-      MKL_LONG IDENTIFIER_ACTION = TRUE; // it can be 1 (IDX.ADD) but just true value
-      MKL_LONG IDENTIFIER_LOCKING = FALSE;
       // locking
       if(VAR.N_THREADS_SS > 1)
         {
-#pragma omp critical (LOCKING)  // LOCKING is the name for this critical blocks
+#pragma omp critical (LOCKING) // LOCKING is the name for this critical blocks
           {
-          time_SS_LOCK += // this is differ from time_SS_LOCK since it is inside critical directive
+          time_SS_LOCK +=      // this is differ from time_SS_LOCK since it is inside critical directive
             LOCKING_PARALLEL(LOCKER, VAR, IDX_ARR[it], IDENTIFIER_ACTION, IDENTIFIER_LOCKING);
         }
     }

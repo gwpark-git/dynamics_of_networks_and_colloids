@@ -30,6 +30,7 @@ class ASSOCIATION : public CONNECTIVITY
   MKL_LONG N_max; // 2Nc + Tec
   MKL_LONG N_ASSOCIATION;
   bool MULTIPLE_CONNECTIONS;
+  bool NUMBER_RESTRICTION;
 
   MATRIX *weight;
   // related with suggestion probability (selecting a degenerated pair)
@@ -59,7 +60,6 @@ class ASSOCIATION : public CONNECTIVITY
   bool (*CHECK_N_ADD_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   bool (*CHECK_N_MOV_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
   bool (*CHECK_N_OPP_DEL_ASSOCIATION)(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
-
   
   MKL_LONG N_TOTAL_ASSOCIATION();
   MKL_LONG N_CONNECTED_ENDS(MKL_LONG given_index);
@@ -89,7 +89,6 @@ class ASSOCIATION : public CONNECTIVITY
   double update_dPDF_SUGGESTION_particle(const MKL_LONG index_particle);
   double update_dCDF_SUGGESTION_particle(const MKL_LONG index_particle);
   double update_CHAIN_SUGGESTION_MAP_particle(const MKL_LONG index_particle, POTENTIAL_SET& POTs, RDIST& R_boost);
-
 
   double update_ASSOCIATION_MAP_particle(const MKL_LONG index_particle, POTENTIAL_SET& POTs, RDIST& R_boost);
 
@@ -154,7 +153,20 @@ namespace TRUTH_MAP
     bool CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
     bool CHECK_N_OPP_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
     bool CHECK_N_MOV_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
+
+    namespace NO_RESTRICTION // this option is used when there are no restriction for number of attached chain ends
+    {
+      bool return_TRUE(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
+
+      /* bool CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]) */
+      /* {return TRUE;} */
+      /* bool CHECK_N_OPP_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]) */
+      /* {return TRUE;} */
+      /* bool CHECK_N_MOV_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]) */
+      /* {return TRUE;} */
+    }
   }
+  
   namespace SINGLE
   {
     bool CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]);

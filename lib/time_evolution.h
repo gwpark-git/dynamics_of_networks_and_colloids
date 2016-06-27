@@ -26,6 +26,7 @@ namespace INTEGRATOR
 
 namespace ANALYSIS
 {
+  double CAL_ENERGY_BROWNIAN(POTENTIAL_SET& POTs, MATRIX& mat_energy, double time);
   double CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, MATRIX& mat_energy, double time, RDIST& R_boost);
 
   double cal_potential_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boost);

@@ -1,6 +1,28 @@
 
 #include "potential.h"
 
+double FORCE::BROWNIAN::no_time_scaling_random(MATRIX& given_basic_random, double scale_factor)
+{
+  return 1.; // indicate no changes on given_basic_random;
+}
+
+double FORCE::BROWNIAN::MAP_no_time_scaling_random(MATRIX& given_basic_random, double *given_variables)
+{
+  // the last argument *given_variables is related with POTs.force_variables. In the case for pure Brownian motion, however, the pointer for force_variables will be set with NULL. Therefore, it will be ignored, but the argument remains in order to use function pointer.
+  return FORCE::BROWNIAN::no_time_scaling_random(given_basic_random, 1.); // anyhow, the unity will be ignored for performance
+}
+
+MKL_LONG FORCE::BROWNIAN::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
+{
+  given_POT.force_variables = NULL;
+  given_POT.f_repulsion = NULL;
+  given_POT.e_repulsion = NULL;
+  given_POT.f_connector = NULL;
+  given_POT.e_connector = NULL;
+  given_POT.scale_random = FORCE::BROWNIAN::MAP_no_time_scaling_random; // without any changes for time scaling since pure Brownian motion uses the basic time scale
+  return 0;
+}
+
 MKL_LONG FORCE::DEFAULT::EMPTY_force_set(POTENTIAL_SET& given_POT, COND& given_condition)
 {
   given_POT.f_repulsion = FORCE::DEFAULT::EMPTY_force_contribution;

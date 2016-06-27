@@ -93,7 +93,17 @@ MKL_LONG TRAJECTORY::initialization_COND(COND& given_condition)
     {
       box_dimension[k] = atof(given_condition("box_dimension").c_str());
     }
-  dt = atof(given_condition("dt/tauR").c_str());
+
+  if(given_condition("Method") == "BROWNIAN")
+    {
+      // it related with the chracteristic for Brownian motion is based on tauB
+      dt = atof(given_condition("dt/tauB").c_str());
+    }
+  else
+    {
+      // note that the all the time evolution with repulsive motion related with tauR = tauB/C_rep
+      dt = atof(given_condition("dt/tauR").c_str());
+    }
 
   srandom(atoi(given_condition("basic_random_seed").c_str()));
 

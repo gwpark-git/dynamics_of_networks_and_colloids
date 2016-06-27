@@ -118,9 +118,18 @@ MKL_LONG ASSOCIATION::dynamic_alloc()
     
   if(MULTIPLE_CONNECTIONS)
     {
-      CHECK_N_ADD_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_ADD_BOOST;
-      CHECK_N_MOV_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_MOV_BOOST;
-      CHECK_N_OPP_DEL_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_OPP_DEL_BOOST;
+      if(NUMBER_RESTRICTION)
+        {
+          CHECK_N_ADD_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_ADD_BOOST;
+          CHECK_N_MOV_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_MOV_BOOST;
+          CHECK_N_OPP_DEL_ASSOCIATION = TRUTH_MAP::MULTIPLE::CHECK_N_OPP_DEL_BOOST;
+        }
+      else
+        {
+          CHECK_N_ADD_ASSOCIATION = TRUTH_MAP::MULTIPLE::NO_RESTRICTION::return_TRUE;
+          CHECK_N_MOV_ASSOCIATION = TRUTH_MAP::MULTIPLE::NO_RESTRICTION::return_TRUE;
+          CHECK_N_OPP_DEL_ASSOCIATION = TRUTH_MAP::MULTIPLE::NO_RESTRICTION::return_TRUE;
+        }
     }
   else
     {
@@ -191,7 +200,20 @@ ASSOCIATION::ASSOCIATION(COND& given_condition) : CONNECTIVITY(given_condition)
   N_max = 2*Nc + Tec;
   if(given_condition("allowing_multiple_connections") == "TRUE")
     MULTIPLE_CONNECTIONS = TRUE;
-
+  else
+    MULTIPLE_CONNECTIONS = FALSE;
+  
+  if(given_condition("tolerance_allowing_connections") == "FALSE")
+    {
+      NUMBER_RESTRICTION = FALSE;
+      N_min = 0;  // the minimum connection number will be zero
+      N_max = Np; // because there no restriction to make bridge, all the number of particle possibly make bridges
+    }
+  else
+    {
+      NUMBER_RESTRICTION = TRUE;
+    }
+  
   if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
     {
       initial_inheritance();      
@@ -215,6 +237,10 @@ ASSOCIATION::ASSOCIATION(MKL_LONG number_of_particles, MKL_LONG number_of_chains
 }
 
 
+bool TRUTH_MAP::MULTIPLE::NO_RESTRICTION::return_TRUE(ASSOCIATION& CONNECT, MKL_LONG index_set[])
+{
+  return TRUE;
+}
 
 bool TRUTH_MAP::MULTIPLE::CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
 {

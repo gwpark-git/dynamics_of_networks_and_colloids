@@ -37,8 +37,16 @@ class POTENTIAL_SET
     }
 };
 
+
 namespace FORCE
 {
+  namespace BROWNIAN
+  {
+    MKL_LONG MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond);
+    double no_time_scaling_random(MATRIX& given_basic_random, double scale_factor);
+    double MAP_no_time_scaling_random(MATRIX& given_basic_random, double *given_variables);
+  }
+  
   namespace GAUSSIAN
   {
     double spring_force(double distance, double N_dimension);
@@ -209,7 +217,7 @@ inline double FORCE::DEFAULT::basic_random(MATRIX& given_basic_random, double* g
 
 inline double FORCE::DEFAULT::time_scaling_random(MATRIX& given_basic_random, double scale_factor)
 {
-  matrix_mul(given_basic_random, scale_factor); // this is varied
+  matrix_mul(given_basic_random, scale_factor); // this is varied due to the given time scale
   return scale_factor;
 }
 
