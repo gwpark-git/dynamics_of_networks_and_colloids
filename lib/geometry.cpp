@@ -17,7 +17,6 @@ MKL_LONG RDIST::compute_RDIST_particle(const MKL_LONG index_particle, TRAJECTORY
   return 0;
 }
 
-
 RDIST::RDIST(COND& given_condition) : CLIST(given_condition)
 {
   // Rvec = (MATRIX**)mkl_malloc(Np*sizeof(MATRIX*), BIT);
@@ -122,11 +121,65 @@ double GEOMETRY::minimum_image_convention(TRAJECTORY& TRAJ, MKL_LONG target_t)
     {
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
         {
-          double diff = TRAJ(target_t, i, k) - 0.5*TRAJ.box_dimension[k];
-          double sign = diff/fabs(diff);
-          if (fabs(diff) > 0.5*TRAJ.box_dimension[k])
+          double coord = TRAJ(target_t, i, k);
+          if (coord < 0 || coord >= TRAJ.box_dimension[k]) // check left and right boundary
             {
+              double sign = coord/fabs(coord);
               TRAJ(target_t, i, k) -= sign*TRAJ.box_dimension[k];
+            }
+          
+          // double diff = TRAJ(target_t, i, k) - 0.5*TRAJ.box_dimension[k];
+          // double sign = diff/fabs(diff);
+          // if (fabs(diff) > 0.5*TRAJ.box_dimension[k])
+          //   {
+          //     TRAJ(target_t, i, k) -= sign*TRAJ.box_dimension[k];
+          //   }
+        }
+    }
+  return dsecnd() - time_st;
+}
+
+
+double GEOMETRY::minimum_image_convention_loop(TRAJECTORY& TRAJ, MKL_LONG target_t)
+{
+  double time_st = dsecnd();
+  for(MKL_LONG i=0; i<TRAJ.Np; i++)
+    {
+      for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
+        {
+          double coord = TRAJ(target_t, i, k);
+          while(coord < 0 || coord >= TRAJ.box_dimension[k])
+            {
+              double sign = coord/fabs(coord);
+              TRAJ(target_t, i, k) -= sign*TRAJ.box_dimension[k];
+              coord = TRAJ(target_t, i, k);
+            }
+        }
+    }
+  return dsecnd() - time_st;
+}
+
+
+double GEOMETRY::minimum_image_convention_simple_shear(TRAJECTORY& TRAJ, MKL_LONG target_t, const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis, const double shift_factor)
+{
+  double time_st = dsecnd();
+  for (MKL_LONG i=0; i<TRAJ.Np; i++)
+    {
+      // for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
+      for(MKL_LONG k=shear_grad_axis; k<shear_grad_axis + TRAJ.N_dimension; k++)
+        {
+          // it is of importance to re-mapping by boundary that cross the shear gradient axis since the remapping will be applied for the shear axis while the identifier is on shear gradient axis.
+          MKL_LONG ind_k = k % TRAJ.N_dimension; 
+          double diff = TRAJ(target_t, i, ind_k) - 0.5*TRAJ.box_dimension[ind_k];
+          double sign = diff/fabs(diff);
+          if (fabs(diff) > 0.5*TRAJ.box_dimension[ind_k])
+            {
+              if(ind_k==shear_grad_axis)
+                {
+                  // because of the sequence of re-mapping affect to the proper PBC boundary condition, the for-loop is applied first on the shear gradient axis.
+                  TRAJ(target_t, i, shear_axis) -= sign*shift_factor;
+                }
+              TRAJ(target_t, i, ind_k) -= sign*TRAJ.box_dimension[ind_k];
             }
         }
     }
