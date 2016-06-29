@@ -59,7 +59,6 @@ TRAJECTORY::TRAJECTORY(COND& given_condition, MKL_LONG N_basic) : MATRIX(N_basic
   initialization_COND(given_condition);
 }
 
-
 MKL_LONG TRAJECTORY::initialization(MKL_LONG N_time, MKL_LONG N_particle, double given_dt)
 {
   Nt = N_time;
@@ -114,11 +113,13 @@ MKL_LONG TRAJECTORY::initialization_COND(COND& given_condition)
   else
     {
       GENERATOR::random_position_generator(*this);
+      (*this)(0) = 0.; // it will initialize the initial trajectory as it is
     }
-  
+
+  if(given_condition("reset_initial_time") == "TRUE")
+    (*this)(0) = 0.;
   return 0;
 }
-
 
 
 MKL_LONG GENERATOR::random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VEC_TRANS)

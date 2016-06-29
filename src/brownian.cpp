@@ -2,10 +2,10 @@
 
 using namespace BROWNIAN;
 
-double BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition)
+double BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, BROWNIAN_VARIABLE& VAR)
 {
   double time_st = dsecnd();
-#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, force_random, RNG, N_THREADS_BD, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, force_random, RNG, N_THREADS_BD, given_condition, VAR) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
@@ -15,11 +15,14 @@ double BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index
 
       // INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
       INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
-          
+      
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
         {
-          TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + sqrt(TRAJ.dt)*force_random[i](k);
+          TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) // inheritance the current positions
+            + sqrt(TRAJ.dt)*force_random[i](k);              // apply Wiener process
         }
+      // apply simple shear into the time evolution
+      TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
     }
   return dsecnd() - time_st;
 }
@@ -57,6 +60,11 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
     {
       MKL_LONG index_t_now = t % VAR.N_basic;
       MKL_LONG index_t_next = (t+1) % VAR.N_basic;
+      double time_div_tau_B = t*TRAJ.dt; // note that TRAJ.dt == dt/tau_B.
+      // VAR.shear_PBC_shift = VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B;
+      // VAR.shear_PBC_shift += TRAJ.box_dimension[VAR.shear_grad_axis]*(int)(2*VAR.shear_PBC_shift/TRAJ.box_dimension[VAR.shear_grad_axis]);
+      VAR.shear_PBC_shift = (VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B);
+      
       TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
       ++TRAJ.c_t;
 
@@ -64,10 +72,24 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
       //   REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, index_t_now, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
 
       VAR.time_LV +=           // update Langevin equation using Euler integrator
-        BROWNIAN::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, POTs, VAR.force_random, RNG, VAR.N_THREADS_BD, given_condition); // check arguments
+        BROWNIAN::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, POTs, VAR.force_random, RNG, VAR.N_THREADS_BD, given_condition, VAR); // check arguments
 
-      VAR.time_LV +=           // keep periodic box condition
-        GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
+      // VAR.time_LV +=
+      //   GEOMETRY::mechanical_perturbation(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, 
+      
+      // VAR.time_LV +=           // keep periodic box condition
+      //   GEOMETRY::minimum_image_convention(TRAJ, index_t_next);
+      // VAR.time_LV += 
+      //   GEOMETRY::minimum_image_convention_simple_shear(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift); // applying minimum image convention for PBC
+
+      if(VAR.Wi_tau_B > 0)
+        {
+          VAR.time_LV +=
+            GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
+        }
+      
+      VAR.time_LV += // boundary condition through shear flow is extracted into the previous function, apply_shear_boundary_condition.
+        GEOMETRY::minimum_image_convention(TRAJ, index_t_next);
       
       if(t%VAR.N_skip==0)
         {
@@ -141,6 +163,16 @@ BROWNIAN::BROWNIAN_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG g
   time_LV = 0.; time_DIST = 0.; time_file = 0.; time_AN = 0.; time_RECORDED = 0.;
   time_LV_init = 0.; time_LV_force = 0.; time_LV_update = 0.;
   simulation_time = 0.;
+
+  if(given_condition("SIMPLE_SHEAR")=="TRUE")
+    {
+      Wi_tau_B = atof(given_condition("Wi_tau_C").c_str()); // the tau_C in the pure Brownian come with tau_B
+      shear_axis = atoi(given_condition("shear_axis").c_str()); // 0 will be set as default. (x-axis)
+      shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str()); // 1 will be set as default. (y-axis)
+      shear_PBC_shift = 0.; // initially, it is zero
+    }
+
+  
   INITIALIZATION = TRUE;
 };
 
