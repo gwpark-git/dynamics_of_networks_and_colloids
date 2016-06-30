@@ -78,6 +78,17 @@ else:
     # for i in range(shape(dat)[0]):
     #     for j in range(shape(dat)[1]):
     #         dat_record[i,j] = dat[i,j]
+
+    if Wi_tau_C > 0:
+        # it will remove the history of shear flow into coordination change
+        for i in range(NP):
+            index_shear_direction = 2*ND*i + 1 + shear_direction
+            index_shear_grad_direction = 2*ND*i + 1 + shear_grad_direction
+            coord_mov_shear = 0
+            for t in range(Nt):
+                coord_mov_shear += Wi_tau_C*dat[t, index_shear_grad_direction]*dt
+                dat[t, index_shear_direction] -= coord_mov_shear
+                
             
     for i in range(NP):
         for k in range(ND):
@@ -92,6 +103,7 @@ else:
             index_Rik = 2*ND*i + 1 + ind_k
             record_pre_coord = 0
             record_now_coord = dat[0, index_Rik]
+            coord_shift_factor = 0
             for t in range(1, Nt):
                 record_pre_coord = record_now_coord
                 record_now_coord = dat[t, index_Rik]
@@ -101,15 +113,27 @@ else:
 
                 if Wi_tau_C > 0 and ind_k == shear_grad_direction:
                     # when simple shear is implemented into the system
-
+                    index_shear_direction = 2*ND*i + 1 + shear_direction
+                    dat[t, index_shear_direction] -= coord_shift_factor
                     # temporal backup to be on the safe side
                     # diff = dat_record[t, index_Rik] - dat_record[t-1, index_Rik]
                     diff = record_now_coord - record_pre_coord
                     if abs(diff) > 0.5*LB:
                         inv_PBC_shift_factor = Wi_tau_C*LB*dat[t, 0] % LB
-                        index_shear_direction = 2*ND*i + 1 + shear_direction
+                        # coord_shift_factor = Wi_tau_C*record_now_coord*dt
                         pre_coord = dat[t, index_shear_direction]
                         for tmp_t in range(t, Nt):
                             # it will remove all the shear history for the future
-                            dat[tmp_t, index_shear_direction] -= sign(diff)*inv_PBC_shift_factor
+                            dat[tmp_t, index_shear_direction] -= sign(diff)*inv_PBC_shift_factor + coord_shift_factor
+
+                            
+                    
+                # if Wi_tau_C > 0 and ind_k == shear_direction:
+                #     # it will remove the history of shear flow
+                #     dat[t, index_Rik] -= coord_shift_factor 
+            # if Wi_tau_C > 0:
+            #     # remove history of simple shear
+            #     for t in range(1, Nt):
+            #         for tmp_t in range(t, Nt):
+                        
     savetxt(sys.argv[2], dat)
