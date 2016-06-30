@@ -41,6 +41,7 @@ struct BROWNIAN::BROWNIAN_VARIABLE
   double time_LV, time_DIST, time_file, time_AN, time_RECORDED;
   double time_LV_init, time_LV_force, time_LV_update;
   double simulation_time;
+  bool SIMPLE_SHEAR;
   double Wi_tau_B;
   MKL_LONG shear_axis;
   MKL_LONG shear_grad_axis;

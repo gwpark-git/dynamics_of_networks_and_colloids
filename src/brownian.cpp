@@ -22,7 +22,8 @@ double BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index
             + sqrt(TRAJ.dt)*force_random[i](k);              // apply Wiener process
         }
       // apply simple shear into the time evolution
-      TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
+      if(SIMPLE_SHEAR)
+	TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
     }
   return dsecnd() - time_st;
 }
@@ -60,30 +61,19 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
     {
       MKL_LONG index_t_now = t % VAR.N_basic;
       MKL_LONG index_t_next = (t+1) % VAR.N_basic;
-      double time_div_tau_B = t*TRAJ.dt; // note that TRAJ.dt == dt/tau_B.
       // VAR.shear_PBC_shift = VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B;
       // VAR.shear_PBC_shift += TRAJ.box_dimension[VAR.shear_grad_axis]*(int)(2*VAR.shear_PBC_shift/TRAJ.box_dimension[VAR.shear_grad_axis]);
-      VAR.shear_PBC_shift = (VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B);
-      
       TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
       ++TRAJ.c_t;
 
-      // VAR.time_DIST +=         // compute RDIST with cell_list advantage
-      //   REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, index_t_now, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
 
       VAR.time_LV +=           // update Langevin equation using Euler integrator
         BROWNIAN::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, POTs, VAR.force_random, RNG, VAR.N_THREADS_BD, given_condition, VAR); // check arguments
 
-      // VAR.time_LV +=
-      //   GEOMETRY::mechanical_perturbation(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, 
-      
-      // VAR.time_LV +=           // keep periodic box condition
-      //   GEOMETRY::minimum_image_convention(TRAJ, index_t_next);
-      // VAR.time_LV += 
-      //   GEOMETRY::minimum_image_convention_simple_shear(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift); // applying minimum image convention for PBC
-
-      if(VAR.Wi_tau_B > 0)
+      if(SIMPLE_SHEAR)
         {
+	  double time_div_tau_B = t*TRAJ.dt; // note that TRAJ.dt == dt/tau_B.
+	  VAR.shear_PBC_shift = (VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B);
           VAR.time_LV +=
             GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
         }
@@ -134,24 +124,11 @@ BROWNIAN::BROWNIAN_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG g
 {
   Np = atoi(given_condition("Np").c_str());
   MKL_LONG N_dimension = atoi(given_condition("N_dimension").c_str());
-  // MKL_LONG N_dimension = Np;
   N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
-  // tmp_index_vec = (MKL_LONG*) mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
-  // vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT); 
   tmp_index_vec = new MKL_LONG [N_dimension];
-  // vec_boost_Nd_parallel = new MATRIX [Np];
-  // for(MKL_LONG i=0; i<Np; i++)
-  //   {
-  //     vec_boost_Nd_parallel[i].initial(N_dimension, 1, 0.);
-  //   }
-
-  // force_repulsion = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  // force_random = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  // force_repulsion = new MATRIX [Np];
   force_random = new MATRIX [Np];
   for(MKL_LONG i=0; i<Np; i++)
     {
-      // force_repulsion[i].initial(N_dimension, 1, 0.);
       force_random[i].initial(N_dimension, 1, 0.);
     }
 
@@ -163,13 +140,23 @@ BROWNIAN::BROWNIAN_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG g
   time_LV = 0.; time_DIST = 0.; time_file = 0.; time_AN = 0.; time_RECORDED = 0.;
   time_LV_init = 0.; time_LV_force = 0.; time_LV_update = 0.;
   simulation_time = 0.;
-
+  
   if(given_condition("SIMPLE_SHEAR")=="TRUE")
     {
+      SIMPLE_SHEAR = TRUE;
       Wi_tau_B = atof(given_condition("Wi_tau_C").c_str()); // the tau_C in the pure Brownian come with tau_B
       shear_axis = atoi(given_condition("shear_axis").c_str()); // 0 will be set as default. (x-axis)
       shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str()); // 1 will be set as default. (y-axis)
       shear_PBC_shift = 0.; // initially, it is zero
+    }
+  else
+    {
+      SIMPLE_SHEAR = FALSE;
+      Wi_tau_B = 0.;
+      // the following are set to be on the safe side (sequence effct)
+      shear_axis = 0;
+      shear_grad_axis = 1;
+      shear_PBC_shift = 0;
     }
 
   
@@ -181,12 +168,6 @@ BROWNIAN::BROWNIAN_VARIABLE::~BROWNIAN_VARIABLE()
 {
   if(INITIALIZATION)
     {
-      // mkl_free(vec_boost_Nd_parallel);
-      // mkl_free(force_repulsion);
-      // mkl_free(force_random);
-      // mkl_free(tmp_index_vec);
-      // delete[] vec_boost_Nd_parallel;
-      // delete[] force_repulsion;
       delete[] force_random;
       delete[] tmp_index_vec;
     }

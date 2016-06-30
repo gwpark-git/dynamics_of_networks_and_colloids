@@ -94,7 +94,6 @@ MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_PO
         {
           given_POT.PDF_connector = MAP_modified_Gaussian_Boltzmann;
         }
-      // given_POT.PDF_connector = MAP_modified_Gaussian_Boltzmann;
     }
   else
     {
