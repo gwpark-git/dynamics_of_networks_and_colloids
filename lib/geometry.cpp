@@ -148,9 +148,9 @@ double GEOMETRY::apply_shear_boundary_condition(TRAJECTORY& TRAJ, MKL_LONG targe
       if(coord < 0 || coord >= TRAJ.box_dimension[shear_grad_axis])
         {
           double sign = coord/fabs(coord);
-          TRAJ(target_t, i, shear_axis) -= fmod(sign*shift_factor, TRAJ.box_dimension[shear_axis]);
+          // TRAJ(target_t, i, shear_axis) -= fmod(sign*shift_factor, TRAJ.box_dimension[shear_axis]);
+          TRAJ(target_t, i, shear_axis) -= sign*shift_factor;
           // the modulo for float type, fmod, is applied in order to reduce potential overhead for minimum_image_convention function, since shift_factor is proportional to time.
-
         }
     }
   return dsecnd() - time_st;
