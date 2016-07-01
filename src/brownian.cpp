@@ -22,8 +22,8 @@ double BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index
             + sqrt(TRAJ.dt)*force_random[i](k);              // apply Wiener process
         }
       // apply simple shear into the time evolution
-      if(SIMPLE_SHEAR)
-	TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
+      if(VAR.SIMPLE_SHEAR)
+        TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
     }
   return dsecnd() - time_st;
 }
@@ -70,10 +70,10 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
       VAR.time_LV +=           // update Langevin equation using Euler integrator
         BROWNIAN::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, POTs, VAR.force_random, RNG, VAR.N_THREADS_BD, given_condition, VAR); // check arguments
 
-      if(SIMPLE_SHEAR)
+      if(VAR.SIMPLE_SHEAR)
         {
-	  double time_div_tau_B = t*TRAJ.dt; // note that TRAJ.dt == dt/tau_B.
-	  VAR.shear_PBC_shift = (VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B);
+          double time_div_tau_B = t*TRAJ.dt; // note that TRAJ.dt == dt/tau_B.
+          VAR.shear_PBC_shift = (VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B);
           VAR.time_LV +=
             GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
         }
@@ -95,7 +95,7 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
           VAR.simulation_time = TRAJ(index_t_now); // the repulsion coefficient is not necessary for pure Brownian motion
           VAR.time_RECORDED += // print simulation information for users
             report_simulation_info(TRAJ, energy, VAR);
-            // report_simulation_info(TRAJ, VAR.time_LV, VAR.time_AN, VAR.time_file, VAR.time_DIST);
+          // report_simulation_info(TRAJ, VAR.time_LV, VAR.time_AN, VAR.time_file, VAR.time_DIST);
         }
     }
 

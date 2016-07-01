@@ -2,7 +2,6 @@
 
 using namespace REPULSIVE_BROWNIAN;
 
-
 double REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, RDIST& R_boost, MKL_LONG* tmp_index_vec, const MKL_LONG N_THREADS_BD)
 {
   double time_st_rdist = dsecnd();
@@ -16,17 +15,16 @@ double REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG in
   */
   for(MKL_LONG index_particle=0; index_particle<TRAJ.Np; index_particle++)
     {
-      R_boost.compute_RDIST_particle(index_particle, TRAJ, index_t_now);
+      GEOMETRY::compute_RDIST_particle(R_boost, index_particle, TRAJ, index_t_now);
     } // index_particle
   // dt_rdist += dsecnd() - time_st_rdist;
   return dsecnd() - time_st_rdist;
 }
 
-
-double REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition)
+double REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, TEMPORAL_VARIABLE& VAR)
 {
   double time_st = dsecnd();
-#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, RNG, N_THREADS_BD, given_condition) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, RNG, N_THREADS_BD, given_condition, VAR) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
@@ -41,6 +39,8 @@ double REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_
         {
           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*(force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
         }
+      if(VAR.SIMPLE_SHEAR)
+        TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_R*TRAJ(index_t_now, i, VAR.shear_grad_axis);
     }
   return dsecnd() - time_st;
 }
@@ -69,6 +69,8 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
   printf("DONE\nSTART SIMULATION\n\n");
 
   VAR.time_DIST +=         // compute RDIST with cell_list advantage
+    // note that even if there is shear flow implementation,
+    // the time zero is not affected by implemented shear (which means the shear flow simulation cannot be inheritance from the previous shear flow implementation at this moment)
     REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, 0, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
 
   
@@ -82,12 +84,26 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
       TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
       ++TRAJ.c_t;
 
+      if(VAR.SIMPLE_SHEAR)
+        {
+          double time_div_tau_B = t*TRAJ.dt;
+          VAR.shear_PBC_shift = (VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B);
+          R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
+          MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
+          R_boost.map_to_central_box_image += TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
+        }
       VAR.time_DIST +=         // compute RDIST with cell_list advantage
         REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, index_t_now, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
 
       VAR.time_LV +=           // update Langevin equation using Euler integrator
-        REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, POTs, R_boost, VAR.vec_boost_Nd_parallel, VAR.force_repulsion, VAR.force_random, RNG, VAR.N_THREADS_BD, given_condition); // check arguments
+        REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, POTs, R_boost, VAR.vec_boost_Nd_parallel, VAR.force_repulsion, VAR.force_random, RNG, VAR.N_THREADS_BD, given_condition, VAR); // check arguments
 
+      if(VAR.SIMPLE_SHEAR)
+        {
+          VAR.time_LV +=
+            GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
+        }
+      
       VAR.time_LV +=           // keep periodic box condition
         GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
       
@@ -163,6 +179,25 @@ REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, 
   time_LV = 0.; time_DIST = 0.; time_file = 0.; time_AN = 0.; time_RECORDED = 0.;
   time_LV_init = 0.; time_LV_force = 0.; time_LV_update = 0.;
   simulation_time = 0.;
+
+
+  if(given_condition("SIMPLE_SHEAR") == "TRUE")
+    {
+      SIMPLE_SHEAR = TRUE;
+      Wi_tau_R = atof(given_condition("Wi_tau_C").c_str());
+      shear_axis = atoi(given_condition("shear_axis").c_str());
+      shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str());
+      shear_PBC_shift = 0.;
+    }
+  else
+    {
+      SIMPLE_SHEAR = FALSE;
+      Wi_tau_R = 0.;
+      shear_axis = 0;
+      shear_grad_axis = 1;
+      shear_PBC_shift = 0;
+    }
+  
   INITIALIZATION = TRUE;
 };
 

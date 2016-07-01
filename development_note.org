@@ -1,0 +1,22 @@
+#+TITLE: Development Note
+#+AUTHOR: Gun Woo Park
+
+* implementation of simple shear flow
+** pure Brownian motion
+Basically, the particles in Brownian motion does not /feel/ other Brownian particles, since there are no interaction between particles. The implementation of shear flow into Brownian motion is not so much difficult compared with when there are potential between particles. In consequence, there are only two implementation: (i) apply velocity gradient into time evolution equation and (ii) proper shift when particle move beyond PBC box.
+
+** Brownian with interaction between particles using relative vector
+The thing have been changed when there are interaction between particle. The overall implementation will be the same based on the pure Brownian motion. For simplification, consider a pairwise potential is applied on the system. In this case, at least, a relative vector between a pair of particle should be computed. In equilibrium simulation, we can easily apply minimum image convention and the distance is calculated as the minimum distance between subjected particle and all the opponent in the image of the main PBC box. This is easily achived using left-right shift factor in equilibrium simulation, and there are no real difficulty to implementation.
+
+The situation is changed for Lee-Edwards boundary condition with implemented shear flow. The left-right image on the shear gradient direction for the main PBC box are spontaneously sliding due to the given condition, which change the minimum image convention. Hence, we defined the new shifting factor to make standard, and this fact affect the distance between pair of particles.
+
+The real changes in the code is related with RDIST where the distance between pair of particles. Since cell list is not ready for simple shear flow, the RDIST will account all the possible pairs between particles, i.e., $O(N^2)$. Before going further, it must note that the definition of Wi should use the chracteristic time for time evolution of Langevin equation. 
+
+
+*** Cell List: Dynamic Offset
+At this moment, the cell list implementation is not fully developed. However, even without cell list, the simulation code uses basic cell list for the main PBC box, and the image of PBC boxes are regarded as image of the main PBC box. By this way, the code interface are properly set without any distracted point. Therefore, at least, the basic cell list interface should be re-designed due to the given shear flow.
+
+**** bug?
+It comes to my concern during bug fix for the simulation code. The bug is related with measuring minimum distance between pair of particles without counting all the images of particles. During code revision, the bug is revisied and solved using function pointer and constructor for RDIST :: CLIST class object.
+
+

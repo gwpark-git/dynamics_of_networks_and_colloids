@@ -158,15 +158,15 @@ MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY_HDF5& TRAJ, MKL_LONG in
   return 0;
 }
 
-  // TRAJ(index_t_now, 
-  // for(MKL_LONG i=0; i<TRAJ.Np; i++)
-  //   {
-  //     for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
-  //       {
-  //         index_vec_boost[i][k] = (MKL_LONG)(TRAJ(index_t_now, i, k)/cell_length);
-  //       }
+// TRAJ(index_t_now, 
+// for(MKL_LONG i=0; i<TRAJ.Np; i++)
+//   {
+//     for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
+//       {
+//         index_vec_boost[i][k] = (MKL_LONG)(TRAJ(index_t_now, i, k)/cell_length);
+//       }
 
-  //   }
+//   }
 //   return 0;
 // }
 
@@ -174,7 +174,7 @@ MKL_LONG UTILITY::index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca, 
 {
   /*
     This is the original index mapping function for general N-dimensional case. 
-   */
+  */
   MKL_LONG re = 0;
   for(MKL_LONG n=0; n<N_dimension; n++)
     {
@@ -188,7 +188,7 @@ MKL_LONG UTILITY::index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec, 
 {
   /*
     This inverse map applied to 
-   */
+  */
   for(MKL_LONG n=0; n<N_dimension; n++)
     {
       index_vec[n] = ((MKL_LONG)(index_sca/pow(N_div, N_dimension - (n+1))))%N_div;
@@ -207,8 +207,8 @@ MKL_LONG CLIST::allocate_index_neighbor_cell_list()
       // for(MKL_LONG i=0; i<N_neighbor_cells; i++) // this was bug.
       for(MKL_LONG i=0; i<N_cells; i++) // this is right. 
         {
-	  // note that the number of cells is N_div^N_dimension while number of neighbor cells is N_sf^N_dimension
-	  // for instance, if the PBC is divided by 5 cells for each axis, N_cells = 5^3 = 125 while the N_neighbor_cells = 3^3 = 9
+          // note that the number of cells is N_div^N_dimension while number of neighbor cells is N_sf^N_dimension
+          // for instance, if the PBC is divided by 5 cells for each axis, N_cells = 5^3 = 125 while the N_neighbor_cells = 3^3 = 9
           get_neighbor_cell_list(i, NEIGHBOR_CELLS[i], index_vec_boost, sf_vec_boost);
         }
       // mkl_free(index_vec_boost);
@@ -231,7 +231,7 @@ MKL_LONG CLIST::get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* inde
     However, to call this function during the simulation make big overhead to compute index sets.
     Hence, we need to generate the array for the list when it is initialized, then re-used the generated list during simulation.
     For non-equilibrium simulation such as simple shear flow, the re-usability will decrease which eventually adds some overhead to compute additional lists.
-   */
+  */
   CLIST::index_sca2vec(index_sca, self_index_vec_boost);
   // MKL_LONG shift_factors[3] = {-1, 0, 1};
   MKL_LONG N_sf = 3; // {-1, 0, +1}
@@ -246,16 +246,16 @@ MKL_LONG CLIST::get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* inde
           // the following function related with the periodic boundary condition
           // whenever the neighbor beyond the PBC box, it re-mapped inside of the box
           if(sf_vec_boost[n] < 0)
-	    {
-	      // this will reduce the overhead during relative distance between particle with PBC boundary condition	      
-	      BEYOND_BOX[index_sca][nsf][n] = -1;  // when the neighbor cell is beyond PBC boundary in left side
-	      sf_vec_boost[n] += N_div;
-	    }
+            {
+              // this will reduce the overhead during relative distance between particle with PBC boundary condition	      
+              BEYOND_BOX[index_sca][nsf][n] = -1;  // when the neighbor cell is beyond PBC boundary in left side
+              sf_vec_boost[n] += N_div;
+            }
           else if(sf_vec_boost[n] >= N_div)
-	    {
-	      BEYOND_BOX[index_sca][nsf][n] = +1; // when the neighbor cell is beyond PBC boundary in right side
-	      sf_vec_boost[n] -= N_div;
-	    }
+            {
+              BEYOND_BOX[index_sca][nsf][n] = +1; // when the neighbor cell is beyond PBC boundary in right side
+              sf_vec_boost[n] -= N_div;
+            }
           
           // sf_vec_boost[n] has the values in [0, 1, 2] since the N_sf is set with 3.
           // sf_vec_boost[n] -1 becomes [-1, 0, +1] which is exactly the same with shift factor array
