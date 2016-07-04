@@ -48,30 +48,49 @@ public:
 
   // member function case dependency
   // function point to measure minimum distance between pair of micelle
-  double (*measure_minimum_distance)(TRAJECTORY&, const MKL_LONG, const MKL_LONG, const MKL_LONG, MKL_LONG*);
 
-  // the following are related with specific cases
-  // note that the definition inside class declaration will be inlined, which will not occur overhead for mapping functions.
-  double measure_minimum_distance_default(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check);
-  // {
-  //   // note that the beyond_box_check is not necessary for default measuring_minimum_distance function
-  //   // however, it is set in order to achive compatibility with cell-list implementation (for function pointer)
-  //   return GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target]);
-  // }
+  // in order to use pointer-to-function rather than pointer-to-member_function, the measuring_minimum_distance have the type argument with itself: RDIST&. Note that the allocation is related with inline wrapping function defined in GEOMETRY namespace
+  double (*measure_minimum_distance)(RDIST&, TRAJECTORY&, const MKL_LONG, const MKL_LONG, const MKL_LONG, MKL_LONG*);
 
-  double measure_minimum_distance_cell_list(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check);
-  // {
-  //   return GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], beyond_box_check);
-  // }
 
-  double measure_minimum_distance_simple_shear(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check);
-  // {
-  //   // here again, beyond_box_check is not necessary
-  //   // just added because of argument design
-  //   return GEOMETRY::get_minimum_distance_simple_shear(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], shear_aixs, shear_grad_axis, map_to_central_box_image);
-  // }
+  // the following are related with pointer-to-member_function.
+  // in consequence of poingter-to-member_function, the fellowing have low readability which is not satisfactory by myself. Hence, the fellowing methods are deleted and left as recorded history to explain. (in future, these will be deleted completely) 
+
+  // by some reason, the pointer-to-member_function is slightly differ from pointer-to-function.
+  // it is not sure what exactly differ each other, but if this allocation step comapred with member function for POTENTIAL_SET, it uses typical allocation for pointer and uses it as name (as reference variable)
+  // while the case on here is just works as pointer.
+  // In consequence, allocation uses reference type rather than typical pointer type.
+  // in future, the explanation will be revisited
+
+  
+  /* double (RDIST::*measure_minimum_distance)(TRAJECTORY&, const MKL_LONG, const MKL_LONG, const MKL_LONG, MKL_LONG*); */
+  /* // measure_minimum_distance will be allocatged between following member function of RDIST. Hence, the type for function pointer should have RDIST:: notation.   */
+
+  /* // the following are related with specific cases */
+  /* // note that the definition inside class declaration will be inlined, which will not occur overhead for mapping functions. */
+  /* double measure_minimum_distance_default(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check); */
+  /* // { */
+  /* //   // note that the beyond_box_check is not necessary for default measuring_minimum_distance function */
+  /* //   // however, it is set in order to achive compatibility with cell-list implementation (for function pointer) */
+  /* //   return GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target]); */
+  /* // } */
+
+  /* double measure_minimum_distance_cell_list(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check); */
+  /* // { */
+  /* //   return GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], beyond_box_check); */
+  /* // } */
+
+  /* double measure_minimum_distance_simple_shear(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check); */
+  /* // { */
+  /* //   // here again, beyond_box_check is not necessary */
+  /* //   // just added because of argument design */
+  /* //   return GEOMETRY::get_minimum_distance_simple_shear(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], shear_aixs, shear_grad_axis, map_to_central_box_image); */
+  /* // } */
   
 };
+
+
+
 
 namespace UTIL_ARR
 {
@@ -82,6 +101,9 @@ namespace UTIL_ARR
 
 namespace GEOMETRY
 {
+
+
+  
   MKL_LONG compute_RDIST_particle(RDIST& R_boost, const MKL_LONG index_particle, TRAJECTORY& TRAJ, MKL_LONG index_t);
   // the original set
   double get_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec);
@@ -89,6 +111,7 @@ namespace GEOMETRY
   double get_minimum_distance_for_particle(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_particle, MATRIX& R_minimum_boost_particle, MATRIX** R_minimum_vec_boost); 
   double return_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j);
   double minimum_image_convention(TRAJECTORY& TRAJ, MKL_LONG target_t);
+  double minimum_image_convention_loop(TRAJECTORY& TRAJ, MKL_LONG target_t);
   double apply_shear_boundary_condition(TRAJECTORY& TRAJ, MKL_LONG target_t, const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis, const double shift_factor);
 
   
@@ -101,6 +124,11 @@ namespace GEOMETRY
 
 
   // inlined functions
+  double measure_minimum_distance_default(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check);
+  double measure_minimum_distance_cell_list(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check);
+  double measure_minimum_distance_simple_shear(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check);  
+
+  
   MKL_LONG get_minimum_distance_rel_vector_cell_list(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec, MKL_LONG* beyond_box_check);
   double get_minimum_distance_cell_list(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, MKL_LONG* beyond_box_check);
   double get_minimum_distance_pos_vector_simple_shear(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec, const MKL_LONG shear_axis, const double map_to_central_box_image);
@@ -259,24 +287,38 @@ inline double GEOMETRY::get_simple_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, 
 }
 
 
-inline double RDIST::measure_minimum_distance_default(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
+// inline double RDIST::measure_minimum_distance_default(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
+// {
+//   // note that the beyond_box_check is not necessary for default measuring_minimum_distance function
+//   // however, it is set in order to achive compatibility with cell-list implementation (for function pointer)
+//   return GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target]);
+// }
+
+// inline double RDIST::measure_minimum_distance_cell_list(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
+// {
+//   return GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], beyond_box_check);
+// }
+
+// inline double RDIST::measure_minimum_distance_simple_shear(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
+// {
+//   // here again, beyond_box_check is not necessary
+//   // just added because of argument design
+//   return GEOMETRY::get_minimum_distance_simple_shear(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], shear_axis, shear_grad_axis, map_to_central_box_image);
+// }
+
+inline double GEOMETRY::measure_minimum_distance_default(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
 {
-  // note that the beyond_box_check is not necessary for default measuring_minimum_distance function
-  // however, it is set in order to achive compatibility with cell-list implementation (for function pointer)
-  return GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target]);
+  return GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, index_target, R_boost.Rvec[index_particle][index_target]);
 }
 
-inline double RDIST::measure_minimum_distance_cell_list(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
+inline double GEOMETRY::measure_minimum_distance_cell_list(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
 {
-  return GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], beyond_box_check);
+  return GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t, index_particle, index_target, R_boost.Rvec[index_particle][index_target], beyond_box_check);
 }
 
-inline double RDIST::measure_minimum_distance_simple_shear(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
+inline double GEOMETRY::measure_minimum_distance_simple_shear(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
 {
-  // here again, beyond_box_check is not necessary
-  // just added because of argument design
-  return GEOMETRY::get_minimum_distance_simple_shear(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], shear_axis, shear_grad_axis, map_to_central_box_image);
+  return GEOMETRY::get_minimum_distance_simple_shear(TRAJ, index_t, index_particle, index_target, R_boost.Rvec[index_particle][index_target], R_boost.shear_axis, R_boost.shear_grad_axis, R_boost.map_to_central_box_image);
 }
-
 
 #endif
