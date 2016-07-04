@@ -149,6 +149,13 @@ inline double UTIL_ARR::get_minimum_image_k_from_x(double x, double k, double di
   return re;
 }
 
+inline double UTIL_ARR::get_minimum_image_k_from_x(double x, double k, double dimension)
+{
+  double kd[3] = {k-dimension - x, k - x, k + dimension - x};
+  double re = kd[get_max_minimum_abs(kd, 3)] + x;
+  return re;
+}
+
 inline MKL_LONG UTIL_ARR::get_index_minimum_abs(double *k, MKL_LONG N)
 {
   MKL_LONG re = 0;

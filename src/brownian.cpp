@@ -79,7 +79,6 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
           // to be on the safe side, the loop style will be used from now on
           // however, here the modulo scheme will be used instead of full shift factor in order to reduce overhead to apply minimum_image_convention
           
-          
           VAR.time_LV +=
             GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
         }

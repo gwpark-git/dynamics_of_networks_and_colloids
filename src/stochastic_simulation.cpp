@@ -92,6 +92,11 @@ int main(int argc, char* argv[])
                     // }
                 }
             }
+          else if(given_condition("Method") == "REPULSIVE_BROWNIAN")
+            {
+              FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTs, given_condition);
+              REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJ, POTs, DATA, given_condition);
+            }
           else if(given_condition("Method") == "BROWNIAN")
             {
               

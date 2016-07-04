@@ -42,7 +42,8 @@ class RNG_BOOST
           MKL_LONG seed_BD = atol(given_condition("basic_random_seed").c_str());
           gsl_rng_set(BOOST_BD[i], seed_BD + i); // it set the seed with index i
         }
-      if(given_condition("Step")!="EQUILIBRATION")
+      if(given_condition("Step")!="EQUILIBRATION" && given_condition("Method")=="NAPLE_ASSOCIATION")
+        // identify the NAPLE_ASSOCIATION topological evolution with equilibration condtion or not
         {
           INITIALIZATION_SS = TRUE;
           N_THREADS_SS = atol(given_condition("N_THREADS_SS").c_str());
