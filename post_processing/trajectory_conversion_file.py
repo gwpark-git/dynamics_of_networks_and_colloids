@@ -86,8 +86,11 @@ else:
             index_shear_grad_direction = 2*ND*i + 1 + shear_grad_direction
             coord_mov_shear = 0
             for t in range(Nt):
-                coord_mov_shear += Wi_tau_C*dat[t, index_shear_grad_direction]*dt
+                # the sequence have been changed
+                # since the history remove is related with previous time
+                # not about the current time
                 dat[t, index_shear_direction] -= coord_mov_shear
+                coord_mov_shear += Wi_tau_C*dat[t, index_shear_grad_direction]*dt
                 
             
     for i in range(NP):
