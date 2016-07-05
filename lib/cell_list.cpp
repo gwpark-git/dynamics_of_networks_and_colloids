@@ -1,10 +1,5 @@
 #include "cell_list.h"
 
-// inlined
-// MKL_LONG& CLIST::operator()(MKL_LONG i, MKL_LONG j)
-// {
-//   return CELL[i][j];
-// }
 
 CLIST::CLIST(COND& given_condition)
 {
@@ -39,6 +34,16 @@ CLIST::CLIST(COND& given_condition)
         }
     }
 
+  // related with simple shear
+  if(given_condition("SIMPLE_SHEAR") == "TRUE")
+    {
+      SIMPLE_SHEAR = TRUE;
+      shear_axis = atoi(given_condition("shear_axis").c_str());
+      shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str());
+      map_to_central_box_image = 0.; // started with zero (equilibrium PBC box)
+    }
+
+  
   N_div = 1;
   cell_length = box_dimension;
   N_cells = 1;

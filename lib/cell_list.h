@@ -38,6 +38,15 @@ class CLIST
   MKL_LONG ***BEYOND_BOX;
   MKL_LONG *TOKEN;
   MKL_LONG Np;
+
+  // following are related with mechanical perturbations
+  bool SIMPLE_SHEAR;
+  MKL_LONG shear_axis;
+  MKL_LONG shear_grad_axis;
+  double map_to_central_box_image;
+  
+
+  
   // mapping function
   MKL_LONG index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca);
   MKL_LONG index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec);

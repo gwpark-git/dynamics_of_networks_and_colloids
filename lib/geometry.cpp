@@ -35,19 +35,23 @@ RDIST::RDIST(COND& given_condition) : CLIST(given_condition)
         }
       Rsca[i].initial(Np, 1, 0.);
     }
-  if(given_condition("SIMPLE_SHEAR") == "TRUE")
+  // if(given_condition("SIMPLE_SHEAR") == "TRUE")
+  if(SIMPLE_SHEAR) // it already declare in CLIST class
     {
-      if(CELL_LIST_BOOST)
+      // if(CELL_LIST_BOOST)
+      //   {
+      //     printf("ERR: CELL LIST with SIMPLE SHEAR FLOW is not implemented. \n");
+      //     return -1;
+      //   }
+      if (!(shear_axis == 0 && shear_grad_axis == 1) && !CELL_LIST_BOOST)
         {
-          printf("ERR: CELL LIST with SIMPLE SHEAR FLOW is not implemented. \n");
+          printf("ERR: SIMPLE SHEAR FLOW with different direction without CELL LIST is not implemented\n");
+          return -1;
         }
-      SIMPLE_SHEAR = TRUE;
-      shear_axis = atoi(given_condition("shear_axis").c_str());
-      shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str());
-      map_to_central_box_image = 0.; // started with zero (equilibrium PBC box)
       // note again, the cell list implementation is not work at this moment
 
-      measure_minimum_distance = GEOMETRY::measure_minimum_distance_simple_shear;
+      measure_minimum_distance = GEOMETRY::measure_minimum_distance_simple_shear_fixed_axis;
+      
     }
   else
     {
