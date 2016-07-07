@@ -79,6 +79,27 @@ struct TEMPORAL_VARIABLE_HEUR : REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE
       MC_LOG = FALSE;
       if(given_condition("MC_LOG")=="TRUE")
         MC_LOG = TRUE;
+
+      // note that the following simple shear initialization
+      // is done in REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE constructor
+      // since TEMPORAL_VARIABLE_HEUR inherit (even for the constructor) from previous one.
+      // if(given_condition("SIMPLE_SHEAR") == "TRUE")
+      //   {
+      //     SIMPLE_SHEAR = TRUE;
+      //     Wi_tau_R = atof(given_condition("Wi_tau_C").c_str());
+      //     shear_axis = atoi(given_condition("shear_axis").c_str());
+      //     shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str());
+      //     shear_PBC_shift = 0.;
+      //   }
+      // else
+      //   {
+      //     SIMPLE_SHEAR = FALSE;
+      //     Wi_tau_R = 0.;
+      //     shear_axis = 0;
+      //     shear_grad_axis = 1;
+      //     shear_PBC_shift = 0;
+      //   }
+      
     }
  ~TEMPORAL_VARIABLE_HEUR()
     {

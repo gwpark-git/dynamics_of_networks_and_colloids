@@ -51,13 +51,27 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
       TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
       ++TRAJ.c_t;
       MKL_LONG cnt = 1;
+
+      if(VAR.SIMPLE_SHEAR)
+        {
+          double time_div_tau_R = t*TRAJ.dt;
+          VAR.shear_PBC_shift = fmod(VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_R, TRAJ.box_dimension[VAR.shear_axis]);
+          R_boost.amp_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
+          MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
+          R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
+        }      
       VAR.time_DIST +=
         REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, index_t_now, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
       VAR.time_SS +=
         OMP_SS_topological_time_evolution(t, CONNECT, CHAIN, POTs, R_boost, RNG, IDX_ARR, DATA, given_condition, LOCKER, VAR);
       VAR.time_LV +=
         OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, CONNECT, POTs, R_boost, VAR.vec_boost_Nd_parallel, VAR.force_repulsion, VAR.force_random, VAR.force_spring, RNG, VAR.N_THREADS_BD, given_condition, VAR);
-      
+
+      if(VAR.SIMPLE_SHEAR)
+        {
+          VAR.time_LV +=
+            GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
+        }
       VAR.time_LV +=
         GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
 
@@ -147,6 +161,8 @@ double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, co
         {
           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
         }
+      if(VAR.SIMPLE_SHEAR)
+        TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_R*TRAJ(index_t_now, i, VAR.shear_grad_axis);
       
       time_LV_update += dsecnd() - time_st_update;
     }

@@ -86,10 +86,10 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
 
       if(VAR.SIMPLE_SHEAR)
         {
-          double time_div_tau_B = t*TRAJ.dt;
+          double time_div_tau_R = t*TRAJ.dt;
           // printf("info PBC shift: ");
-          // VAR.shear_PBC_shift = (VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B);
-          VAR.shear_PBC_shift = fmod(VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B, TRAJ.box_dimension[VAR.shear_axis]); // it will remap the shear_PBC_shift into modulo scheme
+          // VAR.shear_PBC_shift = (VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_R);
+          VAR.shear_PBC_shift = fmod(VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_R, TRAJ.box_dimension[VAR.shear_axis]); // it will remap the shear_PBC_shift into modulo scheme
           R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
           // printf("S0: %3.2f, ", R_boost.map_to_central_box_image);
           MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
