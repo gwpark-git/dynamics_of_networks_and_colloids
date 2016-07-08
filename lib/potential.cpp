@@ -23,6 +23,22 @@ MKL_LONG FORCE::BROWNIAN::MAP_potential_set(POTENTIAL_SET& given_POT, COND& give
   return 0;
 }
 
+MKL_LONG FORCE::DUMBBELL::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
+{
+  /* 
+     At this moment, the only Gaussian chain is implemented for dumbbell model.
+     Note that Dumbbell model is not necessary any cut-off since there are only one permanent connection
+  */
+  
+  given_POT.force_variables[0] = atol(given_cond("N_dimension").c_str());
+  given_POT.force_variables[1] = atof(given_cond("scale_factor_chain").c_str());
+  given_POT.f_connector = FORCE::DUMBBELL::MAP_modified_Gaussian_spring_force;
+  given_POT.e_connector = FORCE::DUMBBELL::MAP_modified_Gaussian_spring_potential;
+  given_POT.scale_random = FORCE::BROWNIAN::MAP_no_time_scaling_random;
+  
+  return 0;
+}
+
 MKL_LONG FORCE::DEFAULT::EMPTY_force_set(POTENTIAL_SET& given_POT, COND& given_condition)
 {
   given_POT.f_repulsion = FORCE::DEFAULT::EMPTY_force_contribution;

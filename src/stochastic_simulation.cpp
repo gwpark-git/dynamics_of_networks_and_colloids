@@ -104,6 +104,14 @@ int main(int argc, char* argv[])
               FORCE::BROWNIAN::MAP_potential_set(POTs, given_condition); // null allocator
               BROWNIAN::main_PURE_BROWNIAN(TRAJ, POTs, DATA, given_condition);
             }
+          else if(given_condition("Method") == "DUMBBELL")
+            {
+              // CONNECTIVITY CONNECT(given_condition); // note that
+              MKL_LONG N_max_connection = 1; // note that dumbbell only have one permernant connection between a pir of micelle
+              CONNECTIVITY CONNECT(TRAJ.Np, N_max_connection); 
+              FORCE::DUMBBELL::MAP_potential_set(POTs, given_condition);
+              DUMBBELL::main_DUMBBELL(TRAJ, CONNECT, POTs, DATA, given_condition);
+            }
           else
             {
               printf("Method except NAPLE_ASSOCIATION is not clearly defined. The given Method input is %s", given_condition("Method").c_str());

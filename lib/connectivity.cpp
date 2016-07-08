@@ -1,20 +1,37 @@
 
 #include "connectivity.h"
 
-CONNECTIVITY::CONNECTIVITY(COND& given_condition)
+CONNECTIVITY::dynamic_allocation(MKL_LONG number_of_particles, MKL_LONG maximum_connections)
 {
-  Np = atol(given_condition("Np").c_str());
-  Mc = 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str());
-  // HASH = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  Np = number_of_particles;
+  Mc = maximum_connections;
+
   HASH = new MATRIX [Np];
+  TOKEN = new MATRIX [Np];
   for(MKL_LONG i=0; i<Np; i++)
     {
-      HASH[i].initial(Mc, 1, -1);
+      HASH[i].initial(MC, 1, -1);
+      HASH[i](0) = i; // it will be ignored when it inherit from the given index table
+      TOKEN[i] = 1;
     }
-  // TOKEN = (MKL_LONG*) mkl_malloc(Np*sizeof(MKL_LONG), BIT);
-  TOKEN = new MKL_LONG [Np];
-  for(MKL_LONG i=0; i<Np; i++)
-    TOKEN[i] = 1;
+
+}
+
+CONNECTIVITY::CONNECTIVITY(COND& given_condition)
+{
+  // Np = atol(given_condition("Np").c_str());
+  // Mc = 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str());
+  // // HASH = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  // HASH = new MATRIX [Np];
+  // for(MKL_LONG i=0; i<Np; i++)
+  //   {
+  //     HASH[i].initial(Mc, 1, -1);
+  //   }
+  // // TOKEN = (MKL_LONG*) mkl_malloc(Np*sizeof(MKL_LONG), BIT);
+  // TOKEN = new MKL_LONG [Np];
+  // for(MKL_LONG i=0; i<Np; i++)
+  //   TOKEN[i] = 1;
+  dynamic_allocation(atol(given_condition("Np").c_str()), 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str()));
   if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
     {
       read_exist_hash(given_condition("CONTINUATION_HASH_FN").c_str());
@@ -31,18 +48,19 @@ CONNECTIVITY::CONNECTIVITY(COND& given_condition)
 
 CONNECTIVITY::CONNECTIVITY(MKL_LONG number_of_particles, MKL_LONG maximum_connections)
 {
-  Np = number_of_particles;
-  Mc = maximum_connections;
-  // HASH = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  HASH = new MATRIX [Np];
-  // TOKEN = (MKL_LONG*) mkl_malloc(Np*sizeof(MKL_LONG), BIT);
-  TOKEN = new MKL_LONG [Np];
-  for(MKL_LONG i=0; i<Np; i++)
-    {
-      HASH[i].initial(Mc, 1, -1); // this is omitted initializer
-      HASH[i](0) = i;
-      TOKEN[i] = 1;
-    }
+  dynamic_allocation(number_of_particles, maximum_connections);
+  // Np = number_of_particles;
+  // Mc = maximum_connections;
+  // // HASH = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
+  // HASH = new MATRIX [Np];
+  // // TOKEN = (MKL_LONG*) mkl_malloc(Np*sizeof(MKL_LONG), BIT);
+  // TOKEN = new MKL_LONG [Np];
+  // for(MKL_LONG i=0; i<Np; i++)
+  //   {
+  //     HASH[i].initial(Mc, 1, -1); // this is omitted initializer
+  //     HASH[i](0) = i;
+  //     TOKEN[i] = 1;
+  //   }
 
 }
 

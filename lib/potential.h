@@ -46,7 +46,13 @@ namespace FORCE
     double no_time_scaling_random(MATRIX& given_basic_random, double scale_factor);
     double MAP_no_time_scaling_random(MATRIX& given_basic_random, double *given_variables);
   }
-  
+  namespace DUMBBELL
+  {
+    MKL_LONG MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond);
+    double MAP_modified_Gaussian_spring_force(double distance, double* given_variables);
+    double MAP_modified_Gaussian_spring_potential(double distance, double* given_variables);
+
+  }
   namespace GAUSSIAN
   {
     double spring_force(double distance, double N_dimension);
@@ -371,6 +377,16 @@ inline double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_spring_potential(double dis
 inline double FORCE::NAPLE::MC_ASSOCIATION::MAP_FENE_Boltzmann(double distance, double* given_variables)
 {
   return FORCE::FENE::Boltzmann_distribution(distance, given_variables[3], given_variables[5]);
+}
+
+inline double FORCE::DUMBBELL::MAP_modified_Gaussian_spring_force(double distance, double* given_variables)
+{
+  return FORCE::MODIFIED_GAUSSIAN::spring_force(distance, given_variables[0], given_variables[1]);
+}
+
+inline double FORCE::DUMBBELL::MAP_modified_Gaussian_spring_potential(double distance, double* given_variables)
+{
+  return FORCE::MODIFIED_GAUSSIAN::spring_potential(distance, given_variables[0], given_variables[1]);
 }
 
 

@@ -2,7 +2,7 @@
 
 using namespace DUMBBELL;
 
-double DUMBBELL::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, BROWNIAN_VARIABLE& VAR)
+double DUMBBELL::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, DUMBBELL_VARIABLE& VAR)
 {
   double time_st = dsecnd();
 #pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, force_random, RNG, N_THREADS_BD, given_condition, VAR) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
@@ -28,7 +28,7 @@ double DUMBBELL::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index
   return dsecnd() - time_st;
 }
 
-MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition)
+MKL_LONG DUMBBELL::main_DUMBBELL(TRAJECTORY& TRAJ, CONNECTIVITY& CONNECT, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition)
 {
   using namespace std;
   

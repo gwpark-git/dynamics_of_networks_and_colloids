@@ -25,6 +25,8 @@ class CONNECTIVITY
     {
       std::cout << "ERR:: Class CONNECTIVITY must have argument\n";
     }
+
+  dynamic_allocation(MKL_LONG number_of_particles, MKL_LONG maximum_connections); // for united approach
   CONNECTIVITY(MKL_LONG number_of_particles, MKL_LONG maximum_connections);
   CONNECTIVITY(COND& given_condition);
   virtual ~CONNECTIVITY()
