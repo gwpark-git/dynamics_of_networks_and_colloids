@@ -42,19 +42,22 @@ class RNG_BOOST
           MKL_LONG seed_BD = atol(given_condition("basic_random_seed").c_str());
           gsl_rng_set(BOOST_BD[i], seed_BD + i); // it set the seed with index i
         }
-      if(given_condition("Step")!="EQUILIBRATION" && given_condition("Method")=="NAPLE_ASSOCIATION")
+      INITIALIZATION_SS = FALSE; // default
+      if(given_condition("Method") == "NAPLE_ASSOCIATION")
+	if(given_condition("Step") != "EQUILIBRATION")
+	 /* given_condition("Step")!="EQUILIBRATION" && given_condition("Method")=="NAPLE_ASSOCIATION") */
         // identify the NAPLE_ASSOCIATION topological evolution with equilibration condtion or not
-        {
-          INITIALIZATION_SS = TRUE;
-          N_THREADS_SS = atol(given_condition("N_THREADS_SS").c_str());
-          /* BOOST_SS = (gsl_rng**)mkl_malloc(N_THREADS_SS*sizeof(gsl_rng*), BIT); */
-          BOOST_SS = new gsl_rng* [N_THREADS_SS];
-          for(MKL_LONG i=0; i<N_THREADS_SS; i++)
-            {
-              BOOST_SS[i] = gsl_rng_alloc(T_boost);
-              MKL_LONG seed_SS = atol(given_condition("basic_random_seed_SS").c_str());
-              gsl_rng_set(BOOST_SS[i], seed_SS + i); 
-            }
+	  {
+	    INITIALIZATION_SS = TRUE;
+	    N_THREADS_SS = atol(given_condition("N_THREADS_SS").c_str());
+	    /* BOOST_SS = (gsl_rng**)mkl_malloc(N_THREADS_SS*sizeof(gsl_rng*), BIT); */
+	    BOOST_SS = new gsl_rng* [N_THREADS_SS];
+	    for(MKL_LONG i=0; i<N_THREADS_SS; i++)
+	      {
+		BOOST_SS[i] = gsl_rng_alloc(T_boost);
+		MKL_LONG seed_SS = atol(given_condition("basic_random_seed_SS").c_str());
+		gsl_rng_set(BOOST_SS[i], seed_SS + i); 
+	      }
         }
     }
 
