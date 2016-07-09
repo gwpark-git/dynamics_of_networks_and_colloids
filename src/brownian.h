@@ -38,6 +38,7 @@ struct BROWNIAN::BROWNIAN_VARIABLE
   MKL_LONG N_basic;
   double time_LV, time_DIST, time_file, time_AN, time_RECORDED;
   double time_LV_init, time_LV_force, time_LV_update;
+  double time_LV_force_random;
   double simulation_time;
 
   // related with shear flow

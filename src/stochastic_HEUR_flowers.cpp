@@ -30,7 +30,7 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
     REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, 0, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
   
   VAR.time_AN +=
-    ANALYSIS::CAL_ENERGY_R_boost(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
+    ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
 
   RNG_BOOST RNG(given_condition);
   
@@ -56,7 +56,7 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
         {
           double time_div_tau_R = t*TRAJ.dt;
           VAR.shear_PBC_shift = fmod(VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_R, TRAJ.box_dimension[VAR.shear_axis]);
-          R_boost.amp_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
+          R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
           MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
           R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
         }      
@@ -80,7 +80,7 @@ MKL_LONG stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POT
       if(t%VAR.N_skip==0)
         {
           VAR.time_AN +=
-            ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, VAR.vec_boost_Nd_parallel[0], R_boost);
+            ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
 
           energy(4) = (double)VAR.N_associations; // number of associations
           energy(5) = dsecnd() - time_st_simulation; // record computation time
@@ -136,7 +136,7 @@ double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, co
   double time_LV_init = 0., time_LV_force = 0., time_LV_update = 0.;
   double time_LV_force_repulsion = 0., time_LV_force_random = 0., time_LV_force_connector = 0.;
 
-#pragma omp parallel for default(none) shared(TRAJ, CONNECT, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, force_spring, RNG, given_condition) num_threads(N_THREADS_BD) reduction(+: time_LV_init, time_LV_force, time_LV_update, time_LV_force_repulsion, time_LV_force_random, time_LV_force_connector) if(N_THREADS_BD > 1)
+#pragma omp parallel for default(none) shared(TRAJ, CONNECT, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, force_spring, RNG, VAR, given_condition) num_threads(N_THREADS_BD) reduction(+: time_LV_init, time_LV_force, time_LV_update, time_LV_force_repulsion, time_LV_force_random, time_LV_force_connector) if(N_THREADS_BD > 1)
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects

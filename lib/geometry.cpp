@@ -46,7 +46,7 @@ RDIST::RDIST(COND& given_condition) : CLIST(given_condition)
       if (!(shear_axis == 0 && shear_grad_axis == 1) && !CELL_LIST_BOOST)
         {
           printf("ERR: SIMPLE SHEAR FLOW with different direction without CELL LIST is not implemented\n");
-          return -1;
+          // return -1;
         }
       // note again, the cell list implementation is not work at this moment
 

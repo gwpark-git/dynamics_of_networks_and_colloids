@@ -2,27 +2,47 @@
 
 using namespace DUMBBELL;
 
-double DUMBBELL::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, DUMBBELL_VARIABLE& VAR)
+MKL_LONG DUMBBELL::generate_dumbbell_connectivity(CONNECTIVITY& CONNECT)
+{
+  if (!(CONNECT.Np % 2 == 0))
+    {
+      printf("ERR: Non-even number of particle is not possible to simulate dumbbell model\n");
+      return -1;
+    }
+  MKL_LONG half_Np = CONNECT.Np/2;
+  MKL_LONG hash_index_target = 1; // dumbbell only have 1 connectivity
+  for(MKL_LONG i=0; i<half_Np; i++)
+    {
+      CONNECT.HASH[i](hash_index_target) = i + half_Np; // it means index 0 connected with 0 + half_Np
+    }
+  return 0;
+}
+
+double DUMBBELL::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, CONNECTIVITY& CONNECT, POTENTIAL_SET& POTs, MATRIX* force_random, MATRIX* force_spring, RNG_BOOST& RNG, RDIST& R_boost, const MKL_LONG N_THREADS_BD, COND& given_condition, DUMBBELL_VARIABLE& VAR)
 {
   double time_st = dsecnd();
-#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, force_random, RNG, N_THREADS_BD, given_condition, VAR) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+#pragma omp parallel for default(none) shared(TRAJ, CONNECT, POTs, R_boost, index_t_now, index_t_next, force_random, force_spring, RNG, N_THREADS_BD, given_condition, VAR) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
       
       // force_repulsion[i].set_value(0);
       force_random[i].set_value(0);
+      force_spring[i].set_value(0);
 
       // INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
-      INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
+      VAR.time_LV_force_connector +=
+	INTEGRATOR::EULER::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
+      VAR.time_LV_force_random +=
+	INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
       
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
         {
-          TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) // inheritance the current positions
-            + sqrt(TRAJ.dt)*force_random[i](k);              // apply Wiener process
+          TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k)	// inheritance the current positions
+	    + TRAJ.dt*force_spring[i](k)			// connector contribution
+            + sqrt(TRAJ.dt)*force_random[i](k);			// apply Wiener process
         }
-      // apply simple shear into the time evolution
-      if(VAR.SIMPLE_SHEAR)
+      if(VAR.SIMPLE_SHEAR)					// apply simple shear into the time evolution
         TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
     }
   return dsecnd() - time_st;
@@ -37,7 +57,8 @@ MKL_LONG DUMBBELL::main_DUMBBELL(TRAJECTORY& TRAJ, CONNECTIVITY& CONNECT, POTENT
   printf("### SIMULATION: PURE BROWNIAN MOTION ###\n");
   printf("SETTING simulation environment ...");
   
-  BROWNIAN_VARIABLE VAR(given_condition, TRAJ.rows);
+  DUMBBELL_VARIABLE VAR(given_condition, TRAJ.rows);
+  RDIST R_boost(given_condition);
   // initial_VAR(VAR, given_condition, TRAJ.rows);
   mkl_set_num_threads(VAR.N_THREADS_BD);
   
@@ -55,7 +76,7 @@ MKL_LONG DUMBBELL::main_DUMBBELL(TRAJECTORY& TRAJ, CONNECTIVITY& CONNECT, POTENT
 
   VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
     // ANALYSIS::CAL_ENERGY_R_boost(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
-    ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt);
+    ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
   
   for(MKL_LONG t = 0; t<VAR.Nt-1; t++)
     {
@@ -68,7 +89,7 @@ MKL_LONG DUMBBELL::main_DUMBBELL(TRAJECTORY& TRAJ, CONNECTIVITY& CONNECT, POTENT
 
 
       VAR.time_LV +=           // update Langevin equation using Euler integrator
-        BROWNIAN::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, POTs, VAR.force_random, RNG, VAR.N_THREADS_BD, given_condition, VAR); // check arguments
+        DUMBBELL::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, CONNECT, POTs, VAR.force_random, VAR.force_spring, RNG, R_boost, VAR.N_THREADS_BD, given_condition, VAR); // check arguments
 
       if(VAR.SIMPLE_SHEAR)
         {
@@ -90,17 +111,18 @@ MKL_LONG DUMBBELL::main_DUMBBELL(TRAJECTORY& TRAJ, CONNECTIVITY& CONNECT, POTENT
       if(t%VAR.N_skip==0)
         {
           VAR.time_AN += // measuring energy of system
-            ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, TRAJ(index_t_now));
+	    ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTs, CONNECT, energy, TRAJ(index_t_now), R_boost);
+            // ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, TRAJ(index_t_now));
           energy(4) = 0;        // information related with number of association
           energy(5) = dsecnd() - time_st_simulation; // computation time for simulation
 
           VAR.time_file += // write simulation data file
-            record_simulation_data(DATA, TRAJ, energy, index_t_now);
+	    BROWNIAN::record_simulation_data(DATA, TRAJ, energy, index_t_now);
 
           // VAR.simulation_time = TRAJ(index_t_now)/atof(given_condition("repulsion_coefficient").c_str());
           VAR.simulation_time = TRAJ(index_t_now); // the repulsion coefficient is not necessary for pure Brownian motion
           VAR.time_RECORDED += // print simulation information for users
-            report_simulation_info(TRAJ, energy, VAR);
+            BROWNIAN::report_simulation_info(TRAJ, energy, VAR);
           // report_simulation_info(TRAJ, VAR.time_LV, VAR.time_AN, VAR.time_file, VAR.time_DIST);
         }
     }
@@ -110,71 +132,27 @@ MKL_LONG DUMBBELL::main_DUMBBELL(TRAJECTORY& TRAJ, CONNECTIVITY& CONNECT, POTENT
   return 0;
 }
 
-double BROWNIAN::record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energy, const MKL_LONG index_t_now)
-{
-  double time_st = dsecnd();
-  TRAJ.fprint_row(DATA.traj, index_t_now);
-  energy.fprint_row(DATA.ener, 0);
-  return dsecnd() - time_st;
-}
+// double BROWNIAN::record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energy, const MKL_LONG index_t_now)
+// {
+//   double time_st = dsecnd();
+//   TRAJ.fprint_row(DATA.traj, index_t_now);
+//   energy.fprint_row(DATA.ener, 0);
+//   return dsecnd() - time_st;
+// }
 
-double BROWNIAN::report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, BROWNIAN_VARIABLE& VAR)
-{
-  double total_time = VAR.time_LV + VAR.time_AN + VAR.time_file + VAR.time_DIST;
-  printf("##### STEPS = %ld\tTIME = %8.6e tau_B\tENERGY = %6.3e (computing time: %4.3e)\n", TRAJ.c_t, VAR.simulation_time, energy(1), energy(5));
-  printf("time consuming: LV = %3.2e (%3.1f), AN = %3.2e (%3.1f), FILE = %3.2e (%3.1f), DIST = %3.2e (%3.1f) ###\n\n", VAR.time_LV, VAR.time_LV*100/total_time, VAR.time_AN, VAR.time_AN*100/total_time, VAR.time_file, VAR.time_file*100/total_time, VAR.time_DIST, VAR.time_DIST*100/total_time);
-  return total_time;
-}
+// double BROWNIAN::report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, BROWNIAN_VARIABLE& VAR)
+// {
+//   double total_time = VAR.time_LV + VAR.time_AN + VAR.time_file + VAR.time_DIST;
+//   printf("##### STEPS = %ld\tTIME = %8.6e tau_B\tENERGY = %6.3e (computing time: %4.3e)\n", TRAJ.c_t, VAR.simulation_time, energy(1), energy(5));
+//   printf("time consuming: LV = %3.2e (%3.1f), AN = %3.2e (%3.1f), FILE = %3.2e (%3.1f), DIST = %3.2e (%3.1f) ###\n\n", VAR.time_LV, VAR.time_LV*100/total_time, VAR.time_AN, VAR.time_AN*100/total_time, VAR.time_file, VAR.time_file*100/total_time, VAR.time_DIST, VAR.time_DIST*100/total_time);
+//   return total_time;
+// }
 
-DUMBBELL::DUMBBELL_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG given_N_basic) : BROWNIAN::BROWNIAN_VARIABLE(given_condition, given_N_basic)
-{
-  // Np = atoi(given_condition("Np").c_str());
-  // MKL_LONG N_dimension = atoi(given_condition("N_dimension").c_str());
-  // N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
-  // tmp_index_vec = new MKL_LONG [N_dimension];
-  // force_random = new MATRIX [Np];
-  // for(MKL_LONG i=0; i<Np; i++)
-  //   {
-  //     force_random[i].initial(N_dimension, 1, 0.);
-  //   }
+// DUMBBELL::DUMBBELL_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG given_N_basic) : BROWNIAN::BROWNIAN_VARIABLE(given_condition, given_N_basic)
+// {
+// };
 
-  // N_skip = atol(given_condition("N_skip").c_str());
-
-  // Nt = atol(given_condition("Nt").c_str());
-  // N_basic = given_N_basic;
-
-  // time_LV = 0.; time_DIST = 0.; time_file = 0.; time_AN = 0.; time_RECORDED = 0.;
-  // time_LV_init = 0.; time_LV_force = 0.; time_LV_update = 0.;
-  // simulation_time = 0.;
-  
-  // if(given_condition("SIMPLE_SHEAR")=="TRUE")
-  //   {
-  //     SIMPLE_SHEAR = TRUE;
-  //     Wi_tau_B = atof(given_condition("Wi_tau_C").c_str()); // the tau_C in the pure Brownian come with tau_B
-  //     shear_axis = atoi(given_condition("shear_axis").c_str()); // 0 will be set as default. (x-axis)
-  //     shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str()); // 1 will be set as default. (y-axis)
-  //     shear_PBC_shift = 0.; // initially, it is zero
-  //   }
-  // else
-  //   {
-  //     SIMPLE_SHEAR = FALSE;
-  //     Wi_tau_B = 0.;
-  //     // the following are set to be on the safe side (sequence effct)
-  //     shear_axis = 0;
-  //     shear_grad_axis = 1;
-  //     shear_PBC_shift = 0;
-  //   }
-
-  
-  // INITIALIZATION = TRUE;
-};
-
-// double destruct_VAR(BROWNIAN_VARIABLES& VAR)
-BROWNIAN::BROWNIAN_VARIABLE::~BROWNIAN_VARIABLE()
-{
-  // if(INITIALIZATION)
-  //   {
-  //     delete[] force_random;
-  //     delete[] tmp_index_vec;
-  //   }
-}
+// // double destruct_VAR(BROWNIAN_VARIABLES& VAR)
+// BROWNIAN::BROWNIAN_VARIABLE::~BROWNIAN_VARIABLE()
+// {
+// }

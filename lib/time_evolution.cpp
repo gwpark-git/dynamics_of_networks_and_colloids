@@ -40,6 +40,28 @@ double INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTENTIAL_SET& P
   return dsecnd() - time_st;
 }
 
+double INTEGRATOR::EULER::cal_connector_force_boost(POTENTIAL_SET& POTs, CONNECTIVITY& CONNECT, MATRIX& given_vec, MKL_LONG given_index, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost)
+{
+  double time_st = dsecnd();
+  given_vec.set_value(0.);
+  for (MKL_LONG j=1; j<CONNECT.TOKEN[given_index]; j++)
+    {
+      MKL_LONG target_index = (MKL_LONG)CONNECT.HASH[given_index](j);
+      MATRIX& rel_vector = R_minimum_vec_boost[given_index][target_index];
+      double distance = R_minimum_distance_boost[given_index](target_index);
+      double force = POTs.f_connector(distance, POTs.force_variables);
+      // a*x + y -> y
+      cblas_daxpy(given_vec.size,
+                  force/distance, // a
+                  rel_vector.data, // x
+                  1,
+                  given_vec.data, // y
+                  1);
+      
+    }
+  return dsecnd() - time_st;
+}
+
 double INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_particle, RDIST& R_boost)
 {
   double time_st = dsecnd();
@@ -101,7 +123,7 @@ double ANALYSIS::cal_total_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boost)
   return cal_potential_energy_R_boost(POTs, R_boost);// + cal_kinetic_energy(TRAJ, POTs, index_t);
 }
 
-double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& tmp_vec, RDIST& R_boost)
+double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, RDIST& R_boost)
 {
   double energy = 0.;
 
@@ -116,10 +138,23 @@ double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_R_boost(POTENTIAL_SET& P
   return energy + ANALYSIS::cal_potential_energy_R_boost(POTs, R_boost);
 }
 
+double ANALYSIS::DUMBBELL::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, CONNECTIVITY& CONNECT, RDIST& R_boost)
+{
+  double energy = 0.;
+  for (MKL_LONG i=0; i<CONNECT.Np; i++)
+    {
+      for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
+	{
+	  energy += POTs.e_connector(R_boost.Rsca[i]((MKL_LONG)CONNECT.HASH[i](j)), POTs.force_variables);
+	}
+    }
+  return energy; // note that there are no repulsive contribution between dumbbells
+}
+
 double ANALYSIS::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boost)
 {
   double energy = 0.;
-  MATRIX tmp_vec(R_boost.N_dimension, 1, 0.);
+  // MATRIX tmp_vec(R_boost.N_dimension, 1, 0.);
   for(MKL_LONG index_particle=0; index_particle<R_boost.Np; index_particle++)
     {
       MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
@@ -161,12 +196,21 @@ double ANALYSIS::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, MATRIX& mat_energy, dou
   return dsecnd() - time_st;
 }
 
-double ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, double time, MATRIX& tmp_vec, RDIST& R_boost)
+double ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, CONNECTIVITY& CONNECT, MATRIX& mat_energy, double time, RDIST& R_boost)
+{
+  double time_st = dsecnd();
+  mat_energy(0) = time;
+  mat_energy(2) = ANALYSIS::DUMBBELL::cal_potential_energy_R_boost(POTs, CONNECT, R_boost);
+  mat_energy(1) = mat_energy(2) + mat_energy(3);
+  return dsecnd() - time_st;
+}
+
+double ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, double time, RDIST& R_boost)
 {
   // mat_energy(0) = (TRAJ.c_t - 1)*TRAJ.dt;
   double time_st = dsecnd();
   mat_energy(0) = time;
-  mat_energy(2) = ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_R_boost(POTs, CONNECT, tmp_vec, R_boost);
+  mat_energy(2) = ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_R_boost(POTs, CONNECT, R_boost);
   
   // the functionality for kinetic energy is disabled since the evolution equation on this code is using Weiner process that does not support differentiability for the position. On this regards, measuring the velocity cannot be obtained by this environment. For further detail, see the documents.
   mat_energy(1) = mat_energy(2) + mat_energy(3);

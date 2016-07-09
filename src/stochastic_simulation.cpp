@@ -1,16 +1,17 @@
 
 #include <iostream>
-#include "../lib/trajectory.h"         // TRAJECTORY class
-#include "../lib/association.h"        // ASSOCIATION class
-#include "../lib/handle_association.h" // CHAIN class
-#include "../lib/potential.h"          // POTENTIAL_SET class
-#include "../lib/file_IO.h"            // RECORD_DATA class, COND class
+#include "../lib/trajectory.h"		// TRAJECTORY class
+#include "../lib/association.h"		// ASSOCIATION class
+#include "../lib/handle_association.h"	// CHAIN class
+#include "../lib/potential.h"		// POTENTIAL_SET class
+#include "../lib/file_IO.h"		// RECORD_DATA class, COND class
 
 #include <string>
 
-#include "brownian.h"                  // basic Brownian motion
-#include "repulsive_brownian.h"        // EQUILIBRATION simulation
-#include "stochastic_HEUR_flowers.h"   // stochastic simulation for HEUR flowers
+#include "brownian.h"			// basic Brownian motion
+#include "repulsive_brownian.h"		// EQUILIBRATION simulation
+#include "stochastic_HEUR_flowers.h"	// stochastic simulation for HEUR flowers
+#include "dumbbell_model.h"		// dumbbell model based on Brownian motion
 using namespace std;
 
 int help()
@@ -108,7 +109,8 @@ int main(int argc, char* argv[])
             {
               // CONNECTIVITY CONNECT(given_condition); // note that
               MKL_LONG N_max_connection = 1; // note that dumbbell only have one permernant connection between a pir of micelle
-              CONNECTIVITY CONNECT(TRAJ.Np, N_max_connection); 
+              CONNECTIVITY CONNECT(TRAJ.Np, N_max_connection);
+	      DUMBBELL::generate_dumbbell_connectivity(CONNECT); // dumbbell
               FORCE::DUMBBELL::MAP_potential_set(POTs, given_condition);
               DUMBBELL::main_DUMBBELL(TRAJ, CONNECT, POTs, DATA, given_condition);
             }

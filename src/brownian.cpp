@@ -145,6 +145,7 @@ BROWNIAN::BROWNIAN_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG g
 
   time_LV = 0.; time_DIST = 0.; time_file = 0.; time_AN = 0.; time_RECORDED = 0.;
   time_LV_init = 0.; time_LV_force = 0.; time_LV_update = 0.;
+  time_LV_force_random = 0.;
   simulation_time = 0.;
   
   if(given_condition("SIMPLE_SHEAR")=="TRUE")
@@ -165,7 +166,6 @@ BROWNIAN::BROWNIAN_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG g
       shear_PBC_shift = 0;
     }
 
-  
   INITIALIZATION = TRUE;
 };
 

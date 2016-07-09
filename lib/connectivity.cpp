@@ -1,20 +1,20 @@
 
 #include "connectivity.h"
 
-CONNECTIVITY::dynamic_allocation(MKL_LONG number_of_particles, MKL_LONG maximum_connections)
+MKL_LONG CONNECTIVITY::dynamic_allocation(MKL_LONG number_of_particles, MKL_LONG maximum_connections)
 {
   Np = number_of_particles;
   Mc = maximum_connections;
 
   HASH = new MATRIX [Np];
-  TOKEN = new MATRIX [Np];
+  TOKEN = new MKL_LONG [Np];
   for(MKL_LONG i=0; i<Np; i++)
     {
-      HASH[i].initial(MC, 1, -1);
+      HASH[i].initial(Mc, 1, -1);
       HASH[i](0) = i; // it will be ignored when it inherit from the given index table
       TOKEN[i] = 1;
     }
-
+  return 0;
 }
 
 CONNECTIVITY::CONNECTIVITY(COND& given_condition)
