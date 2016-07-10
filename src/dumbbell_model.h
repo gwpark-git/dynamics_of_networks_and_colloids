@@ -9,6 +9,7 @@
 #include "../lib/parallel.h"
 #include "../lib/geometry.h"
 #include "brownian.h"
+#include "repulsive_brownian.h"
 #include "omp.h"
 
 namespace DUMBBELL

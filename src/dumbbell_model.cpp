@@ -27,7 +27,13 @@ OMP_time_evolution_Euler
 (TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, CONNECTIVITY& CONNECT, POTENTIAL_SET& POTs, MATRIX* force_random, MATRIX* force_spring, RNG_BOOST& RNG, RDIST& R_boost, const MKL_LONG N_THREADS_BD, COND& given_condition, DUMBBELL_VARIABLE& VAR)
 {
   double time_st = dsecnd();
-#pragma omp parallel for default(none) shared(TRAJ, CONNECT, POTs, R_boost, index_t_now, index_t_next, force_random, force_spring, RNG, N_THREADS_BD, given_condition, VAR) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+#pragma omp parallel for default(none) if(N_THREADS_BD > 1)	\
+  shared(TRAJ,index_t_now, index_t_next,			\
+	 CONNECT, POTs, force_random, force_spring,		\
+	 R_boost, RNG, N_THREADS_BD, given_condition, VAR)	\
+  num_threads(N_THREADS_BD)					\
+
+  
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
@@ -77,7 +83,8 @@ main_DUMBBELL
   printf("DONE\nSTART SIMULATION\n\n");
 
   VAR.time_DIST +=         // compute RDIST with cell_list advantage
-    REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, 0, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
+    REPULSIVE_BROWNIAN::
+    OMP_compute_RDIST(TRAJ, 0, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
 
   VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
     ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);

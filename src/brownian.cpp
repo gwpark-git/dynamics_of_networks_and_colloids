@@ -14,7 +14,13 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   double RF_random_xx = 0., RF_random_yy = 0., RF_random_zz = 0.;
   double RF_random_xy = 0., RF_random_xz = 0., RF_random_yz = 0.;
   // note that reduction in OpenMP cannot take any of member variable and array type variables
-#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, force_random, RNG, N_THREADS_BD, given_condition, VAR) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1) reduction(+:RF_random_xx, RF_random_yy, RF_random_zz, RF_random_xy, RF_random_xz, RF_random_yz)
+#pragma omp parallel for default(none) if(N_THREADS_BD > 1)		\
+  shared(TRAJ, index_t_now, index_t_next,				\
+	 POTs, force_random,						\
+	 RNG, N_THREADS_BD, given_condition, VAR)			\
+  num_threads(N_THREADS_BD)						\
+  reduction(+:RF_random_xx, RF_random_yy, RF_random_zz, RF_random_xy, RF_random_xz, RF_random_yz)
+  
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects

@@ -6,7 +6,7 @@
 #define FALSE 0
 
 #include <iostream>
-#include <omp.h>
+// #include <omp.h>
 #include <mkl.h>
 
 extern "C" {

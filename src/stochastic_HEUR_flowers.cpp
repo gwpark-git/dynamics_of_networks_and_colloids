@@ -173,14 +173,21 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   double RF_connector_xy = 0., RF_connector_xz = 0., RF_connector_yz = 0.;
 
   
-#pragma omp parallel for default(none)
-  shared(TRAJ, CONNECT, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, force_spring, RNG, VAR, given_condition)
-    num_threads(N_THREADS_BD)
-    if(N_THREADS_BD > 1)
-      reduction(+: time_LV_init, time_LV_force, time_LV_update, time_LV_force_repulsion, time_LV_force_random, time_LV_force_connector, RF_random_xx, RF_random_yy, RF_random_zz, RF_random_xy, RF_random_xz, RF_random_yz, RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz, RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz, RF_connector_xx, RF_connector_yy, RF_connector_zz, RF_connector_xy, RF_connector_xz, RF_connector_yz)
+#pragma omp parallel for default(none) if(N_THREADS_BD > 1)		\
+  shared(TRAJ, index_t_now, index_t_next,				\
+	 CONNECT, POTs, force_repulsion, force_random, force_spring,	\
+	 R_boost, vec_boost_Nd_parallel,  RNG, VAR, given_condition)	\
+  num_threads(N_THREADS_BD)						\
+  reduction(+: time_LV_init, time_LV_force, time_LV_update, time_LV_force_repulsion, time_LV_force_random, time_LV_force_connector, \
+	    RF_random_xx, RF_random_yy, RF_random_zz,			\
+	    RF_random_xy, RF_random_xz, RF_random_yz,			\
+	    RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,		\
+	    RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz,		\
+	    RF_connector_xx, RF_connector_yy, RF_connector_zz,		\
+	    RF_connector_xy, RF_connector_xz, RF_connector_yz)
 	
-	for (MKL_LONG i=0; i<TRAJ.Np; i++)
-	  {
+  for (MKL_LONG i=0; i<TRAJ.Np; i++)
+    {
   MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
   double time_st_init = dsecnd();
   force_repulsion[i].set_value(0);
@@ -396,7 +403,12 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
  {
   double time_st = dsecnd();
   double time_SS_index = 0., time_SS_LOCK = 0., time_SS_check = 0., time_SS_transition = 0., time_SS_update_info = 0.;
-#pragma omp parallel for default(none) shared(DATA, POTs, CONNECT, CHAIN, LOCKER, IDX_ARR, VAR, R_boost, RNG) num_threads(VAR.N_THREADS_SS) reduction(+: time_SS_index, time_SS_LOCK, time_SS_check, time_SS_transition, time_SS_update_info) if(VAR.N_THREADS_SS > 1) 
+#pragma omp parallel for default(none) if(VAR.N_THREADS_SS > 1)		\
+  shared(DATA, POTs, CONNECT, CHAIN, LOCKER, IDX_ARR, VAR, R_boost, RNG) \
+  num_threads(VAR.N_THREADS_SS)						\
+  reduction(+: time_SS_index, time_SS_LOCK, time_SS_check, time_SS_transition, time_SS_update_info)    
+  
+  
   // reduction(+:dt_1, dt_2, dt_3, dt_4, dt_5, dt_6, dt_7)
   for(MKL_LONG tp=0; tp<VAR.N_tot_associable_chain; tp++)
     {
@@ -426,10 +438,10 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
         {
 #pragma omp critical (LOCKING) // LOCKING is the name for this critical blocks
           {
-	    time_SS_LOCK +=      // this is differ from time_SS_LOCK since it is inside critical directive
-	      HEUR::LOCKING_PARALLEL(LOCKER, VAR, IDX_ARR[it], IDENTIFIER_ACTION, IDENTIFIER_LOCKING);
-	  }
+	  time_SS_LOCK +=      // this is differ from time_SS_LOCK since it is inside critical directive
+	    HEUR::LOCKING_PARALLEL(LOCKER, VAR, IDX_ARR[it], IDENTIFIER_ACTION, IDENTIFIER_LOCKING);
 	}
+    }
       // Note that the critical region only applicable with single thread while the others will be used in parallel regime.
       // In addition, the gap for passing the critical region will tune further gaps, then the computation speed for passing critical region will not be real critical issue.
       if(!IDENTIFIER_LOCKING) 
@@ -464,16 +476,16 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
           }
 
         } // if(!IDENTIFIER_LOCKING)
-    }
+}
 
-  // adding the measured time to the variable structure
-  VAR.time_SS_index += time_SS_index;
-  VAR.time_SS_LOCK += time_SS_LOCK;
-  VAR.time_SS_check += time_SS_check;
-  VAR.time_SS_transition += time_SS_transition;
-  VAR.time_SS_update_info += time_SS_update_info;
+// adding the measured time to the variable structure
+VAR.time_SS_index += time_SS_index;
+VAR.time_SS_LOCK += time_SS_LOCK;
+VAR.time_SS_check += time_SS_check;
+VAR.time_SS_transition += time_SS_transition;
+VAR.time_SS_update_info += time_SS_update_info;
 
-  return dsecnd() - time_st;
+return dsecnd() - time_st;
 }
 
 double
@@ -495,7 +507,12 @@ OMP_SS_update_STATISTICS(ASSOCIATION& CONNECT,
   double time_update_ASSOCIATION_MAP = 0;
   double time_update_CHAIN_SUGGESTION = 0;
   
-#pragma omp parallel for default(none) shared(Np, POTs, CONNECT, R_boost) num_threads(VAR.N_THREADS_BD) reduction(+: time_update_ASSOCIATION_MAP, time_update_CHAIN_SUGGESTION) if(VAR.N_THREADS_BD > 1)
+#pragma omp parallel for default(none) if(VAR.N_THREADS_BD > 1)		\
+  shared(Np, POTs, CONNECT, R_boost)					\
+  num_threads(VAR.N_THREADS_BD)						\
+  reduction(+: time_update_ASSOCIATION_MAP, time_update_CHAIN_SUGGESTION)	
+  
+  
   for(MKL_LONG index_particle = 0; index_particle < Np; index_particle++)
     {
       // update suggestion map after time evolution of Langevin equation

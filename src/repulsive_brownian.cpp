@@ -11,10 +11,10 @@ OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
   double time_st_rdist = dsecnd();
   R_boost.allocate_cells_from_positions(TRAJ, index_t_now, tmp_index_vec);
   
-#pragma omp parallel for default(none)
-  shared(TRAJ, index_t_now, R_boost)
-    num_threads(N_THREADS_BD)
-    if(N_THREADS_BD > 1)
+#pragma omp parallel for default(none) if(N_THREADS_BD > 1)	\
+  shared(TRAJ, index_t_now, R_boost)				\
+  num_threads(N_THREADS_BD)					\
+    
   /*
     Originally, this parallel regime is designed to use N_cells and TOKEN.
     Because the chunk size is not easily specified, it is used to parallel with index of particles instead of cell-based.
@@ -45,12 +45,17 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   double RF_repulsion_xx = 0., RF_repulsion_yy = 0., RF_repulsion_zz = 0.;
   double RF_repulsion_xy = 0., RF_repulsion_xz = 0., RF_repulsion_yz = 0.;
   
-#pragma omp parallel for default(none)
-  shared(TRAJ, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, RNG, N_THREADS_BD, given_condition, VAR)
-    num_threads(N_THREADS_BD)
-    if(N_THREADS_BD > 1)
-      reduction(+:RF_random_xx, RF_random_yy, RF_random_zz, RF_random_xy, RF_random_xz, RF_random_yz,
-		RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz, RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz)
+#pragma omp parallel for default(none) if(N_THREADS_BD > 1)	\
+  shared(TRAJ, index_t_now, index_t_next,			\
+	 POTs,force_repulsion, force_random,			\
+	 R_boost, vec_boost_Nd_parallel,			\
+	 RNG, N_THREADS_BD, given_condition, VAR)		\
+  num_threads(N_THREADS_BD)					\
+  reduction(+:RF_random_xx, RF_random_yy, RF_random_zz,		\
+	    RF_random_xy, RF_random_xz, RF_random_yz,		\
+	    RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,	\
+	    RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz)
+  
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects

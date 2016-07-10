@@ -16,7 +16,7 @@
 #include <sstream>
 #include "matrix.h"
 #include "random.h"
-#include <omp.h>
+// #include <omp.h>
 
 /* #include "read_file_condition.h" */
 #include "file_IO.h"
