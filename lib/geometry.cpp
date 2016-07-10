@@ -3,8 +3,8 @@
 
 MKL_LONG
 GEOMETRY::
-compute_RDIST_particle
-(RDIST& R_boost, const MKL_LONG index_particle, TRAJECTORY& TRAJ, MKL_LONG index_t)
+compute_RDIST_particle(RDIST& R_boost, const MKL_LONG index_particle,
+		       TRAJECTORY& TRAJ, MKL_LONG index_t)
 {
   MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
   for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
@@ -22,8 +22,7 @@ compute_RDIST_particle
 
 
 RDIST::
-RDIST
-(COND& given_condition)
+RDIST(COND& given_condition)
   : CLIST(given_condition)
 {
   Rvec = new MATRIX* [Np];
@@ -66,8 +65,10 @@ RDIST
 
 double
 GEOMETRY::
-get_minimum_distance_for_particle
-(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_particle, MATRIX& R_minimum_boost_particle, MATRIX** R_minimum_vec_boost)
+get_minimum_distance_for_particle(TRAJECTORY& TRAJ, MKL_LONG index_t,
+				  MKL_LONG index_particle,
+				  MATRIX& R_minimum_boost_particle,
+				  MATRIX** R_minimum_vec_boost)
 {
   // this function generating minimum relative vector into R_minimum_vec_boost,
   // and distance of it into R_minimum_boost.
@@ -78,12 +79,9 @@ get_minimum_distance_for_particle
   return 0;
 }
 
-
-
 double
 GEOMETRY::
-minimum_image_convention
-(TRAJECTORY& TRAJ, MKL_LONG target_t)
+minimum_image_convention(TRAJECTORY& TRAJ, MKL_LONG target_t)
 {
   double time_st = dsecnd();
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
@@ -104,8 +102,7 @@ minimum_image_convention
 
 double
 GEOMETRY::
-minimum_image_convention_loop
-(TRAJECTORY& TRAJ, MKL_LONG target_t)
+minimum_image_convention_loop(TRAJECTORY& TRAJ, MKL_LONG target_t)
 {
   double time_st = dsecnd();
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
@@ -127,8 +124,8 @@ minimum_image_convention_loop
 
 double
 GEOMETRY::
-apply_shear_boundary_condition
-(TRAJECTORY& TRAJ, MKL_LONG target_t, const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis, const double shift_factor)
+apply_shear_boundary_condition(TRAJECTORY& TRAJ, MKL_LONG target_t,
+			       const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis, const double shift_factor)
 {
   double time_st = dsecnd();
   for (MKL_LONG i=0; i<TRAJ.Np; i++)

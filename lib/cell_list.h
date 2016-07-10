@@ -35,6 +35,9 @@ class CLIST
   MKL_LONG **CELL;
   MKL_LONG *cell_index;
   MKL_LONG **NEIGHBOR_CELLS;
+
+
+  
   MKL_LONG ***BEYOND_BOX;
   MKL_LONG *TOKEN;
   MKL_LONG Np;
@@ -45,32 +48,36 @@ class CLIST
   MKL_LONG shear_grad_axis;
   double map_to_central_box_image;
   
+  // when simple shear is implemented
+  MKL_LONG N_offset;
+  MKL_LONG ***NEIGHBOR_CELLS_OFFSET; // the first dimensionality suggest that up and bottom check (right and bottom in general description)
+  
 
   
   // mapping function
   MKL_LONG
-    index_vec2sca
-    (const MKL_LONG* index_vec, MKL_LONG& index_sca);
+    index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca);
   MKL_LONG
-    index_sca2vec
-    (const MKL_LONG& index_sca, MKL_LONG* index_vec);
+    index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec);
   MKL_LONG
-    get_neighbor_cell_list
-    (const MKL_LONG& index_sca, MKL_LONG* index_neighbor_cells, MKL_LONG* self_index_vec_boost, MKL_LONG* sf_vec_boost);
+    get_neighbor_cell_list(const MKL_LONG& index_sca,
+			   MKL_LONG* index_neighbor_cells,
+			   MKL_LONG* self_index_vec_boost,
+			   MKL_LONG* sf_vec_boost);
   MKL_LONG
     allocate_index_neighbor_cell_list();
   MKL_LONG
-    identify_cell_from_given_position
-    (TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost);
+    identify_cell_from_given_position(TRAJECTORY& TRAJ, MKL_LONG index_t_now,
+				      MKL_LONG index_particle, MKL_LONG *index_vec_boost);
   MKL_LONG
-    allocate_cells_from_positions
-    (TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost);
+    allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t_now,
+				  MKL_LONG *index_vec_boost);
   MKL_LONG
-    identify_cell_from_given_position
-    (TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost);
+    identify_cell_from_given_position(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now,
+				      MKL_LONG index_particle, MKL_LONG *index_vec_boost);
   MKL_LONG
-    allocate_cells_from_positions
-    (TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost);
+    allocate_cells_from_positions(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now,
+				  MKL_LONG *index_vec_boost);
 
     
   // operator overloading
@@ -104,6 +111,22 @@ class CLIST
           delete[] NEIGHBOR_CELLS;
           delete[] BEYOND_BOX;
           delete[] cell_index;
+
+	  if(SIMPLE_SHEAR)
+	    {
+	      for(MKL_LONG i=0; i<2; i++)
+		{
+		  for(MKL_LONG j=0; j<N_cells + 1; j++)
+		    {
+		      for(MKL_LONG k=0; k<N_neighbor_cells + N_offset; k++)
+			{
+			  delete[] NEIGHBOR_CELLS_OFFSET[i][j][k];
+			}
+		      delete[] NEIGHBOR_CELLS_OFFSET[i][j];
+		    }
+		  delete[] NEIGHBOR_CELLS_OFFSET[i];
+		}
+	    }
         }
     }
 };
@@ -111,11 +134,11 @@ class CLIST
 namespace UTILITY
 {
   MKL_LONG
-    index_vec2sca
-    (const MKL_LONG* index_vec, MKL_LONG& index_sca, const MKL_LONG N_dimension, const MKL_LONG N_div);
+    index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca,
+		  const MKL_LONG N_dimension, const MKL_LONG N_div);
   MKL_LONG
-    index_sca2vec
-    (const MKL_LONG& index_sca, MKL_LONG* index_vec, const MKL_LONG N_dimension, const MKL_LONG N_div);
+    index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec,
+		  const MKL_LONG N_dimension, const MKL_LONG N_div);
 }
 
 #endif

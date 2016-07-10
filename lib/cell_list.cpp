@@ -2,8 +2,7 @@
 
 
 CLIST::
-CLIST
-(COND& given_condition)
+CLIST(COND& given_condition)
 {
   printf("\tCLIST initialization");
   INITIALIZATION = TRUE;
@@ -33,15 +32,6 @@ CLIST
         }
     }
 
-  // related with simple shear
-  SIMPLE_SHEAR = FALSE;
-  if(given_condition("SIMPLE_SHEAR") == "TRUE")
-    {
-      SIMPLE_SHEAR = TRUE;
-      shear_axis = atoi(given_condition("shear_axis").c_str());
-      shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str());
-      map_to_central_box_image = 0.; // started with zero (equilibrium PBC box)
-    }
 
   
   N_div = 1;
@@ -83,6 +73,59 @@ CLIST
           NEIGHBOR_CELLS[i][j] = -1;
         }
     }
+
+  // related with simple shear
+  SIMPLE_SHEAR = FALSE;
+  NEIGHBOR_CELLS_OFFSET = NULL; 
+  if(given_condition("SIMPLE_SHEAR") == "TRUE")
+    {
+      SIMPLE_SHEAR = TRUE;
+      shear_axis = atoi(given_condition("shear_axis").c_str());
+      shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str());
+      map_to_central_box_image = 0.; // started with zero (equilibrium PBC box)
+
+      if(CELL_LIST_BOOST)
+	{
+
+	  NEIGHBOR_CELLS_OFFSET = new MKL_LONG** [2]; // it is related with left and right boundaries
+	  
+	  /*
+	    It is of important to ware that the NEIGHBOR_CELLS_OFFSET have "N_cells + 1" in rows.
+	    This is due to the fact that the value of map_to_central_box_image covers -0.5 box_dimension to 0.5 box_dimension, which support index function from "-0.5 box_dimension mod L_c" to "0.5 box_dimension mod L_c". Note that it gave us "N_cells + 1". For instance, box_dimension is 10 while L_c = 2. In this case, -5 into index of cell as -2 and +5 - delta into index of cell as 2. Therefore, we have 6 related cells: -2, -3, -4, 0, +1, +2 (minus signs are index for left-box).
+	   */	  
+
+	  /*
+	    Number of offset is related with how many neighbor cells are related with the given index function.
+	    For 2-dimensional case, the offset is obviously 2 because of +1 depth for searching cells both of left and right in the box in beyond shear_grad_axis.
+	    For 3-dimensional case, the offset is 6 since it is possibly three through on the third aixs: cross of shear and shear_grad axes.
+	   */
+	  
+	  N_offset = 2;
+	  if(N_dimension == 3)
+	    N_offset = 2*3;
+
+	  
+	  for(MKL_LONG i=0; i<2; i++)
+	    {
+	      NEIGHBOR_CELLS_OFFSET[i] = new MKL_LONG* [N_cells + 1];
+
+	  
+	      for(MKL_LONG i=0; i<N_cells + N_offset; i++)
+		{
+		  /*
+		    Note that all the possible index for neighbor_cells even for offset is pre-determined rather than generated during simulation in order to remove overhead.
+		    So, the first dimension, "N_cells + 1", is the seed to recover possible neighbor cells in this case. 
+		  */
+	      
+		  NEIGHBOR_CELLS_OFFSET[i] = new MKL_LONG [N_neighbor_cells + N_offset];
+		}
+	    }
+	}
+      // note that 2*N_dimension is only valid for 3-dimensional space
+      
+    }
+
+  
   printf("\tallocating neighbor cell list information");
   allocate_index_neighbor_cell_list(); // this is safety for the flag, CELL_LIST_BOOST
   printf("\tDONE\n");
@@ -92,8 +135,8 @@ CLIST
 
 MKL_LONG
 CLIST::
-identify_cell_from_given_position
-(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost)
+identify_cell_from_given_position(TRAJECTORY& TRAJ, MKL_LONG index_t_now,
+				  MKL_LONG index_particle, MKL_LONG *index_vec_boost)
 {
   MKL_LONG re = 0;  
   for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
@@ -106,8 +149,8 @@ identify_cell_from_given_position
 
 MKL_LONG
 CLIST::
-identify_cell_from_given_position
-(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost)
+identify_cell_from_given_position(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now,
+				  MKL_LONG index_particle, MKL_LONG *index_vec_boost)
 {
   MKL_LONG re = 0;  
   for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
@@ -121,8 +164,8 @@ identify_cell_from_given_position
 
 MKL_LONG
 CLIST::
-allocate_cells_from_positions
-(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost)
+allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t_now,
+			      MKL_LONG *index_vec_boost)
 {
   for(MKL_LONG i=0; i<N_cells; i++)
     TOKEN[i] = 0;
@@ -137,8 +180,8 @@ allocate_cells_from_positions
 
 MKL_LONG
 CLIST::
-allocate_cells_from_positions
-(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost)
+allocate_cells_from_positions(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now,
+			      MKL_LONG *index_vec_boost)
 {
   for(MKL_LONG i=0; i<N_cells; i++)
     TOKEN[i] = 0;
@@ -153,8 +196,8 @@ allocate_cells_from_positions
 
 MKL_LONG
 UTILITY::
-index_vec2sca
-(const MKL_LONG* index_vec, MKL_LONG& index_sca, const MKL_LONG N_dimension, const MKL_LONG N_div)
+index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca,
+	      const MKL_LONG N_dimension, const MKL_LONG N_div)
 {
   /*
     This is the original index mapping function for general N-dimensional case. 
@@ -170,8 +213,8 @@ index_vec2sca
 
 MKL_LONG
 UTILITY::
-index_sca2vec
-(const MKL_LONG& index_sca, MKL_LONG* index_vec, const MKL_LONG N_dimension, const MKL_LONG N_div)
+index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec,
+	      const MKL_LONG N_dimension, const MKL_LONG N_div)
 {
   /*
     This inverse map applied to 
@@ -211,8 +254,10 @@ allocate_index_neighbor_cell_list()
 
 MKL_LONG
 CLIST::
-get_neighbor_cell_list
-(const MKL_LONG& index_sca, MKL_LONG* index_neighbor_cells, MKL_LONG* self_index_vec_boost, MKL_LONG* sf_vec_boost)
+get_neighbor_cell_list(const MKL_LONG& index_sca,
+		       MKL_LONG* index_neighbor_cells,
+		       MKL_LONG* self_index_vec_boost,
+		       MKL_LONG* sf_vec_boost)
 {
   /*
     get_neighbor_cell_list will store the index of neighbor_list into the index_neighbor_cells based on the scalar values.
@@ -224,6 +269,7 @@ get_neighbor_cell_list
   MKL_LONG N_sf = 3; // {-1, 0, +1}
   
   for(MKL_LONG nsf=0; nsf<pow(N_sf, N_dimension); nsf++)
+    // nsf have value from 0 to number of all possible neighbor cells
     {
       UTILITY::index_sca2vec(nsf, sf_vec_boost, N_dimension, N_sf);
       for(MKL_LONG n=0; n<N_dimension; n++)
@@ -244,6 +290,9 @@ get_neighbor_cell_list
             }
           
         }
+      // it indicate that the sf_vec_boost have index vector for one of neighbor cell
+      // while index_neighbor_cells[nsf] should have the scalar values (index_vec2sca: R^3 -> R)
+      // of the given index vector
       UTILITY::index_vec2sca(sf_vec_boost, index_neighbor_cells[nsf], N_dimension, N_div);
     }
   return 0;
@@ -251,16 +300,33 @@ get_neighbor_cell_list
 
 MKL_LONG
 CLIST::
-index_vec2sca
-(const MKL_LONG* index_vec, MKL_LONG& index_sca)
+get_neighbor_cell_list_dynamic_offset(const MKL_LONG& index_sca,
+				      MKL_LONG* index_neighbor_cells,
+				      MKL_LONG* self_index_vec_boost,
+				      MKL_LONG* sf_vec_boost)
+{
+  CLIST::index_sca2vec(index_sca, self_index_vec_boost);
+  MKL_LONG N_sf = 3;
+
+  for(MKL_LONG nsf=0; nsf< pow(N_sf, N_dimension) + N_offset; nsf++)
+    {
+
+    }
+
+}
+
+
+
+MKL_LONG
+CLIST::
+index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca)
 {
   return UTILITY::index_vec2sca(index_vec, index_sca, N_dimension, N_div);
 }
 
 MKL_LONG
 CLIST::
-index_sca2vec
-(const MKL_LONG& index_sca, MKL_LONG* index_vec)
+index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec)
 {
   return UTILITY::index_sca2vec(index_sca, index_vec, N_dimension, N_div);
 }
