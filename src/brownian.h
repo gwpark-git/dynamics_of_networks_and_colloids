@@ -14,25 +14,34 @@
 namespace BROWNIAN
 {
   struct BROWNIAN_VARIABLE; // tell compiler to expect struct def.
+
   MKL_LONG main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition);
 
-  double record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energy, const MKL_LONG index_t_now);
+  /* double record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energy, const MKL_LONG index_t_now); */
   double report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, BROWNIAN_VARIABLE& VAR);
   /* double OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, RDIST& R_boost, MKL_LONG* tmp_index_vec, const MKL_LONG N_THREADS_BD); */
   double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, BROWNIAN_VARIABLE& VAR);
+
+  // inline functions
+  double sum_virial_components(MATRIX& energy);
 }
 
-struct BROWNIAN::BROWNIAN_VARIABLE
+struct
+BROWNIAN::
+  BROWNIAN_VARIABLE
 {
   // the variables on here is supporting for interface
   // do not use the core variable inside this structure
   // for designing purpose, it is of importance to use individual variable definition outside of this structure
   MKL_LONG N_THREADS_BD;
+
+  double volume_PBC_box;
+  
   MKL_LONG *tmp_index_vec;
   /* MATRIX *vec_boost_Nd_parallel; */
   /* MATRIX *force_repulsion; */
   MATRIX *force_random;
-  MKL_LONG N_skip;
+  MKL_LONG N_skip_ener, N_skip_file;
   MKL_LONG Nt;
   MKL_LONG Np;
   MKL_LONG N_basic;
@@ -41,6 +50,38 @@ struct BROWNIAN::BROWNIAN_VARIABLE
   double time_LV_force_random;
   double simulation_time;
 
+  // the following are related with virial stress
+  // the form of single variable is because of reduction in OpenMP is not allowed array-type
+  // hence, the form cannot be simplified
+  double RF_random_xx, RF_random_yy, RF_random_zz;
+  double RF_random_xy, RF_random_xz, RF_random_yz;
+  MKL_LONG N_components_energy;
+  // member functions for virials
+  MKL_LONG virial_initial();
+  double record_virial_into_energy_array(MATRIX& energy);
+  /* MKL_LONG virial_initial() */
+  /* { */
+  /*   RF_random_xx = 0.; RF_random_yy = 0.; RF_random_zz = 0.; */
+  /*   RF_random_xy = 0.; RF_random_xz = 0.; RF_random_yz = 0.; */
+  /*   return 0; */
+  /* } */
+
+  /* double record_virial_into_energy_array(MATRIX& energy) */
+  /* { */
+  /*   double time_st = dsecnd(); */
+  /*   energy(12) = RF_random_xx/(2.*volume_PBC_box);  */
+  /*   energy(13) = RF_random_yy/(2.*volume_PBC_box);  */
+  /*   energy(14) = RF_random_zz/(2.*volume_PBC_box); */
+
+  /*   energy(15) = RF_random_xy/(2.*volume_PBC_box); */
+  /*   energy(16) = RF_random_xz/(2.*volume_PBC_box); */
+  /*   energy(17) = RF_random_yz/(2.*volume_PBC_box); */
+  /*   /\* for(MKL_LONG i=0; i<6; i++) *\/ */
+  /*   /\*   energy(6 + i) = energy(12 + i); *\/ */
+  /*   return time_st - dsecnd(); */
+  /* } */
+
+  
   // related with shear flow
   bool SIMPLE_SHEAR;
   double Wi_tau_B;
@@ -48,6 +89,9 @@ struct BROWNIAN::BROWNIAN_VARIABLE
   MKL_LONG shear_grad_axis;
   double shear_PBC_shift;
   bool INITIALIZATION;
+
+
+  
   // member functions
   /* double construct(BROWNIAN_VARIABLE& VAR, COND& given_condition, MKL_LONG given_N_basic); */
   /* double destruct(BROWNIAN_VARIABLES& VAR); */
@@ -58,5 +102,53 @@ struct BROWNIAN::BROWNIAN_VARIABLE
   BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG given_N_basic);
   virtual ~BROWNIAN_VARIABLE();
 };
+
+// for inline functions
+inline MKL_LONG
+BROWNIAN::BROWNIAN_VARIABLE::
+virial_initial()
+{
+  RF_random_xx = 0.; RF_random_yy = 0.; RF_random_zz = 0.;
+  RF_random_xy = 0.; RF_random_xz = 0.; RF_random_yz = 0.;
+  return 0;
+}
+
+inline double
+BROWNIAN::BROWNIAN_VARIABLE::
+record_virial_into_energy_array(MATRIX& energy)
+{
+  double time_st = dsecnd();
+  energy(12) = RF_random_xx/(2.*volume_PBC_box);
+  energy(13) = RF_random_yy/(2.*volume_PBC_box);
+  energy(14) = RF_random_zz/(2.*volume_PBC_box);
+
+  energy(15) = RF_random_xy/(2.*volume_PBC_box);
+  energy(16) = RF_random_xz/(2.*volume_PBC_box);
+  energy(17) = RF_random_yz/(2.*volume_PBC_box);
+  /* for(MKL_LONG i=0; i<6; i++) */
+  /*   energy(6 + i) = energy(12 + i); */
+  return time_st - dsecnd();
+}
+
+inline double
+BROWNIAN::
+sum_virial_components(MATRIX& energy)
+{
+  double time_st = dsecnd();
+  // it is not importance for brownian motion
+  // but, will be useful when there are other potential contributions
+  MKL_LONG index_st = 6;
+  MKL_LONG number_of_components = 6;
+  for(MKL_LONG i=6; i<12; i++)
+    energy(i) = energy(i + index_st);
+    /* energy(i) = 0.; */
+
+
+  /* for(MKL_LONG i=index_st + number_of_components; i<energy.size; i++) */
+  /*   energy((i - index_st)%number_of_components) += energy(i + 6); */
+
+  return dsecnd() - time_st;
+}
+
 
 #endif

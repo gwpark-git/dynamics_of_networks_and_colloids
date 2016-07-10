@@ -35,6 +35,7 @@ CLIST::CLIST(COND& given_condition)
     }
 
   // related with simple shear
+  SIMPLE_SHEAR = FALSE;
   if(given_condition("SIMPLE_SHEAR") == "TRUE")
     {
       SIMPLE_SHEAR = TRUE;

@@ -108,21 +108,27 @@ MKL_LONG DUMBBELL::main_DUMBBELL(TRAJECTORY& TRAJ, CONNECTIVITY& CONNECT, POTENT
         GEOMETRY::minimum_image_convention_loop(TRAJ, index_t_next);
         // GEOMETRY::minimum_image_convention_loop(TRAJ, index_t_next);
       
-      if(t%VAR.N_skip==0)
+      if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file == 0)
         {
           VAR.time_AN += // measuring energy of system
 	    ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTs, CONNECT, energy, TRAJ(index_t_now), R_boost);
             // ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, TRAJ(index_t_now));
           energy(4) = 0;        // information related with number of association
           energy(5) = dsecnd() - time_st_simulation; // computation time for simulation
+	  VAR.time_file += // write simulation data file
+	    energy.fprint_row(DATA.ener, 0);
 
-          VAR.time_file += // write simulation data file
-	    BROWNIAN::record_simulation_data(DATA, TRAJ, energy, index_t_now);
+	  if (t%VAR.N_skip_file == 0)
+	    {
+	      VAR.time_file +=
+		TRAJ.fprint_row(DATA.traj, index_t_now);
+		// BROWNIAN::record_simulation_data(DATA, TRAJ, energy, index_t_now);
 
-          // VAR.simulation_time = TRAJ(index_t_now)/atof(given_condition("repulsion_coefficient").c_str());
-          VAR.simulation_time = TRAJ(index_t_now); // the repulsion coefficient is not necessary for pure Brownian motion
-          VAR.time_RECORDED += // print simulation information for users
-            BROWNIAN::report_simulation_info(TRAJ, energy, VAR);
+	      // VAR.simulation_time = TRAJ(index_t_now)/atof(given_condition("repulsion_coefficient").c_str());
+	      VAR.simulation_time = TRAJ(index_t_now); // the repulsion coefficient is not necessary for pure Brownian motion
+	      VAR.time_RECORDED += // print simulation information for users
+		BROWNIAN::report_simulation_info(TRAJ, energy, VAR);
+	    }
           // report_simulation_info(TRAJ, VAR.time_LV, VAR.time_AN, VAR.time_file, VAR.time_DIST);
         }
     }

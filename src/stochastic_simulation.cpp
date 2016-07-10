@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
                   FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
                   CHAIN_HANDLE CHAIN(given_condition, CONNECT);
 
-                  stochastic_simulation_HEUR_flowers(TRAJ, POTs, CONNECT, CHAIN, DATA, given_condition);
+		  HEUR::stochastic_simulation_HEUR_flowers(TRAJ, POTs, CONNECT, CHAIN, DATA, given_condition);
                     // }
                 }
             }
@@ -109,9 +109,13 @@ int main(int argc, char* argv[])
             {
               // CONNECTIVITY CONNECT(given_condition); // note that
               MKL_LONG N_max_connection = 1; // note that dumbbell only have one permernant connection between a pir of micelle
+	      printf("test:init\n");
               CONNECTIVITY CONNECT(TRAJ.Np, N_max_connection);
+	      printf("test:aft:connect\n");
 	      DUMBBELL::generate_dumbbell_connectivity(CONNECT); // dumbbell
+	      printf("test:aft:dumbbell_connect\n");
               FORCE::DUMBBELL::MAP_potential_set(POTs, given_condition);
+	      printf("test:aft:potential_set\n");
               DUMBBELL::main_DUMBBELL(TRAJ, CONNECT, POTs, DATA, given_condition);
             }
           else

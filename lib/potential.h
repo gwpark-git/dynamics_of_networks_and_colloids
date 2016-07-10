@@ -25,13 +25,17 @@ class POTENTIAL_SET
   double (*scale_random)(MATRIX& basic_random_var_unity, double* given_variables);
   double (*w_function)(double distance, double tension, double* given_variables);
   double (*transition)(double distance, double tension, double* given_varialbes);
-  
+
+  /* MKL_LONG N_contributions; */
+  /* MATRIX *f_contribution; */
+  /* MATRIX *e_contribution; */
+
   POTENTIAL_SET()
     {
     }
   virtual ~POTENTIAL_SET()
     {
-      if(force_variables)
+      if(force_variables) // note that without initialization, it always have NULL pointer
         /* mkl_free(force_variables); */
         delete[] force_variables;
     }

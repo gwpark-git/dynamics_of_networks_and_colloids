@@ -24,7 +24,12 @@ double REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG in
 double REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, TEMPORAL_VARIABLE& VAR)
 {
   double time_st = dsecnd();
-#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, RNG, N_THREADS_BD, given_condition, VAR) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+  double RF_random_xx = 0., RF_random_yy = 0., RF_random_zz = 0.;
+  double RF_random_xy = 0., RF_random_xz = 0., RF_random_yz = 0.;
+  double RF_repulsion_xx = 0., RF_repulsion_yy = 0., RF_repulsion_zz = 0.;
+  double RF_repulsion_xy = 0., RF_repulsion_xz = 0., RF_repulsion_yz = 0.;
+  
+#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, RNG, N_THREADS_BD, given_condition, VAR) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1) reduction(+:RF_random_xx, RF_random_yy, RF_random_zz, RF_random_xy, RF_random_xz, RF_random_yz, RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz, RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz)
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
@@ -41,7 +46,31 @@ double REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_
         }
       if(VAR.SIMPLE_SHEAR)
         TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_R*TRAJ(index_t_now, i, VAR.shear_grad_axis);
+
+      RF_random_xx += TRAJ(index_t_now, i, 0)*force_random[i](0)/sqrt(TRAJ.dt);
+      RF_random_yy += TRAJ(index_t_now, i, 1)*force_random[i](1)/sqrt(TRAJ.dt);
+      RF_random_zz += TRAJ(index_t_now, i, 2)*force_random[i](2)/sqrt(TRAJ.dt);
+
+      RF_random_xy += TRAJ(index_t_now, i, 0)*force_random[i](1)/sqrt(TRAJ.dt);
+      RF_random_xz += TRAJ(index_t_now, i, 0)*force_random[i](2)/sqrt(TRAJ.dt);
+      RF_random_yz += TRAJ(index_t_now, i, 1)*force_random[i](2)/sqrt(TRAJ.dt);
+
+      RF_repulsion_xx += TRAJ(index_t_now, i, 0)*force_repulsion[i](0);
+      RF_repulsion_yy += TRAJ(index_t_now, i, 1)*force_repulsion[i](1);
+      RF_repulsion_zz += TRAJ(index_t_now, i, 2)*force_repulsion[i](2);
+
+      RF_repulsion_xy += TRAJ(index_t_now, i, 0)*force_repulsion[i](1);
+      RF_repulsion_xz += TRAJ(index_t_now, i, 0)*force_repulsion[i](2);
+      RF_repulsion_yz += TRAJ(index_t_now, i, 1)*force_repulsion[i](2);
+      
     }
+  // allocationc omputed RF values into VAR
+  VAR.RF_random_xx = RF_random_xx; VAR.RF_random_yy = RF_random_yy; VAR.RF_random_zz = RF_random_zz;
+  VAR.RF_random_xy = RF_random_xy; VAR.RF_random_xz = RF_random_xz; VAR.RF_random_yz = RF_random_yz;
+  VAR.RF_repulsion_xx = RF_repulsion_xx; VAR.RF_repulsion_yy = RF_repulsion_yy; VAR.RF_repulsion_zz = RF_repulsion_zz;
+  VAR.RF_repulsion_xy = RF_repulsion_xy; VAR.RF_repulsion_xz = RF_repulsion_xz; VAR.RF_repulsion_yz = RF_repulsion_yz;
+
+  
   return dsecnd() - time_st;
 }
 
@@ -61,7 +90,7 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
   
   RDIST R_boost(given_condition);
   RNG_BOOST RNG(given_condition);
-  MATRIX energy(1, 6, 0.);
+  MATRIX energy(1, VAR.N_components_energy, 0.);
   // // 0: time step to write 1-3: energy, 4: NAS, 5: real time
   // // 6: (xx)[RF], 7: (yy)[RF], 8: (zz)[RF], 9: (xy)[RF], 10: (xz)[RF], 11:(yz)[RF]
   // MATRIX energy(1, 12, 0.);
@@ -83,7 +112,8 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
       MKL_LONG index_t_next = (t+1) % VAR.N_basic;
       TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
       ++TRAJ.c_t;
-
+      VAR.virial_initial();
+      
       if(VAR.SIMPLE_SHEAR)
         {
           double time_div_tau_R = t*TRAJ.dt;
@@ -111,21 +141,34 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
       VAR.time_LV +=           // keep periodic box condition
         GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
       
-      if(t%VAR.N_skip==0)
+      if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file==0)
         {
           VAR.time_AN += // measuring energy of system
             ANALYSIS::CAL_ENERGY_R_boost(POTs, energy, TRAJ(index_t_now), R_boost);
-          
+
+	  VAR.time_AN +=
+	    VAR.record_virial_into_energy_array(energy);
+	  
+	  VAR.time_AN +=
+	    REPULSIVE_BROWNIAN::sum_virial_components(energy);
+	  
           energy(4) = 0;        // information related with number of association
           energy(5) = dsecnd() - time_st_simulation; // computation time for simulation
 
-          VAR.time_file += // write simulation data file
-            record_simulation_data(DATA, TRAJ, energy, index_t_now);
+	  VAR.time_file +=
+	    energy.fprint_row(DATA.ener, 0);
+	  
+	  if(t%VAR.N_skip_file==0)
+	    {
+	      VAR.time_file += // write simulation data file
+		TRAJ.fprint_row(DATA.traj, index_t_now);
+		// record_simulation_data(DATA, TRAJ, energy, index_t_now);
 
-          VAR.simulation_time = TRAJ(index_t_now)/atof(given_condition("repulsion_coefficient").c_str());
-          VAR.time_RECORDED += // print simulation information for users
-            report_simulation_info(TRAJ, energy, VAR);
-            // report_simulation_info(TRAJ, VAR.time_LV, VAR.time_AN, VAR.time_file, VAR.time_DIST);
+	      VAR.simulation_time = TRAJ(index_t_now)/atof(given_condition("repulsion_coefficient").c_str());
+	      VAR.time_RECORDED += // print simulation information for users
+		report_simulation_info(TRAJ, energy, VAR);
+	      // report_simulation_info(TRAJ, VAR.time_LV, VAR.time_AN, VAR.time_file, VAR.time_DIST);
+	    }
         }
     }
 
@@ -150,15 +193,15 @@ double REPULSIVE_BROWNIAN::report_simulation_info(TRAJECTORY& TRAJ, MATRIX& ener
   return total_time;
 }
 
-REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, MKL_LONG given_N_basic)
+REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, MKL_LONG given_N_basic) : BROWNIAN::BROWNIAN_VARIABLE(given_condition, given_N_basic)
 {
-  Np = atoi(given_condition("Np").c_str());
+  // Np = atoi(given_condition("Np").c_str());
   MKL_LONG N_dimension = atoi(given_condition("N_dimension").c_str());
-  // MKL_LONG N_dimension = Np;
-  N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
-  // tmp_index_vec = (MKL_LONG*) mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
-  // vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT); 
-  tmp_index_vec = new MKL_LONG [N_dimension];
+  // // MKL_LONG N_dimension = Np;
+  // N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
+  // // tmp_index_vec = (MKL_LONG*) mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
+  // // vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT); 
+  // tmp_index_vec = new MKL_LONG [N_dimension];
   vec_boost_Nd_parallel = new MATRIX [Np];
   for(MKL_LONG i=0; i<Np; i++)
     {
@@ -168,38 +211,42 @@ REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, 
   // force_repulsion = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   // force_random = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   force_repulsion = new MATRIX [Np];
-  force_random = new MATRIX [Np];
+  // force_random = new MATRIX [Np];
   for(MKL_LONG i=0; i<Np; i++)
     {
       force_repulsion[i].initial(N_dimension, 1, 0.);
-      force_random[i].initial(N_dimension, 1, 0.);
+      // force_random[i].initial(N_dimension, 1, 0.);
     }
 
-  N_skip = atol(given_condition("N_skip").c_str());
+  // N_skip = atol(given_condition("N_skip").c_str());
 
-  Nt = atol(given_condition("Nt").c_str());
-  N_basic = given_N_basic;
+  // Nt = atol(given_condition("Nt").c_str());
+  // N_basic = given_N_basic;
 
-  time_LV = 0.; time_DIST = 0.; time_file = 0.; time_AN = 0.; time_RECORDED = 0.;
-  time_LV_init = 0.; time_LV_force = 0.; time_LV_update = 0.;
-  simulation_time = 0.;
-
+  // time_LV = 0.; time_DIST = 0.; time_file = 0.; time_AN = 0.; time_RECORDED = 0.;
+  // time_LV_init = 0.; time_LV_force = 0.; time_LV_update = 0.;
+  // simulation_time = 0.;
+  // RF_repulsion_xx = 0.; RF_repulsion_yy = 0.; RF_repulsion_zz = 0.;
+  // RF_repulsion_xy = 0.; RF_repulsion_xz = 0.; RF_repulsion_yz = 0.;
+  virial_initial();
+  N_components_energy = 24;
 
   if(given_condition("SIMPLE_SHEAR") == "TRUE")
     {
-      SIMPLE_SHEAR = TRUE;
+      // SIMPLE_SHEAR = TRUE;
       Wi_tau_R = atof(given_condition("Wi_tau_C").c_str());
-      shear_axis = atoi(given_condition("shear_axis").c_str());
-      shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str());
-      shear_PBC_shift = 0.;
+      Wi_tau_B = Wi_tau_R/atof(given_condition("repulsion_coefficient").c_str()); 
+      // shear_axis = atoi(given_condition("shear_axis").c_str());
+      // shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str());
+      // shear_PBC_shift = 0.;
     }
   else
     {
-      SIMPLE_SHEAR = FALSE;
+      // SIMPLE_SHEAR = FALSE;
       Wi_tau_R = 0.;
-      shear_axis = 0;
-      shear_grad_axis = 1;
-      shear_PBC_shift = 0;
+      // shear_axis = 0;
+      // shear_grad_axis = 1;
+      // shear_PBC_shift = 0;
     }
   
   INITIALIZATION = TRUE;
@@ -216,7 +263,7 @@ REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::~TEMPORAL_VARIABLE()
       // mkl_free(tmp_index_vec);
       delete[] vec_boost_Nd_parallel;
       delete[] force_repulsion;
-      delete[] force_random;
-      delete[] tmp_index_vec;
+      // delete[] force_random;
+      // delete[] tmp_index_vec;
     }
 }

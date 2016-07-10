@@ -5,7 +5,10 @@ using namespace BROWNIAN;
 double BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, BROWNIAN_VARIABLE& VAR)
 {
   double time_st = dsecnd();
-#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, force_random, RNG, N_THREADS_BD, given_condition, VAR) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+  double RF_random_xx = 0., RF_random_yy = 0., RF_random_zz = 0.;
+  double RF_random_xy = 0., RF_random_xz = 0., RF_random_yz = 0.;
+  // note that reduction in OpenMP cannot take any of member variable and array type variables
+#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, force_random, RNG, N_THREADS_BD, given_condition, VAR) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1) reduction(+:RF_random_xx, RF_random_yy, RF_random_zz, RF_random_xy, RF_random_xz, RF_random_yz)
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
@@ -21,10 +24,31 @@ double BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index
           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) // inheritance the current positions
             + sqrt(TRAJ.dt)*force_random[i](k);              // apply Wiener process
         }
+
+      // compute for virials
+      // note that weird sequencial sum instead of array index type
+      // is for compatibility with reduction operator in OpenMP
+      RF_random_xx += TRAJ(index_t_now, i, 0)*force_random[i](0)/sqrt(TRAJ.dt);
+      RF_random_yy += TRAJ(index_t_now, i, 1)*force_random[i](1)/sqrt(TRAJ.dt);
+      RF_random_zz += TRAJ(index_t_now, i, 2)*force_random[i](2)/sqrt(TRAJ.dt);
+
+      RF_random_xy += TRAJ(index_t_now, i, 0)*force_random[i](1)/sqrt(TRAJ.dt);
+      RF_random_xz += TRAJ(index_t_now, i, 0)*force_random[i](2)/sqrt(TRAJ.dt);
+      RF_random_yz += TRAJ(index_t_now, i, 1)*force_random[i](2)/sqrt(TRAJ.dt);
+      
+      // energy(0, 12) += 
+
+      
       // apply simple shear into the time evolution
       if(VAR.SIMPLE_SHEAR)
         TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
+
     }
+
+  // remap for member variables
+  // allocationc omputed RF values into VAR
+  VAR.RF_random_xx = RF_random_xx; VAR.RF_random_yy = RF_random_yy; VAR.RF_random_zz = RF_random_zz;
+  VAR.RF_random_xy = RF_random_xy; VAR.RF_random_xz = RF_random_xz; VAR.RF_random_yz = RF_random_yz;
   return dsecnd() - time_st;
 }
 
@@ -43,8 +67,10 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
   
   // RDIST R_boost(given_condition);
   RNG_BOOST RNG(given_condition);
-  MATRIX energy(1, 6, 0.);
+  MATRIX energy(1, VAR.N_components_energy, 0.);
   // // 0: time step to write 1-3: energy, 4: NAS, 5: real time
+  // from 6 to 11: total virial stress
+  // from 12 to 17: virial stress come from random collision
   // // 6: (xx)[RF], 7: (yy)[RF], 8: (zz)[RF], 9: (xy)[RF], 10: (xz)[RF], 11:(yz)[RF]
   // MATRIX energy(1, 12, 0.);
   
@@ -55,7 +81,7 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
 
   VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
     // ANALYSIS::CAL_ENERGY_R_boost(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
-    ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt);
+    ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, TRAJ(0));
   
   for(MKL_LONG t = 0; t<VAR.Nt-1; t++)
     {
@@ -66,6 +92,7 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
       TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
       ++TRAJ.c_t;
 
+      VAR.virial_initial();
 
       VAR.time_LV +=           // update Langevin equation using Euler integrator
         BROWNIAN::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, POTs, VAR.force_random, RNG, VAR.N_THREADS_BD, given_condition, VAR); // check arguments
@@ -73,7 +100,9 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
       if(VAR.SIMPLE_SHEAR)
         {
           double time_div_tau_B = t*TRAJ.dt; // note that TRAJ.dt == dt/tau_B.
+
           VAR.shear_PBC_shift = fmod(VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B, TRAJ.box_dimension[VAR.shear_axis]);
+	  
           // the modulo for float type, fmod, is applied in order to reduce potential overhead for minimum_image_convention function, since shift_factor is proportional to time.
           // note that the original one, shifted by shift_factor without modulo, is tested with loop-type minimum image convention without any changes of modulo scheme with single if-phrase.
           // to be on the safe side, the loop style will be used from now on
@@ -81,27 +110,40 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
           
           VAR.time_LV +=
             GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
+	  
         }
       
       VAR.time_LV += // boundary condition through shear flow is extracted into the previous function, apply_shear_boundary_condition.
         GEOMETRY::minimum_image_convention_loop(TRAJ, index_t_next);
         // GEOMETRY::minimum_image_convention_loop(TRAJ, index_t_next);
-      
-      if(t%VAR.N_skip==0)
+
+      if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file==0)
         {
           VAR.time_AN += // measuring energy of system
             ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, TRAJ(index_t_now));
+
+	  VAR.time_AN +=
+	    VAR.record_virial_into_energy_array(energy);
+
+	  VAR.time_AN +=
+	    BROWNIAN::sum_virial_components(energy);
+	  
           energy(4) = 0;        // information related with number of association
           energy(5) = dsecnd() - time_st_simulation; // computation time for simulation
+	  VAR.time_file +=
+	    energy.fprint_row(DATA.ener, 0);
 
-          VAR.time_file += // write simulation data file
-            record_simulation_data(DATA, TRAJ, energy, index_t_now);
-
-          // VAR.simulation_time = TRAJ(index_t_now)/atof(given_condition("repulsion_coefficient").c_str());
-          VAR.simulation_time = TRAJ(index_t_now); // the repulsion coefficient is not necessary for pure Brownian motion
-          VAR.time_RECORDED += // print simulation information for users
-            report_simulation_info(TRAJ, energy, VAR);
-          // report_simulation_info(TRAJ, VAR.time_LV, VAR.time_AN, VAR.time_file, VAR.time_DIST);
+	  if(t%VAR.N_skip_file==0)
+	    {
+	      // the writing file is individual from writing energy
+	      VAR.time_file += // write simulation data file
+		TRAJ.fprint_row(DATA.traj, index_t_now);
+	      // VAR.time_file +=
+	      // 	record_simulation_data(DATA, TRAJ, energy, index_t_now);
+	      VAR.simulation_time = TRAJ(index_t_now); // the repulsion coefficient is not necessary for pure Brownian motion
+	      VAR.time_RECORDED += // print simulation information for users
+		report_simulation_info(TRAJ, energy, VAR);
+	    }
         }
     }
 
@@ -110,13 +152,13 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
   return 0;
 }
 
-double BROWNIAN::record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energy, const MKL_LONG index_t_now)
-{
-  double time_st = dsecnd();
-  TRAJ.fprint_row(DATA.traj, index_t_now);
-  energy.fprint_row(DATA.ener, 0);
-  return dsecnd() - time_st;
-}
+// double BROWNIAN::record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energy, const MKL_LONG index_t_now)
+// {
+//   double time_st = dsecnd();
+//   TRAJ.fprint_row(DATA.traj, index_t_now);
+//   energy.fprint_row(DATA.ener, 0);
+//   return dsecnd() - time_st;
+// }
 
 double BROWNIAN::report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, BROWNIAN_VARIABLE& VAR)
 {
@@ -130,6 +172,7 @@ BROWNIAN::BROWNIAN_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG g
 {
   Np = atoi(given_condition("Np").c_str());
   MKL_LONG N_dimension = atoi(given_condition("N_dimension").c_str());
+  volume_PBC_box = pow(atof(given_condition("box_dimension").c_str()), N_dimension); // note that the definition should be changed when the box dimension have dependency with the direction
   N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
   tmp_index_vec = new MKL_LONG [N_dimension];
   force_random = new MATRIX [Np];
@@ -138,7 +181,8 @@ BROWNIAN::BROWNIAN_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG g
       force_random[i].initial(N_dimension, 1, 0.);
     }
 
-  N_skip = atol(given_condition("N_skip").c_str());
+  N_skip_ener = atol(given_condition("N_skip_ener").c_str());
+  N_skip_file = atol(given_condition("N_skip_file").c_str());  
 
   Nt = atol(given_condition("Nt").c_str());
   N_basic = given_N_basic;
@@ -147,6 +191,9 @@ BROWNIAN::BROWNIAN_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG g
   time_LV_init = 0.; time_LV_force = 0.; time_LV_update = 0.;
   time_LV_force_random = 0.;
   simulation_time = 0.;
+
+  virial_initial();
+  N_components_energy = 18;
   
   if(given_condition("SIMPLE_SHEAR")=="TRUE")
     {

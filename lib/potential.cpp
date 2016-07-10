@@ -1,6 +1,7 @@
 
 #include "potential.h"
 
+
 double FORCE::BROWNIAN::no_time_scaling_random(MATRIX& given_basic_random, double scale_factor)
 {
   return 1.; // indicate no changes on given_basic_random;
@@ -29,7 +30,7 @@ MKL_LONG FORCE::DUMBBELL::MAP_potential_set(POTENTIAL_SET& given_POT, COND& give
      At this moment, the only Gaussian chain is implemented for dumbbell model.
      Note that Dumbbell model is not necessary any cut-off since there are only one permanent connection
   */
-  
+  given_POT.force_variables = new double [3];
   given_POT.force_variables[0] = atol(given_cond("N_dimension").c_str());
   given_POT.force_variables[1] = atof(given_cond("scale_factor_chain").c_str());
   given_POT.f_connector = FORCE::DUMBBELL::MAP_modified_Gaussian_spring_force;
