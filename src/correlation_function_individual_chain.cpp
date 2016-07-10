@@ -4,13 +4,16 @@
 #include "../lib/read_file_condition.h"
 #include "../lib/trajectory.h"
 
-int help()
+int
+help()
 {
   cout << "DESIGN post processing code\n";
   return 0;
 }
 
-MKL_LONG check_line_number(const char* fn_given_file)
+MKL_LONG
+check_line_number
+(const char* fn_given_file)
 {
   ifstream GIVEN_FILE;
   GIVEN_FILE.open(fn_given_file);
@@ -22,7 +25,9 @@ MKL_LONG check_line_number(const char* fn_given_file)
   return cnt;
 }
 
-int main(int argc, char* argv[])
+int
+main
+(int argc, char* argv[])
 {
   if(argc==1)
     {

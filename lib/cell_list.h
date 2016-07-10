@@ -48,18 +48,35 @@ class CLIST
 
   
   // mapping function
-  MKL_LONG index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca);
-  MKL_LONG index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec);
-  MKL_LONG get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* index_neighbor_cells, MKL_LONG* self_index_vec_boost, MKL_LONG* sf_vec_boost);
-  MKL_LONG allocate_index_neighbor_cell_list();
-  MKL_LONG identify_cell_from_given_position(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost);
-  MKL_LONG allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost);
-  MKL_LONG identify_cell_from_given_position(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost);
-  MKL_LONG allocate_cells_from_positions(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost);
+  MKL_LONG
+    index_vec2sca
+    (const MKL_LONG* index_vec, MKL_LONG& index_sca);
+  MKL_LONG
+    index_sca2vec
+    (const MKL_LONG& index_sca, MKL_LONG* index_vec);
+  MKL_LONG
+    get_neighbor_cell_list
+    (const MKL_LONG& index_sca, MKL_LONG* index_neighbor_cells, MKL_LONG* self_index_vec_boost, MKL_LONG* sf_vec_boost);
+  MKL_LONG
+    allocate_index_neighbor_cell_list();
+  MKL_LONG
+    identify_cell_from_given_position
+    (TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost);
+  MKL_LONG
+    allocate_cells_from_positions
+    (TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost);
+  MKL_LONG
+    identify_cell_from_given_position
+    (TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost);
+  MKL_LONG
+    allocate_cells_from_positions
+    (TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost);
 
     
   // operator overloading
-  MKL_LONG& operator()(MKL_LONG i, MKL_LONG j)
+  MKL_LONG&
+    operator()
+    (MKL_LONG i, MKL_LONG j)
     {
       return CELL[i][j];
     }
@@ -69,7 +86,8 @@ class CLIST
   CLIST(COND& given_condition);
 
   // destructor
-  virtual ~CLIST()
+  virtual
+    ~CLIST()
     {
       if(INITIALIZATION)
         {
@@ -92,8 +110,12 @@ class CLIST
 
 namespace UTILITY
 {
-  MKL_LONG index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca, const MKL_LONG N_dimension, const MKL_LONG N_div);
-  MKL_LONG index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec, const MKL_LONG N_dimension, const MKL_LONG N_div);
+  MKL_LONG
+    index_vec2sca
+    (const MKL_LONG* index_vec, MKL_LONG& index_sca, const MKL_LONG N_dimension, const MKL_LONG N_div);
+  MKL_LONG
+    index_sca2vec
+    (const MKL_LONG& index_sca, MKL_LONG* index_vec, const MKL_LONG N_dimension, const MKL_LONG N_div);
 }
 
 #endif

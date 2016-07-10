@@ -2,7 +2,10 @@
 
 using namespace std;
 
-MKL_LONG TRAJECTORY::read_exist_traj(const char* fn_given_traj)
+MKL_LONG
+TRAJECTORY::
+read_exist_traj
+(const char* fn_given_traj)
 {
   ifstream GIVEN_FILE;
   GIVEN_FILE.open(fn_given_traj);
@@ -35,7 +38,8 @@ MKL_LONG TRAJECTORY::read_exist_traj(const char* fn_given_traj)
   return 0;
 }
 
-TRAJECTORY::TRAJECTORY() : MATRIX(N_t_test, 2*2*N_p_test + 1) 
+TRAJECTORY::
+TRAJECTORY() : MATRIX(N_t_test, 2*2*N_p_test + 1) 
 {
   std::cout << "## TRAJECTORY class must used with input arguments such as total number of time and number of columns." << std::endl;
   std::cout << "## At the moment, it is temporally called by test functionality with Nt = " << N_t_test << " and Np = " << N_p_test << std::endl;
@@ -45,7 +49,9 @@ TRAJECTORY::TRAJECTORY() : MATRIX(N_t_test, 2*2*N_p_test + 1)
 }
 
 // WARNING: Notice that this copy-constructor is not verified with the inherance of MATRIX class
-TRAJECTORY::TRAJECTORY(const TRAJECTORY& TRAJ)// this is copy constructor
+TRAJECTORY::
+TRAJECTORY
+(const TRAJECTORY& TRAJ)// this is copy constructor
 {
   initialization(TRAJ.Nt, TRAJ.Np, TRAJ.dt);
   for(MKL_LONG i=0; i<size; i++)
@@ -54,12 +60,18 @@ TRAJECTORY::TRAJECTORY(const TRAJECTORY& TRAJ)// this is copy constructor
     }
 }
 
-TRAJECTORY::TRAJECTORY(COND& given_condition, MKL_LONG N_basic) : MATRIX(N_basic, atol(given_condition("N_dimension").c_str())*2*atol(given_condition("Np").c_str()) + 1, 0.)
+TRAJECTORY::
+TRAJECTORY
+(COND& given_condition, MKL_LONG N_basic)
+  : MATRIX(N_basic, atol(given_condition("N_dimension").c_str())*2*atol(given_condition("Np").c_str()) + 1, 0.)
 {
   initialization_COND(given_condition);
 }
 
-MKL_LONG TRAJECTORY::initialization(MKL_LONG N_time, MKL_LONG N_particle, double given_dt)
+MKL_LONG
+TRAJECTORY::
+initialization
+(MKL_LONG N_time, MKL_LONG N_particle, double given_dt)
 {
   Nt = N_time;
   c_t = 0;
@@ -78,7 +90,10 @@ MKL_LONG TRAJECTORY::initialization(MKL_LONG N_time, MKL_LONG N_particle, double
   return 0;
 }
 
-MKL_LONG TRAJECTORY::initialization_COND(COND& given_condition)
+MKL_LONG
+TRAJECTORY::
+initialization_COND
+(COND& given_condition)
 {
   Method = given_condition("Method");
   if(given_condition("Integrator") == "Euler")
@@ -121,8 +136,10 @@ MKL_LONG TRAJECTORY::initialization_COND(COND& given_condition)
   return 0;
 }
 
-
-MKL_LONG GENERATOR::random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VEC_TRANS)
+MKL_LONG
+GENERATOR::
+random_position_generator_REF
+(TRAJECTORY& TRAJ, MATRIX& R_VEC_TRANS)
 {
   if (R_VEC_TRANS.rows != TRAJ.Np || R_VEC_TRANS.cols != TRAJ.N_dimension)
     {
@@ -139,8 +156,10 @@ MKL_LONG GENERATOR::random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VE
   return 0;
 }
 
-
-MKL_LONG GENERATOR::random_position_generator(TRAJECTORY& TRAJ)
+MKL_LONG
+GENERATOR::
+random_position_generator
+(TRAJECTORY& TRAJ)
 {
   MATRIX R_VEC_TRANS(TRAJ.Np, TRAJ.N_dimension, 0.);
   GENERATOR::random_position_generator_REF(TRAJ, R_VEC_TRANS);

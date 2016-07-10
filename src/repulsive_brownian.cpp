@@ -2,12 +2,19 @@
 
 using namespace REPULSIVE_BROWNIAN;
 
-double REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, RDIST& R_boost, MKL_LONG* tmp_index_vec, const MKL_LONG N_THREADS_BD)
+double
+REPULSIVE_BROWNIAN::
+OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
+		  RDIST& R_boost, MKL_LONG* tmp_index_vec,
+		  const MKL_LONG N_THREADS_BD)
 {
   double time_st_rdist = dsecnd();
   R_boost.allocate_cells_from_positions(TRAJ, index_t_now, tmp_index_vec);
   
-#pragma omp parallel for default(none) shared(TRAJ, index_t_now, R_boost) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1)
+#pragma omp parallel for default(none)
+  shared(TRAJ, index_t_now, R_boost)
+    num_threads(N_THREADS_BD)
+    if(N_THREADS_BD > 1)
   /*
     Originally, this parallel regime is designed to use N_cells and TOKEN.
     Because the chunk size is not easily specified, it is used to parallel with index of particles instead of cell-based.
@@ -15,13 +22,22 @@ double REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG in
   */
   for(MKL_LONG index_particle=0; index_particle<TRAJ.Np; index_particle++)
     {
-      GEOMETRY::compute_RDIST_particle(R_boost, index_particle, TRAJ, index_t_now);
+      GEOMETRY::
+	compute_RDIST_particle(R_boost, index_particle,
+			       TRAJ, index_t_now);
     } // index_particle
   // dt_rdist += dsecnd() - time_st_rdist;
   return dsecnd() - time_st_rdist;
 }
 
-double REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, TEMPORAL_VARIABLE& VAR)
+double
+REPULSIVE_BROWNIAN::
+OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next,
+			 POTENTIAL_SET& POTs, MATRIX* force_repulsion, MATRIX* force_random,
+			 RDIST& R_boost, MATRIX* vec_boost_Nd_parallel,
+			 RNG_BOOST& RNG,
+			 const MKL_LONG N_THREADS_BD,
+			 COND& given_condition, TEMPORAL_VARIABLE& VAR)
 {
   double time_st = dsecnd();
   double RF_random_xx = 0., RF_random_yy = 0., RF_random_zz = 0.;
@@ -29,7 +45,12 @@ double REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_
   double RF_repulsion_xx = 0., RF_repulsion_yy = 0., RF_repulsion_zz = 0.;
   double RF_repulsion_xy = 0., RF_repulsion_xz = 0., RF_repulsion_yz = 0.;
   
-#pragma omp parallel for default(none) shared(TRAJ, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, RNG, N_THREADS_BD, given_condition, VAR) num_threads(N_THREADS_BD) if(N_THREADS_BD > 1) reduction(+:RF_random_xx, RF_random_yy, RF_random_zz, RF_random_xy, RF_random_xz, RF_random_yz, RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz, RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz)
+#pragma omp parallel for default(none)
+  shared(TRAJ, POTs, index_t_now, index_t_next, R_boost, vec_boost_Nd_parallel, force_repulsion, force_random, RNG, N_THREADS_BD, given_condition, VAR)
+    num_threads(N_THREADS_BD)
+    if(N_THREADS_BD > 1)
+      reduction(+:RF_random_xx, RF_random_yy, RF_random_zz, RF_random_xy, RF_random_xz, RF_random_yz,
+		RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz, RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz)
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
@@ -37,12 +58,16 @@ double REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_
       force_repulsion[i].set_value(0);
       force_random[i].set_value(0);
 
-      INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
-      INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
+      INTEGRATOR::EULER::
+	cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
+      INTEGRATOR::EULER::
+	cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
           
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
         {
-          TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k) + TRAJ.dt*(force_repulsion[i](k)) + sqrt(TRAJ.dt)*force_random[i](k);
+          TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k)
+	    + TRAJ.dt*(force_repulsion[i](k))
+	    + sqrt(TRAJ.dt)*force_random[i](k);
         }
       if(VAR.SIMPLE_SHEAR)
         TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_R*TRAJ(index_t_now, i, VAR.shear_grad_axis);
@@ -75,7 +100,12 @@ double REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_
 }
 
 
-MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition)
+MKL_LONG
+REPULSIVE_BROWNIAN::
+main_EQUILIBRATION(TRAJECTORY& TRAJ,
+		   POTENTIAL_SET& POTs,
+		   RECORD_DATA& DATA,
+		   COND& given_condition)
 {
   using namespace std;
   
@@ -98,11 +128,15 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
   VAR.time_DIST +=         // compute RDIST with cell_list advantage
     // note that even if there is shear flow implementation,
     // the time zero is not affected by implemented shear (which means the shear flow simulation cannot be inheritance from the previous shear flow implementation at this moment)
-    REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, 0, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
+    REPULSIVE_BROWNIAN::
+    OMP_compute_RDIST(TRAJ, 0,
+		      R_boost, VAR.tmp_index_vec,
+		      VAR.N_THREADS_BD);
 
   
   VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
-    ANALYSIS::CAL_ENERGY_R_boost(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
+    ANALYSIS::
+    CAL_ENERGY_R_boost(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
   
   for(MKL_LONG t = 0; t<VAR.Nt-1; t++)
     {
@@ -125,30 +159,43 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
           // printf("Z(S0/(L/2)): %d, M0: %3.2f\n", central_standard, R_boost.map_to_central_box_image);
         }
       VAR.time_DIST +=         // compute RDIST with cell_list advantage
-        REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, index_t_now, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
+        REPULSIVE_BROWNIAN::
+	OMP_compute_RDIST(TRAJ, index_t_now,
+			  R_boost, VAR.tmp_index_vec,
+			  VAR.N_THREADS_BD);
 
       VAR.time_LV +=           // update Langevin equation using Euler integrator
-        REPULSIVE_BROWNIAN::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, POTs, R_boost, VAR.vec_boost_Nd_parallel, VAR.force_repulsion, VAR.force_random, RNG, VAR.N_THREADS_BD, given_condition, VAR); // check arguments
+        REPULSIVE_BROWNIAN::
+	OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next,
+				 POTs, VAR.force_repulsion, VAR.force_random,
+				 R_boost, VAR.vec_boost_Nd_parallel,
+				 RNG,
+				 VAR.N_THREADS_BD,
+				 given_condition, VAR); // check arguments
 
       if(VAR.SIMPLE_SHEAR)
         {
           VAR.time_LV +=
-            GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
+            GEOMETRY::
+	    apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
         }
       
       VAR.time_LV +=           // keep periodic box condition
-        GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
+        GEOMETRY::
+	minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
       
       if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file==0)
         {
           VAR.time_AN += // measuring energy of system
-            ANALYSIS::CAL_ENERGY_R_boost(POTs, energy, TRAJ(index_t_now), R_boost);
+            ANALYSIS::
+	    CAL_ENERGY_R_boost(POTs, energy, TRAJ(index_t_now), R_boost);
 
 	  VAR.time_AN +=
 	    VAR.record_virial_into_energy_array(energy);
 	  
 	  VAR.time_AN +=
-	    REPULSIVE_BROWNIAN::sum_virial_components(energy);
+	    REPULSIVE_BROWNIAN::
+	    sum_virial_components(energy);
 	  
           energy(4) = 0;        // information related with number of association
           energy(5) = dsecnd() - time_st_simulation; // computation time for simulation
@@ -173,7 +220,11 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
   return 0;
 }
 
-double REPULSIVE_BROWNIAN::record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energy, const MKL_LONG index_t_now)
+double
+REPULSIVE_BROWNIAN::
+record_simulation_data(RECORD_DATA& DATA,
+		       TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
+		       MATRIX& energy)
 {
   double time_st = dsecnd();
   TRAJ.fprint_row(DATA.traj, index_t_now);
@@ -181,7 +232,11 @@ double REPULSIVE_BROWNIAN::record_simulation_data(RECORD_DATA& DATA, TRAJECTORY&
   return dsecnd() - time_st;
 }
 
-double REPULSIVE_BROWNIAN::report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABLE& VAR)
+double
+REPULSIVE_BROWNIAN::
+report_simulation_info(TRAJECTORY& TRAJ,
+		       MATRIX& energy,
+		       TEMPORAL_VARIABLE& VAR)
 {
   double total_time = VAR.time_LV + VAR.time_AN + VAR.time_file + VAR.time_DIST;
   printf("##### STEPS = %ld\tTIME = %8.6e tau_B\tENERGY = %6.3e (computing time: %4.3e)\n", TRAJ.c_t, VAR.simulation_time, energy(1), energy(5));
@@ -189,7 +244,9 @@ double REPULSIVE_BROWNIAN::report_simulation_info(TRAJECTORY& TRAJ, MATRIX& ener
   return total_time;
 }
 
-REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, MKL_LONG given_N_basic) : BROWNIAN::BROWNIAN_VARIABLE(given_condition, given_N_basic)
+REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::
+TEMPORAL_VARIABLE(COND& given_condition, MKL_LONG given_N_basic)
+  : BROWNIAN::BROWNIAN_VARIABLE(given_condition, given_N_basic)
 {
   MKL_LONG N_dimension = atoi(given_condition("N_dimension").c_str());
   vec_boost_Nd_parallel = new MATRIX [Np];
@@ -220,7 +277,8 @@ REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, 
   INITIALIZATION = TRUE;
 };
 
-REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::~TEMPORAL_VARIABLE()
+REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::
+~TEMPORAL_VARIABLE()
 {
   if(INITIALIZATION)
     {

@@ -15,13 +15,26 @@ namespace BROWNIAN
 {
   struct BROWNIAN_VARIABLE; // tell compiler to expect struct def.
 
-  MKL_LONG main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition);
-
-  double report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, BROWNIAN_VARIABLE& VAR);
-  double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, BROWNIAN_VARIABLE& VAR);
+  MKL_LONG
+  main_PURE_BROWNIAN(TRAJECTORY& TRAJ,
+		     POTENTIAL_SET& POTs,
+		     RECORD_DATA& DATA,
+		     COND& given_condition);
+  double
+  report_simulation_info(TRAJECTORY& TRAJ,
+			 MATRIX& energy,
+			 BROWNIAN_VARIABLE& VAR);
+  
+  double
+  OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next,
+			   POTENTIAL_SET& POTs, MATRIX* force_random,
+			   RNG_BOOST& RNG,
+			   const MKL_LONG N_THREADS_BD,
+			   COND& given_condition, BROWNIAN_VARIABLE& VAR);
 
   // inline functions
-  double sum_virial_components(MATRIX& energy);
+  double
+  sum_virial_components(MATRIX& energy);
 }
 
 struct
@@ -52,9 +65,12 @@ BROWNIAN::
   double RF_random_xx, RF_random_yy, RF_random_zz;
   double RF_random_xy, RF_random_xz, RF_random_yz;
   MKL_LONG N_components_energy;
+
   // member functions for virials
-  MKL_LONG virial_initial();
-  double record_virial_into_energy_array(MATRIX& energy);
+  MKL_LONG
+  virial_initial();
+  double
+  record_virial_into_energy_array(MATRIX& energy);
   
   // related with shear flow
   bool SIMPLE_SHEAR;
@@ -71,8 +87,10 @@ BROWNIAN::
   {
     std::cout << "ERR: Basic constructor for BROWNIAN_VARIABLE structure is not supported\n";
   }
-  BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG given_N_basic);
-  virtual ~BROWNIAN_VARIABLE();
+  BROWNIAN_VARIABLE(COND& given_condition,
+		    MKL_LONG given_N_basic);
+  virtual
+  ~BROWNIAN_VARIABLE();
 };
 
 // for inline functions

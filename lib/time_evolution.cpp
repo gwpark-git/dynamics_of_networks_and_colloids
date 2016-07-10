@@ -18,7 +18,10 @@
 //   return 0;
 // }
 
-double INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG given_index, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost)
+double
+INTEGRATOR::EULER_ASSOCIATION::
+cal_connector_force_boost
+(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG given_index, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost)
 {
   double time_st = dsecnd();
   given_vec.set_value(0.);
@@ -40,7 +43,10 @@ double INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTENTIAL_SET& P
   return dsecnd() - time_st;
 }
 
-double INTEGRATOR::EULER::cal_connector_force_boost(POTENTIAL_SET& POTs, CONNECTIVITY& CONNECT, MATRIX& given_vec, MKL_LONG given_index, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost)
+double
+INTEGRATOR::EULER::
+cal_connector_force_boost
+(POTENTIAL_SET& POTs, CONNECTIVITY& CONNECT, MATRIX& given_vec, MKL_LONG given_index, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost)
 {
   double time_st = dsecnd();
   given_vec.set_value(0.);
@@ -62,7 +68,10 @@ double INTEGRATOR::EULER::cal_connector_force_boost(POTENTIAL_SET& POTs, CONNECT
   return dsecnd() - time_st;
 }
 
-double INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_particle, RDIST& R_boost)
+double
+INTEGRATOR::EULER::
+cal_repulsion_force_R_boost
+(POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_particle, RDIST& R_boost)
 {
   double time_st = dsecnd();
   given_vec.set_value(0.);
@@ -95,7 +104,10 @@ double INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTENTIAL_SET& POTs, MATRI
 }
 
 
-double INTEGRATOR::EULER::cal_random_force_boost(POTENTIAL_SET& POTs, MATRIX& given_vec, gsl_rng* r_boost)
+double
+INTEGRATOR::EULER::
+cal_random_force_boost
+(POTENTIAL_SET& POTs, MATRIX& given_vec, gsl_rng* r_boost)
 {
   double time_st = dsecnd();
   RANDOM::single_random_vector_generator_variance_boost(given_vec, 1.0, r_boost);
@@ -104,7 +116,10 @@ double INTEGRATOR::EULER::cal_random_force_boost(POTENTIAL_SET& POTs, MATRIX& gi
   return dsecnd() - time_st;
 }
 
-double INTEGRATOR::EULER::cal_random_force_boost_simplified(POTENTIAL_SET& POTs, MATRIX& given_vec, gsl_rng* r_boost)
+double
+INTEGRATOR::EULER::
+cal_random_force_boost_simplified
+(POTENTIAL_SET& POTs, MATRIX& given_vec, gsl_rng* r_boost)
 {
   // this is duplicate one with INTEGRATOR::EULER::cal_random_force_boost
   // however, it simplified and reduce the overhead
@@ -118,12 +133,17 @@ double INTEGRATOR::EULER::cal_random_force_boost_simplified(POTENTIAL_SET& POTs,
   return dsecnd() - time_st;
 }
 
-double ANALYSIS::cal_total_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boost)
+double
+ANALYSIS::
+cal_total_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boost)
 {
   return cal_potential_energy_R_boost(POTs, R_boost);// + cal_kinetic_energy(TRAJ, POTs, index_t);
 }
 
-double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, RDIST& R_boost)
+double
+ANALYSIS::ANAL_ASSOCIATION::
+cal_potential_energy_R_boost
+(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, RDIST& R_boost)
 {
   double energy = 0.;
 
@@ -137,7 +157,10 @@ double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_R_boost(POTENTIAL_SET& P
   return energy + ANALYSIS::cal_potential_energy_R_boost(POTs, R_boost);
 }
 
-double ANALYSIS::DUMBBELL::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, CONNECTIVITY& CONNECT, RDIST& R_boost)
+double
+ANALYSIS::DUMBBELL::
+cal_potential_energy_R_boost
+(POTENTIAL_SET& POTs, CONNECTIVITY& CONNECT, RDIST& R_boost)
 {
   double energy = 0.;
   for (MKL_LONG i=0; i<CONNECT.Np; i++)
@@ -150,7 +173,10 @@ double ANALYSIS::DUMBBELL::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, CON
   return energy; // note that there are no repulsive contribution between dumbbells
 }
 
-double ANALYSIS::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boost)
+double
+ANALYSIS::
+cal_potential_energy_R_boost
+(POTENTIAL_SET& POTs, RDIST& R_boost)
 {
   double energy = 0.;
   for(MKL_LONG index_particle=0; index_particle<R_boost.Np; index_particle++)
@@ -170,7 +196,10 @@ double ANALYSIS::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boos
     }
   return energy;
 }
-double ANALYSIS::CAL_ENERGY_BROWNIAN(POTENTIAL_SET& POTs, MATRIX& mat_energy, double time)
+double
+ANALYSIS::
+CAL_ENERGY_BROWNIAN
+(POTENTIAL_SET& POTs, MATRIX& mat_energy, double time)
 {
   double time_st = dsecnd();
   mat_energy(0) = time;
@@ -182,7 +211,10 @@ double ANALYSIS::CAL_ENERGY_BROWNIAN(POTENTIAL_SET& POTs, MATRIX& mat_energy, do
 }
 
 
-double ANALYSIS::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, MATRIX& mat_energy, double time, RDIST& R_boost)
+double
+ANALYSIS::
+CAL_ENERGY_R_boost
+(POTENTIAL_SET& POTs, MATRIX& mat_energy, double time, RDIST& R_boost)
 {
   double time_st = dsecnd();
   mat_energy(0) = time;
@@ -192,7 +224,10 @@ double ANALYSIS::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, MATRIX& mat_energy, dou
   return dsecnd() - time_st;
 }
 
-double ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, CONNECTIVITY& CONNECT, MATRIX& mat_energy, double time, RDIST& R_boost)
+double
+ANALYSIS::DUMBBELL::
+CAL_ENERGY_R_boost
+(POTENTIAL_SET& POTs, CONNECTIVITY& CONNECT, MATRIX& mat_energy, double time, RDIST& R_boost)
 {
   double time_st = dsecnd();
   mat_energy(0) = time;
@@ -201,7 +236,10 @@ double ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, CONNECTIVITY&
   return dsecnd() - time_st;
 }
 
-double ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, double time, RDIST& R_boost)
+double
+ANALYSIS::ANAL_ASSOCIATION::
+CAL_ENERGY_R_boost
+(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, double time, RDIST& R_boost)
 {
   // mat_energy(0) = (TRAJ.c_t - 1)*TRAJ.dt;
   double time_st = dsecnd();

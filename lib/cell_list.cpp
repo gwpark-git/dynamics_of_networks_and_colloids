@@ -1,7 +1,9 @@
 #include "cell_list.h"
 
 
-CLIST::CLIST(COND& given_condition)
+CLIST::
+CLIST
+(COND& given_condition)
 {
   printf("\tCLIST initialization");
   INITIALIZATION = TRUE;
@@ -88,7 +90,10 @@ CLIST::CLIST(COND& given_condition)
 
 
 
-MKL_LONG CLIST::identify_cell_from_given_position(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost)
+MKL_LONG
+CLIST::
+identify_cell_from_given_position
+(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost)
 {
   MKL_LONG re = 0;  
   for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
@@ -99,7 +104,10 @@ MKL_LONG CLIST::identify_cell_from_given_position(TRAJECTORY& TRAJ, MKL_LONG ind
   return re;
 }
 
-MKL_LONG CLIST::identify_cell_from_given_position(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost)
+MKL_LONG
+CLIST::
+identify_cell_from_given_position
+(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG index_particle, MKL_LONG *index_vec_boost)
 {
   MKL_LONG re = 0;  
   for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
@@ -111,7 +119,10 @@ MKL_LONG CLIST::identify_cell_from_given_position(TRAJECTORY_HDF5& TRAJ, MKL_LON
 }
 
 
-MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost)
+MKL_LONG
+CLIST::
+allocate_cells_from_positions
+(TRAJECTORY& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost)
 {
   for(MKL_LONG i=0; i<N_cells; i++)
     TOKEN[i] = 0;
@@ -124,7 +135,10 @@ MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t
   return 0;
 }
 
-MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost)
+MKL_LONG
+CLIST::
+allocate_cells_from_positions
+(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now, MKL_LONG *index_vec_boost)
 {
   for(MKL_LONG i=0; i<N_cells; i++)
     TOKEN[i] = 0;
@@ -137,7 +151,10 @@ MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY_HDF5& TRAJ, MKL_LONG in
   return 0;
 }
 
-MKL_LONG UTILITY::index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca, const MKL_LONG N_dimension, const MKL_LONG N_div)
+MKL_LONG
+UTILITY::
+index_vec2sca
+(const MKL_LONG* index_vec, MKL_LONG& index_sca, const MKL_LONG N_dimension, const MKL_LONG N_div)
 {
   /*
     This is the original index mapping function for general N-dimensional case. 
@@ -151,7 +168,10 @@ MKL_LONG UTILITY::index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca, 
   return re;
 }
 
-MKL_LONG UTILITY::index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec, const MKL_LONG N_dimension, const MKL_LONG N_div)
+MKL_LONG
+UTILITY::
+index_sca2vec
+(const MKL_LONG& index_sca, MKL_LONG* index_vec, const MKL_LONG N_dimension, const MKL_LONG N_div)
 {
   /*
     This inverse map applied to 
@@ -163,7 +183,9 @@ MKL_LONG UTILITY::index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec, 
   return index_sca;
 }
 
-MKL_LONG CLIST::allocate_index_neighbor_cell_list()
+MKL_LONG
+CLIST::
+allocate_index_neighbor_cell_list()
 {
   if(CELL_LIST_BOOST)
     {
@@ -187,7 +209,10 @@ MKL_LONG CLIST::allocate_index_neighbor_cell_list()
   return 0;
 }
 
-MKL_LONG CLIST::get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* index_neighbor_cells, MKL_LONG* self_index_vec_boost, MKL_LONG* sf_vec_boost)
+MKL_LONG
+CLIST::
+get_neighbor_cell_list
+(const MKL_LONG& index_sca, MKL_LONG* index_neighbor_cells, MKL_LONG* self_index_vec_boost, MKL_LONG* sf_vec_boost)
 {
   /*
     get_neighbor_cell_list will store the index of neighbor_list into the index_neighbor_cells based on the scalar values.
@@ -224,12 +249,18 @@ MKL_LONG CLIST::get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* inde
   return 0;
 }
 
-MKL_LONG CLIST::index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca)
+MKL_LONG
+CLIST::
+index_vec2sca
+(const MKL_LONG* index_vec, MKL_LONG& index_sca)
 {
   return UTILITY::index_vec2sca(index_vec, index_sca, N_dimension, N_div);
 }
 
-MKL_LONG CLIST::index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec)
+MKL_LONG
+CLIST::
+index_sca2vec
+(const MKL_LONG& index_sca, MKL_LONG* index_vec)
 {
   return UTILITY::index_sca2vec(index_sca, index_vec, N_dimension, N_div);
 }

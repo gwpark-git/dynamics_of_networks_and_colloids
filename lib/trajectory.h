@@ -45,48 +45,67 @@ class TRAJECTORY : public MATRIX
 
 
   // member function
-  MKL_LONG Rt_i(MKL_LONG t, MKL_LONG i_bead, MKL_LONG direction)
+  MKL_LONG
+    Rt_i
+    (MKL_LONG t, MKL_LONG i_bead, MKL_LONG direction)
   {
     return index(t, i_bead*2*N_dimension + 1 + direction);
   }
   
-  MKL_LONG Vt_i(MKL_LONG t, MKL_LONG i_bead, MKL_LONG direction)
+  MKL_LONG
+    Vt_i
+    (MKL_LONG t, MKL_LONG i_bead, MKL_LONG direction)
   {
     return index(t, i_bead*2*N_dimension + 1 + N_dimension + direction);
   }
   
   
   // initiator
-  MKL_LONG initialization(MKL_LONG N_time, MKL_LONG N_particle, double given_dt);
-  MKL_LONG initialization_COND(COND& given_condition);
+  MKL_LONG
+    initialization
+    (MKL_LONG N_time, MKL_LONG N_particle, double given_dt);
+  MKL_LONG
+    initialization_COND
+    (COND& given_condition);
 
- TRAJECTORY() ;
- TRAJECTORY(const TRAJECTORY& TRAJ); // its for copy-constructor. It must be classified for openmp variable
- TRAJECTORY(COND& given_condition, MKL_LONG N_basic);
+ TRAJECTORY();
+ TRAJECTORY
+   (const TRAJECTORY& TRAJ); // its for copy-constructor. It must be classified for openmp variable
+ TRAJECTORY
+   (COND& given_condition, MKL_LONG N_basic);
 
  /* // inlined */
  /* // operator overloading */
  /* // simple operator for time */
- MKL_LONG read_exist_traj(const char* fn_given_traj);
- double& operator()(MKL_LONG time_t)
+ MKL_LONG
+   read_exist_traj
+   (const char* fn_given_traj);
+ double&
+   operator()
+   (MKL_LONG time_t)
  {
    // it will return the reference of time
    return data[index(time_t, 0)];
  }
 
- double& operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
+ double&
+   operator()
+   (MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
  {
    MKL_LONG index_position = 2*N_dimension*bead_i + 1 + dimension_k;
    return data[index(time_t, index_position)];
  }
 
- double& operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
+ double&
+   operator()
+   (MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
  {
    MKL_LONG index_position = 2*N_dimension*bead_i + 1 + dimension_k + N_dimension*i_RV;
    return data[index(time_t, index_position)];
  }
  
- virtual ~TRAJECTORY()
+ virtual
+   ~TRAJECTORY()
     {
       delete[] box_dimension;
       // The MATRIX and REF_MATRIX objects are automatically killed-by virtual destructor option of the library. This fact is tested with packages.
@@ -97,12 +116,18 @@ class TRAJECTORY : public MATRIX
 
 
 
-MKL_LONG traj_count_line(char fn[]);
+MKL_LONG
+traj_count_line
+(char fn[]);
 
 namespace GENERATOR
 {
-  MKL_LONG random_position_generator(TRAJECTORY& TRAJ);
-  MKL_LONG random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VEC_TRANS);
+  MKL_LONG
+    random_position_generator
+    (TRAJECTORY& TRAJ);
+  MKL_LONG
+    random_position_generator_REF
+    (TRAJECTORY& TRAJ, MATRIX& R_VEC_TRANS);
 }
 
 

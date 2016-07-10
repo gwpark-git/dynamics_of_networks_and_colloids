@@ -1,7 +1,10 @@
 
 #include "connectivity.h"
 
-MKL_LONG CONNECTIVITY::dynamic_allocation(MKL_LONG number_of_particles, MKL_LONG maximum_connections)
+MKL_LONG
+CONNECTIVITY::
+dynamic_allocation
+(MKL_LONG number_of_particles, MKL_LONG maximum_connections)
 {
   Np = number_of_particles;
   Mc = maximum_connections;
@@ -17,7 +20,9 @@ MKL_LONG CONNECTIVITY::dynamic_allocation(MKL_LONG number_of_particles, MKL_LONG
   return 0;
 }
 
-CONNECTIVITY::CONNECTIVITY(COND& given_condition)
+CONNECTIVITY::
+CONNECTIVITY
+(COND& given_condition)
 {
   dynamic_allocation(atol(given_condition("Np").c_str()), 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str()));
   if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
@@ -34,12 +39,17 @@ CONNECTIVITY::CONNECTIVITY(COND& given_condition)
 }
 
 
-CONNECTIVITY::CONNECTIVITY(MKL_LONG number_of_particles, MKL_LONG maximum_connections)
+CONNECTIVITY::
+CONNECTIVITY
+(MKL_LONG number_of_particles, MKL_LONG maximum_connections)
 {
   dynamic_allocation(number_of_particles, maximum_connections);
 }
 
-MKL_LONG CONNECTIVITY::read_exist_hash(const char* fn_hash)
+MKL_LONG
+CONNECTIVITY::
+read_exist_hash
+(const char* fn_hash)
 {
   ifstream GIVEN_HASH;
   GIVEN_HASH.open(fn_hash);
@@ -76,7 +86,10 @@ MKL_LONG CONNECTIVITY::read_exist_hash(const char* fn_hash)
   return 0;
 }
 
-MKL_LONG CONNECTIVITY::check_valid(MKL_LONG index_particle, MKL_LONG index_target)
+MKL_LONG
+CONNECTIVITY::
+check_valid
+(MKL_LONG index_particle, MKL_LONG index_target)
 {
   if (index_target > TOKEN[index_particle])
     {

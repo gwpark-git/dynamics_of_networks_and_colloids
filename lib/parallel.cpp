@@ -1,12 +1,15 @@
 
 #include "parallel.h"
 
-LOCK::LOCK()
+LOCK::
+LOCK()
 {
   INITIALIZATION = FALSE;
 }
 
-LOCK::LOCK(MKL_LONG N_target)
+LOCK::
+LOCK
+(MKL_LONG N_target)
 {
   NL = N_target;
   locker = new bool [NL];
@@ -15,13 +18,16 @@ LOCK::LOCK(MKL_LONG N_target)
   INITIALIZATION = TRUE;
 }
 
-LOCK::~LOCK()
+LOCK::
+~LOCK()
 {
   if(INITIALIZATION)
     delete[] locker;
 }
 
-MKL_LONG LOCK::RESET()
+MKL_LONG
+LOCK::
+RESET()
 {
   if(!INITIALIZATION)
     printf("ERR:: RESET LOCK class only possible when it is initialized\n");

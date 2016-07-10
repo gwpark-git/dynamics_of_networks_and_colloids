@@ -2,7 +2,13 @@
 
 using namespace BROWNIAN;
 
-double BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, BROWNIAN_VARIABLE& VAR)
+double
+BROWNIAN::
+OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next,
+			 POTENTIAL_SET& POTs, MATRIX* force_random,
+			 RNG_BOOST& RNG,
+			 const MKL_LONG N_THREADS_BD,
+			 COND& given_condition, BROWNIAN_VARIABLE& VAR)
 {
   double time_st = dsecnd();
   double RF_random_xx = 0., RF_random_yy = 0., RF_random_zz = 0.;
@@ -47,7 +53,10 @@ double BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index
   return dsecnd() - time_st;
 }
 
-MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition)
+MKL_LONG
+BROWNIAN::
+main_PURE_BROWNIAN
+(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition)
 {
   using namespace std;
   
@@ -137,7 +146,10 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
 }
 
 
-double BROWNIAN::report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, BROWNIAN_VARIABLE& VAR)
+double
+BROWNIAN::
+report_simulation_info
+(TRAJECTORY& TRAJ, MATRIX& energy, BROWNIAN_VARIABLE& VAR)
 {
   double total_time = VAR.time_LV + VAR.time_AN + VAR.time_file + VAR.time_DIST;
   printf("##### STEPS = %ld\tTIME = %8.6e tau_B\tENERGY = %6.3e (computing time: %4.3e)\n", TRAJ.c_t, VAR.simulation_time, energy(1), energy(5));
@@ -145,7 +157,9 @@ double BROWNIAN::report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, BROWNI
   return total_time;
 }
 
-BROWNIAN::BROWNIAN_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG given_N_basic)
+BROWNIAN::BROWNIAN_VARIABLE::
+BROWNIAN_VARIABLE
+(COND& given_condition, MKL_LONG given_N_basic)
 {
   Np = atoi(given_condition("Np").c_str());
   MKL_LONG N_dimension = atoi(given_condition("N_dimension").c_str());
@@ -193,7 +207,8 @@ BROWNIAN::BROWNIAN_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG g
   INITIALIZATION = TRUE;
 };
 
-BROWNIAN::BROWNIAN_VARIABLE::~BROWNIAN_VARIABLE()
+BROWNIAN::BROWNIAN_VARIABLE::
+~BROWNIAN_VARIABLE()
 {
   if(INITIALIZATION)
     {

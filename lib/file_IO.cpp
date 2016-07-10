@@ -4,7 +4,9 @@
 #include <iomanip> // for setw
 // using namespace std;
 
-COND::COND(char* fn)
+COND::
+COND
+(char* fn)
   {
     GIVEN_FILE.open(fn);
     MKL_LONG cnt = 0;
@@ -36,7 +38,10 @@ COND::COND(char* fn)
     ERR = "ERR";
   }
 
-string& COND::operator()(string option_type)
+string&
+COND::
+operator()
+  (string option_type)
 {
   for(MKL_LONG i=0; i<N_arg; i++)
     {
@@ -49,7 +54,9 @@ string& COND::operator()(string option_type)
   return ERR;
 }
 
-int COND::cond_print()
+int
+COND::
+cond_print()
 {
   if (arg)
     {

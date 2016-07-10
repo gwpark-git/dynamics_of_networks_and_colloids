@@ -2,7 +2,10 @@
 #include "random.h"
 
 
-MKL_LONG RANDOM::return_LONG_INT_rand(MKL_LONG SUP)
+MKL_LONG
+RANDOM::
+return_LONG_INT_rand
+(MKL_LONG SUP)
 {
   // it is using randomly generated seed
   const gsl_rng_type *T;
@@ -16,12 +19,18 @@ MKL_LONG RANDOM::return_LONG_INT_rand(MKL_LONG SUP)
   return re;  
 }
 
-MKL_LONG RANDOM::return_LONG_INT_rand_boost(gsl_rng* r, MKL_LONG SUP)
+MKL_LONG
+RANDOM::
+return_LONG_INT_rand_boost
+(gsl_rng* r, MKL_LONG SUP)
 {
   return gsl_rng_uniform_int(r, SUP);
 }
 
-MKL_LONG RANDOM::get_LONG_ARR_rand_boost(gsl_rng* r, MKL_LONG SUP, MKL_LONG* given_long_arr, MKL_LONG N_arr)
+MKL_LONG
+RANDOM::
+get_LONG_ARR_rand_boost
+(gsl_rng* r, MKL_LONG SUP, MKL_LONG* given_long_arr, MKL_LONG N_arr)
 {
   for(MKL_LONG i=0; i<N_arr; i++)
     {
@@ -30,13 +39,18 @@ MKL_LONG RANDOM::get_LONG_ARR_rand_boost(gsl_rng* r, MKL_LONG SUP, MKL_LONG* giv
   return 0;  
 }
 
-
-double RANDOM::return_double_rand_SUP1_boost(gsl_rng* r)
+double
+RANDOM::
+return_double_rand_SUP1_boost
+(gsl_rng* r)
 {
   return gsl_rng_uniform(r);
 }
 
-MKL_LONG RANDOM::get_DOUBLE_ARR_rand_boost(gsl_rng* r, double* given_double_arr, MKL_LONG N_arr)
+MKL_LONG
+RANDOM::
+get_DOUBLE_ARR_rand_boost
+(gsl_rng* r, double* given_double_arr, MKL_LONG N_arr)
 {
   for(MKL_LONG i=0; i<N_arr; i++)
     {
@@ -46,7 +60,9 @@ MKL_LONG RANDOM::get_DOUBLE_ARR_rand_boost(gsl_rng* r, double* given_double_arr,
 }
 
 
-double RANDOM::return_double_rand_SUP1()
+double
+RANDOM::
+return_double_rand_SUP1()
 {
   const gsl_rng_type *T;
   gsl_rng *r;
@@ -60,7 +76,10 @@ double RANDOM::return_double_rand_SUP1()
 }
 
 
-MKL_LONG RANDOM::single_random_vector_generator(MATRIX& given_vec)
+MKL_LONG
+RANDOM::
+single_random_vector_generator
+(MATRIX& given_vec)
 {
   const gsl_rng_type *T;
   gsl_rng *r;
@@ -78,7 +97,10 @@ MKL_LONG RANDOM::single_random_vector_generator(MATRIX& given_vec)
   return 0;
 }
 
-MKL_LONG RANDOM::single_random_vector_generator_boost(MATRIX& given_vec, gsl_rng* r_boost)
+MKL_LONG
+RANDOM::
+single_random_vector_generator_boost
+(MATRIX& given_vec, gsl_rng* r_boost)
 {
   for (MKL_LONG k=0; k<given_vec.size; k++)
     {
@@ -88,8 +110,10 @@ MKL_LONG RANDOM::single_random_vector_generator_boost(MATRIX& given_vec, gsl_rng
   return 0;
 }
 
-
-MKL_LONG RANDOM::single_random_vector_generator_variance(MATRIX& given_vec, double s_2)
+MKL_LONG
+RANDOM::
+single_random_vector_generator_variance
+(MATRIX& given_vec, double s_2)
 {
   single_random_vector_generator(given_vec);
   for(MKL_LONG k=0; k<given_vec.size; k++)
@@ -99,7 +123,10 @@ MKL_LONG RANDOM::single_random_vector_generator_variance(MATRIX& given_vec, doub
   return 0;
 }
 
-MKL_LONG RANDOM::single_random_vector_generator_variance_boost(MATRIX& given_vec, double s_2, gsl_rng* r_boost)
+MKL_LONG
+RANDOM::
+single_random_vector_generator_variance_boost
+(MATRIX& given_vec, double s_2, gsl_rng* r_boost)
 {
   single_random_vector_generator_boost(given_vec, r_boost);
   for(MKL_LONG k=0; k<given_vec.size; k++)
@@ -109,8 +136,10 @@ MKL_LONG RANDOM::single_random_vector_generator_variance_boost(MATRIX& given_vec
   return 0;
 }
 
-
-MKL_LONG RANDOM::random_vector_generator(MATRIX& R_VEC_TRANS)
+MKL_LONG
+RANDOM::
+random_vector_generator
+(MATRIX& R_VEC_TRANS)
 {
   const gsl_rng_type *T;
   gsl_rng *r;
@@ -132,9 +161,10 @@ MKL_LONG RANDOM::random_vector_generator(MATRIX& R_VEC_TRANS)
   return 0;
 }
 
-
-
-MKL_LONG RANDOM::single_unit_random_vector_generator(MATRIX& given_vec)
+MKL_LONG
+RANDOM::
+single_unit_random_vector_generator
+(MATRIX& given_vec)
 {
   double norm = 0.;
   do
@@ -147,7 +177,10 @@ MKL_LONG RANDOM::single_unit_random_vector_generator(MATRIX& given_vec)
   return 0;
 }
 
-MKL_LONG RANDOM::unit_random_vector_generator(MATRIX& R_VEC_TRANS)
+MKL_LONG
+RANDOM::
+unit_random_vector_generator
+(MATRIX& R_VEC_TRANS)
 {
   // double norm = 2.;
   // this selection is of importance to avoid over-generating for diagonal components.
@@ -182,7 +215,10 @@ MKL_LONG RANDOM::unit_random_vector_generator(MATRIX& R_VEC_TRANS)
   return 0;
 }
 
-MKL_LONG RANDOM::unit_random_vector_generator_2D(MATRIX& R_VEC_TRANS)
+MKL_LONG
+RANDOM::
+unit_random_vector_generator_2D
+(MATRIX& R_VEC_TRANS)
 {
   const gsl_rng_type *T;
   gsl_rng *r;

@@ -14,18 +14,40 @@
 
 namespace REPULSIVE_BROWNIAN
 {
-  struct TEMPORAL_VARIABLE; // tell compiler to expect struct def.
+  struct
+  TEMPORAL_VARIABLE; // tell compiler to expect struct def.
   
-  MKL_LONG main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition);
+  MKL_LONG
+  main_EQUILIBRATION(TRAJECTORY& TRAJ,
+		     POTENTIAL_SET& POTs,
+		     RECORD_DATA& DATA,
+		     COND& given_condition);
 
-  double record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energy, const MKL_LONG index_t_now);
+  double
+  record_simulation_data(RECORD_DATA& DATA,
+			 TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
+			 MATRIX& energy);
 
-  double report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABLE& VAR);
-  double OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, RDIST& R_boost, MKL_LONG* tmp_index_vec, const MKL_LONG N_THREADS_BD);
-  double OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, POTENTIAL_SET& POTs, RDIST& R_boost, MATRIX* vec_boost_Nd_parallel, MATRIX* force_repulsion, MATRIX* force_random, RNG_BOOST& RNG, const MKL_LONG N_THREADS_BD, COND& given_condition, TEMPORAL_VARIABLE& VAR);
+  double
+  report_simulation_info(TRAJECTORY& TRAJ,
+			 MATRIX& energy,
+			 TEMPORAL_VARIABLE& VAR);
+  double
+  OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
+		    RDIST& R_boost, MKL_LONG* tmp_index_vec,
+		    const MKL_LONG N_THREADS_BD);
+  double
+  OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next,
+			   POTENTIAL_SET& POTs, MATRIX* force_repulsion, MATRIX* force_random,
+			   RDIST& R_boost, MATRIX* vec_boost_Nd_parallel,
+			   RNG_BOOST& RNG,
+			   const MKL_LONG N_THREADS_BD,
+			   COND& given_condition, TEMPORAL_VARIABLE& VAR);
 
   // inline functions
-  double sum_virial_components(MATRIX& energy);
+  double
+  sum_virial_components
+  (MATRIX& energy);
 }
 
 struct REPULSIVE_BROWNIAN::
@@ -42,8 +64,11 @@ struct REPULSIVE_BROWNIAN::
   double RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz;
 
   // member functions for virials
-  MKL_LONG virial_initial();
-  double record_virial_into_energy_array(MATRIX& energy);
+  MKL_LONG
+  virial_initial();
+  double
+  record_virial_into_energy_array
+  (MATRIX& energy);
   
   // related with shear flow
   double Wi_tau_R;
@@ -51,8 +76,10 @@ struct REPULSIVE_BROWNIAN::
   {
     std::cout << "ERR: Basic constructor for TEMPORAL_VARIABLE structure is not supported\n";
   }
-  TEMPORAL_VARIABLE(COND& given_condition, MKL_LONG given_N_basic);
-  virtual ~TEMPORAL_VARIABLE();
+  TEMPORAL_VARIABLE
+  (COND& given_condition, MKL_LONG given_N_basic);
+  virtual
+  ~TEMPORAL_VARIABLE();
 
 };
 

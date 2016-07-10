@@ -3,7 +3,9 @@
 #include <iomanip>
 #include <math.h>
 
-MKL_LONG nonzero(const MATRIX &A)
+MKL_LONG
+nonzero
+(const MATRIX &A)
 {
   MKL_LONG  cnt=0;
   for(MKL_LONG  i=0; i<A.size; i++)
@@ -19,26 +21,34 @@ MKL_LONG nonzero(const MATRIX &A)
 
 
 // Constructor
-MATRIX::MATRIX()
+MATRIX::
+MATRIX()
 {
   initial();  
   //std::cout << "Undefined dimension\n";
 }
 
-MATRIX::MATRIX(MKL_LONG  N_r, MKL_LONG  N_c)
+MATRIX::
+MATRIX
+(MKL_LONG  N_r, MKL_LONG  N_c)
 {
   initial(N_r, N_c);
 }
 
 
-MATRIX::MATRIX(MKL_LONG  N_r, MKL_LONG  N_c, double x) // initilization with value x
+MATRIX::
+MATRIX
+(MKL_LONG  N_r, MKL_LONG  N_c, double x) // initilization with value x
 {
   initial(N_r, N_c);
   set_value(x);
 }
 
 // Copy-Constructor
-MKL_LONG MATRIX::copy_obj(const MATRIX& Mat)
+MKL_LONG
+MATRIX::
+copy_obj
+(const MATRIX& Mat)
 {
   initial(Mat.rows, Mat.cols);
   for(MKL_LONG i=0; i<size; i++)
@@ -48,13 +58,16 @@ MKL_LONG MATRIX::copy_obj(const MATRIX& Mat)
   return 0;
 }
 
-MATRIX::MATRIX(const MATRIX& Mat)
+MATRIX::
+MATRIX
+(const MATRIX& Mat)
 {
   copy_obj(Mat);
 }
 
 // Destructor
-MATRIX::~MATRIX()
+MATRIX::
+~MATRIX()
 {
   if (INITIALIZATION)
     {
@@ -70,13 +83,18 @@ MATRIX::~MATRIX()
 
 // Public Member Function
 
-MKL_LONG  MATRIX::print_eigen()
+MKL_LONG
+MATRIX::
+print_eigen()
 {
   print_eigen(rows);
   return 0;
 }
 
-MKL_LONG  MATRIX::print_eigen(MKL_LONG  n_ele)
+MKL_LONG
+MATRIX::
+print_eigen
+(MKL_LONG  n_ele)
 {
   if(DIAGONALIZATION)
     {
@@ -95,13 +113,18 @@ MKL_LONG  MATRIX::print_eigen(MKL_LONG  n_ele)
   return 0;
 }
 
-MKL_LONG  MATRIX::print()
+MKL_LONG
+MATRIX::
+print()
 {
   print(rows, cols);
   return 0;
 }
 
-MKL_LONG  MATRIX::print(MKL_LONG  n_row, MKL_LONG  n_col)
+MKL_LONG
+MATRIX::
+print
+(MKL_LONG  n_row, MKL_LONG  n_col)
 {
   MKL_LONG  cnt = 0;
   //std::cout << "MATRIX " << this << std::endl;
@@ -117,7 +140,10 @@ MKL_LONG  MATRIX::print(MKL_LONG  n_row, MKL_LONG  n_col)
   return 0;
 }
 
-MKL_LONG MATRIX::fprint_skip(std::ofstream& file, MKL_LONG  N_skip)
+MKL_LONG
+MATRIX::
+fprint_skip
+(std::ofstream& file, MKL_LONG  N_skip)
 {
   MKL_LONG  cnt = 0;
   for(MKL_LONG  i=0; i<rows; i+=N_skip)
@@ -131,13 +157,19 @@ MKL_LONG MATRIX::fprint_skip(std::ofstream& file, MKL_LONG  N_skip)
   return 0;
 }
 
-MKL_LONG  MATRIX::fprint(std::ofstream& file)
+MKL_LONG
+MATRIX::
+fprint
+(std::ofstream& file)
 {
   fprint_skip(file, 1);
   return 0;
 }
 
-MKL_LONG MATRIX::fprint_skip_transpose(std::ofstream& file, MKL_LONG  N_skip)
+MKL_LONG
+MATRIX::
+fprint_skip_transpose
+(std::ofstream& file, MKL_LONG  N_skip)
 {
   MKL_LONG  cnt = 0;
   for(MKL_LONG  j=0; j<cols; j++)
@@ -151,14 +183,19 @@ MKL_LONG MATRIX::fprint_skip_transpose(std::ofstream& file, MKL_LONG  N_skip)
   return 0;
 }
 
-MKL_LONG  MATRIX::fprint_transpose(std::ofstream& file)
+MKL_LONG
+MATRIX::
+fprint_transpose
+(std::ofstream& file)
 {
   fprint_skip_transpose(file, 1);
   return 0;
 }
 
-
-MKL_LONG  MATRIX::fprint_LONG_skip(std::ofstream& file, MKL_LONG  N_skip)
+MKL_LONG
+MATRIX::
+fprint_LONG_skip
+(std::ofstream& file, MKL_LONG  N_skip)
 {
   MKL_LONG  cnt = 0;
   for(MKL_LONG  i=0; i<rows; i+=N_skip)
@@ -172,13 +209,19 @@ MKL_LONG  MATRIX::fprint_LONG_skip(std::ofstream& file, MKL_LONG  N_skip)
   return 0;
 }
 
-MKL_LONG  MATRIX::fprint_LONG(std::ofstream& file)
+MKL_LONG
+MATRIX::
+fprint_LONG
+(std::ofstream& file)
 {
   fprint_LONG_skip(file, 1);
   return 0;
 }
 
-MKL_LONG MATRIX::fprint_LONG_skip_transpose_LIMROWS(std::ofstream& file, MKL_LONG N_skip, MKL_LONG N_lim_rows)
+MKL_LONG
+MATRIX::
+fprint_LONG_skip_transpose_LIMROWS
+(std::ofstream& file, MKL_LONG N_skip, MKL_LONG N_lim_rows)
 {
   MKL_LONG  cnt = 0;
   for(MKL_LONG  j=0; j<cols; j++)
@@ -192,20 +235,29 @@ MKL_LONG MATRIX::fprint_LONG_skip_transpose_LIMROWS(std::ofstream& file, MKL_LON
   return 0;
 }
 
-MKL_LONG MATRIX::fprint_LONG_skip_transpose(std::ofstream& file, MKL_LONG  N_skip)
+MKL_LONG
+MATRIX::
+fprint_LONG_skip_transpose
+(std::ofstream& file, MKL_LONG  N_skip)
 {
   MATRIX::fprint_LONG_skip_transpose_LIMROWS(file, N_skip, rows); // count all rows
   return 0;
 }
 
-MKL_LONG  MATRIX::fprint_LONG_transpose(std::ofstream& file)
+MKL_LONG
+MATRIX::
+fprint_LONG_transpose
+(std::ofstream& file)
 {
   fprint_LONG_skip_transpose(file, 1);
   return 0;
 }
 
 
-MKL_LONG  MATRIX::fprint_row(std::ofstream& file, MKL_LONG  given_row)
+MKL_LONG
+MATRIX::
+fprint_row
+(std::ofstream& file, MKL_LONG  given_row)
 {
   MKL_LONG  cnt = 0;
   MKL_LONG  i=given_row;
@@ -217,7 +269,10 @@ MKL_LONG  MATRIX::fprint_row(std::ofstream& file, MKL_LONG  given_row)
   return 0;
 }
 
-MKL_LONG  MATRIX::fprint_out_skip(std::ofstream& file, MKL_LONG  N_skip)
+MKL_LONG
+MATRIX::
+fprint_out_skip
+(std::ofstream& file, MKL_LONG  N_skip)
 {
   MKL_LONG  cnt = 0;
   for(MKL_LONG  i=0; i<rows; i+=N_skip)
@@ -233,21 +288,26 @@ MKL_LONG  MATRIX::fprint_out_skip(std::ofstream& file, MKL_LONG  N_skip)
 
 }
 
-MKL_LONG  MATRIX::fprint_out(std::ofstream& file)
+MKL_LONG
+MATRIX::
+fprint_out
+(std::ofstream& file)
 {
   fprint_out_skip(file, 1);
   return 0;
 }
 
-
-
-MKL_LONG  MATRIX::p_self()
+MKL_LONG
+MATRIX::
+p_self()
 {
   std::cout << this;
   return 0;
 }
 
-MKL_LONG  MATRIX::nonzero()
+MKL_LONG
+MATRIX::
+nonzero()
 {
   for(MKL_LONG  i=0; i<size; i++)
     {
@@ -259,7 +319,10 @@ MKL_LONG  MATRIX::nonzero()
   return 0;
 }
 
-MKL_LONG  MATRIX::ABS_cond(double x)
+MKL_LONG
+MATRIX::
+ABS_cond
+(double x)
 {
   for(MKL_LONG  i=0; i<size; i++)
     {
@@ -271,9 +334,10 @@ MKL_LONG  MATRIX::ABS_cond(double x)
   return 0;
 }
 
-
 // Private Member Function
-MKL_LONG MATRIX::initial()
+MKL_LONG
+MATRIX::
+initial()
 {
   INITIALIZATION = FALSE;
   DIAGONALIZATION = FALSE;
@@ -284,7 +348,10 @@ MKL_LONG MATRIX::initial()
   return 0;
 }
 
-MKL_LONG  MATRIX::initial(MKL_LONG  N_r, MKL_LONG  N_c)
+MKL_LONG
+MATRIX::
+initial
+(MKL_LONG  N_r, MKL_LONG  N_c)
 {
   // std::cout << "CONSTRUCTOR " << this << std::endl;
   // if (INITIALIZATION == TRUE)
@@ -319,7 +386,10 @@ MKL_LONG  MATRIX::initial(MKL_LONG  N_r, MKL_LONG  N_c)
   return 0;
 }
 
-MKL_LONG  MATRIX::initial(MKL_LONG  N_r, MKL_LONG  N_c, double x)
+MKL_LONG
+MATRIX::
+initial
+(MKL_LONG  N_r, MKL_LONG  N_c, double x)
 {
   initial(N_r, N_c);
   for(MKL_LONG  i=0; i<size; i++)
@@ -330,7 +400,9 @@ MKL_LONG  MATRIX::initial(MKL_LONG  N_r, MKL_LONG  N_c, double x)
 }
 
 
-MKL_LONG MATRIX::data_delete()
+MKL_LONG
+MATRIX::
+data_delete()
 {
   // delete[] data;
   // mkl_free(data);
@@ -340,14 +412,18 @@ MKL_LONG MATRIX::data_delete()
   return 0;
 }
 
-MKL_LONG  MATRIX::undefined_error()
+MKL_LONG
+MATRIX::
+undefined_error()
 {
   std::cout << "MATRIX is NOT constructed\n" << std::endl;
   return -1;
 }
 
 
-MKL_LONG  MATRIX::test_arr()
+MKL_LONG
+MATRIX::
+test_arr()
 {
   for(MKL_LONG  i=0; i<size; i++)
     {
@@ -356,7 +432,9 @@ MKL_LONG  MATRIX::test_arr()
   return 0;
 }
 
-MKL_LONG  MATRIX::test_arr_symm()
+MKL_LONG
+MATRIX::
+test_arr_symm()
 {
   for(MKL_LONG  i=0; i<rows; i++)
     {
@@ -368,7 +446,9 @@ MKL_LONG  MATRIX::test_arr_symm()
   return 0;
 }
 
-double MATRIX::ABS_sum()
+double
+MATRIX::
+ABS_sum()
 {
   double result = 0.0;
   double tmp_x;
@@ -383,7 +463,9 @@ double MATRIX::ABS_sum()
   return result;
 }
 
-double MATRIX::sum()
+double
+MATRIX::
+sum()
 {
   double result = 0.0;
   for(MKL_LONG  i=0; i<size; i++)
@@ -393,13 +475,18 @@ double MATRIX::sum()
   return result;
 }
 
-double MATRIX::average()
+double
+MATRIX::
+average()
 {
   double result = sum();
   return result/(double)size;
 }
 
-MKL_LONG MATRIX::add(MATRIX& given_MAT)
+MKL_LONG
+MATRIX::
+add
+(MATRIX& given_MAT)
 {
   if (size != given_MAT.size)
     {
@@ -410,7 +497,9 @@ MKL_LONG MATRIX::add(MATRIX& given_MAT)
   return 0;
 }
 
-MKL_LONG MATRIX::sort()
+MKL_LONG
+MATRIX::
+sort()
 {
   gsl_sort(data, 1, size);
   return 0;
@@ -437,7 +526,10 @@ MKL_LONG MATRIX::sort()
 //   return 0;
 // }
 
-MKL_LONG MATRIX::sort2(MATRIX& index)
+MKL_LONG
+MATRIX::
+sort2
+(MATRIX& index)
 {
 
   gsl_sort2(data, 1, index.data, 1, size);

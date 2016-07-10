@@ -2,7 +2,10 @@
 
 #include "handle_association.h"
 
-MKL_LONG CHAIN_HANDLE::write(std::ofstream& file)
+MKL_LONG
+CHAIN_HANDLE::
+write
+(std::ofstream& file)
 {
   MKL_LONG cnt = 0;
   for(MKL_LONG i=0; i<2*N_chains; i++)
@@ -15,7 +18,10 @@ MKL_LONG CHAIN_HANDLE::write(std::ofstream& file)
 }
 
 
-MKL_LONG CHAIN_HANDLE::mov_attachment(MKL_LONG target_particle, MKL_LONG given_chain_end_index)
+MKL_LONG
+CHAIN_HANDLE::
+mov_attachment
+(MKL_LONG target_particle, MKL_LONG given_chain_end_index)
 {
   MKL_LONG index_particle = (MKL_LONG)CE_ATTACHED_REF(given_chain_end_index);
 
@@ -37,7 +43,10 @@ MKL_LONG CHAIN_HANDLE::mov_attachment(MKL_LONG target_particle, MKL_LONG given_c
 }
 
 
-MKL_LONG CHAIN_HANDLE::TRACKING_ACTION(ASSOCIATION& CONNECT, MKL_LONG flag_ACTION, INDEX_MC& IDX)
+MKL_LONG
+CHAIN_HANDLE::
+TRACKING_ACTION
+(ASSOCIATION& CONNECT, MKL_LONG flag_ACTION, INDEX_MC& IDX)
 {
   /*
     It is of importance to using ij indices by identify subjected chain end.
@@ -93,7 +102,10 @@ MKL_LONG CHAIN_HANDLE::TRACKING_ACTION(ASSOCIATION& CONNECT, MKL_LONG flag_ACTIO
   return 0;
 }
 
-MKL_LONG CHAIN_HANDLE::get_index_degeneracy(MKL_LONG particle_subject, MKL_LONG particle_target)
+MKL_LONG
+CHAIN_HANDLE::
+get_index_degeneracy
+(MKL_LONG particle_subject, MKL_LONG particle_target)
 {
   /*
     This index function is the core for the tracking algorithm.
@@ -138,18 +150,23 @@ const MKL_LONG INDEX_MC::N_BOOST_COUNT[] = {0, 2, 2, 3};
 /*
   the reason for inheritance for reference variable is that the reference variables cannot be along without given variables. In this way, the reference variables automatically allocated with exiting variables with beads array.
 */
-INDEX_MC::INDEX_MC()
+INDEX_MC::
+INDEX_MC()
 {
   initial();
   set_initial_variables();
 }
 
-INDEX_MC::INDEX_MC(const INDEX_MC& given_IDX)                                                
+INDEX_MC::
+INDEX_MC
+(const INDEX_MC& given_IDX)                                                
 {
   copy_INDEX(given_IDX);
 }
 
-MKL_LONG INDEX_MC::initial()
+MKL_LONG
+INDEX_MC::
+initial()
 {
   ACTION_ARR[CANCEL] = ACTION::CANCEL ;
   ACTION_ARR[ADD]    = ACTION::ADD    ;
@@ -158,7 +175,10 @@ MKL_LONG INDEX_MC::initial()
   return 0;
 }
 
-MKL_LONG INDEX_MC::copy_INDEX(const INDEX_MC& given_IDX)
+MKL_LONG
+INDEX_MC::
+copy_INDEX
+(const INDEX_MC& given_IDX)
 {
   initial();
   set_initial_variables();
@@ -167,13 +187,18 @@ MKL_LONG INDEX_MC::copy_INDEX(const INDEX_MC& given_IDX)
   return 0;
 }
 
-INDEX_MC& INDEX_MC::operator=(const INDEX_MC& given_IDX)
+INDEX_MC&
+INDEX_MC::
+operator=
+(const INDEX_MC& given_IDX)
 {
   copy_INDEX(given_IDX);
   return *this;
 }
 
-MKL_LONG INDEX_MC::set_initial_variables()
+MKL_LONG
+INDEX_MC::
+set_initial_variables()
 {
   // Handling the -1 value as initialization is good part for re-usability from other library.
   for(MKL_LONG i=0; i<5; i++)
@@ -181,13 +206,19 @@ MKL_LONG INDEX_MC::set_initial_variables()
   return 0;
 }
 
-MKL_LONG ACTION::ACT(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, INDEX_MC& IDX, MATRIX* R_minimum_distance_boost, MKL_LONG const IDENTIFIER_ACTION)
+MKL_LONG
+ACTION::
+ACT
+(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, INDEX_MC& IDX, MATRIX* R_minimum_distance_boost, MKL_LONG const IDENTIFIER_ACTION)
 {
   IDX.ACTION_ARR[IDENTIFIER_ACTION](POTs, CONNECT, IDX.beads, R_minimum_distance_boost);
   return 0;
 }
 
-double ACTION::UPDATE_INFORMATION(ASSOCIATION& CONNECT, INDEX_MC& IDX, MKL_LONG cnt_arr[], MKL_LONG const IDENTIFIER_ACTION)
+double
+ACTION::
+UPDATE_INFORMATION
+(ASSOCIATION& CONNECT, INDEX_MC& IDX, MKL_LONG cnt_arr[], MKL_LONG const IDENTIFIER_ACTION)
 {
   double time_st = dsecnd();
   for(MKL_LONG i=0; i<IDX.N_BOOST_COUNT[IDENTIFIER_ACTION]; i++)
@@ -199,12 +230,18 @@ double ACTION::UPDATE_INFORMATION(ASSOCIATION& CONNECT, INDEX_MC& IDX, MKL_LONG 
   return dsecnd() - time_st;
 }
 
-MKL_LONG ACTION::CANCEL(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
+MKL_LONG
+ACTION::
+CANCEL
+(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
 {
   return 0;
 }
 
-MKL_LONG ACTION::MOV(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
+MKL_LONG
+ACTION::
+MOV
+(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
 {
   /*
     It is of importance to nocie that the opp_del_association (i and j) are detaching j chain ends rather than i chain end.
@@ -220,20 +257,29 @@ MKL_LONG ACTION::MOV(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_
   return 0;
 }
 
-MKL_LONG ACTION::OPP_DEL(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
+MKL_LONG
+ACTION::
+OPP_DEL
+(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
 {
   CONNECT.opp_del_association_hash(index_set[CONNECT.flag_itself], index_set[CONNECT.flag_hash_other]);
   return 0;
 }
 
-MKL_LONG ACTION::ADD(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
+MKL_LONG
+ACTION::
+ADD
+(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost)
 {
   CONNECT.add_association_INFO(POTs, index_set[CONNECT.flag_itself], index_set[CONNECT.flag_new], R_minimum_distance_boost[index_set[CONNECT.flag_itself]](index_set[CONNECT.flag_new]));
   return 0;
 }
 
 
-MKL_LONG ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(ASSOCIATION& CONNECT, INDEX_MC& IDX)
+MKL_LONG
+ACTION::
+IDENTIFIER_ACTION_BOOLEAN_BOOST
+(ASSOCIATION& CONNECT, INDEX_MC& IDX)
 {
   // MKL_LONG &index_itself = index_set[2], &index_other = index_set[0], &index_new = index_set[1];
   // check index_other == index_new
@@ -268,7 +314,10 @@ MKL_LONG ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(ASSOCIATION& CONNECT, INDEX_MC&
   return IDX.CANCEL;
 }
 
-MKL_LONG SEARCHING::bisection(MATRIX& given_arr, double p)
+MKL_LONG
+SEARCHING::
+bisection
+(MATRIX& given_arr, double p)
 {
   MKL_LONG N = given_arr.size;
   MKL_LONG k = N/2;
@@ -295,7 +344,10 @@ MKL_LONG SEARCHING::bisection(MATRIX& given_arr, double p)
   return k;
 }
 
-MKL_LONG SEARCHING::backtrace(MATRIX& given_arr, double p)
+MKL_LONG
+SEARCHING::
+backtrace
+(MATRIX& given_arr, double p)
 {
   for(MKL_LONG k= given_arr.size - 1; k >=0; k--)
     {
@@ -307,7 +359,10 @@ MKL_LONG SEARCHING::backtrace(MATRIX& given_arr, double p)
   return 0;
 }
 
-MKL_LONG SEARCHING::backtrace_cell_list(MATRIX& given_arr, MKL_LONG TOKEN, double p, MKL_LONG index_particle, RDIST& R_boost)
+MKL_LONG
+SEARCHING::
+backtrace_cell_list
+(MATRIX& given_arr, MKL_LONG TOKEN, double p, MKL_LONG index_particle, RDIST& R_boost)
 {
 
   for(MKL_LONG k= given_arr.size - 1; k >= given_arr.size - TOKEN; k--)
@@ -320,7 +375,9 @@ MKL_LONG SEARCHING::backtrace_cell_list(MATRIX& given_arr, MKL_LONG TOKEN, doubl
   return given_arr.size - TOKEN;
 }
 
-MKL_LONG CHAIN_HANDLE::allocate_array()
+MKL_LONG
+CHAIN_HANDLE::
+allocate_array()
 {
   PARTICLE = new MKL_LONG* [N_particles];
   P_TOKEN = new MKL_LONG [N_particles];
@@ -340,7 +397,10 @@ MKL_LONG CHAIN_HANDLE::allocate_array()
   return 0;
 }
 
-MKL_LONG CHAIN_HANDLE::hash_initial(MKL_LONG seed)
+MKL_LONG
+CHAIN_HANDLE::
+hash_initial
+(MKL_LONG seed)
 {
 
   allocate_array();
@@ -363,9 +423,10 @@ MKL_LONG CHAIN_HANDLE::hash_initial(MKL_LONG seed)
   return 0;
 }
 
-
-
-MKL_LONG CHAIN_HANDLE::allocate_existing_bridges(ASSOCIATION& CONNECT)
+MKL_LONG
+CHAIN_HANDLE::
+allocate_existing_bridges
+(ASSOCIATION& CONNECT)
 {
   /*
     This function is of importance when simulation inherit the existing connectivity information.

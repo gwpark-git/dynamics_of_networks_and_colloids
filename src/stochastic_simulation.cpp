@@ -14,7 +14,8 @@
 #include "dumbbell_model.h"		// dumbbell model based on Brownian motion
 using namespace std;
 
-int help()
+int
+help()
 {
   cout << "USAGE of Brownian Dynamics with Quadratic Repulsive Potential\n";
   cout << "argv[1] == condition files including variables:\n";
@@ -25,7 +26,9 @@ int help()
 }
 
 
-int main(int argc, char* argv[])
+int
+main
+(int argc, char* argv[])
 {
   if(argc==1)
     {

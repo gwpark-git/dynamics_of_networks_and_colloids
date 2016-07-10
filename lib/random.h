@@ -27,7 +27,8 @@ class RNG_BOOST
     {
       std::cout<< "ERR: basic constructor for RNG_BOOST class is not allowed\n";
     }
-  RNG_BOOST(COND& given_condition)
+  RNG_BOOST
+    (COND& given_condition)
     {
       INITIALIZATION_BD = TRUE;
       const gsl_rng_type *T_boost;
@@ -84,21 +85,48 @@ class RNG_BOOST
 
 namespace RANDOM
 {
-  MKL_LONG random_vector_generator(MATRIX& R_VEC_TRANS);
-  MKL_LONG single_random_vector_generator(MATRIX& given_vec);
-  MKL_LONG single_random_vector_generator_variance(MATRIX& given_vec, double s_2);
-  MKL_LONG single_random_vector_generator_boost(MATRIX& given_vec, gsl_rng* r_boost);
-  MKL_LONG single_random_vector_generator_variance_boost(MATRIX& given_vec, double s_2, gsl_rng* r_boost);
-  MKL_LONG single_unit_random_vector_generator(MATRIX& given_vec);
-  MKL_LONG unit_random_vector_generator(MATRIX& R_VEC_TRANS);
-  MKL_LONG unit_random_vector_generator_2D(MATRIX& R_VEC_TRANS);
+  MKL_LONG
+    random_vector_generator
+    (MATRIX& R_VEC_TRANS);
+  MKL_LONG
+    single_random_vector_generator
+    (MATRIX& given_vec);
+  MKL_LONG
+    single_random_vector_generator_variance
+    (MATRIX& given_vec, double s_2);
+  MKL_LONG
+    single_random_vector_generator_boost
+    (MATRIX& given_vec, gsl_rng* r_boost);
+  MKL_LONG
+    single_random_vector_generator_variance_boost
+    (MATRIX& given_vec, double s_2, gsl_rng* r_boost);
+  MKL_LONG
+    single_unit_random_vector_generator
+    (MATRIX& given_vec);
+  MKL_LONG
+    unit_random_vector_generator
+    (MATRIX& R_VEC_TRANS);
+  MKL_LONG
+    unit_random_vector_generator_2D
+    (MATRIX& R_VEC_TRANS);
 
-  MKL_LONG return_LONG_INT_rand(MKL_LONG SUP);
-  MKL_LONG return_LONG_INT_rand_boost(gsl_rng* r, MKL_LONG SUP);
-  double return_double_rand_SUP1();
-  double return_double_rand_SUP1_boost(gsl_rng* r);
-  MKL_LONG get_LONG_ARR_rand_boost(gsl_rng* r, MKL_LONG SUP, MKL_LONG* given_long_arr, MKL_LONG N_arr);
-  MKL_LONG get_DOUBLE_ARR_rand_boost(gsl_rng* r, double* given_double_arr, MKL_LONG N_arr);
+  MKL_LONG
+    return_LONG_INT_rand
+    (MKL_LONG SUP);
+  MKL_LONG
+    return_LONG_INT_rand_boost
+    (gsl_rng* r, MKL_LONG SUP);
+  double
+    return_double_rand_SUP1();
+  double
+    return_double_rand_SUP1_boost
+    (gsl_rng* r);
+  MKL_LONG
+    get_LONG_ARR_rand_boost
+    (gsl_rng* r, MKL_LONG SUP, MKL_LONG* given_long_arr, MKL_LONG N_arr);
+  MKL_LONG
+    get_DOUBLE_ARR_rand_boost
+    (gsl_rng* r, double* given_double_arr, MKL_LONG N_arr);
   
 }
 

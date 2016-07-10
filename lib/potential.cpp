@@ -2,18 +2,27 @@
 #include "potential.h"
 
 
-double FORCE::BROWNIAN::no_time_scaling_random(MATRIX& given_basic_random, double scale_factor)
+double
+FORCE::BROWNIAN::
+no_time_scaling_random
+(MATRIX& given_basic_random, double scale_factor)
 {
   return 1.; // indicate no changes on given_basic_random;
 }
 
-double FORCE::BROWNIAN::MAP_no_time_scaling_random(MATRIX& given_basic_random, double *given_variables)
+double
+FORCE::BROWNIAN::
+MAP_no_time_scaling_random
+(MATRIX& given_basic_random, double *given_variables)
 {
   // the last argument *given_variables is related with POTs.force_variables. In the case for pure Brownian motion, however, the pointer for force_variables will be set with NULL. Therefore, it will be ignored, but the argument remains in order to use function pointer.
   return FORCE::BROWNIAN::no_time_scaling_random(given_basic_random, 1.); // anyhow, the unity will be ignored for performance
 }
 
-MKL_LONG FORCE::BROWNIAN::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
+MKL_LONG
+FORCE::BROWNIAN::
+MAP_potential_set
+(POTENTIAL_SET& given_POT, COND& given_cond)
 {
   given_POT.force_variables = NULL;
   given_POT.f_repulsion = NULL;
@@ -24,7 +33,10 @@ MKL_LONG FORCE::BROWNIAN::MAP_potential_set(POTENTIAL_SET& given_POT, COND& give
   return 0;
 }
 
-MKL_LONG FORCE::DUMBBELL::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
+MKL_LONG
+FORCE::DUMBBELL::
+MAP_potential_set
+(POTENTIAL_SET& given_POT, COND& given_cond)
 {
   /* 
      At this moment, the only Gaussian chain is implemented for dumbbell model.
@@ -40,7 +52,10 @@ MKL_LONG FORCE::DUMBBELL::MAP_potential_set(POTENTIAL_SET& given_POT, COND& give
   return 0;
 }
 
-MKL_LONG FORCE::DEFAULT::EMPTY_force_set(POTENTIAL_SET& given_POT, COND& given_condition)
+MKL_LONG
+FORCE::DEFAULT::
+EMPTY_force_set
+(POTENTIAL_SET& given_POT, COND& given_condition)
 {
   given_POT.f_repulsion = FORCE::DEFAULT::EMPTY_force_contribution;
   given_POT.e_repulsion = FORCE::DEFAULT::EMPTY_force_contribution;
@@ -50,7 +65,10 @@ MKL_LONG FORCE::DEFAULT::EMPTY_force_set(POTENTIAL_SET& given_POT, COND& given_c
   return 0;
 }
 
-MKL_LONG FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
+MKL_LONG
+FORCE::NAPLE::SIMPLE_REPULSION::
+MAP_potential_set
+(POTENTIAL_SET& given_POT, COND& given_cond)
 {
 
   given_POT.force_variables = new double [3];
@@ -69,8 +87,10 @@ MKL_LONG FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_set(POTENTIAL_SET& given_
   return 0;
 }
 
-
-MKL_LONG FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTENTIAL_SET& given_POT, COND& given_cond)
+MKL_LONG
+FORCE::NAPLE::MC_ASSOCIATION::
+MAP_potential_set
+(POTENTIAL_SET& given_POT, COND& given_cond)
 {
 
   given_POT.force_variables = new double [8];

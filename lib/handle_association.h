@@ -52,40 +52,68 @@ class INDEX_MC
      This copy constructor is of importance to prevent the potential problem.
      Remind rule of three.
   */ 
-  MKL_LONG copy_INDEX(const INDEX_MC& given_IDX);
-  INDEX_MC& operator=(const INDEX_MC& given_IDX);
-  INDEX_MC(const INDEX_MC& given_IDX); // copy constructore
+  MKL_LONG
+    copy_INDEX
+    (const INDEX_MC& given_IDX);
+  INDEX_MC&
+    operator=
+    (const INDEX_MC& given_IDX);
+  INDEX_MC
+    (const INDEX_MC& given_IDX); // copy constructore
   
-  MKL_LONG set_initial_variables();
-  MKL_LONG initial();
+  MKL_LONG
+    set_initial_variables();
+  MKL_LONG
+    initial();
   
 };
 
 namespace SEARCHING
 {
   //the basic backward searching method. Note that the probability map is given by sorted manner (this is due to the fact that the proability map is computed once a each time steps.) Therefore, if the cut-off scheme for FENE connector is properly working, there is no problem for the backtrace.
-  MKL_LONG backtrace(MATRIX& given_arr, double p);
-  MKL_LONG backtrace_cell_list(MATRIX& given_arr, MKL_LONG TOKEN, double p, MKL_LONG index_particle, RDIST& R_boost);
+  MKL_LONG
+    backtrace
+    (MATRIX& given_arr, double p);
+  MKL_LONG
+    backtrace_cell_list
+    (MATRIX& given_arr, MKL_LONG TOKEN, double p, MKL_LONG index_particle, RDIST& R_boost);
   
   // For general purpose, the bisection method is good aspect for approaching. Since the domain of this bisection is index space, that is defined on Integer space, the steps to reach solution is log_2(Np). In this scheme, however, some additional step is needed in order to compensate the loss of odd number division. Therefore, the overall step is determined log_2(Np) + #compensation, which approximately 11 in the Np640 cases (log2(640) is 8).
-  MKL_LONG bisection(MATRIX& given_arr, double p);
+  MKL_LONG
+    bisection
+    (MATRIX& given_arr, double p);
 }
 
 namespace ACTION
 {
-  MKL_LONG ACT(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, INDEX_MC& IDX, MATRIX* R_minimum_distance_boost, MKL_LONG const IDENTIFIER_ACTION);
+  MKL_LONG
+    ACT
+    (POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, INDEX_MC& IDX, MATRIX* R_minimum_distance_boost, MKL_LONG const IDENTIFIER_ACTION);
   
-  MKL_LONG IDENTIFIER_ACTION_BOOLEAN_BOOST(ASSOCIATION& CONNECT, INDEX_MC& IDX);  
-  double UPDATE_INFORMATION(ASSOCIATION& CONNECT, INDEX_MC& IDX, MKL_LONG cnt_arr[], MKL_LONG const IDENTIFIER_ACTION);
+  MKL_LONG
+    IDENTIFIER_ACTION_BOOLEAN_BOOST
+    (ASSOCIATION& CONNECT, INDEX_MC& IDX);  
+  double
+    UPDATE_INFORMATION
+    (ASSOCIATION& CONNECT, INDEX_MC& IDX, MKL_LONG cnt_arr[], MKL_LONG const IDENTIFIER_ACTION);
 
-  MKL_LONG CANCEL(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
-  MKL_LONG MOV(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
-  MKL_LONG OPP_DEL(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
-  MKL_LONG ADD(POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
+  MKL_LONG
+    CANCEL
+    (POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
+  MKL_LONG
+    MOV
+    (POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
+  MKL_LONG
+    OPP_DEL
+    (POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
+  MKL_LONG
+    ADD
+    (POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MKL_LONG *index_set, MATRIX* R_minimum_distance_boost);
   
 }
 
-class CHAIN_HANDLE : public CHAIN_INFORMATION
+class CHAIN_HANDLE
+: public CHAIN_INFORMATION
 {
   /*
     This class is designed to handle the CHAIN_INFORMATION with hash table.
@@ -103,19 +131,25 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
   
   gsl_rng *r_degeneracy_check;
   MKL_LONG *degeneracy_index_array;
-  MKL_LONG& CE_ATTACHED_REF(MKL_LONG given_chain_end_index)
+  MKL_LONG&
+    CE_ATTACHED_REF
+    (MKL_LONG given_chain_end_index)
     {
       return ATTACHED(given_chain_end_index%N_chains, (MKL_LONG)(given_chain_end_index/N_chains));
     }
   
-  MKL_LONG opp_chain_end_index(MKL_LONG given_chain_end_index)
+  MKL_LONG
+    opp_chain_end_index
+    (MKL_LONG given_chain_end_index)
   {
     if (given_chain_end_index < N_chains)
       return given_chain_end_index + N_chains;
     return given_chain_end_index - N_chains;
   }
   
-  MKL_LONG get_hash_index(MKL_LONG index_particle, MKL_LONG index_chain_end)
+  MKL_LONG
+    get_hash_index
+    (MKL_LONG index_particle, MKL_LONG index_chain_end)
   {
     for(MKL_LONG i=0; i<P_TOKEN[index_particle]; i++)
       {
@@ -126,20 +160,36 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
     return -1;
   }
 
-  MKL_LONG mov_attachment(MKL_LONG target_particle, MKL_LONG given_chain_end_index);
-  MKL_LONG get_index_degeneracy(MKL_LONG particle_subject, MKL_LONG particle_target);
-  MKL_LONG TRACKING_ACTION(ASSOCIATION& CONNECT, MKL_LONG flag_ACTION, INDEX_MC& IDX);
+  MKL_LONG
+    mov_attachment
+    (MKL_LONG target_particle, MKL_LONG given_chain_end_index);
+  MKL_LONG
+    get_index_degeneracy
+    (MKL_LONG particle_subject, MKL_LONG particle_target);
+  MKL_LONG
+    TRACKING_ACTION
+    (ASSOCIATION& CONNECT, MKL_LONG flag_ACTION, INDEX_MC& IDX);
 
 
-  MKL_LONG write(std::ofstream& file);
-  MKL_LONG allocate_array();
-  MKL_LONG hash_initial(MKL_LONG seed);
- CHAIN_HANDLE() : CHAIN_INFORMATION(){}
- CHAIN_HANDLE(MKL_LONG number_of_chains, MKL_LONG number_of_particles) : CHAIN_INFORMATION(number_of_chains, number_of_particles)
+  MKL_LONG
+    write
+    (std::ofstream& file);
+  MKL_LONG
+    allocate_array();
+  MKL_LONG
+    hash_initial
+    (MKL_LONG seed);
+ CHAIN_HANDLE()
+   : CHAIN_INFORMATION(){}
+ CHAIN_HANDLE
+   (MKL_LONG number_of_chains, MKL_LONG number_of_particles)
+   : CHAIN_INFORMATION(number_of_chains, number_of_particles)
     {
       hash_initial(random());
     }
- CHAIN_HANDLE(COND& given_condition) : CHAIN_INFORMATION(given_condition)
+ CHAIN_HANDLE
+   (COND& given_condition)
+   : CHAIN_INFORMATION(given_condition)
   {
     if(given_condition("tracking_individual_chain") == "TRUE")
       {
@@ -151,7 +201,9 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
         INITIALIZATION = FALSE;
       }
   }
- CHAIN_HANDLE(COND& given_condition, ASSOCIATION& CONNECT) : CHAIN_INFORMATION(given_condition, CONNECT)
+ CHAIN_HANDLE
+   (COND& given_condition, ASSOCIATION& CONNECT)
+   : CHAIN_INFORMATION(given_condition, CONNECT)
   {
     if(given_condition("tracking_individual_chain") == "TRUE")
       {

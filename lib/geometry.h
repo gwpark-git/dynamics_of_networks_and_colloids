@@ -21,8 +21,10 @@ public:
   {
     std::cout << "There is no empty constructor for RDIST class\n" << std::endl;
   }
-  RDIST(COND& given_condition);
-  virtual ~RDIST()
+  RDIST
+    (COND& given_condition);
+  virtual
+    ~RDIST()
   {
     if(INITIALIZATION)
       {
@@ -59,48 +61,96 @@ public:
 
 namespace UTIL_ARR
 {
-  double get_minimum_image_k_from_x(double x, double k, double dimension);
-  MKL_LONG get_index_minimum_abs(double *k, MKL_LONG N);
+  double
+    get_minimum_image_k_from_x
+    (double x, double k, double dimension);
+  MKL_LONG
+    get_index_minimum_abs
+    (double *k, MKL_LONG N);
 }
 
 
 namespace GEOMETRY
 {
-
-
   
-  MKL_LONG compute_RDIST_particle(RDIST& R_boost, const MKL_LONG index_particle, TRAJECTORY& TRAJ, MKL_LONG index_t);
+  MKL_LONG
+    compute_RDIST_particle
+    (RDIST& R_boost, const MKL_LONG index_particle, TRAJECTORY& TRAJ, MKL_LONG index_t);
   // the original set
-  double get_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec);
-  double get_minimum_distance_for_particle(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_particle, MATRIX& R_minimum_boost_particle, MATRIX** R_minimum_vec_boost); 
-  double return_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j);
-  double minimum_image_convention(TRAJECTORY& TRAJ, MKL_LONG target_t);
-  double minimum_image_convention_loop(TRAJECTORY& TRAJ, MKL_LONG target_t);
-  double apply_shear_boundary_condition(TRAJECTORY& TRAJ, MKL_LONG target_t, const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis, const double shift_factor);
+  double
+    get_minimum_distance
+    (TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec);
+  double
+    get_minimum_distance_for_particle
+    (TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_particle, MATRIX& R_minimum_boost_particle, MATRIX** R_minimum_vec_boost); 
+  double
+    return_minimum_distance
+    (TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j);
+  double
+    minimum_image_convention
+    (TRAJECTORY& TRAJ, MKL_LONG target_t);
+  double
+    minimum_image_convention_loop
+    (TRAJECTORY& TRAJ, MKL_LONG target_t);
+  double
+    apply_shear_boundary_condition
+    (TRAJECTORY& TRAJ, MKL_LONG target_t, const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis, const double shift_factor);
 
   
-  MKL_LONG get_minimum_distance_pos_vector(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec);
-  MKL_LONG get_minimum_distance_pos_vector(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec);
-  MKL_LONG get_minimum_distance_rel_vector(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec);
-  double get_simple_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG i);
+  MKL_LONG
+    get_minimum_distance_pos_vector
+    (TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec);
+  MKL_LONG
+    get_minimum_distance_pos_vector
+    (TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec);
+  MKL_LONG
+    get_minimum_distance_rel_vector
+    (TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec);
+  double
+    get_simple_distance
+    (TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG i);
 
-  double get_simple_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG i);
+  double
+    get_simple_distance
+    (TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG i);
 
 
   // inlined functions
-  double measure_minimum_distance_default(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check);
-  double measure_minimum_distance_cell_list(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check);
-  double measure_minimum_distance_simple_shear_fixed_axis(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check);  
+  double
+    measure_minimum_distance_default
+    (RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check);
+  double
+    measure_minimum_distance_cell_list
+    (RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check);
+  double
+    measure_minimum_distance_simple_shear_fixed_axis
+    (RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check);  
 
   
-  MKL_LONG get_minimum_distance_rel_vector_cell_list(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec, MKL_LONG* beyond_box_check);
-  double get_minimum_distance_cell_list(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, MKL_LONG* beyond_box_check);
-  double get_minimum_distance_rel_vector_simple_shear_fixed_axis(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec, const double map_to_central_box_image);
-  double get_minimum_distance_simple_shear_fixed_axis(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, const double map_to_central_box_image);
-  MKL_LONG minimum_image_convention_particle(TRAJECTORY& TRAJ, MKL_LONG target_t, MKL_LONG index_particle);
-  double get_minimum_distance_rel_vector_equilibrium_test(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec);
-  double get_minimum_distance_equilibrium_test(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec);
-  MKL_LONG minimum_image_convention_particle(TRAJECTORY& TRAJ, MKL_LONG target_t, MKL_LONG index_particle);
+  MKL_LONG
+    get_minimum_distance_rel_vector_cell_list
+    (TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec, MKL_LONG* beyond_box_check);
+  double
+    get_minimum_distance_cell_list
+    (TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, MKL_LONG* beyond_box_check);
+  double
+    get_minimum_distance_rel_vector_simple_shear_fixed_axis
+    (TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec, const double map_to_central_box_image);
+  double
+    get_minimum_distance_simple_shear_fixed_axis
+    (TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, const double map_to_central_box_image);
+  MKL_LONG
+    minimum_image_convention_particle
+    (TRAJECTORY& TRAJ, MKL_LONG target_t, MKL_LONG index_particle);
+  double
+    get_minimum_distance_rel_vector_equilibrium_test
+    (TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec);
+  double
+    get_minimum_distance_equilibrium_test
+    (TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec);
+  MKL_LONG
+    minimum_image_convention_particle
+    (TRAJECTORY& TRAJ, MKL_LONG target_t, MKL_LONG index_particle);
 
   
 } // namespace GEOMETRY
@@ -109,14 +159,20 @@ namespace GEOMETRY
 
 // the following are related with inlined function
 // it is extracted from above for readability
-inline double UTIL_ARR::get_minimum_image_k_from_x(double x, double k, double dimension)
+inline double
+UTIL_ARR::
+get_minimum_image_k_from_x
+(double x, double k, double dimension)
 {
   double kd[3] = {k-dimension - x, k - x, k+dimension - x};
   double re= kd[get_index_minimum_abs(kd, 3)] + x;
   return re;
 }
 
-inline MKL_LONG UTIL_ARR::get_index_minimum_abs(double *k, MKL_LONG N)
+inline MKL_LONG
+UTIL_ARR::
+get_index_minimum_abs
+(double *k, MKL_LONG N)
 {
   MKL_LONG re = 0;
   for(MKL_LONG i=1; i<N; i++)
@@ -127,7 +183,10 @@ inline MKL_LONG UTIL_ARR::get_index_minimum_abs(double *k, MKL_LONG N)
   return re;
 }
 
-inline MKL_LONG GEOMETRY::get_minimum_distance_rel_vector_cell_list(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec, MKL_LONG* beyond_box_check)
+inline MKL_LONG
+GEOMETRY::
+get_minimum_distance_rel_vector_cell_list
+(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec, MKL_LONG* beyond_box_check)
 {
   // direction convention:
   // +: direction to the given bead
@@ -145,7 +204,10 @@ inline MKL_LONG GEOMETRY::get_minimum_distance_rel_vector_cell_list(TRAJECTORY& 
   return 0;
 }
   
-inline double GEOMETRY::get_minimum_distance_cell_list(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, MKL_LONG* beyond_box_check)
+inline double
+GEOMETRY::
+get_minimum_distance_cell_list
+(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, MKL_LONG* beyond_box_check)
 {
   GEOMETRY::get_minimum_distance_rel_vector_cell_list(TRAJ, index_t, index_i, index_j, given_vec, beyond_box_check);
 
@@ -155,7 +217,10 @@ inline double GEOMETRY::get_minimum_distance_cell_list(TRAJECTORY& TRAJ, MKL_LON
 }
 
 
-inline double GEOMETRY::get_minimum_distance_rel_vector_equilibrium_test(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec)
+inline double
+GEOMETRY::
+get_minimum_distance_rel_vector_equilibrium_test
+(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec)
 {
   double min_norm = TRAJ.box_dimension[0];
   MKL_LONG min_sf_0 = 0, min_sf_1 = 0, min_sf_2 = 0;
@@ -187,12 +252,18 @@ inline double GEOMETRY::get_minimum_distance_rel_vector_equilibrium_test(TRAJECT
 
 
 
-inline double GEOMETRY::get_minimum_distance_equilibrium_test(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec)
+inline double
+GEOMETRY::
+get_minimum_distance_equilibrium_test
+(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec)
 {
   return GEOMETRY::get_minimum_distance_rel_vector_equilibrium_test(TRAJ, index_t, index_i, index_j, given_vec);
 }
 
-inline double GEOMETRY::get_minimum_distance_rel_vector_simple_shear_fixed_axis(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec, const double map_to_central_box_image)
+inline double
+GEOMETRY::
+get_minimum_distance_rel_vector_simple_shear_fixed_axis
+(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec, const double map_to_central_box_image)
 {
   /*
     Even if it slows, it have worth to try compare with the existing scheme.
@@ -231,14 +302,20 @@ inline double GEOMETRY::get_minimum_distance_rel_vector_simple_shear_fixed_axis(
   return min_norm;
 }
 
-inline double GEOMETRY::get_minimum_distance_simple_shear_fixed_axis(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, const double map_to_central_box_image)
+inline double
+GEOMETRY::
+get_minimum_distance_simple_shear_fixed_axis
+(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, const double map_to_central_box_image)
 {
   double distance = GEOMETRY::get_minimum_distance_rel_vector_simple_shear_fixed_axis(TRAJ, index_t, index_i, index_j, given_vec, map_to_central_box_image);
   return distance;
 }
 
   
-inline MKL_LONG GEOMETRY::minimum_image_convention_particle(TRAJECTORY& TRAJ, MKL_LONG target_t, MKL_LONG index_particle)
+inline MKL_LONG
+GEOMETRY::
+minimum_image_convention_particle
+(TRAJECTORY& TRAJ, MKL_LONG target_t, MKL_LONG index_particle)
 {
   for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
     {
@@ -252,7 +329,10 @@ inline MKL_LONG GEOMETRY::minimum_image_convention_particle(TRAJECTORY& TRAJ, MK
   return 0;
 }
 
-inline double GEOMETRY::get_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec)
+inline double
+GEOMETRY::
+get_minimum_distance
+(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec)
 {
   // this comentation is related with the assumes that
   // the given dimensionality is properly working
@@ -262,14 +342,20 @@ inline double GEOMETRY::get_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t,
   return given_vec.norm();
 }
 
-inline double GEOMETRY::return_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j)
+inline double
+GEOMETRY::
+return_minimum_distance
+(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j)
 {
   MATRIX rel_vec(TRAJ.N_dimension, 1, 0.);
   GEOMETRY::get_minimum_distance(TRAJ, index_t, index_i, index_j, rel_vec);
   return rel_vec.norm();
 }
 
-inline MKL_LONG GEOMETRY::get_minimum_distance_pos_vector(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec)
+inline MKL_LONG
+GEOMETRY::
+get_minimum_distance_pos_vector
+(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec)
 {
   for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
     {
@@ -278,7 +364,10 @@ inline MKL_LONG GEOMETRY::get_minimum_distance_pos_vector(TRAJECTORY& TRAJ, MKL_
   return 0;
 }
 
-inline MKL_LONG GEOMETRY::get_minimum_distance_rel_vector(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec)
+inline MKL_LONG
+GEOMETRY::
+get_minimum_distance_rel_vector
+(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec)
 {
   GEOMETRY::get_minimum_distance_pos_vector(TRAJ, index_t, given_index, target_index, given_vec);
   for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
@@ -293,7 +382,10 @@ inline MKL_LONG GEOMETRY::get_minimum_distance_rel_vector(TRAJECTORY& TRAJ, MKL_
 
 
 
-inline double GEOMETRY::get_simple_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG i)
+inline double
+GEOMETRY::
+get_simple_distance
+(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG i)
 {
   double distance = 0.;
   for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
@@ -304,8 +396,10 @@ inline double GEOMETRY::get_simple_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, 
 
 }
 
-
-inline double GEOMETRY::measure_minimum_distance_default(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
+inline double
+GEOMETRY::
+measure_minimum_distance_default
+(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
 {
   return GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, index_target, R_boost.Rvec[index_particle][index_target]);
   // the following function is reference (and very slow).
@@ -313,12 +407,18 @@ inline double GEOMETRY::measure_minimum_distance_default(RDIST& R_boost, TRAJECT
   // return GEOMETRY::get_minimum_distance_equilibrium_test(TRAJ, index_t, index_particle, index_target, R_boost.Rvec[index_particle][index_target]);
 }
 
-inline double GEOMETRY::measure_minimum_distance_cell_list(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
+inline double
+GEOMETRY::
+measure_minimum_distance_cell_list
+(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
 {
   return GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t, index_particle, index_target, R_boost.Rvec[index_particle][index_target], beyond_box_check);
 }
 
-inline double GEOMETRY::measure_minimum_distance_simple_shear_fixed_axis(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
+inline double
+GEOMETRY::
+measure_minimum_distance_simple_shear_fixed_axis
+(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
 {
   return GEOMETRY::get_minimum_distance_simple_shear_fixed_axis(TRAJ, index_t, index_particle, index_target, R_boost.Rvec[index_particle][index_target], R_boost.map_to_central_box_image);
 }
