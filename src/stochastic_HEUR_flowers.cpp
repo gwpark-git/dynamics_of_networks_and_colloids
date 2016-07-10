@@ -38,13 +38,7 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
 
   RNG_BOOST RNG(given_condition);
   
-  // INDEX_MC *IDX_ARR = (INDEX_MC*) mkl_malloc(VAR.N_THREADS_SS*sizeof(INDEX_MC), BIT);
   INDEX_MC *IDX_ARR = new INDEX_MC [VAR.N_THREADS_SS]; // it will call default constructor
-  // for(MKL_LONG i=0; i<VAR.N_THREADS_SS; i++)
-  //   {
-  //     IDX_ARR[i].initial();
-  //     IDX_ARR[i].set_initial_variables();
-  //   }
 
   printf("DONE\nSTART SIMULATION\n\n");
   
@@ -122,7 +116,6 @@ HEUR::
 record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, ASSOCIATION& CONNECT, CHAIN_HANDLE& CHAIN, const MKL_LONG index_t_now) 
 {
   double time_st = dsecnd();
-  // REPULSIVE_BROWNIAN::record_simulation_data(DATA, TRAJ, energy, index_t_now);
   TRAJ.fprint_row(DATA.traj, index_t_now);
   
   for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
@@ -246,18 +239,15 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
 double
 HEUR::
 write_MC_LOG_if_TRUE(bool flag_MC_LOG, RECORD_DATA& DATA, ASSOCIATION& CONNECT, const INDEX_MC& IDX, const MKL_LONG cnt, const MKL_LONG* cnt_arr, const double rolling_dCDF, const double rolling_dCDF_U) 
-// const MKL_LONG index_itself, const double rolling_dCDF, const MKL_LONG index_attached_bead, const MKL_LONG index_new_attached_bead, const double rolling_dCDF_U, const MKL_LONG k, MKL_LONG* cnt_arr)
 {
   double time_st = dsecnd();
   if(flag_MC_LOG)
     {
       MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
 			  
-      // MKL_LONG count_N_associagtions = cnt_add - cnt_del;
       {
         DATA.MC_LOG << cnt << '\t' << IDX.beads[CONNECT.flag_itself] << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << IDX.beads[CONNECT.flag_hash_other] << '\t'  << IDX.beads[CONNECT.flag_other] << '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << IDX.beads[CONNECT.flag_hash_backtrace] << '\t'  << IDX.beads[CONNECT.flag_new] << '\t'  << CONNECT.TOKEN[IDX.beads[CONNECT.flag_itself]]<< '\t'<< CONNECT.N_CONNECTED_ENDS(IDX.beads[CONNECT.flag_itself]) << '\t' << CONNECT.weight[IDX.beads[CONNECT.flag_itself]](0) <<'\t' <<  total_bonds << '\t'  << cnt_arr[INDEX_MC::ADD]<< '\t'  << cnt_arr[INDEX_MC::MOV]<< '\t'  << cnt_arr[INDEX_MC::OPP_DEL]<< '\t'  << cnt_arr[INDEX_MC::CANCEL] << '\t' << cnt_arr[INDEX_MC::LOCK] << endl;
       }
-      // FILE_LOG << boost::format("%10d\t%4d\t")
     } // MC_LOG
   return dsecnd() - time_st;
 }
@@ -356,19 +346,11 @@ release_LOCKING(LOCK& LOCKER, INDEX_MC& IDX)
   return dsecnd() - time_st;
 }
 
-// double micelle_selection(ASSOCIATION& CONNECT, RNG_BOOST& RNG, MKL_LONG& index_itself, MKL_LONG& index_hash_attached_bead, MKL_LONG& index_attached_bead, MKL_LONG& index_new_attached_bead, const MKL_LONG index_thread, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR)
 double
 HEUR::
 micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_MC& IDX, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR, double& rolling_dCDF, double& rolling_dCDF_U)
 {
   double time_st = dsecnd();
-  // index_itself = RANDOM::return_LONG_INT_rand_boost(RNG.BOOST_SS[index_thread], VAR.Np);
-  // double rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(RNG.BOOST_SS[index_thread]);
-  // index_hash_attached_bead = CONNECT.GET_INDEX_HASH_FROM_ROLL(index_itself, rolling_dCDF);
-  // index_attached_bead = CONNECT.HASH[index_itself](index_hash_attached_bead);
-  // double rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(RNG.BOOST_SS[index_thread]);
-  // MKL_LONG k = SEARCHING::backtrace_cell_list(CONNECT.dCDF_ASSOCIATION[index_itself], CONNECT.TOKEN_ASSOCIATION[index_itself], rolling_dCDF_U, index_itself, R_boost);
-  // index_new_attached_bead = CONNECT.INDEX_ASSOCIATION[index_itself](k);
   
   IDX.beads[CONNECT.flag_itself] = RANDOM::return_LONG_INT_rand_boost(RNG_BOOST_SS_IT, VAR.Np);
   // choice for selected chain end
@@ -380,7 +362,6 @@ micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_MC& IDX,
   // the PDF is already computed in the previous map
   IDX.beads[CONNECT.flag_hash_backtrace] = SEARCHING::backtrace_cell_list(CONNECT.dCDF_ASSOCIATION[IDX.beads[CONNECT.flag_itself]], CONNECT.TOKEN_ASSOCIATION[IDX.beads[CONNECT.flag_itself]], rolling_dCDF_U, IDX.beads[CONNECT.flag_itself], R_boost);
   IDX.beads[CONNECT.flag_new] = CONNECT.INDEX_ASSOCIATION[IDX.beads[CONNECT.flag_itself]](IDX.beads[CONNECT.flag_hash_backtrace]);
-  // IDX.beads[CONNECT.flag_new] = CONNECT.INDEX_ASSOCIATION[IDX.beads[CONNECT.flag_itself]][k];
   
   return dsecnd() - time_st;
 }
@@ -415,8 +396,6 @@ OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost
       if(CONNECT.TOKEN[IDX_ARR[it].beads[CONNECT.flag_itself]] == 0) // if there is no chain end attached for selected bead
         IDENTIFIER_ACTION = FALSE;                                   // there are not action take
       
-        
-      // micelle_selection(CONNECT, RNG, index_itself, index_hash_attached_bead, index_attached_bead, index_new_attached_bead, it, R_boost, VAR);
           
       // locking
       if(VAR.N_THREADS_SS > 1)
@@ -457,7 +436,6 @@ OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost
             
             VAR.cnt_arr[IDENTIFIER_ACTION] ++;
 
-            // write_MC_LOG_if_TRUE(VAR.MC_LOG, DATA, CONNECT, VAR.cnt_SS, IDX_ARR[it], index_itself, rolling_dCDF, index_attached_bead, index_new_attached_bead, rolling_dCDF_U, VAR.cnt_arr);
 	    HEUR::write_MC_LOG_if_TRUE(VAR.MC_LOG, DATA, CONNECT, IDX_ARR[it], VAR.cnt_SS + 1, VAR.cnt_arr, rolling_dCDF, rolling_dCDF_U);
           }
 
@@ -533,7 +511,7 @@ HEUR::TEMPORAL_VARIABLE_HEUR::
 TEMPORAL_VARIABLE_HEUR(COND& given_condition, MKL_LONG given_N_basic)
   : REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE(given_condition, given_N_basic)
 {
-  /* MKL_LONG Np = atoi(given_condition("Np").c_str()); */
+
   MKL_LONG N_dimension = atoi(given_condition("N_dimension").c_str());
   N_steps_block = atol(given_condition("N_steps_block").c_str());
   N_THREADS_SS = atol(given_condition("N_THREADS_SS").c_str());
@@ -559,7 +537,6 @@ TEMPORAL_VARIABLE_HEUR(COND& given_condition, MKL_LONG given_N_basic)
 
   cnt_SS = 0;
       
-  /* force_spring = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT); */
   force_spring = new MATRIX [Np];
   for(MKL_LONG i=0; i<Np; i++)
     force_spring[i].initial(N_dimension, 1, 0.);

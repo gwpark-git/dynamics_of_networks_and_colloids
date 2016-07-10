@@ -31,9 +31,7 @@ class CONNECTIVITY
   CONNECTIVITY(COND& given_condition);
   virtual ~CONNECTIVITY()
     {
-      /* mkl_free(HASH); */
       delete[] HASH;
-      /* mkl_free(TOKEN); */
       delete[] TOKEN;
     }
 
@@ -49,8 +47,6 @@ class CHAIN_NODE
      Basically, its data structure is given by linked-list, and the index itself is related with the array of object.
   */
  public:
-  /* MKL_LONG &HEAD; */
-  /* MKL_LONG &TAIL; */
   MKL_LONG HEAD, TAIL; // the design is changed according to the design interface.
 
   MKL_LONG& index(MKL_LONG flag_HEAD_TAIL)

@@ -131,7 +131,6 @@ double ANALYSIS::ANAL_ASSOCIATION::cal_potential_energy_R_boost(POTENTIAL_SET& P
     {
       for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
         {
-          // energy += CONNECT.weight[i](j)*POTs.e_connector(GEOMETRY::get_minimum_distance(TRAJ, index_t, i, (MKL_LONG)CONNECT.HASH[i](j), tmp_vec), POTs.force_variables);
           energy += CONNECT.weight[i](j)*POTs.e_connector(R_boost.Rsca[i]((MKL_LONG)CONNECT.HASH[i](j)), POTs.force_variables);
         }
     }
@@ -154,15 +153,12 @@ double ANALYSIS::DUMBBELL::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, CON
 double ANALYSIS::cal_potential_energy_R_boost(POTENTIAL_SET& POTs, RDIST& R_boost)
 {
   double energy = 0.;
-  // MATRIX tmp_vec(R_boost.N_dimension, 1, 0.);
   for(MKL_LONG index_particle=0; index_particle<R_boost.Np; index_particle++)
     {
       MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
-      // printf("cell_index[%d] = %d\n", index_particle, cell_index_particle);
       for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
         {
           MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k];
-	  // printf("NEIGHBOR_CELLS[%d][%d] = %d\n", cell_index_particle, k, cell_index_neighbor);
           for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
             {
               MKL_LONG index_target = R_boost(cell_index_neighbor, p);

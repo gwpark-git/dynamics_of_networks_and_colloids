@@ -73,7 +73,6 @@ virial_initial()
 inline double
 REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::
 record_virial_into_energy_array(MATRIX& energy)
-  // : BROWNIAN::BROWNIAN_VARIABLE::record_virial_into_energy_array(energy)
 {
   double time_st = dsecnd();
 

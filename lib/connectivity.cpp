@@ -19,18 +19,6 @@ MKL_LONG CONNECTIVITY::dynamic_allocation(MKL_LONG number_of_particles, MKL_LONG
 
 CONNECTIVITY::CONNECTIVITY(COND& given_condition)
 {
-  // Np = atol(given_condition("Np").c_str());
-  // Mc = 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str());
-  // // HASH = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  // HASH = new MATRIX [Np];
-  // for(MKL_LONG i=0; i<Np; i++)
-  //   {
-  //     HASH[i].initial(Mc, 1, -1);
-  //   }
-  // // TOKEN = (MKL_LONG*) mkl_malloc(Np*sizeof(MKL_LONG), BIT);
-  // TOKEN = new MKL_LONG [Np];
-  // for(MKL_LONG i=0; i<Np; i++)
-  //   TOKEN[i] = 1;
   dynamic_allocation(atol(given_condition("Np").c_str()), 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str()));
   if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
     {
@@ -49,19 +37,6 @@ CONNECTIVITY::CONNECTIVITY(COND& given_condition)
 CONNECTIVITY::CONNECTIVITY(MKL_LONG number_of_particles, MKL_LONG maximum_connections)
 {
   dynamic_allocation(number_of_particles, maximum_connections);
-  // Np = number_of_particles;
-  // Mc = maximum_connections;
-  // // HASH = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  // HASH = new MATRIX [Np];
-  // // TOKEN = (MKL_LONG*) mkl_malloc(Np*sizeof(MKL_LONG), BIT);
-  // TOKEN = new MKL_LONG [Np];
-  // for(MKL_LONG i=0; i<Np; i++)
-  //   {
-  //     HASH[i].initial(Mc, 1, -1); // this is omitted initializer
-  //     HASH[i](0) = i;
-  //     TOKEN[i] = 1;
-  //   }
-
 }
 
 MKL_LONG CONNECTIVITY::read_exist_hash(const char* fn_hash)
@@ -82,18 +57,6 @@ MKL_LONG CONNECTIVITY::read_exist_hash(const char* fn_hash)
     }
   // flag will set for the last time steps
   // From here, the Np lines will left as initial conditions
-  // for(MKL_LONG i=0; i<Np; i++)
-  //   {
-  //     MKL_LONG hash_k = 1;
-  //     MKL_LONG count = 0;
-  //     for(MKL_LONG j=0; j<HASH[i].size; j++)
-  //       {
-  //         GIVEN_HASH >> hash_k;
-  //         if((MKL_LONG)hash_k != -1)
-  //           HASH[i](count++) = hash_k;
-  //       }
-  //     TOKEN[i] = count;
-  //   }
   string str;
   MKL_LONG i=0;
   while(getline(GIVEN_HASH, str))

@@ -27,7 +27,6 @@ RDIST::RDIST(COND& given_condition) : CLIST(given_condition)
     {
       // since the space complexity is not the matter for our simulation (at this moment),
       // the Rvec have Np*Np array that is much larger when we used cell-list approaches
-      // Rvec[i] = (MATRIX*)mkl_malloc(Np*sizeof(MATRIX), BIT);
       Rvec[i] = new MATRIX [Np];
       for(MKL_LONG j=0; j<Np; j++)
         {
@@ -35,18 +34,15 @@ RDIST::RDIST(COND& given_condition) : CLIST(given_condition)
         }
       Rsca[i].initial(Np, 1, 0.);
     }
-  // if(given_condition("SIMPLE_SHEAR") == "TRUE")
   if(SIMPLE_SHEAR) // it already declare in CLIST class
     {
-      // if(CELL_LIST_BOOST)
-      //   {
-      //     printf("ERR: CELL LIST with SIMPLE SHEAR FLOW is not implemented. \n");
-      //     return -1;
-      //   }
+      if(CELL_LIST_BOOST)
+        {
+          printf("ERR: CELL LIST with SIMPLE SHEAR FLOW is not implemented. \n");
+        }
       if (!(shear_axis == 0 && shear_grad_axis == 1) && !CELL_LIST_BOOST)
         {
           printf("ERR: SIMPLE SHEAR FLOW with different direction without CELL LIST is not implemented\n");
-          // return -1;
         }
       // note again, the cell list implementation is not work at this moment
 
@@ -123,7 +119,6 @@ double GEOMETRY::apply_shear_boundary_condition(TRAJECTORY& TRAJ, MKL_LONG targe
       if(coord < 0 || coord >= TRAJ.box_dimension[shear_grad_axis])
         {
           double sign = coord/fabs(coord);
-          // TRAJ(target_t, i, shear_axis) -= fmod(sign*shift_factor, TRAJ.box_dimension[shear_axis]);
           TRAJ(target_t, i, shear_axis) -= sign*shift_factor;
           
         }

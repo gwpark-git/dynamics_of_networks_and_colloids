@@ -28,10 +28,6 @@ namespace HEUR
 
   double write_MC_LOG_if_TRUE(bool flag_MC_LOG, RECORD_DATA& DATA, ASSOCIATION& CONNECT, const INDEX_MC& IDX, const MKL_LONG cnt, const MKL_LONG* cnt_arr, const double rolling_dCDF, const double rolling_dCDF_U);
 
-  /* double write_MC_LOG_if_TRUE(bool flag_MC_LOG, RECORD_DATA& DATA, ASSOCIATION& CONNECT, const MKL_LONG cnt, const INDEX_MC& IDX, const MKL_LONG* cnt_arr, const double rolling_dCDF, const double rolling_dCDF_U) ; */
-
-  /* double write_MC_LOG_if_TRUE(bool flag_MC_LOG, RECORD_DATA& DATA, ASSOCIATION& CONNECT, const MKL_LONG cnt, const MKL_LONG index_itself, const double rolling_dCDF, const MKL_LONG index_attached_bead, const MKL_LONG index_new_attached_bead, const double rolling_dCDF_U, MKL_LONG* cnt_arr); */
-
   double transition_single_chain_end(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, CHAIN_HANDLE& CHAIN, RDIST& R_boost, INDEX_MC& IDX, const MKL_LONG IDENTIFIER_ACTION);
 
   double check_dissociation_probability(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, INDEX_MC& IDX, gsl_rng* RNG_BOOST_SS_IT, MKL_LONG& IDENTIFIER_ACTION);
@@ -40,15 +36,12 @@ namespace HEUR
   double LOCKING_PARALLEL(LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR, const INDEX_MC& IDX, MKL_LONG& IDENTIFIER_ACTION, MKL_LONG& IDENTIFIER_LOCKING);
   double release_LOCKING(LOCK& LOCKER, INDEX_MC& IDX);
 
-  /* double micelle_selection(ASSOCIATION& CONNECT, RNG_BOOST& RNG, MKL_LONG& index_itself, MKL_LONG& index_hash_attached_bead, MKL_LONG& index_attached_bead, MKL_LONG& index_new_attached_bead, const MKL_LONG index_thread, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR); */
   double micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_MC& IDX, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR, double& rolling_dCDF, double& rolling_dCDF_U);
 
-  /* double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, CHAIN_HANDLE& CHAIN, RECORD_DATA& DATA, INDEX_MC* IDX_ARR, TEMPORAL_VARIABLE_HEUR& VAR); */
   double OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, CHAIN_HANDLE& CHAIN, RNG_BOOST& RNG, RECORD_DATA& DATA, INDEX_MC* IDX_ARR, LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR);
 
   double OMP_SS_update_STATISTICS(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR);
 
-  /* double OMP_SS_topological_time_evolution(ASSOCIATION& CONNECT, CHAIN_HANDLE& CHAIN, POTENTIAL_SET& POTs, RECORD_DATA& DATA, COND& given_condition, TEMPORAL_VARIABLE_HEUR& VAR); */
   double OMP_SS_topological_time_evolution(const MKL_LONG time_step_LV, ASSOCIATION& CONNECT, CHAIN_HANDLE& CHAIN, POTENTIAL_SET& POTs, RDIST& R_boost, RNG_BOOST& RNG, INDEX_MC* IDX_ARR, RECORD_DATA& DATA, COND& given_condition, LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR);
 
   // inline functions
@@ -93,7 +86,6 @@ struct HEUR::TEMPORAL_VARIABLE_HEUR : REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE
     {
       if(INITIALIZATION)
         {
-          /* mkl_free(force_spring); */
           delete[] force_spring;
         }
     }
@@ -116,7 +108,6 @@ virial_initial()
 inline double
 HEUR::TEMPORAL_VARIABLE_HEUR::
 record_virial_into_energy_array(MATRIX& energy)
-  // : BROWNIAN::BROWNIAN_VARIABLE::record_virial_into_energy_array(energy)
 {
   double time_st = dsecnd();
 

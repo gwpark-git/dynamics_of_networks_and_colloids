@@ -26,9 +26,6 @@ class POTENTIAL_SET
   double (*w_function)(double distance, double tension, double* given_variables);
   double (*transition)(double distance, double tension, double* given_varialbes);
 
-  /* MKL_LONG N_contributions; */
-  /* MATRIX *f_contribution; */
-  /* MATRIX *e_contribution; */
 
   POTENTIAL_SET()
     {
@@ -36,7 +33,6 @@ class POTENTIAL_SET
   virtual ~POTENTIAL_SET()
     {
       if(force_variables) // note that without initialization, it always have NULL pointer
-        /* mkl_free(force_variables); */
         delete[] force_variables;
     }
 };
@@ -142,9 +138,6 @@ namespace KINETICS
   {
     double dissociation_probability(double distance, double tension, double* given_variables);
   }
-  /*   double detachment_weight(double distance, double tension, double* given_variables); */
-  /*   double transition_probability(double distance, double tension, double* given_varialbes); */
-  /* } */
 
 }
 

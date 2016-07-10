@@ -9,7 +9,6 @@ LOCK::LOCK()
 LOCK::LOCK(MKL_LONG N_target)
 {
   NL = N_target;
-  // locker = (bool*) mkl_calloc(NL, sizeof(bool), BIT);
   locker = new bool [NL];
   for(MKL_LONG i=0; i<NL; i++)
     locker[i] = FALSE;
@@ -20,7 +19,6 @@ LOCK::~LOCK()
 {
   if(INITIALIZATION)
     delete[] locker;
-    // mkl_free(locker);
 }
 
 MKL_LONG LOCK::RESET()
@@ -32,15 +30,3 @@ MKL_LONG LOCK::RESET()
   return 0;
 }
 
-
-// bool LOCK::CHECKER(MKL_LONG const index_target)
-// {
-//   if(locker[index_target])
-//     return TRUE;
-//   return FALSE;
-// }
-
-// bool& LOCK::operator()(MKL_LONG const index_target)
-// {
-//   return locker[index_target];
-// }

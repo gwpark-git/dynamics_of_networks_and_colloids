@@ -3,9 +3,6 @@
 
 CLIST::CLIST(COND& given_condition)
 {
-  /* cut_off_radius = given_cut_off_radius; */
-  /* N_dimension = given_N_dimension; */
-  /* box_dimension = given_box_dimension; */
   printf("\tCLIST initialization");
   INITIALIZATION = TRUE;
   box_dimension = atof(given_condition("box_dimension").c_str());
@@ -56,19 +53,7 @@ CLIST::CLIST(COND& given_condition)
       N_cells = (MKL_LONG)pow(N_div, N_dimension); // N_cells = N_div^N_dimension
       N_neighbor_cells = (MKL_LONG)pow(3, N_dimension); // 3 means number for shift factor {-1, 0, +1}
     }
-  // printf("given cond: N_div = %ld, cell_length = %ld, N_cells = %ld, N_neighbor_cells = %ld, N_dimension = %ld\n", N_div, cell_length, N_cells, N_neighbor_cells, N_dimension);
-  // the following structure will not be affected either the cell list is turned on or off.
-  // this is of importance to use the same interface for the main function
-  // N_cells = 1;
-  // MAX_IN_CELL=400;
-  // Np=400;
-  // N_neighbor_cells=1;
   printf("\tdynamic allocating CLIST member variables");
-  // cell_index = (MKL_LONG*)mkl_malloc(Np*sizeof(MKL_LONG), BIT);
-  // TOKEN = (MKL_LONG*)mkl_malloc(N_cells*sizeof(MKL_LONG), BIT);
-  // CELL = (MKL_LONG**)mkl_malloc(N_cells*sizeof(MKL_LONG*), BIT);
-  // NEIGHBOR_CELLS = (MKL_LONG**)mkl_malloc(N_cells*sizeof(MKL_LONG*), BIT);
-  // BEYOND_BOX = (MKL_LONG***)mkl_malloc(N_cells*sizeof(MKL_LONG**), BIT);
 
   cell_index = new MKL_LONG [Np];
   for(MKL_LONG i=0; i<Np; i++)
@@ -81,27 +66,20 @@ CLIST::CLIST(COND& given_condition)
   
   for(MKL_LONG i=0; i<N_cells; i++)
     {
-      // printf("%d\n", i);
-      // CELL[i].initial(MAX_IN_CELL, 1, 0.);
       TOKEN[i] = -1; // -1 is default value when there is no index (note that the particle index is started with 0, which is the reason to avoid using 0 identifier
-      // CELL[i] = (MKL_LONG*)mkl_malloc(MAX_IN_CELL*sizeof(MKL_LONG), BIT);
       CELL[i] = new MKL_LONG [MAX_IN_CELL];
       for(MKL_LONG j=0; j<MAX_IN_CELL; j++)
         CELL[i][j] = -1;
-      // NEIGHBOR_CELLS[i] = (MKL_LONG*)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG), BIT);
-      // BEYOND_BOX[i] = (MKL_LONG**)mkl_malloc(N_neighbor_cells*sizeof(MKL_LONG*), BIT);
       NEIGHBOR_CELLS[i] = new MKL_LONG [N_neighbor_cells];
       BEYOND_BOX[i] = new MKL_LONG* [N_neighbor_cells];
       for(MKL_LONG j=0; j<N_neighbor_cells; j++)
         {
-          // BEYOND_BOX[i][j] = (MKL_LONG*)mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
           BEYOND_BOX[i][j] = new MKL_LONG [N_dimension];
           for(MKL_LONG k=0; k<N_dimension; k++)
             BEYOND_BOX[i][j][k] = 0;
 
           NEIGHBOR_CELLS[i][j] = -1;
         }
-      /* get_neighbor_cell_list(i,  */
     }
   printf("\tallocating neighbor cell list information");
   allocate_index_neighbor_cell_list(); // this is safety for the flag, CELL_LIST_BOOST
@@ -140,11 +118,8 @@ MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY& TRAJ, MKL_LONG index_t
   for(MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG index = identify_cell_from_given_position(TRAJ, index_t_now, i, index_vec_boost);
-      // if(index > N_cells)
-      // 	printf("cell_index[%d] = %d with (%d, %d, %d)\n", i, index, index_vec_boost[0], index_vec_boost[1], index_vec_boost[2]);
       cell_index[i] = index;
       CELL[index][TOKEN[index]++] = i;
-      // CELL[index](TOKEN[index]++) = i;
     }
   return 0;
 }
@@ -158,23 +133,9 @@ MKL_LONG CLIST::allocate_cells_from_positions(TRAJECTORY_HDF5& TRAJ, MKL_LONG in
       MKL_LONG index = identify_cell_from_given_position(TRAJ, index_t_now, i, index_vec_boost);
       cell_index[i] = index;
       CELL[index][TOKEN[index]++] = i;
-      // printf("cell_index[%d] = %d\n", i, index);
-      // CELL[index](TOKEN[index]++) = i;
     }
   return 0;
 }
-
-// TRAJ(index_t_now, 
-// for(MKL_LONG i=0; i<TRAJ.Np; i++)
-//   {
-//     for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
-//       {
-//         index_vec_boost[i][k] = (MKL_LONG)(TRAJ(index_t_now, i, k)/cell_length);
-//       }
-
-//   }
-//   return 0;
-// }
 
 MKL_LONG UTILITY::index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca, const MKL_LONG N_dimension, const MKL_LONG N_div)
 {
@@ -206,8 +167,6 @@ MKL_LONG CLIST::allocate_index_neighbor_cell_list()
 {
   if(CELL_LIST_BOOST)
     {
-      // MKL_LONG* index_vec_boost = (MKL_LONG*)mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
-      // MKL_LONG* sf_vec_boost = (MKL_LONG*)mkl_malloc(3*sizeof(MKL_LONG), BIT); // 3 means number of shift factors {-1, 0, +1}
       MKL_LONG* index_vec_boost = new MKL_LONG [N_dimension];
       MKL_LONG* sf_vec_boost = new MKL_LONG [3];
       // for(MKL_LONG i=0; i<N_neighbor_cells; i++) // this was bug.
@@ -217,8 +176,6 @@ MKL_LONG CLIST::allocate_index_neighbor_cell_list()
           // for instance, if the PBC is divided by 5 cells for each axis, N_cells = 5^3 = 125 while the N_neighbor_cells = 3^3 = 9
           get_neighbor_cell_list(i, NEIGHBOR_CELLS[i], index_vec_boost, sf_vec_boost);
         }
-      // mkl_free(index_vec_boost);
-      // mkl_free(sf_vec_boost);
       delete[] index_vec_boost;
       delete[] sf_vec_boost;
     }
@@ -239,9 +196,7 @@ MKL_LONG CLIST::get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* inde
     For non-equilibrium simulation such as simple shear flow, the re-usability will decrease which eventually adds some overhead to compute additional lists.
   */
   CLIST::index_sca2vec(index_sca, self_index_vec_boost);
-  // MKL_LONG shift_factors[3] = {-1, 0, 1};
   MKL_LONG N_sf = 3; // {-1, 0, +1}
-  // printf("=========\n");
   
   for(MKL_LONG nsf=0; nsf<pow(N_sf, N_dimension); nsf++)
     {
@@ -263,13 +218,8 @@ MKL_LONG CLIST::get_neighbor_cell_list(const MKL_LONG& index_sca, MKL_LONG* inde
               sf_vec_boost[n] -= N_div;
             }
           
-          // sf_vec_boost[n] has the values in [0, 1, 2] since the N_sf is set with 3.
-          // sf_vec_boost[n] -1 becomes [-1, 0, +1] which is exactly the same with shift factor array
-          // self_index_vec[n] + (sf_vec_boost[n] - 1) -> sf_vec_boost[n]
         }
-      // UTILITY::index_vec2sca(sf_vec_boost, index_neighbor_cells[nsf], N_dimension, N_sf); // this is the big bug
       UTILITY::index_vec2sca(sf_vec_boost, index_neighbor_cells[nsf], N_dimension, N_div);
-      // printf("self=%ld(%ld, %ld, %ld), cell[%ld,%ld,%ld]=%ld\n", index_sca, self_index_vec_boost[0], self_index_vec_boost[1], self_index_vec_boost[2], sf_vec_boost[0], sf_vec_boost[1], sf_vec_boost[2], index_neighbor_cells[nsf]);
     }
   return 0;
 }

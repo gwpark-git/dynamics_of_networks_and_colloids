@@ -24,7 +24,6 @@ class INDEX_MC
   // For better understanding, the reference variables are tagged and initialized in the constructor. For details, see the constructor in the sourcecode.
 
   MKL_LONG beads[5];
-  /* MKL_LONG &bead_selected_chain_end, &bead_opp_selected_chain_end, &bead_new_opp_selected_chain_end, &hash_opp_selected_chain_end, &hash_backtrace; // this will be initialize when constructor have been called */
   
   /* // Commented for copy constructor validity. the references will be defined outside class object
      MKL_LONG &itself, &attached_bead, &new_attached_bead, &hash_attached_bead, &hash_backtrace;
@@ -138,12 +137,10 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
  CHAIN_HANDLE() : CHAIN_INFORMATION(){}
  CHAIN_HANDLE(MKL_LONG number_of_chains, MKL_LONG number_of_particles) : CHAIN_INFORMATION(number_of_chains, number_of_particles)
     {
-      /* printf("CHECK\n"); */
       hash_initial(random());
     }
  CHAIN_HANDLE(COND& given_condition) : CHAIN_INFORMATION(given_condition)
   {
-    /* printf("CHECK\n"); */
     if(given_condition("tracking_individual_chain") == "TRUE")
       {
         N_CE_MAX = 2*N_chains;
@@ -158,15 +155,8 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
   {
     if(given_condition("tracking_individual_chain") == "TRUE")
       {
-        /* if(given_condition("CONTINUATION_CHAIN") == "TRUE") */
-        /*   { */
-        /*     hash_initial_ */
-        /*   } */
-        /* else */
-        /*   { */
         N_CE_MAX = 2*N_chains;
         hash_initial(atoi(given_condition("basic_random_seed_SS").c_str()));
-          /* } */
       }
   }
   
@@ -176,13 +166,9 @@ class CHAIN_HANDLE : public CHAIN_INFORMATION
         {
           for(MKL_LONG i=0; i<N_particles; i++)
             {
-              /* mkl_free(PARTICLE[i]); */
               delete[] PARTICLE[i];
             }
-          /* mkl_free(PARTICLE); */
-          /* mkl_free(P_TOKEN); */
           gsl_rng_free(r_degeneracy_check);
-          /* mkl_free(degeneracy_index_array); */
           delete[] PARTICLE;
           delete[] P_TOKEN;
           delete[] degeneracy_index_array;

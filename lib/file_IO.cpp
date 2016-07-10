@@ -47,8 +47,6 @@ string& COND::operator()(string option_type)
     }
   cout << "Bad condtion " << option_type << endl;
   return ERR;
-  // string out = "ERR";
-  // return out;
 }
 
 int COND::cond_print()

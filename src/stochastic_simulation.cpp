@@ -62,10 +62,6 @@ int main(int argc, char* argv[])
           TRAJECTORY TRAJ(given_condition, N_basic);
           POTENTIAL_SET POTs;
           RECORD_DATA DATA(given_condition);
-          // if(given_condition("SIMPLE_SHEAR")=="TRUE")
-          //   {
-          //     Wi_tau_C = atof(given_condition("Wi_tau_C").c_str()); 
-          //   }
           if(given_condition("Method") == "NAPLE_ASSOCIATION")
             {
               // note that the time scale for Langevin dynamics on here is affected by repulsive coefficient, C_rep, which have differ non-dimensional form compared with pure Brownian motion
@@ -77,13 +73,6 @@ int main(int argc, char* argv[])
                 }
               else
                 {
-                  // if(given_condition("SIMPLE_SHEAR") == "TRUE")
-                  //   {
-                  //     ASSOCIATION CONNECT(given_condition);
-                  //     FORCE::NAPLE::MC_
-                  //   }
-                  // else
-                  //   {
                   ASSOCIATION CONNECT(given_condition);
 
                   FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);

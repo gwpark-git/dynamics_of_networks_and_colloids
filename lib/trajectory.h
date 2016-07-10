@@ -55,14 +55,6 @@ class TRAJECTORY : public MATRIX
     return index(t, i_bead*2*N_dimension + 1 + N_dimension + direction);
   }
   
-  /* MKL_LONG traj_read(char fn[]); */
-  /* MKL_LONG traj_write(char fn[]) */
-  /* { */
-  /*   fprint_out(fn); */
-  /*   return 0; */
-  /* } */
-  /* MKL_LONG traj_read(std::ofstream& file); */
-  /* MKL_LONG traj_write(std::ofstrea& file); */
   
   // initiator
   MKL_LONG initialization(MKL_LONG N_time, MKL_LONG N_particle, double given_dt);
@@ -75,11 +67,6 @@ class TRAJECTORY : public MATRIX
  /* // inlined */
  /* // operator overloading */
  /* // simple operator for time */
- /* double& operator()(MKL_LONG time_t); */
- /* // simple operator for position */
- /* double& operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k); */
- /* // simple operator for position and velocity. i_RV = 0 for position, i_RV = 1 for velocity */
- /* double& operator()(MKL_LONG i_RV, MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k); */
  MKL_LONG read_exist_traj(const char* fn_given_traj);
  double& operator()(MKL_LONG time_t)
  {
@@ -90,7 +77,6 @@ class TRAJECTORY : public MATRIX
  double& operator()(MKL_LONG time_t, MKL_LONG bead_i, MKL_LONG dimension_k)
  {
    MKL_LONG index_position = 2*N_dimension*bead_i + 1 + dimension_k;
-   // printf("INDEX(%ld, %ld, %ld) = %ld", time_t, bead_i, dimension_k, index_position);
    return data[index(time_t, index_position)];
  }
 
@@ -102,7 +88,6 @@ class TRAJECTORY : public MATRIX
  
  virtual ~TRAJECTORY()
     {
-      /* mkl_free(box_dimension); */
       delete[] box_dimension;
       // The MATRIX and REF_MATRIX objects are automatically killed-by virtual destructor option of the library. This fact is tested with packages.
     }
@@ -117,7 +102,6 @@ MKL_LONG traj_count_line(char fn[]);
 namespace GENERATOR
 {
   MKL_LONG random_position_generator(TRAJECTORY& TRAJ);
-  /* MKL_LONG random_vector_generator(MATRIX& R_VEC_TRANS); */
   MKL_LONG random_position_generator_REF(TRAJECTORY& TRAJ, MATRIX& R_VEC_TRANS);
 }
 
@@ -148,21 +132,17 @@ class TRAJECTORY_HDF5
       N_basic = given_N_basic; // it report how many time step should be stored in memory
       c_t = 0;
       dt = atof(given_condition("dt/tauR").c_str());
-      /* box_dimension = (double*)mkl_malloc(N_dimension*sizeof(double), BIT); */
       box_dimension = new double [N_dimension];
       for(MKL_LONG k=0; k<N_dimension; k++)
         {
           box_dimension[k] = atof(given_condition("box_dimension").c_str());
         }
-      /* data = (double***)mkl_malloc(N_basic*sizeof(double**), BIT); */
       data = new double** [N_basic];
       for(MKL_LONG t=0; t<N_basic; t++)
         {
-          /* data[t] = (double**)mkl_malloc(Np*sizeof(double*), BIT); */
           data[t] = new double* [Np];
           for(MKL_LONG i=0; i<Np; i++)
             {
-              /* data[t][i] = (double*)mkl_malloc(N_dimension*sizeof(double), BIT); */
               data[t][i] = new double [N_dimension];
             }
         }

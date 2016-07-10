@@ -114,28 +114,17 @@ class ASSOCIATION : public CONNECTIVITY
   MKL_LONG initial_inheritance();
   virtual ~ASSOCIATION()
     {
-      /* mkl_free(weight); */
       delete[] weight;
       
       // related with suggestion probability
-      /* mkl_free(CASE_SUGGESTION); */
-      /* mkl_free(dPDF_SUGGESTION); */
-      /* mkl_free(dCDF_SUGGESTION); */
       delete[] CASE_SUGGESTION;
       delete[] dPDF_SUGGESTION;
       delete[] dCDF_SUGGESTION;
-      /* mkl_free(Z_SUGGESTION); */
       delete[] Z_SUGGESTION;
       // related with association probability
-      /* mkl_free(dCDF_ASSOCIATION); */
-      /* mkl_free(INDEX_ASSOCIATION); */
       delete[] dCDF_ASSOCIATION;
       delete[] INDEX_ASSOCIATION;
-      /* for(MKL_LONG i=0; i<Np; i++) */
-      /*   mkl_free(INDEX_ASSOCIATION[i]); */
-      /* mkl_free(INDEX_ASSOCIATION); */
       
-      /* mkl_free(TOKEN_ASSOCIATION); */
       delete[] TOKEN_ASSOCIATION;
     }
 
@@ -158,12 +147,6 @@ namespace TRUTH_MAP
     {
       bool return_TRUE(ASSOCIATION& CONNECT, MKL_LONG index_set[]);
 
-      /* bool CHECK_N_ADD_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]) */
-      /* {return TRUE;} */
-      /* bool CHECK_N_OPP_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]) */
-      /* {return TRUE;} */
-      /* bool CHECK_N_MOV_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[]) */
-      /* {return TRUE;} */
     }
   }
   
@@ -261,10 +244,7 @@ class CHAIN_INFORMATION
     printf("ST:initial:CHAIN_INFORMATION\n");
     N_chains = number_of_chains;
     N_particles = number_of_particles;
-    /* CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT); */
     CHAIN = new CHAIN_NODE [N_chains];
-    /* for(MKL_LONG k=0; k<N_chains; k++) */
-    /*   CHAIN[k] = new CHAIN_NODE(); */
     
     for(MKL_LONG i=0; i<N_chains; i++)
       {
@@ -283,18 +263,7 @@ class CHAIN_INFORMATION
     N_chains = CONNECT.Nc*CONNECT.Np;
     N_particles = CONNECT.Np;
     CHAIN = new CHAIN_NODE [N_chains];
-    /* for(MKL_LONG k=0; k<N_chains; k++) */
-    /*   CHAIN[k] = new CHAIN_NODE(); */
-    /* CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT); */
     MKL_LONG cnt = 0;
-    // for(MKL_LONG i=0; i<N_particles; i++)
-    //   {
-    //     for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
-    //       {
-    //         printf("weight[%d](%d)=%d
-    //       }
-    //   }
-    // printf("HASH[%ld](%ld)=%ld, weight[%ld](%ld)=%ld, wij=%ld\n", 3, 5, CONNECT.HASH[3](1), 3, 1, CONNECT.weight[3](1), CONNECT.return_multiplicity(3, CONNECT.HASH[3](1)));
     
     for(MKL_LONG i=0; i<N_particles; i++)
       {
@@ -329,8 +298,6 @@ class CHAIN_INFORMATION
     /* CHAIN = (CHAIN_NODE*)mkl_malloc(N_chains*sizeof(CHAIN_NODE), BIT); */
     // the problem of the original is that 'malloc' will not call the constructor
     CHAIN = new CHAIN_NODE [N_chains];
-    /* for(MKL_LONG k=0; k<N_chains; k++) */
-    /*   CHAIN[k] = new CHAIN_NODE(); */
 
     MKL_LONG cnt = 0;
     ifstream GIVEN_CHAIN_FILE;
@@ -366,11 +333,9 @@ class CHAIN_INFORMATION
     {
       if(given_condition("tracking_individual_chain") == "TRUE")
         {
-          /* N_CE_MAX = 2*(atoi(given_condition("N_chains_per_particle").c_str()) + atoi(given_condition("tolerance_allowing_condition").c_str())); // note that the later is not related with multiplication with 2. But it is used to be on the safe side */
           if(given_condition("CONTINUATION_CHAIN") == "TRUE")
             {
               printf("ERR: Without CONTINUATION TOPOLOGICAL INFORMATION (.hash, .weight), the tracking individual chain cannot inherit existing .chain file information\n");
-              /* inheritance_chain(atoi(given_condition("N_chains_per_particle").c_str())*atoi(given_condition("Np").c_str()), atoi(given_condition("Np").c_str())); */
             }
           else
             {
@@ -385,7 +350,6 @@ class CHAIN_INFORMATION
     {
       if(given_condition("tracking_individual_chain") == "TRUE")
         {
-          /* N_CE_MAX = 2*(atoi(given_condition("N_chains_per_particle").c_str()) + atoi(given_condition("tolerance_allowing_condition").c_str())); // note that the later is not related with multiplication with 2. But it is used to be on the safe side */
           if(given_condition("CONTINUATION_CHAIN") == "TRUE")
             {
               inheritance_chain(given_condition, CONNECT);
@@ -402,7 +366,6 @@ class CHAIN_INFORMATION
     {
       if(INITIALIZATION)
         delete[] CHAIN;
-        /* mkl_free(CHAIN); */
     }
 };
 

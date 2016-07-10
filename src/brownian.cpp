@@ -13,10 +13,8 @@ double BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
       
-      // force_repulsion[i].set_value(0);
       force_random[i].set_value(0);
 
-      // INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
       INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
       
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
@@ -36,8 +34,6 @@ double BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index
       RF_random_xz += TRAJ(index_t_now, i, 0)*force_random[i](2)/sqrt(TRAJ.dt);
       RF_random_yz += TRAJ(index_t_now, i, 1)*force_random[i](2)/sqrt(TRAJ.dt);
       
-      // energy(0, 12) += 
-
       
       // apply simple shear into the time evolution
       if(VAR.SIMPLE_SHEAR)
@@ -45,7 +41,6 @@ double BROWNIAN::OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index
 
     }
 
-  // remap for member variables
   // allocationc omputed RF values into VAR
   VAR.RF_random_xx = RF_random_xx; VAR.RF_random_yy = RF_random_yy; VAR.RF_random_zz = RF_random_zz;
   VAR.RF_random_xy = RF_random_xy; VAR.RF_random_xz = RF_random_xz; VAR.RF_random_yz = RF_random_yz;
@@ -62,10 +57,8 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
   printf("SETTING simulation environment ...");
   
   BROWNIAN_VARIABLE VAR(given_condition, TRAJ.rows);
-  // initial_VAR(VAR, given_condition, TRAJ.rows);
   mkl_set_num_threads(VAR.N_THREADS_BD);
   
-  // RDIST R_boost(given_condition);
   RNG_BOOST RNG(given_condition);
   MATRIX energy(1, VAR.N_components_energy, 0.);
   // // 0: time step to write 1-3: energy, 4: NAS, 5: real time
@@ -76,19 +69,13 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
   
   printf("DONE\nSTART SIMULATION\n\n");
 
-  // VAR.time_DIST +=         // compute RDIST with cell_list advantage
-  //   REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, 0, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
-
   VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
-    // ANALYSIS::CAL_ENERGY_R_boost(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
     ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, TRAJ(0));
   
   for(MKL_LONG t = 0; t<VAR.Nt-1; t++)
     {
       MKL_LONG index_t_now = t % VAR.N_basic;
       MKL_LONG index_t_next = (t+1) % VAR.N_basic;
-      // VAR.shear_PBC_shift = VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B;
-      // VAR.shear_PBC_shift += TRAJ.box_dimension[VAR.shear_grad_axis]*(int)(2*VAR.shear_PBC_shift/TRAJ.box_dimension[VAR.shear_grad_axis]);
       TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
       ++TRAJ.c_t;
 
@@ -115,7 +102,6 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
       
       VAR.time_LV += // boundary condition through shear flow is extracted into the previous function, apply_shear_boundary_condition.
         GEOMETRY::minimum_image_convention_loop(TRAJ, index_t_next);
-        // GEOMETRY::minimum_image_convention_loop(TRAJ, index_t_next);
 
       if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file==0)
         {
@@ -138,8 +124,6 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
 	      // the writing file is individual from writing energy
 	      VAR.time_file += // write simulation data file
 		TRAJ.fprint_row(DATA.traj, index_t_now);
-	      // VAR.time_file +=
-	      // 	record_simulation_data(DATA, TRAJ, energy, index_t_now);
 	      VAR.simulation_time = TRAJ(index_t_now); // the repulsion coefficient is not necessary for pure Brownian motion
 	      VAR.time_RECORDED += // print simulation information for users
 		report_simulation_info(TRAJ, energy, VAR);
@@ -152,13 +136,6 @@ MKL_LONG BROWNIAN::main_PURE_BROWNIAN(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, REC
   return 0;
 }
 
-// double BROWNIAN::record_simulation_data(RECORD_DATA& DATA, TRAJECTORY& TRAJ, MATRIX& energy, const MKL_LONG index_t_now)
-// {
-//   double time_st = dsecnd();
-//   TRAJ.fprint_row(DATA.traj, index_t_now);
-//   energy.fprint_row(DATA.ener, 0);
-//   return dsecnd() - time_st;
-// }
 
 double BROWNIAN::report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, BROWNIAN_VARIABLE& VAR)
 {
@@ -216,7 +193,6 @@ BROWNIAN::BROWNIAN_VARIABLE::BROWNIAN_VARIABLE(COND& given_condition, MKL_LONG g
   INITIALIZATION = TRUE;
 };
 
-// double destruct_VAR(BROWNIAN_VARIABLES& VAR)
 BROWNIAN::BROWNIAN_VARIABLE::~BROWNIAN_VARIABLE()
 {
   if(INITIALIZATION)

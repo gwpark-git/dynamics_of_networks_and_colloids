@@ -85,7 +85,6 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
   printf("SETTING simulation environment ...");
   
   TEMPORAL_VARIABLE VAR(given_condition, TRAJ.rows);
-  // initial_VAR(VAR, given_condition, TRAJ.rows);
   mkl_set_num_threads(VAR.N_THREADS_BD);
   
   RDIST R_boost(given_condition);
@@ -93,7 +92,6 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
   MATRIX energy(1, VAR.N_components_energy, 0.);
   // // 0: time step to write 1-3: energy, 4: NAS, 5: real time
   // // 6: (xx)[RF], 7: (yy)[RF], 8: (zz)[RF], 9: (xy)[RF], 10: (xz)[RF], 11:(yz)[RF]
-  // MATRIX energy(1, 12, 0.);
   
   printf("DONE\nSTART SIMULATION\n\n");
 
@@ -162,12 +160,10 @@ MKL_LONG REPULSIVE_BROWNIAN::main_EQUILIBRATION(TRAJECTORY& TRAJ, POTENTIAL_SET&
 	    {
 	      VAR.time_file += // write simulation data file
 		TRAJ.fprint_row(DATA.traj, index_t_now);
-		// record_simulation_data(DATA, TRAJ, energy, index_t_now);
 
 	      VAR.simulation_time = TRAJ(index_t_now)/atof(given_condition("repulsion_coefficient").c_str());
 	      VAR.time_RECORDED += // print simulation information for users
 		report_simulation_info(TRAJ, energy, VAR);
-	      // report_simulation_info(TRAJ, VAR.time_LV, VAR.time_AN, VAR.time_file, VAR.time_DIST);
 	    }
         }
     }
@@ -195,75 +191,40 @@ double REPULSIVE_BROWNIAN::report_simulation_info(TRAJECTORY& TRAJ, MATRIX& ener
 
 REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::TEMPORAL_VARIABLE(COND& given_condition, MKL_LONG given_N_basic) : BROWNIAN::BROWNIAN_VARIABLE(given_condition, given_N_basic)
 {
-  // Np = atoi(given_condition("Np").c_str());
   MKL_LONG N_dimension = atoi(given_condition("N_dimension").c_str());
-  // // MKL_LONG N_dimension = Np;
-  // N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
-  // // tmp_index_vec = (MKL_LONG*) mkl_malloc(N_dimension*sizeof(MKL_LONG), BIT);
-  // // vec_boost_Nd_parallel = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT); 
-  // tmp_index_vec = new MKL_LONG [N_dimension];
   vec_boost_Nd_parallel = new MATRIX [Np];
   for(MKL_LONG i=0; i<Np; i++)
     {
       vec_boost_Nd_parallel[i].initial(N_dimension, 1, 0.);
     }
 
-  // force_repulsion = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
-  // force_random = (MATRIX*) mkl_malloc(Np*sizeof(MATRIX), BIT);
   force_repulsion = new MATRIX [Np];
-  // force_random = new MATRIX [Np];
   for(MKL_LONG i=0; i<Np; i++)
     {
       force_repulsion[i].initial(N_dimension, 1, 0.);
-      // force_random[i].initial(N_dimension, 1, 0.);
     }
 
-  // N_skip = atol(given_condition("N_skip").c_str());
-
-  // Nt = atol(given_condition("Nt").c_str());
-  // N_basic = given_N_basic;
-
-  // time_LV = 0.; time_DIST = 0.; time_file = 0.; time_AN = 0.; time_RECORDED = 0.;
-  // time_LV_init = 0.; time_LV_force = 0.; time_LV_update = 0.;
-  // simulation_time = 0.;
-  // RF_repulsion_xx = 0.; RF_repulsion_yy = 0.; RF_repulsion_zz = 0.;
-  // RF_repulsion_xy = 0.; RF_repulsion_xz = 0.; RF_repulsion_yz = 0.;
   virial_initial();
   N_components_energy = 24;
 
   if(given_condition("SIMPLE_SHEAR") == "TRUE")
     {
-      // SIMPLE_SHEAR = TRUE;
       Wi_tau_R = atof(given_condition("Wi_tau_C").c_str());
       Wi_tau_B = Wi_tau_R/atof(given_condition("repulsion_coefficient").c_str()); 
-      // shear_axis = atoi(given_condition("shear_axis").c_str());
-      // shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str());
-      // shear_PBC_shift = 0.;
     }
   else
     {
-      // SIMPLE_SHEAR = FALSE;
       Wi_tau_R = 0.;
-      // shear_axis = 0;
-      // shear_grad_axis = 1;
-      // shear_PBC_shift = 0;
     }
   
   INITIALIZATION = TRUE;
 };
 
-// double destruct_VAR(TEMPORAL_VARIABLES& VAR)
 REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::~TEMPORAL_VARIABLE()
 {
   if(INITIALIZATION)
     {
-      // mkl_free(vec_boost_Nd_parallel);
-      // mkl_free(force_repulsion);
-      // mkl_free(force_random);
-      // mkl_free(tmp_index_vec);
       delete[] vec_boost_Nd_parallel;
       delete[] force_repulsion;
-      // delete[] force_random;
-      // delete[] tmp_index_vec;
     }
 }

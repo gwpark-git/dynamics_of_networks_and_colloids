@@ -13,13 +13,9 @@ class RDIST : public CLIST
 {
 public:
 
-  /* double** Rmin; */
   MATRIX** Rvec; // Rvec[i][j] will be the relative vector between i- and j-th particles
   MATRIX* Rsca; // Rsca[i](j) will be the relative distance between i- and j-th particles. The form is differ from the original.
   
-  
-  /* MKL_LONG (*compute_RDIST_particle)(RDIST&, const MKL_LONG, TRAJECTORY&, MKL_LONG); */
-  /* double* shear_variables; // it will store information related with simple shear flow */
   
   RDIST()
   {
@@ -30,14 +26,11 @@ public:
   {
     if(INITIALIZATION)
       {
-        /* mkl_free(Rsca); */
         delete[] Rsca;
         for(MKL_LONG i=0; i<Np; i++)
           {
-            /* mkl_free(Rvec[i]); */
             delete[] Rvec[i];
           }
-        /* mkl_free(Rvec); */
         delete[] Rvec;
       }
   }
@@ -59,30 +52,6 @@ public:
   // in future, the explanation will be revisited
 
   
-  /* double (RDIST::*measure_minimum_distance)(TRAJECTORY&, const MKL_LONG, const MKL_LONG, const MKL_LONG, MKL_LONG*); */
-  /* // measure_minimum_distance will be allocatged between following member function of RDIST. Hence, the type for function pointer should have RDIST:: notation.   */
-
-  /* // the following are related with specific cases */
-  /* // note that the definition inside class declaration will be inlined, which will not occur overhead for mapping functions. */
-  /* double measure_minimum_distance_default(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check); */
-  /* // { */
-  /* //   // note that the beyond_box_check is not necessary for default measuring_minimum_distance function */
-  /* //   // however, it is set in order to achive compatibility with cell-list implementation (for function pointer) */
-  /* //   return GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target]); */
-  /* // } */
-
-  /* double measure_minimum_distance_cell_list(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check); */
-  /* // { */
-  /* //   return GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], beyond_box_check); */
-  /* // } */
-
-  /* double measure_minimum_distance_simple_shear(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check); */
-  /* // { */
-  /* //   // here again, beyond_box_check is not necessary */
-  /* //   // just added because of argument design */
-  /* //   return GEOMETRY::get_minimum_distance_simple_shear(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], shear_aixs, shear_grad_axis, map_to_central_box_image); */
-  /* // } */
-  
 };
 
 
@@ -103,7 +72,6 @@ namespace GEOMETRY
   MKL_LONG compute_RDIST_particle(RDIST& R_boost, const MKL_LONG index_particle, TRAJECTORY& TRAJ, MKL_LONG index_t);
   // the original set
   double get_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec);
-  /* double get_minimum_distance_cell_list(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, MKL_LONG* beyond_box_check); */
   double get_minimum_distance_for_particle(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_particle, MATRIX& R_minimum_boost_particle, MATRIX** R_minimum_vec_boost); 
   double return_minimum_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j);
   double minimum_image_convention(TRAJECTORY& TRAJ, MKL_LONG target_t);
@@ -127,7 +95,6 @@ namespace GEOMETRY
   
   MKL_LONG get_minimum_distance_rel_vector_cell_list(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG given_index, MKL_LONG target_index, MATRIX& given_vec, MKL_LONG* beyond_box_check);
   double get_minimum_distance_cell_list(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, MKL_LONG* beyond_box_check);
-  // double get_minimum_distance_pos_vector_simple_shear(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec, const MKL_LONG shear_axis, const double map_to_central_box_image);
   double get_minimum_distance_rel_vector_simple_shear_fixed_axis(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec, const double map_to_central_box_image);
   double get_minimum_distance_simple_shear_fixed_axis(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, const double map_to_central_box_image);
   MKL_LONG minimum_image_convention_particle(TRAJECTORY& TRAJ, MKL_LONG target_t, MKL_LONG index_particle);
@@ -148,13 +115,6 @@ inline double UTIL_ARR::get_minimum_image_k_from_x(double x, double k, double di
   double re= kd[get_index_minimum_abs(kd, 3)] + x;
   return re;
 }
-
-// inline double UTIL_ARR::get_minimum_image_k_from_x(double x, double k, double dimension)
-// {
-//   double kd[3] = {k-dimension - x, k - x, k + dimension - x};
-//   double re = kd[get_max_minimum_abs(kd, 3)] + x;
-//   return re;
-// }
 
 inline MKL_LONG UTIL_ARR::get_index_minimum_abs(double *k, MKL_LONG N)
 {
@@ -194,27 +154,6 @@ inline double GEOMETRY::get_minimum_distance_cell_list(TRAJECTORY& TRAJ, MKL_LON
   /* the cblas_dnrm2 is slower than inlined norm */
 }
 
-  
-// inline double GEOMETRY::get_minimum_distance_pos_vector_simple_shear(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec, const MKL_LONG shear_axis, const double map_to_central_box_image)
-// {
-//   // for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
-//   //   {
-//   //     double perturbed_image_coordinate = TRAJ(index_t, index_i, k);
-//   //     if(k == shear_axis)
-//   //       perturbed_image_coordinate += map_to_central_box_image;
-//   //     given_vec(k) = UTIL_ARR::get_minimum_image_k_from_x(perturbed_image_coordinate, TRAJ(index_t, index_j, k), TRAJ.box_dimension[k]);
-//   //   }
-//   // MKL_LONG i=0; // shear axis
-//   // // if(j != 0): // left-right shift factor for shear gradient direction
-//   //      perturbed_image_coordinate += j*map_to_central_box_image // j = -1, 0, +1
-//   // for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
-//   //   {
-//   //     pos_i[k] = TRAJ(index_t, index_i, k);
-//   //     pos_j[k] = TRAJ(index_t, index_j, k);
-//   //     pos_ij_0 = pos_i[k] - pos_j[k];
-//   //   }
-//   return 0;
-// }
 
 inline double GEOMETRY::get_minimum_distance_rel_vector_equilibrium_test(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec)
 {
@@ -230,7 +169,6 @@ inline double GEOMETRY::get_minimum_distance_rel_vector_equilibrium_test(TRAJECT
               double rpos_ij_1 = TRAJ(index_t, index_j, 1) + sf_1*TRAJ.box_dimension[1] - TRAJ(index_t, index_i, 1);
               double rpos_ij_2 = TRAJ(index_t, index_j, 2) + sf_2*TRAJ.box_dimension[2] - TRAJ(index_t, index_i, 2);
               double norm_pos = sqrt(rpos_ij_0*rpos_ij_0 + rpos_ij_1*rpos_ij_1 + rpos_ij_2*rpos_ij_2);
-              // printf("%2.1lf\t", norm_pos);
               if(norm_pos < min_norm)
                 {
                   min_sf_0 = sf_0;
@@ -241,7 +179,6 @@ inline double GEOMETRY::get_minimum_distance_rel_vector_equilibrium_test(TRAJECT
             } // it is already assumed for 3-dimensional case
         }
     }
-  // printf("MIN: %2.1lf\n", min_norm);
   given_vec(0) = TRAJ(index_t, index_j, 0) + min_sf_0*TRAJ.box_dimension[0] - TRAJ(index_t, index_i, 0);
   given_vec(1) = TRAJ(index_t, index_j, 1) + min_sf_1*TRAJ.box_dimension[1] - TRAJ(index_t, index_i, 1);
   given_vec(2) = TRAJ(index_t, index_j, 2) + min_sf_2*TRAJ.box_dimension[2] - TRAJ(index_t, index_i, 2);
@@ -278,7 +215,6 @@ inline double GEOMETRY::get_minimum_distance_rel_vector_simple_shear_fixed_axis(
                 - TRAJ(index_t, index_i, 0);
           
               double norm_pos = sqrt(rpos_ij_0*rpos_ij_0 + rpos_ij_1*rpos_ij_1 + rpos_ij_2*rpos_ij_2);
-              // printf("%2.1lf\t", norm_pos);
               if(norm_pos < min_norm)
                 {
                   min_sf_0 = sf_0;
@@ -289,7 +225,6 @@ inline double GEOMETRY::get_minimum_distance_rel_vector_simple_shear_fixed_axis(
             } // it is already assumed for 3-dimensional case
         }
     }
-  // printf("MIN: %2.1lf\n", min_norm);
   given_vec(0) = TRAJ(index_t, index_j, 0) + min_sf_0*TRAJ.box_dimension[0] + min_sf_1*map_to_central_box_image - TRAJ(index_t, index_i, 0);
   given_vec(1) = TRAJ(index_t, index_j, 1) + min_sf_1*TRAJ.box_dimension[1] - TRAJ(index_t, index_i, 1);
   given_vec(2) = TRAJ(index_t, index_j, 2) + min_sf_2*TRAJ.box_dimension[2] - TRAJ(index_t, index_i, 2);
@@ -299,44 +234,8 @@ inline double GEOMETRY::get_minimum_distance_rel_vector_simple_shear_fixed_axis(
 inline double GEOMETRY::get_minimum_distance_simple_shear_fixed_axis(TRAJECTORY& TRAJ, MKL_LONG index_t, MKL_LONG index_i, MKL_LONG index_j, MATRIX& given_vec, const double map_to_central_box_image)
 {
   double distance = GEOMETRY::get_minimum_distance_rel_vector_simple_shear_fixed_axis(TRAJ, index_t, index_i, index_j, given_vec, map_to_central_box_image);
-  // return given_vec.norm();
   return distance;
 }
-
-// inline double GEOMETRY::get_minimum_distance_pos_vector_simple_shear(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec, const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis, const double map_to_central_box_image)
-// {
-  
-//   for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
-//     {
-//       if (k != shear_axis)
-//         {
-//           given_vec(k) = UTIL_ARR::get_minimum_image_k_from_x(TRAJ(index_t, given_index, k), TRAJ(index_t, target_index, k), TRAJ.box_dimension[k]);
-//         }
-//     }
-
-  
-//   return 0;
-// }
-
-
-// inline double GEOMETRY::get_minimum_distance_rel_vector_simple_shear(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_i, const MKL_LONG index_j, MATRIX& given_vec, const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis, const double map_to_central_box_image)
-// {
-//   // GEOMETRY::get_minimum_distance_pos_vector_simple_shear(TRAJ, index_t, index_i, index_j, given_vec, shear_axis, shear_grad_axis, map_to_central_box_image);
-//   // for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
-//   //   {
-//   //     // direction convention:
-//   //     // +: direction to the given bead
-//   //     // -: direction to the target bead
-//   //     given_vec(k) -= TRAJ(index_t, given_index, k);
-//   //   }
-
-
-  
-//   return 0;
-// }
-
-
-
 
   
 inline MKL_LONG GEOMETRY::minimum_image_convention_particle(TRAJECTORY& TRAJ, MKL_LONG target_t, MKL_LONG index_particle)
@@ -405,25 +304,6 @@ inline double GEOMETRY::get_simple_distance(TRAJECTORY& TRAJ, MKL_LONG index_t, 
 
 }
 
-
-// inline double RDIST::measure_minimum_distance_default(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
-// {
-//   // note that the beyond_box_check is not necessary for default measuring_minimum_distance function
-//   // however, it is set in order to achive compatibility with cell-list implementation (for function pointer)
-//   return GEOMETRY::get_minimum_distance(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target]);
-// }
-
-// inline double RDIST::measure_minimum_distance_cell_list(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
-// {
-//   return GEOMETRY::get_minimum_distance_cell_list(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], beyond_box_check);
-// }
-
-// inline double RDIST::measure_minimum_distance_simple_shear(TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
-// {
-//   // here again, beyond_box_check is not necessary
-//   // just added because of argument design
-//   return GEOMETRY::get_minimum_distance_simple_shear(TRAJ, index_t, index_particle, index_target, Rvec[index_particle][index_target], shear_axis, shear_grad_axis, map_to_central_box_image);
-// }
 
 inline double GEOMETRY::measure_minimum_distance_default(RDIST& R_boost, TRAJECTORY& TRAJ, const MKL_LONG index_t, const MKL_LONG index_particle, const MKL_LONG index_target, MKL_LONG* beyond_box_check)
 {
