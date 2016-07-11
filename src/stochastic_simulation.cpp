@@ -5,6 +5,8 @@
 #include "../lib/handle_association.h"	// CHAIN class
 #include "../lib/potential.h"		// POTENTIAL_SET class
 #include "../lib/file_IO.h"		// RECORD_DATA class, COND class
+#include "../lib/analysis.h" // related with analysis and post-processing
+
 
 #include <string>
 
@@ -35,8 +37,48 @@ main
       help();
       return 0;
     }
+  else if(argc > 2)
+    {
+      MATRIX ener_data;
+      ener_data.read_exist_data(argv[2]);
+      printf("READ_FILE_DONE\n");
+      MATRIX result(ener_data.rows/2, 7, 0.);
+      for(MKL_LONG t=0; t<result.rows; t++)
+        result(t, 0) = ener_data(t, 0);
+      MKL_LONG N_THREADS = 6;
+
+      using namespace POST_PROCESSING;
+      compute_autocorrelation_OMP(ener_data, 21, N_THREADS, result, 1);
+      printf("PROCESS_21\n");
+      compute_autocorrelation_OMP(ener_data, 22, N_THREADS, result, 2);
+      printf("PROCESS_22\n");      
+      compute_autocorrelation_OMP(ener_data, 23, N_THREADS, result, 3);
+      printf("PROCESS_23\n");      
+      compute_autocorrelation_OMP(ener_data, 27, N_THREADS, result, 4);
+      printf("PROCESS_27\n");
+      compute_autocorrelation_OMP(ener_data, 28, N_THREADS, result, 5);
+      printf("PROCESS_28\n");
+      compute_autocorrelation_OMP(ener_data, 29, N_THREADS, result, 6);
+      printf("PROCESS_29\n");      
+
+      ofstream FILE;
+      FILE.open(argv[3]);
+      result.fprint(FILE);
+      FILE.close();
+      return 0;
+      // for(MKL_LONG i=0; i<data.rows; i++)
+      //   {
+      //     for(MKL_LONG j=0; j<data.cols; j++)
+      //       {
+      //         printf("%3.2lf\t", data(i,j));
+      //       }
+      //     printf("\n");
+      //   }
+      
+    }
   else
     {
+        
       // inp_cnt started with index 1 since 0 is itself
       // single input file case, argc==2, argv[0] == execution, argv[1] == inputfile
       for(MKL_LONG inp_cnt = 1; inp_cnt < argc; inp_cnt ++)

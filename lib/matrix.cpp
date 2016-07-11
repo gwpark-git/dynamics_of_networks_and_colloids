@@ -1,7 +1,50 @@
 
 #include "matrix.h"
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <iomanip>
 #include <math.h>
+
+MKL_LONG
+MATRIX::
+read_exist_data(const char* fn_given_array)
+{
+  std::ifstream GIVEN_FILE;
+  GIVEN_FILE.open(fn_given_array);
+  MKL_LONG cnt = 0;
+  std::string line;
+  MKL_LONG cols = 0;
+  while(getline(GIVEN_FILE, line))
+    {
+      if(cnt ==0)
+        {
+          std::stringstream is(line);
+          double tmp;
+          while(is >> tmp)
+            {cols ++;}
+        }
+      cnt ++;
+    }
+  MKL_LONG rows = cnt;
+  GIVEN_FILE.clear();
+  GIVEN_FILE.seekg(0);
+  
+  initial(rows, cols, 0.);
+  // printf("rows = %ld, cols = %ld\n", rows, cols);
+  
+  for(MKL_LONG i=0; i<rows; i++)
+    {
+      for(MKL_LONG j=0; j<cols; j++)
+        {
+          GIVEN_FILE >> (*this)(i, j);
+          // printf("%ld\t", (*this)(i,j));
+        }
+      // printf("\n");
+    }
+  GIVEN_FILE.close();
+  return 0;
+}
 
 MKL_LONG
 nonzero

@@ -74,6 +74,7 @@ class MATRIX
     print
     (MKL_LONG n_row, MKL_LONG n_col);                  //@
 
+  
   MKL_LONG
     fprint_skip
     (std::ofstream& file, MKL_LONG N_skip);
@@ -132,6 +133,8 @@ class MATRIX
     add(MATRIX& given_MAT);
 
 
+  MKL_LONG
+  read_exist_data(const char* fn_given_array);
 
   // Constructor
   MATRIX();                                         //@

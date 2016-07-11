@@ -48,6 +48,8 @@ def acf_average(dat):
     s_xx, s_xy, s_xz, s_yy, s_yz, s_zz = dat[:,0], dat[:,1], dat[:,2], dat[:, 4], dat[:,5], dat[:,8]
     return (acf_fix(s_xy) + acf_fix(s_yz) + acf_fix(s_xz))/3.
 
+def acf_average_flatten(dat):
+    return (acf_fix(dat[:,3]) + acf_fix(dat[:,4]) + acf_fix(dat[:,5]))/3.
     
 def acf_section(f, Nt_acf, Nt_uncorr):
     Nt = size(f)

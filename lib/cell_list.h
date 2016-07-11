@@ -49,8 +49,8 @@ class CLIST
   double map_to_central_box_image;
   
   // when simple shear is implemented
-  MKL_LONG N_offset;
-  MKL_LONG ***NEIGHBOR_CELLS_OFFSET; // the first dimensionality suggest that up and bottom check (right and bottom in general description)
+  // MKL_LONG N_offset;
+  // MKL_LONG ***NEIGHBOR_CELLS_OFFSET; // the first dimensionality suggest that up and bottom check (right and bottom in general description)
   
 
   
@@ -112,21 +112,21 @@ class CLIST
           delete[] BEYOND_BOX;
           delete[] cell_index;
 
-	  if(SIMPLE_SHEAR)
-	    {
-	      for(MKL_LONG i=0; i<2; i++)
-		{
-		  for(MKL_LONG j=0; j<N_cells + 1; j++)
-		    {
-		      for(MKL_LONG k=0; k<N_neighbor_cells + N_offset; k++)
-			{
-			  delete[] NEIGHBOR_CELLS_OFFSET[i][j][k];
-			}
-		      delete[] NEIGHBOR_CELLS_OFFSET[i][j];
-		    }
-		  delete[] NEIGHBOR_CELLS_OFFSET[i];
-		}
-	    }
+          // if(SIMPLE_SHEAR)
+          //   {
+          //     for(MKL_LONG i=0; i<2; i++)
+          //       {
+          //         for(MKL_LONG j=0; j<N_cells + 1; j++)
+          //           {
+          //             for(MKL_LONG k=0; k<N_neighbor_cells + N_offset; k++)
+          //               {
+          //                 delete[] NEIGHBOR_CELLS_OFFSET[i][j][k];
+          //               }
+          //             delete[] NEIGHBOR_CELLS_OFFSET[i][j];
+          //           }
+          //         delete[] NEIGHBOR_CELLS_OFFSET[i];
+          //       }
+          //   }
         }
     }
 };
