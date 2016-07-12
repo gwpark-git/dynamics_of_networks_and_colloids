@@ -8,11 +8,11 @@
 namespace POST_PROCESSING
 {
   double
-  compute_autocorrelation(MATRIX& time_series_data, const MKL_LONG index,
-                          MATRIX& result, const MKL_LONG index_result);
+  compute_autocorrelation_brute_force(MATRIX& time_series_data, const MKL_LONG index,
+                                      MATRIX& result, const MKL_LONG index_result);
 
   double
-  compute_autocorrelation_OMP(MATRIX& time_series_data, const MKL_LONG index,
+  compute_autocorrelation_brute_force_OMP(MATRIX& time_series_data, const MKL_LONG index,
                               const MKL_LONG N_THREADS,
                               MATRIX& result, const MKL_LONG index_result);
     

@@ -128,6 +128,7 @@ sum_virial_components(MATRIX& energy)
   MKL_LONG index_st = 6;
   MKL_LONG number_of_components = 6;
   for(MKL_LONG i=6; i<12; i++)
+    // note that the BROWNIAN functions are used as the first approach (inherit for all further approaches)
     energy(i) = energy(i + index_st);
 
   return dsecnd() - time_st;

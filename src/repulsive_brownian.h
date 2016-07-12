@@ -46,8 +46,7 @@ namespace REPULSIVE_BROWNIAN
 
   // inline functions
   double
-  sum_virial_components
-  (MATRIX& energy);
+  sum_virial_components(MATRIX& energy);
 }
 
 struct REPULSIVE_BROWNIAN::
@@ -125,7 +124,7 @@ sum_virial_components(MATRIX& energy)
   
   for(MKL_LONG i=6; i<12; i++)
     {
-      energy(i) = energy(i + 6*2);
+      energy(i) += energy(i + 6*2);
     }
   return dsecnd() - time_st;
 }

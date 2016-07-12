@@ -4,7 +4,7 @@ using namespace std;
 
 double
 POST_PROCESSING::
-compute_autocorrelation(MATRIX& time_series_data, const MKL_LONG index,
+compute_autocorrelation_brute_force(MATRIX& time_series_data, const MKL_LONG index,
                         MATRIX& result, const MKL_LONG index_result)
 {
   MKL_LONG Nt_corr = time_series_data.rows/2;
@@ -13,16 +13,16 @@ compute_autocorrelation(MATRIX& time_series_data, const MKL_LONG index,
     {
       for(MKL_LONG s=0; s<Nt_corr -1; s++)
         {
-          result(t) += time_series_data(s, index)*time_series_data(s + t, index);
+          result(t, index_result) += time_series_data(s, index)*time_series_data(s + t, index);
         }
-      result(t) /= (double)(Nt_corr - 1);
+      result(t, index_result) /= (double)(Nt_corr - 1);
     }
   return 0.;
 }
 
 double
 POST_PROCESSING::
-compute_autocorrelation_OMP(MATRIX& time_series_data, const MKL_LONG index,
+compute_autocorrelation_brute_force_OMP(MATRIX& time_series_data, const MKL_LONG index,
                             const MKL_LONG N_THREADS,
                             MATRIX& result, const MKL_LONG index_result)
 {
@@ -35,9 +35,9 @@ compute_autocorrelation_OMP(MATRIX& time_series_data, const MKL_LONG index,
     {
       for(MKL_LONG s=0; s<Nt_corr -1; s++)
         {
-          result(t) += time_series_data(s, index)*time_series_data(s + t, index);
+          result(t, index_result) += time_series_data(s, index)*time_series_data(s + t, index);
         }
-      result(t) /= (double)(Nt_corr - 1);
+      result(t, index_result) /= (double)(Nt_corr - 1);
     }
   return 0.;
 }

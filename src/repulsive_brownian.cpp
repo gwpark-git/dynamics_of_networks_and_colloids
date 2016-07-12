@@ -5,15 +5,15 @@ using namespace REPULSIVE_BROWNIAN;
 double
 REPULSIVE_BROWNIAN::
 OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
-		  RDIST& R_boost, MKL_LONG* tmp_index_vec,
-		  const MKL_LONG N_THREADS_BD)
+                  RDIST& R_boost, MKL_LONG* tmp_index_vec,
+                  const MKL_LONG N_THREADS_BD)
 {
   double time_st_rdist = dsecnd();
   R_boost.allocate_cells_from_positions(TRAJ, index_t_now, tmp_index_vec);
   
 #pragma omp parallel for default(none) if(N_THREADS_BD > 1)	\
-  shared(TRAJ, index_t_now, R_boost)				\
-  num_threads(N_THREADS_BD)					\
+  shared(TRAJ, index_t_now, R_boost)                        \
+  num_threads(N_THREADS_BD)                                 \
     
   /*
     Originally, this parallel regime is designed to use N_cells and TOKEN.
@@ -23,8 +23,8 @@ OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
   for(MKL_LONG index_particle=0; index_particle<TRAJ.Np; index_particle++)
     {
       GEOMETRY::
-	compute_RDIST_particle(R_boost, index_particle,
-			       TRAJ, index_t_now);
+        compute_RDIST_particle(R_boost, index_particle,
+                               TRAJ, index_t_now);
     } // index_particle
   // dt_rdist += dsecnd() - time_st_rdist;
   return dsecnd() - time_st_rdist;
@@ -33,11 +33,11 @@ OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
 double
 REPULSIVE_BROWNIAN::
 OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next,
-			 POTENTIAL_SET& POTs, MATRIX* force_repulsion, MATRIX* force_random,
-			 RDIST& R_boost, MATRIX* vec_boost_Nd_parallel,
-			 RNG_BOOST& RNG,
-			 const MKL_LONG N_THREADS_BD,
-			 COND& given_condition, TEMPORAL_VARIABLE& VAR)
+                         POTENTIAL_SET& POTs, MATRIX* force_repulsion, MATRIX* force_random,
+                         RDIST& R_boost, MATRIX* vec_boost_Nd_parallel,
+                         RNG_BOOST& RNG,
+                         const MKL_LONG N_THREADS_BD,
+                         COND& given_condition, TEMPORAL_VARIABLE& VAR)
 {
   double time_st = dsecnd();
   double RF_random_xx = 0., RF_random_yy = 0., RF_random_zz = 0.;
@@ -45,16 +45,16 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   double RF_repulsion_xx = 0., RF_repulsion_yy = 0., RF_repulsion_zz = 0.;
   double RF_repulsion_xy = 0., RF_repulsion_xz = 0., RF_repulsion_yz = 0.;
   
-#pragma omp parallel for default(none) if(N_THREADS_BD > 1)	\
-  shared(TRAJ, index_t_now, index_t_next,			\
-	 POTs,force_repulsion, force_random,			\
-	 R_boost, vec_boost_Nd_parallel,			\
-	 RNG, N_THREADS_BD, given_condition, VAR)		\
-  num_threads(N_THREADS_BD)					\
-  reduction(+:RF_random_xx, RF_random_yy, RF_random_zz,		\
-	    RF_random_xy, RF_random_xz, RF_random_yz,		\
-	    RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,	\
-	    RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz)
+#pragma omp parallel for default(none) if(N_THREADS_BD > 1)     \
+  shared(TRAJ, index_t_now, index_t_next,                       \
+         POTs,force_repulsion, force_random,                    \
+         R_boost, vec_boost_Nd_parallel,                        \
+         RNG, N_THREADS_BD, given_condition, VAR)               \
+  num_threads(N_THREADS_BD)                                     \
+  reduction(+:RF_random_xx, RF_random_yy, RF_random_zz,         \
+            RF_random_xy, RF_random_xz, RF_random_yz,           \
+            RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,	\
+            RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz)
   
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
@@ -64,15 +64,15 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
       force_random[i].set_value(0);
 
       INTEGRATOR::EULER::
-	cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
+        cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
       INTEGRATOR::EULER::
-	cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
+        cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
           
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
         {
           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k)
-	    + TRAJ.dt*(force_repulsion[i](k))
-	    + sqrt(TRAJ.dt)*force_random[i](k);
+            + TRAJ.dt*(force_repulsion[i](k))
+            + sqrt(TRAJ.dt)*force_random[i](k);
         }
       if(VAR.SIMPLE_SHEAR)
         TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_R*TRAJ(index_t_now, i, VAR.shear_grad_axis);
@@ -108,9 +108,9 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
 MKL_LONG
 REPULSIVE_BROWNIAN::
 main_EQUILIBRATION(TRAJECTORY& TRAJ,
-		   POTENTIAL_SET& POTs,
-		   RECORD_DATA& DATA,
-		   COND& given_condition)
+                   POTENTIAL_SET& POTs,
+                   RECORD_DATA& DATA,
+                   COND& given_condition)
 {
   using namespace std;
   
@@ -135,8 +135,8 @@ main_EQUILIBRATION(TRAJECTORY& TRAJ,
     // the time zero is not affected by implemented shear (which means the shear flow simulation cannot be inheritance from the previous shear flow implementation at this moment)
     REPULSIVE_BROWNIAN::
     OMP_compute_RDIST(TRAJ, 0,
-		      R_boost, VAR.tmp_index_vec,
-		      VAR.N_THREADS_BD);
+                      R_boost, VAR.tmp_index_vec,
+                      VAR.N_THREADS_BD);
 
   
   VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
@@ -165,58 +165,58 @@ main_EQUILIBRATION(TRAJECTORY& TRAJ,
         }
       VAR.time_DIST +=         // compute RDIST with cell_list advantage
         REPULSIVE_BROWNIAN::
-	OMP_compute_RDIST(TRAJ, index_t_now,
-			  R_boost, VAR.tmp_index_vec,
-			  VAR.N_THREADS_BD);
+        OMP_compute_RDIST(TRAJ, index_t_now,
+                          R_boost, VAR.tmp_index_vec,
+                          VAR.N_THREADS_BD);
 
       VAR.time_LV +=           // update Langevin equation using Euler integrator
         REPULSIVE_BROWNIAN::
-	OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next,
-				 POTs, VAR.force_repulsion, VAR.force_random,
-				 R_boost, VAR.vec_boost_Nd_parallel,
-				 RNG,
-				 VAR.N_THREADS_BD,
-				 given_condition, VAR); // check arguments
+        OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next,
+                                 POTs, VAR.force_repulsion, VAR.force_random,
+                                 R_boost, VAR.vec_boost_Nd_parallel,
+                                 RNG,
+                                 VAR.N_THREADS_BD,
+                                 given_condition, VAR); // check arguments
 
       if(VAR.SIMPLE_SHEAR)
         {
           VAR.time_LV +=
             GEOMETRY::
-	    apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
+            apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
         }
       
       VAR.time_LV +=           // keep periodic box condition
         GEOMETRY::
-	minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
+        minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
       
       if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file==0)
         {
           VAR.time_AN += // measuring energy of system
             ANALYSIS::
-	    CAL_ENERGY_R_boost(POTs, energy, TRAJ(index_t_now), R_boost);
+            CAL_ENERGY_R_boost(POTs, energy, TRAJ(index_t_now), R_boost);
 
-	  VAR.time_AN +=
-	    VAR.record_virial_into_energy_array(energy);
+          VAR.time_AN +=
+            VAR.record_virial_into_energy_array(energy);
 	  
-	  VAR.time_AN +=
-	    REPULSIVE_BROWNIAN::
-	    sum_virial_components(energy);
+          VAR.time_AN +=
+            REPULSIVE_BROWNIAN::
+            sum_virial_components(energy);
 	  
           energy(4) = 0;        // information related with number of association
           energy(5) = dsecnd() - time_st_simulation; // computation time for simulation
 
-	  VAR.time_file +=
-	    energy.fprint_row(DATA.ener, 0);
+          VAR.time_file +=
+            energy.fprint_row(DATA.ener, 0);
 	  
-	  if(t%VAR.N_skip_file==0)
-	    {
-	      VAR.time_file += // write simulation data file
-		TRAJ.fprint_row(DATA.traj, index_t_now);
+          if(t%VAR.N_skip_file==0)
+            {
+              VAR.time_file += // write simulation data file
+                TRAJ.fprint_row(DATA.traj, index_t_now);
 
-	      VAR.simulation_time = TRAJ(index_t_now)/atof(given_condition("repulsion_coefficient").c_str());
-	      VAR.time_RECORDED += // print simulation information for users
-		report_simulation_info(TRAJ, energy, VAR);
-	    }
+              VAR.simulation_time = TRAJ(index_t_now)/atof(given_condition("repulsion_coefficient").c_str());
+              VAR.time_RECORDED += // print simulation information for users
+                report_simulation_info(TRAJ, energy, VAR);
+            }
         }
     }
 
@@ -228,8 +228,8 @@ main_EQUILIBRATION(TRAJECTORY& TRAJ,
 double
 REPULSIVE_BROWNIAN::
 record_simulation_data(RECORD_DATA& DATA,
-		       TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
-		       MATRIX& energy)
+                       TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
+                       MATRIX& energy)
 {
   double time_st = dsecnd();
   TRAJ.fprint_row(DATA.traj, index_t_now);
@@ -240,8 +240,8 @@ record_simulation_data(RECORD_DATA& DATA,
 double
 REPULSIVE_BROWNIAN::
 report_simulation_info(TRAJECTORY& TRAJ,
-		       MATRIX& energy,
-		       TEMPORAL_VARIABLE& VAR)
+                       MATRIX& energy,
+                       TEMPORAL_VARIABLE& VAR)
 {
   double total_time = VAR.time_LV + VAR.time_AN + VAR.time_file + VAR.time_DIST;
   printf("##### STEPS = %ld\tTIME = %8.6e tau_B\tENERGY = %6.3e (computing time: %4.3e)\n", TRAJ.c_t, VAR.simulation_time, energy(1), energy(5));

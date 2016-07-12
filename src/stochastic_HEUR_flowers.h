@@ -213,7 +213,7 @@ sum_virial_components(MATRIX& energy)
   
   for(MKL_LONG i=6; i<12; i++)
     {
-      energy(i) = energy(i + 6*3);
+      energy(i) += energy(i + 6*3);
     }
   return dsecnd() - time_st;
 }

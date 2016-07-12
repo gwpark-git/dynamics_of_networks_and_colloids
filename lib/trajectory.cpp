@@ -108,7 +108,7 @@ initialization_COND
       box_dimension[k] = atof(given_condition("box_dimension").c_str());
     }
 
-  if(given_condition("Method") == "BROWNIAN")
+  if(given_condition("Method") == "BROWNIAN" || given_condition("Method") == "DUMBBELL")
     {
       // it related with the chracteristic for Brownian motion is based on tauB
       dt = atof(given_condition("dt/tauB").c_str());

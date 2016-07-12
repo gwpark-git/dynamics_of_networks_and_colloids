@@ -27,11 +27,20 @@ OMP_time_evolution_Euler
 (TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next, CONNECTIVITY& CONNECT, POTENTIAL_SET& POTs, MATRIX* force_random, MATRIX* force_spring, RNG_BOOST& RNG, RDIST& R_boost, const MKL_LONG N_THREADS_BD, COND& given_condition, DUMBBELL_VARIABLE& VAR)
 {
   double time_st = dsecnd();
+
+  double RF_random_xx = 0., RF_random_yy = 0., RF_random_zz = 0.;
+  double RF_random_xy = 0., RF_random_xz = 0., RF_random_yz = 0.;
+  double RF_repulsion_xx = 0., RF_repulsion_yy = 0., RF_repulsion_zz = 0.;
+  double RF_repulsion_xy = 0., RF_repulsion_xz = 0., RF_repulsion_yz = 0.;
+  double RF_connector_xx = 0., RF_connector_yy = 0., RF_connector_zz = 0.;
+  double RF_connector_xy = 0., RF_connector_xz = 0., RF_connector_yz = 0.;
+
+  
 #pragma omp parallel for default(none) if(N_THREADS_BD > 1)	\
-  shared(TRAJ,index_t_now, index_t_next,			\
-	 CONNECT, POTs, force_random, force_spring,		\
-	 R_boost, RNG, N_THREADS_BD, given_condition, VAR)	\
-  num_threads(N_THREADS_BD)					\
+  shared(TRAJ,index_t_now, index_t_next,                    \
+         CONNECT, POTs, force_random, force_spring,         \
+         R_boost, RNG, N_THREADS_BD, given_condition, VAR)	\
+  num_threads(N_THREADS_BD)                                 \
 
   
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
@@ -42,14 +51,14 @@ OMP_time_evolution_Euler
       force_spring[i].set_value(0);
 
       VAR.time_LV_force_connector +=
-	INTEGRATOR::EULER::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
+        INTEGRATOR::EULER::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
       VAR.time_LV_force_random +=
-	INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
+        INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
       
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
         {
           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k)	// inheritance the current positions
-	    + TRAJ.dt*force_spring[i](k)			// connector contribution
+            + TRAJ.dt*force_spring[i](k)			// connector contribution
             + sqrt(TRAJ.dt)*force_random[i](k);			// apply Wiener process
         }
       if(VAR.SIMPLE_SHEAR)					// apply simple shear into the time evolution
@@ -96,19 +105,26 @@ main_DUMBBELL
       TRAJ(index_t_next) = TRAJ(index_t_now) + TRAJ.dt; // it will inheritance time step from the previous input file
       ++TRAJ.c_t;
 
-
-      VAR.time_LV +=           // update Langevin equation using Euler integrator
-        DUMBBELL::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, CONNECT, POTs, VAR.force_random, VAR.force_spring, RNG, R_boost, VAR.N_THREADS_BD, given_condition, VAR); // check arguments
+      VAR.virial_initial();
 
       if(VAR.SIMPLE_SHEAR)
         {
           double time_div_tau_B = t*TRAJ.dt; // note that TRAJ.dt == dt/tau_B.
           VAR.shear_PBC_shift = fmod(VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B, TRAJ.box_dimension[VAR.shear_axis]);
+          R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
+          MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
+          R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
+        }
+      
+      VAR.time_LV +=           // update Langevin equation using Euler integrator
+        DUMBBELL::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, CONNECT, POTs, VAR.force_random, VAR.force_spring, RNG, R_boost, VAR.N_THREADS_BD, given_condition, VAR); // check arguments
+
+      if(VAR.SIMPLE_SHEAR)
+        {
           // the modulo for float type, fmod, is applied in order to reduce potential overhead for minimum_image_convention function, since shift_factor is proportional to time.
           // note that the original one, shifted by shift_factor without modulo, is tested with loop-type minimum image convention without any changes of modulo scheme with single if-phrase.
           // to be on the safe side, the loop style will be used from now on
           // however, here the modulo scheme will be used instead of full shift factor in order to reduce overhead to apply minimum_image_convention
-          
           VAR.time_LV +=
             GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
         }
@@ -120,20 +136,20 @@ main_DUMBBELL
       if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file == 0)
         {
           VAR.time_AN += // measuring energy of system
-	    ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTs, CONNECT, energy, TRAJ(index_t_now), R_boost);
+            ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTs, CONNECT, energy, TRAJ(index_t_now), R_boost);
           energy(4) = 0;        // information related with number of association
           energy(5) = dsecnd() - time_st_simulation; // computation time for simulation
-	  VAR.time_file += // write simulation data file
-	    energy.fprint_row(DATA.ener, 0);
+          VAR.time_file += // write simulation data file
+            energy.fprint_row(DATA.ener, 0);
 
-	  if (t%VAR.N_skip_file == 0)
-	    {
-	      VAR.time_file +=
-		TRAJ.fprint_row(DATA.traj, index_t_now);
-	      VAR.simulation_time = TRAJ(index_t_now); // the repulsion coefficient is not necessary for pure Brownian motion
-	      VAR.time_RECORDED += // print simulation information for users
-		BROWNIAN::report_simulation_info(TRAJ, energy, VAR);
-	    }
+          if (t%VAR.N_skip_file == 0)
+            {
+              VAR.time_file +=
+                TRAJ.fprint_row(DATA.traj, index_t_now);
+              VAR.simulation_time = TRAJ(index_t_now); // the repulsion coefficient is not necessary for pure Brownian motion
+              VAR.time_RECORDED += // print simulation information for users
+                BROWNIAN::report_simulation_info(TRAJ, energy, VAR);
+            }
         }
     }
 
