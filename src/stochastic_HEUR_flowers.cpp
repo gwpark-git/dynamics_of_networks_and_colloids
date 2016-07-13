@@ -78,7 +78,9 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
             GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
         }
       VAR.time_LV +=
-        GEOMETRY::minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
+        GEOMETRY::minimum_image_convention_loop(TRAJ, index_t_next); // applying minimum image convention for PBC
+      // note that minimum_image_convention must be with loop when shear flow is implemented
+      // this is due to the fact that the previous minimum_image_convention cannot cope the shift higher than two times of box dimension
 
       VAR.N_associations = cnt_add - cnt_del;
       
@@ -104,6 +106,8 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
 	      VAR.time_file +=
 		record_simulation_data(DATA, TRAJ, CONNECT, CHAIN, index_t_now); // neeed review
 
+          VAR.simulation_time = TRAJ(index_t_now)/(atof(given_condition("repulsion_coefficient").c_str())*atof(given_condition("Rt").c_str()));
+          
 	      VAR.time_RECORDED +=
 		report_simulation_info(TRAJ, energy, VAR);
 	    }

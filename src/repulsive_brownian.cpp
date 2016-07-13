@@ -187,7 +187,7 @@ main_EQUILIBRATION(TRAJECTORY& TRAJ,
       
       VAR.time_LV +=           // keep periodic box condition
         GEOMETRY::
-        minimum_image_convention(TRAJ, index_t_next); // applying minimum image convention for PBC
+        minimum_image_convention_loop(TRAJ, index_t_next); // applying minimum image convention for PBC
       
       if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file==0)
         {

@@ -92,6 +92,9 @@ DUMBBELL::
       {
         force_spring[i].initial(N_dimension, 1, 0.);
       }
+
+    virial_initial();
+    N_components_energy = 24;
     /* all the necessary information stored in the construction for BROWNIAN::BROWNIAN_VARIABLE */
   }
   
@@ -105,7 +108,7 @@ DUMBBELL::
 
 
 inline MKL_LONG
-DUMBBELL:DUMBBELL_VARIABLE::
+DUMBBELL::DUMBBELL_VARIABLE::
 virial_initial()
 {
 
@@ -118,7 +121,7 @@ virial_initial()
 
 }
 
-inline MKL_LONG
+inline double
 DUMBBELL::DUMBBELL_VARIABLE::
 record_virial_into_energy_array(MATRIX& energy)
 {
@@ -143,7 +146,7 @@ record_virial_into_energy_array(MATRIX& energy)
 
 inline double
 DUMBBELL::
-sum_virial_compoenents(MATRIX& energy)
+sum_virial_components(MATRIX& energy)
 {
   double time_st = dsecnd();
   BROWNIAN::sum_virial_components(energy);

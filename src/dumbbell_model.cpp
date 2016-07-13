@@ -17,6 +17,7 @@ generate_dumbbell_connectivity
   for(MKL_LONG i=0; i<half_Np; i++)
     {
       CONNECT.HASH[i](hash_index_target) = i + half_Np; // it means index 0 connected with 0 + half_Np
+      CONNECT.TOKEN[i] += 1;
     }
   return 0;
 }
@@ -30,17 +31,19 @@ OMP_time_evolution_Euler
 
   double RF_random_xx = 0., RF_random_yy = 0., RF_random_zz = 0.;
   double RF_random_xy = 0., RF_random_xz = 0., RF_random_yz = 0.;
-  double RF_repulsion_xx = 0., RF_repulsion_yy = 0., RF_repulsion_zz = 0.;
-  double RF_repulsion_xy = 0., RF_repulsion_xz = 0., RF_repulsion_yz = 0.;
   double RF_connector_xx = 0., RF_connector_yy = 0., RF_connector_zz = 0.;
   double RF_connector_xy = 0., RF_connector_xz = 0., RF_connector_yz = 0.;
 
   
-#pragma omp parallel for default(none) if(N_THREADS_BD > 1)	\
-  shared(TRAJ,index_t_now, index_t_next,                    \
-         CONNECT, POTs, force_random, force_spring,         \
-         R_boost, RNG, N_THREADS_BD, given_condition, VAR)	\
-  num_threads(N_THREADS_BD)                                 \
+#pragma omp parallel for default(none) if(N_THREADS_BD > 1)    \
+  shared(TRAJ,index_t_now, index_t_next,                       \
+         CONNECT, POTs, force_random, force_spring,            \
+         R_boost, RNG, N_THREADS_BD, given_condition, VAR)     \
+  num_threads(N_THREADS_BD)                                    \
+  reduction(+:RF_random_xx, RF_random_yy, RF_random_zz,		   \
+            RF_random_xy, RF_random_xz, RF_random_yz,		   \
+            RF_connector_xx, RF_connector_yy, RF_connector_zz, \
+            RF_connector_xy, RF_connector_xz, RF_connector_yz)
 
   
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
@@ -63,7 +66,32 @@ OMP_time_evolution_Euler
         }
       if(VAR.SIMPLE_SHEAR)					// apply simple shear into the time evolution
         TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
+
+      RF_random_xx += TRAJ(index_t_now, i, 0)*force_random[i](0)/sqrt(TRAJ.dt);
+      RF_random_yy += TRAJ(index_t_now, i, 1)*force_random[i](1)/sqrt(TRAJ.dt);
+      RF_random_zz += TRAJ(index_t_now, i, 2)*force_random[i](2)/sqrt(TRAJ.dt);
+
+      RF_random_xy += TRAJ(index_t_now, i, 0)*force_random[i](1)/sqrt(TRAJ.dt);
+      RF_random_xz += TRAJ(index_t_now, i, 0)*force_random[i](2)/sqrt(TRAJ.dt);
+      RF_random_yz += TRAJ(index_t_now, i, 1)*force_random[i](2)/sqrt(TRAJ.dt);
+
+      RF_connector_xx += TRAJ(index_t_now, i, 0)*force_spring[i](0);
+      RF_connector_yy += TRAJ(index_t_now, i, 1)*force_spring[i](1);
+      RF_connector_zz += TRAJ(index_t_now, i, 2)*force_spring[i](2);
+
+      RF_connector_xy += TRAJ(index_t_now, i, 0)*force_spring[i](1);
+      RF_connector_xz += TRAJ(index_t_now, i, 0)*force_spring[i](2);
+      RF_connector_yz += TRAJ(index_t_now, i, 1)*force_spring[i](2);
+
+      
     }
+
+  VAR.RF_random_xx = RF_random_xx; VAR.RF_random_yy = RF_random_yy; VAR.RF_random_zz = RF_random_zz;
+  VAR.RF_random_xy = RF_random_xy; VAR.RF_random_xz = RF_random_xz; VAR.RF_random_yz = RF_random_yz;
+  VAR.RF_connector_xx = RF_connector_xx; VAR.RF_connector_yy = RF_connector_yy; VAR.RF_connector_zz = RF_connector_zz;
+  VAR.RF_connector_xy = RF_connector_xy; VAR.RF_connector_xz = RF_connector_xz; VAR.RF_connector_yz = RF_connector_yz;
+
+  
   return dsecnd() - time_st;
 }
 
@@ -84,13 +112,14 @@ main_DUMBBELL
   mkl_set_num_threads(VAR.N_THREADS_BD);
   
   RNG_BOOST RNG(given_condition);
-  MATRIX energy(1, 6, 0.);
+  MATRIX energy(1, VAR.N_components_energy, 0.);
   // // 0: time step to write 1-3: energy, 4: NAS, 5: real time
   // // 6: (xx)[RF], 7: (yy)[RF], 8: (zz)[RF], 9: (xy)[RF], 10: (xz)[RF], 11:(yz)[RF]
   // MATRIX energy(1, 12, 0.);
   
   printf("DONE\nSTART SIMULATION\n\n");
 
+  
   VAR.time_DIST +=         // compute RDIST with cell_list advantage
     REPULSIVE_BROWNIAN::
     OMP_compute_RDIST(TRAJ, 0, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
@@ -115,6 +144,9 @@ main_DUMBBELL
           MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
           R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
         }
+
+      VAR.time_DIST +=
+        REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, index_t_now, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
       
       VAR.time_LV +=           // update Langevin equation using Euler integrator
         DUMBBELL::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, CONNECT, POTs, VAR.force_random, VAR.force_spring, RNG, R_boost, VAR.N_THREADS_BD, given_condition, VAR); // check arguments
@@ -137,6 +169,9 @@ main_DUMBBELL
         {
           VAR.time_AN += // measuring energy of system
             ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTs, CONNECT, energy, TRAJ(index_t_now), R_boost);
+          VAR.time_AN +=
+            VAR.record_virial_into_energy_array(energy);
+          
           energy(4) = 0;        // information related with number of association
           energy(5) = dsecnd() - time_st_simulation; // computation time for simulation
           VAR.time_file += // write simulation data file
@@ -146,7 +181,7 @@ main_DUMBBELL
             {
               VAR.time_file +=
                 TRAJ.fprint_row(DATA.traj, index_t_now);
-              VAR.simulation_time = TRAJ(index_t_now); // the repulsion coefficient is not necessary for pure Brownian motion
+              VAR.simulation_time = TRAJ(index_t_now); // it follows the brownian time exactly
               VAR.time_RECORDED += // print simulation information for users
                 BROWNIAN::report_simulation_info(TRAJ, energy, VAR);
             }
