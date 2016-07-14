@@ -13,7 +13,7 @@ OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
   
 #pragma omp parallel for default(none) if(N_THREADS_BD > 1)	\
   shared(TRAJ, index_t_now, R_boost)                        \
-  num_threads(N_THREADS_BD)                                 \
+  num_threads(N_THREADS_BD)                                 
     
   /*
     Originally, this parallel regime is designed to use N_cells and TOKEN.

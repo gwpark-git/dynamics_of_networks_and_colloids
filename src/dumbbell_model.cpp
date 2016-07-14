@@ -2,6 +2,31 @@
 
 using namespace DUMBBELL;
 
+double
+DUMBBELL::
+OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
+                  RDIST& R_boost, MKL_LONG* tmp_index_vec,
+                  CONNECTIVITY& CONNECT,
+                  const MKL_LONG N_THREADS_BD)
+{
+  double time_st_rdist = dsecnd();
+
+#pragma omp parallel for default(none) if(N_THREADS_BD > 1) \
+  shared(TRAJ, index_t_now, R_boost, CONNECT) \
+  num_threads(N_THREADS_BD)
+
+  for(MKL_LONG index_particle = 0; index_particle < TRAJ.Np; index_particle++)
+    {
+      // itself
+      MKL_LONG index_target = CONNECT.HASH[index_particle](1); // note that there is the only one connectivity
+      // note that BEYOND_BOX will not be used since cell_list will be off for dumbbell model
+      double distance = R_boost.measure_minimum_distance(R_boost, TRAJ, index_t_now, index_particle, index_target, R_boost.BEYOND_BOX[0][0]);
+      R_boost.Rsca[index_particle](index_target) = distance;
+    }
+  
+  return dsecnd() - time_st_rdist;
+}
+
 MKL_LONG
 DUMBBELL::
 generate_dumbbell_connectivity
@@ -14,11 +39,25 @@ generate_dumbbell_connectivity
     }
   MKL_LONG half_Np = CONNECT.Np/2;
   MKL_LONG hash_index_target = 1; // dumbbell only have 1 connectivity
-  for(MKL_LONG i=0; i<half_Np; i++)
+  // for(MKL_LONG i=0; i<half_Np; i++)
+  //   {
+  //     CONNECT.HASH[i](hash_index_target) = i + half_Np; // it means index 0 connected with 0 + half_Np
+  //     CONNECT.TOKEN[i] += 1;
+  //   }
+
+  // for(MKL_LONG i=half_Np; i<CONNECT.Np; i++)
+  //   {
+  //     CONNECT.HASH[i](hash_index_target) = i - half_Np;
+  //     CONNECT.TOKEN[i] += 1;
+  //   }
+
+  for(MKL_LONG i=0; i<CONNECT.Np; i++)
     {
-      CONNECT.HASH[i](hash_index_target) = i + half_Np; // it means index 0 connected with 0 + half_Np
-      CONNECT.TOKEN[i] += 1;
+      CONNECT.HASH[i](hash_index_target) = (i + half_Np)%CONNECT.Np;
+      CONNECT.TOKEN[i] = 2; // TOKEN is fixed
+
     }
+  
   return 0;
 }
 
@@ -44,7 +83,6 @@ OMP_time_evolution_Euler
             RF_random_xy, RF_random_xz, RF_random_yz,		   \
             RF_connector_xx, RF_connector_yy, RF_connector_zz, \
             RF_connector_xy, RF_connector_xz, RF_connector_yz)
-
   
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
@@ -55,6 +93,7 @@ OMP_time_evolution_Euler
 
       VAR.time_LV_force_connector +=
         INTEGRATOR::EULER::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
+
       VAR.time_LV_force_random +=
         INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
       
@@ -64,6 +103,7 @@ OMP_time_evolution_Euler
             + TRAJ.dt*force_spring[i](k)			// connector contribution
             + sqrt(TRAJ.dt)*force_random[i](k);			// apply Wiener process
         }
+
       if(VAR.SIMPLE_SHEAR)					// apply simple shear into the time evolution
         TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
 
@@ -121,8 +161,8 @@ main_DUMBBELL
 
   
   VAR.time_DIST +=         // compute RDIST with cell_list advantage
-    REPULSIVE_BROWNIAN::
-    OMP_compute_RDIST(TRAJ, 0, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
+    DUMBBELL::
+    OMP_compute_RDIST(TRAJ, 0, R_boost, VAR.tmp_index_vec, CONNECT, VAR.N_THREADS_BD);
 
   VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
     ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
@@ -146,7 +186,7 @@ main_DUMBBELL
         }
 
       VAR.time_DIST +=
-        REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, index_t_now, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
+        DUMBBELL::OMP_compute_RDIST(TRAJ, index_t_now, R_boost, VAR.tmp_index_vec, CONNECT, VAR.N_THREADS_BD);
       
       VAR.time_LV +=           // update Langevin equation using Euler integrator
         DUMBBELL::OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next, CONNECT, POTs, VAR.force_random, VAR.force_spring, RNG, R_boost, VAR.N_THREADS_BD, given_condition, VAR); // check arguments
@@ -181,6 +221,15 @@ main_DUMBBELL
             {
               VAR.time_file +=
                 TRAJ.fprint_row(DATA.traj, index_t_now);
+
+              for(MKL_LONG ip=0; ip<TRAJ.Np; ip++)
+                {
+                  CONNECT.HASH[ip].fprint_LONG_skip_transpose_LIMROWS(DATA.hash, 1, CONNECT.TOKEN[ip]);
+                }
+              
+              // VAR.time_file +=
+              //   CONNECT.HASH.fprint_row(DATA.hash, index_t_now);
+              
               VAR.simulation_time = TRAJ(index_t_now); // it follows the brownian time exactly
               VAR.time_RECORDED += // print simulation information for users
                 BROWNIAN::report_simulation_info(TRAJ, energy, VAR);

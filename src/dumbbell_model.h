@@ -23,9 +23,19 @@ namespace DUMBBELL
                 POTENTIAL_SET& POTs,
                 RECORD_DATA& DATA,
                 COND& given_condition);
+
+
+
   MKL_LONG
   generate_dumbbell_connectivity(CONNECTIVITY& CONNECT);
 
+  double
+  OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
+                    RDIST& R_boost, MKL_LONG* tmp_index_vec,
+                    CONNECTIVITY& CONNECT,
+                    const MKL_LONG N_THREADS_BD);
+
+  
   // double
   //   record_simulation_data(RECORD_DATA& DATA,
   // 			   TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
