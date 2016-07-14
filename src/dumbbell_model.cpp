@@ -105,7 +105,7 @@ OMP_time_evolution_Euler
         }
 
       if(VAR.SIMPLE_SHEAR)					// apply simple shear into the time evolution
-        TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
+	  TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
 
       RF_random_xx += TRAJ(index_t_now, i, 0)*force_random[i](0)/sqrt(TRAJ.dt);
       RF_random_yy += TRAJ(index_t_now, i, 1)*force_random[i](1)/sqrt(TRAJ.dt);
@@ -211,7 +211,11 @@ main_DUMBBELL
             ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTs, CONNECT, energy, TRAJ(index_t_now), R_boost);
           VAR.time_AN +=
             VAR.record_virial_into_energy_array(energy);
-          
+
+	  VAR.time_AN +=
+	    DUMBBELL::
+	    sum_virial_components(energy);
+	  
           energy(4) = 0;        // information related with number of association
           energy(5) = dsecnd() - time_st_simulation; // computation time for simulation
           VAR.time_file += // write simulation data file
