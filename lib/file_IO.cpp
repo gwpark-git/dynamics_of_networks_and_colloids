@@ -50,7 +50,7 @@ operator()
           return arg[i][1];
         }
     }
-  cout << "Bad condtion " << option_type << endl;
+  cout << "Bad condition " << option_type << endl;
   return ERR;
 }
 

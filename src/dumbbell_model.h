@@ -2,6 +2,8 @@
 #ifndef DUMBBELL_MODEL_H
 #define DUMBBELL_MODEL_H
 
+#include <iomanip>
+
 #include "../lib/matrix.h"
 #include "../lib/trajectory.h"
 #include "../lib/time_evolution.h"
@@ -35,6 +37,9 @@ namespace DUMBBELL
                     CONNECTIVITY& CONNECT,
                     const MKL_LONG N_THREADS_BD);
 
+  double
+  record_RDIST(ofstream &file_DIST,
+	       RDIST& R_boost, CONNECTIVITY& CONNECT);
   
   // double
   //   record_simulation_data(RECORD_DATA& DATA,

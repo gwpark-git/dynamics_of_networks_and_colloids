@@ -27,6 +27,21 @@ OMP_compute_RDIST(TRAJECTORY& TRAJ, const MKL_LONG index_t_now,
   return dsecnd() - time_st_rdist;
 }
 
+double
+DUMBBELL::
+record_RDIST(ofstream &file_DIST,
+	     RDIST& R_boost, CONNECTIVITY& CONNECT)
+{
+  double time_st = dsecnd();
+  for(MKL_LONG i=0; i<CONNECT.Np/2; i++)
+    {
+      double distance = R_boost.Rsca[i](CONNECT.HASH[i](1));
+      file_DIST << std::scientific << distance << '\t';
+    }
+  file_DIST << '\n';
+  return dsecnd() - time_st;
+}
+
 MKL_LONG
 DUMBBELL::
 generate_dumbbell_connectivity
@@ -115,19 +130,37 @@ OMP_time_evolution_Euler
       RF_random_xz += TRAJ(index_t_now, i, 0)*force_random[i](2)/sqrt(TRAJ.dt);
       RF_random_yz += TRAJ(index_t_now, i, 1)*force_random[i](2)/sqrt(TRAJ.dt);
 
-      RF_connector_xx += TRAJ(index_t_now, i, 0)*force_spring[i](0);
-      RF_connector_yy += TRAJ(index_t_now, i, 1)*force_spring[i](1);
-      RF_connector_zz += TRAJ(index_t_now, i, 2)*force_spring[i](2);
+      // RF_connector_xx += TRAJ(index_t_now, i, 0)*force_spring[i](0);
+      // RF_connector_yy += TRAJ(index_t_now, i, 1)*force_spring[i](1);
+      // RF_connector_zz += TRAJ(index_t_now, i, 2)*force_spring[i](2);
 
-      RF_connector_xy += TRAJ(index_t_now, i, 0)*force_spring[i](1);
-      RF_connector_xz += TRAJ(index_t_now, i, 0)*force_spring[i](2);
-      RF_connector_yz += TRAJ(index_t_now, i, 1)*force_spring[i](2);
+      // RF_connector_xy += TRAJ(index_t_now, i, 0)*force_spring[i](1);
+      // RF_connector_xz += TRAJ(index_t_now, i, 0)*force_spring[i](2);
+      // RF_connector_yz += TRAJ(index_t_now, i, 1)*force_spring[i](2);
 
+      MKL_LONG N_half = TRAJ.Np/2;
+      if(i < N_half)
+	{
+	  /*
+	    It is of importance to note that the virial stress (or Kramer expression) for dumbbell model is used connector vector. In consequence, individual sum over all the particle contribution in the previously commented lines, RF_connector_ab, was wrong because it uses PBC boundary condition, so have different positional contribution (force contribution remains the same condition as the same force value with opposite sign).
+
+	    P_2*F(P_2) + P_1*F(P_1) = P_2*F(P_2) - P_1*F(P_2) = (P_2 - P_1)*F(P_2).
+	   */
+	  RF_connector_xx += R_boost.Rvec[i][i+N_half](0)*force_spring[i](0);
+	  RF_connector_yy += R_boost.Rvec[i][i+N_half](1)*force_spring[i](1);
+	  RF_connector_zz += R_boost.Rvec[i][i+N_half](2)*force_spring[i](2);
+
+	  RF_connector_xy += R_boost.Rvec[i][i+N_half](0)*force_spring[i](1);
+	  RF_connector_xz += R_boost.Rvec[i][i+N_half](0)*force_spring[i](2);
+	  RF_connector_yz += R_boost.Rvec[i][i+N_half](1)*force_spring[i](2);
+	  
+	}
       
     }
 
   VAR.RF_random_xx = RF_random_xx; VAR.RF_random_yy = RF_random_yy; VAR.RF_random_zz = RF_random_zz;
   VAR.RF_random_xy = RF_random_xy; VAR.RF_random_xz = RF_random_xz; VAR.RF_random_yz = RF_random_yz;
+  
   VAR.RF_connector_xx = RF_connector_xx; VAR.RF_connector_yy = RF_connector_yy; VAR.RF_connector_zz = RF_connector_zz;
   VAR.RF_connector_xy = RF_connector_xy; VAR.RF_connector_xz = RF_connector_xz; VAR.RF_connector_yz = RF_connector_yz;
 
@@ -215,6 +248,7 @@ main_DUMBBELL
 	  VAR.time_AN +=
 	    DUMBBELL::
 	    sum_virial_components(energy);
+
 	  
           energy(4) = 0;        // information related with number of association
           energy(5) = dsecnd() - time_st_simulation; // computation time for simulation
@@ -223,6 +257,9 @@ main_DUMBBELL
 
           if (t%VAR.N_skip_file == 0)
             {
+	      VAR.time_file +=
+		record_RDIST(DATA.r_dist, R_boost, CONNECT);
+	      
               VAR.time_file +=
                 TRAJ.fprint_row(DATA.traj, index_t_now);
 
