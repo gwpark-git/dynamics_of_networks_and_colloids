@@ -107,7 +107,10 @@ OMP_time_evolution_Euler
       force_spring[i].set_value(0);
 
       VAR.time_LV_force_connector +=
-        INTEGRATOR::EULER::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
+        INTEGRATOR::EULER::
+	cal_connector_force_boost_with_RF(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca,
+					  RF_connector_xx, RF_connector_yy, RF_connector_zz,
+					  RF_connector_xy, RF_connector_xz, RF_connector_yz);
 
       VAR.time_LV_force_random +=
         INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
@@ -138,31 +141,31 @@ OMP_time_evolution_Euler
       // RF_connector_xz += TRAJ(index_t_now, i, 0)*force_spring[i](2);
       // RF_connector_yz += TRAJ(index_t_now, i, 1)*force_spring[i](2);
 
-      MKL_LONG N_half = TRAJ.Np/2;
-      if(i < N_half)
-	{
-	  /*
-	    It is of importance to note that the virial stress (or Kramer expression) for dumbbell model is used connector vector. In consequence, individual sum over all the particle contribution in the previously commented lines, RF_connector_ab, was wrong because it uses PBC boundary condition, so have different positional contribution (force contribution remains the same condition as the same force value with opposite sign).
+      // MKL_LONG N_half = TRAJ.Np/2;
+      // if(i < N_half)
+      // 	{
+      // 	  /*
+      // 	    It is of importance to note that the virial stress (or Kramer expression) for dumbbell model is used connector vector. In consequence, individual sum over all the particle contribution in the previously commented lines, RF_connector_ab, was wrong because it uses PBC boundary condition, so have different positional contribution (force contribution remains the same condition as the same force value with opposite sign).
 
-	    P_2*F(P_2) + P_1*F(P_1) = P_2*F(P_2) - P_1*F(P_2) = (P_2 - P_1)*F(P_2).
-	   */
-	  RF_connector_xx += R_boost.Rvec[i][i+N_half](0)*force_spring[i](0);
-	  RF_connector_yy += R_boost.Rvec[i][i+N_half](1)*force_spring[i](1);
-	  RF_connector_zz += R_boost.Rvec[i][i+N_half](2)*force_spring[i](2);
+      // 	    P_2*F(P_2) + P_1*F(P_1) = P_2*F(P_2) - P_1*F(P_2) = (P_2 - P_1)*F(P_2).
+      // 	   */
+      // 	  RF_connector_xx += R_boost.Rvec[i][i+N_half](0)*force_spring[i](0);
+      // 	  RF_connector_yy += R_boost.Rvec[i][i+N_half](1)*force_spring[i](1);
+      // 	  RF_connector_zz += R_boost.Rvec[i][i+N_half](2)*force_spring[i](2);
 
-	  RF_connector_xy += R_boost.Rvec[i][i+N_half](0)*force_spring[i](1);
-	  RF_connector_xz += R_boost.Rvec[i][i+N_half](0)*force_spring[i](2);
-	  RF_connector_yz += R_boost.Rvec[i][i+N_half](1)*force_spring[i](2);
+      // 	  RF_connector_xy += R_boost.Rvec[i][i+N_half](0)*force_spring[i](1);
+      // 	  RF_connector_xz += R_boost.Rvec[i][i+N_half](0)*force_spring[i](2);
+      // 	  RF_connector_yz += R_boost.Rvec[i][i+N_half](1)*force_spring[i](2);
 	  
-	}
+      // 	}
       
     }
 
   VAR.RF_random_xx = RF_random_xx; VAR.RF_random_yy = RF_random_yy; VAR.RF_random_zz = RF_random_zz;
   VAR.RF_random_xy = RF_random_xy; VAR.RF_random_xz = RF_random_xz; VAR.RF_random_yz = RF_random_yz;
   
-  VAR.RF_connector_xx = RF_connector_xx; VAR.RF_connector_yy = RF_connector_yy; VAR.RF_connector_zz = RF_connector_zz;
-  VAR.RF_connector_xy = RF_connector_xy; VAR.RF_connector_xz = RF_connector_xz; VAR.RF_connector_yz = RF_connector_yz;
+  VAR.RF_connector_xx = RF_connector_xx/2.; VAR.RF_connector_yy = RF_connector_yy/2.; VAR.RF_connector_zz = RF_connector_zz/2.;
+  VAR.RF_connector_xy = RF_connector_xy/2.; VAR.RF_connector_xz = RF_connector_xz/2.; VAR.RF_connector_yz = RF_connector_yz/2.;
 
   
   return dsecnd() - time_st;

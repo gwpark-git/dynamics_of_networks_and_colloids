@@ -106,7 +106,7 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
 	      VAR.time_file +=
 		record_simulation_data(DATA, TRAJ, CONNECT, CHAIN, index_t_now); // neeed review
 
-          VAR.simulation_time = TRAJ(index_t_now)/(atof(given_condition("repulsion_coefficient").c_str())*atof(given_condition("Rt").c_str()));
+	      VAR.simulation_time = TRAJ(index_t_now)/(atof(given_condition("repulsion_coefficient").c_str())*atof(given_condition("Rt").c_str()));
           
 	      VAR.time_RECORDED +=
 		report_simulation_info(TRAJ, energy, VAR);
@@ -192,60 +192,70 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
 	
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
-  MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
-  double time_st_init = dsecnd();
-  force_repulsion[i].set_value(0);
-  force_random[i].set_value(0);
-  force_spring[i].set_value(0);
-  double time_st_force = dsecnd();
-  time_LV_init += time_st_force - time_st_init;
-  time_LV_force_connector +=
-    INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
-  time_LV_force_repulsion +=
-    INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
-  time_LV_force_random +=
-    // INTEGRATOR::EULER::cal_random_force_boost_simplified(POTs, force_random[i], RNG.BOOST_BD[it]);
-    INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]);
+      MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
+      double time_st_init = dsecnd();
+      force_repulsion[i].set_value(0);
+      force_random[i].set_value(0);
+      force_spring[i].set_value(0);
+      double time_st_force = dsecnd();
+      time_LV_init += time_st_force - time_st_init;
+      time_LV_force_connector +=
+	INTEGRATOR::EULER_ASSOCIATION::
+	cal_connector_force_boost_with_RF(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca,
+					  RF_connector_xx, RF_connector_yy, RF_connector_zz,
+					  RF_connector_xy, RF_connector_xz, RF_connector_yz);
+	
+	// INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
+	
+      time_LV_force_repulsion +=
+	INTEGRATOR::EULER::
+	cal_repulsion_force_R_boost_with_RF(POTs, force_repulsion[i], i, R_boost,
+					    RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,
+					    RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz);
+      // 	INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
+      // time_LV_force_random +=
+	// INTEGRATOR::EULER::cal_random_force_boost_simplified(POTs, force_random[i], RNG.BOOST_BD[it]);
+	INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]);
       
-  double time_st_update = dsecnd();
-  time_LV_force += time_st_update - time_st_force;
+      double time_st_update = dsecnd();
+      time_LV_force += time_st_update - time_st_force;
       
-  for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
-    {
-  TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k)
-    + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k))
-    + sqrt(TRAJ.dt)*force_random[i](k);
-}
-  if(VAR.SIMPLE_SHEAR)
-    TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_R*TRAJ(index_t_now, i, VAR.shear_grad_axis);
+      for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
+	{
+	  TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k)
+	    + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k))
+	    + sqrt(TRAJ.dt)*force_random[i](k);
+	}
+      if(VAR.SIMPLE_SHEAR)
+	TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_R*TRAJ(index_t_now, i, VAR.shear_grad_axis);
 
-  RF_random_xx += TRAJ(index_t_now, i, 0)*force_random[i](0)/sqrt(TRAJ.dt);
-  RF_random_yy += TRAJ(index_t_now, i, 1)*force_random[i](1)/sqrt(TRAJ.dt);
-  RF_random_zz += TRAJ(index_t_now, i, 2)*force_random[i](2)/sqrt(TRAJ.dt);
+      RF_random_xx += TRAJ(index_t_now, i, 0)*force_random[i](0)/sqrt(TRAJ.dt);
+      RF_random_yy += TRAJ(index_t_now, i, 1)*force_random[i](1)/sqrt(TRAJ.dt);
+      RF_random_zz += TRAJ(index_t_now, i, 2)*force_random[i](2)/sqrt(TRAJ.dt);
 
-  RF_random_xy += TRAJ(index_t_now, i, 0)*force_random[i](1)/sqrt(TRAJ.dt);
-  RF_random_xz += TRAJ(index_t_now, i, 0)*force_random[i](2)/sqrt(TRAJ.dt);
-  RF_random_yz += TRAJ(index_t_now, i, 1)*force_random[i](2)/sqrt(TRAJ.dt);
+      RF_random_xy += TRAJ(index_t_now, i, 0)*force_random[i](1)/sqrt(TRAJ.dt);
+      RF_random_xz += TRAJ(index_t_now, i, 0)*force_random[i](2)/sqrt(TRAJ.dt);
+      RF_random_yz += TRAJ(index_t_now, i, 1)*force_random[i](2)/sqrt(TRAJ.dt);
 
-  RF_repulsion_xx += TRAJ(index_t_now, i, 0)*force_repulsion[i](0);
-  RF_repulsion_yy += TRAJ(index_t_now, i, 1)*force_repulsion[i](1);
-  RF_repulsion_zz += TRAJ(index_t_now, i, 2)*force_repulsion[i](2);
+      // RF_repulsion_xx += TRAJ(index_t_now, i, 0)*force_repulsion[i](0);
+      // RF_repulsion_yy += TRAJ(index_t_now, i, 1)*force_repulsion[i](1);
+      // RF_repulsion_zz += TRAJ(index_t_now, i, 2)*force_repulsion[i](2);
 
-  RF_repulsion_xy += TRAJ(index_t_now, i, 0)*force_repulsion[i](1);
-  RF_repulsion_xz += TRAJ(index_t_now, i, 0)*force_repulsion[i](2);
-  RF_repulsion_yz += TRAJ(index_t_now, i, 1)*force_repulsion[i](2);
+      // RF_repulsion_xy += TRAJ(index_t_now, i, 0)*force_repulsion[i](1);
+      // RF_repulsion_xz += TRAJ(index_t_now, i, 0)*force_repulsion[i](2);
+      // RF_repulsion_yz += TRAJ(index_t_now, i, 1)*force_repulsion[i](2);
 
-  RF_connector_xx += TRAJ(index_t_now, i, 0)*force_spring[i](0);
-  RF_connector_yy += TRAJ(index_t_now, i, 1)*force_spring[i](1);
-  RF_connector_zz += TRAJ(index_t_now, i, 2)*force_spring[i](2);
+      // RF_connector_xx += TRAJ(index_t_now, i, 0)*force_spring[i](0);
+      // RF_connector_yy += TRAJ(index_t_now, i, 1)*force_spring[i](1);
+      // RF_connector_zz += TRAJ(index_t_now, i, 2)*force_spring[i](2);
 
-  RF_connector_xy += TRAJ(index_t_now, i, 0)*force_spring[i](1);
-  RF_connector_xz += TRAJ(index_t_now, i, 0)*force_spring[i](2);
-  RF_connector_yz += TRAJ(index_t_now, i, 1)*force_spring[i](2);
+      // RF_connector_xy += TRAJ(index_t_now, i, 0)*force_spring[i](1);
+      // RF_connector_xz += TRAJ(index_t_now, i, 0)*force_spring[i](2);
+      // RF_connector_yz += TRAJ(index_t_now, i, 1)*force_spring[i](2);
 
       
-  time_LV_update += dsecnd() - time_st_update;
-}
+      time_LV_update += dsecnd() - time_st_update;
+    }
   VAR.time_LV_init += time_LV_init;
   VAR.time_LV_force += time_LV_force;
   VAR.time_LV_update += time_LV_update;
@@ -258,54 +268,56 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   // allocationc omputed RF values into VAR
   VAR.RF_random_xx = RF_random_xx; VAR.RF_random_yy = RF_random_yy; VAR.RF_random_zz = RF_random_zz;
   VAR.RF_random_xy = RF_random_xy; VAR.RF_random_xz = RF_random_xz; VAR.RF_random_yz = RF_random_yz;
-  VAR.RF_repulsion_xx = RF_repulsion_xx; VAR.RF_repulsion_yy = RF_repulsion_yy; VAR.RF_repulsion_zz = RF_repulsion_zz;
-  VAR.RF_repulsion_xy = RF_repulsion_xy; VAR.RF_repulsion_xz = RF_repulsion_xz; VAR.RF_repulsion_yz = RF_repulsion_yz;
-  VAR.RF_connector_xx = RF_connector_xx; VAR.RF_connector_yy = RF_connector_yy; VAR.RF_connector_zz = RF_connector_zz;
-  VAR.RF_connector_xy = RF_connector_xy; VAR.RF_connector_xz = RF_connector_xz; VAR.RF_connector_yz = RF_connector_yz;
+
+  VAR.RF_repulsion_xx = RF_repulsion_xx/2.; VAR.RF_repulsion_yy = RF_repulsion_yy/2.; VAR.RF_repulsion_zz = RF_repulsion_zz/2.;
+  VAR.RF_repulsion_xy = RF_repulsion_xy/2.; VAR.RF_repulsion_xz = RF_repulsion_xz/2.; VAR.RF_repulsion_yz = RF_repulsion_yz/2.;
+
+  VAR.RF_connector_xx = RF_connector_xx/2.; VAR.RF_connector_yy = RF_connector_yy/2.; VAR.RF_connector_zz = RF_connector_zz/2.;
+  VAR.RF_connector_xy = RF_connector_xy/2.; VAR.RF_connector_xz = RF_connector_xz/2.; VAR.RF_connector_yz = RF_connector_yz/2.;
 
   return dsecnd() - time_st;
 }
 
- double
-   HEUR::
-   write_MC_LOG_if_TRUE(bool flag_MC_LOG,
-    RECORD_DATA& DATA,
-    ASSOCIATION& CONNECT,
-    const INDEX_MC& IDX,
-    const MKL_LONG cnt, const MKL_LONG* cnt_arr,
-    const double rolling_dCDF, const double rolling_dCDF_U) 
- {
+double
+HEUR::
+write_MC_LOG_if_TRUE(bool flag_MC_LOG,
+		     RECORD_DATA& DATA,
+		     ASSOCIATION& CONNECT,
+		     const INDEX_MC& IDX,
+		     const MKL_LONG cnt, const MKL_LONG* cnt_arr,
+		     const double rolling_dCDF, const double rolling_dCDF_U) 
+{
   double time_st = dsecnd();
   if(flag_MC_LOG)
     {
-  MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
+      MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
 			  
-  {
-  DATA.MC_LOG << cnt << '\t' << IDX.beads[CONNECT.flag_itself] << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << IDX.beads[CONNECT.flag_hash_other] << '\t'  << IDX.beads[CONNECT.flag_other] << '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << IDX.beads[CONNECT.flag_hash_backtrace] << '\t'  << IDX.beads[CONNECT.flag_new] << '\t'  << CONNECT.TOKEN[IDX.beads[CONNECT.flag_itself]]<< '\t'<< CONNECT.N_CONNECTED_ENDS(IDX.beads[CONNECT.flag_itself]) << '\t' << CONNECT.weight[IDX.beads[CONNECT.flag_itself]](0) <<'\t' <<  total_bonds << '\t'  << cnt_arr[INDEX_MC::ADD]<< '\t'  << cnt_arr[INDEX_MC::MOV]<< '\t'  << cnt_arr[INDEX_MC::OPP_DEL]<< '\t'  << cnt_arr[INDEX_MC::CANCEL] << '\t' << cnt_arr[INDEX_MC::LOCK] << endl;
-}
-} // MC_LOG
+      {
+	DATA.MC_LOG << cnt << '\t' << IDX.beads[CONNECT.flag_itself] << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << IDX.beads[CONNECT.flag_hash_other] << '\t'  << IDX.beads[CONNECT.flag_other] << '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << IDX.beads[CONNECT.flag_hash_backtrace] << '\t'  << IDX.beads[CONNECT.flag_new] << '\t'  << CONNECT.TOKEN[IDX.beads[CONNECT.flag_itself]]<< '\t'<< CONNECT.N_CONNECTED_ENDS(IDX.beads[CONNECT.flag_itself]) << '\t' << CONNECT.weight[IDX.beads[CONNECT.flag_itself]](0) <<'\t' <<  total_bonds << '\t'  << cnt_arr[INDEX_MC::ADD]<< '\t'  << cnt_arr[INDEX_MC::MOV]<< '\t'  << cnt_arr[INDEX_MC::OPP_DEL]<< '\t'  << cnt_arr[INDEX_MC::CANCEL] << '\t' << cnt_arr[INDEX_MC::LOCK] << endl;
+      }
+    } // MC_LOG
   return dsecnd() - time_st;
 }
 
- double
-   HEUR::
-   transition_single_chain_end(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, CHAIN_HANDLE& CHAIN, RDIST& R_boost, INDEX_MC& IDX, const MKL_LONG IDENTIFIER_ACTION)
- {
+double
+HEUR::
+transition_single_chain_end(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, CHAIN_HANDLE& CHAIN, RDIST& R_boost, INDEX_MC& IDX, const MKL_LONG IDENTIFIER_ACTION)
+{
   double time_st = dsecnd();
   ACTION::ACT(POTs, CONNECT, IDX, R_boost.Rsca, IDENTIFIER_ACTION);
   if(CHAIN.INITIALIZATION)
     {
-  // note that this is affected by LOCKING scheme for parallelism of stochastic simulation part
-  // hence the tracking individual chain is not affected by the SS parallelisation scheme.
-  CHAIN.TRACKING_ACTION(CONNECT, IDENTIFIER_ACTION, IDX); // it will track individual chain information
-}
+      // note that this is affected by LOCKING scheme for parallelism of stochastic simulation part
+      // hence the tracking individual chain is not affected by the SS parallelisation scheme.
+      CHAIN.TRACKING_ACTION(CONNECT, IDENTIFIER_ACTION, IDX); // it will track individual chain information
+    }
   return dsecnd() - time_st;
 }
 
- double
-   HEUR::
-   check_dissociation_probability(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, INDEX_MC& IDX, gsl_rng* RNG_BOOST_SS_IT, MKL_LONG& IDENTIFIER_ACTION)
- {
+double
+HEUR::
+check_dissociation_probability(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, INDEX_MC& IDX, gsl_rng* RNG_BOOST_SS_IT, MKL_LONG& IDENTIFIER_ACTION)
+{
   double time_st = dsecnd();
   MKL_LONG index_itself = IDX.beads[CONNECT.flag_itself];
   MKL_LONG index_attached_bead = IDX.beads[CONNECT.flag_other];
@@ -314,25 +326,25 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   double tpa = POTs.transition(distance_exist_bridge, POTs.f_connector(distance_exist_bridge, POTs.force_variables), POTs.force_variables);
   if (tpa == 1.0)
     {
-  IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);
-}
+      IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);
+    }
   else
     {
-  double rolling_transition = RANDOM::return_double_rand_SUP1_boost(RNG_BOOST_SS_IT);
-  if (rolling_transition < tpa)
-    {
-  IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);
-}
-  else
-    IDENTIFIER_ACTION = IDX.CANCEL;
-}
+      double rolling_transition = RANDOM::return_double_rand_SUP1_boost(RNG_BOOST_SS_IT);
+      if (rolling_transition < tpa)
+	{
+	  IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);
+	}
+      else
+	IDENTIFIER_ACTION = IDX.CANCEL;
+    }
   return dsecnd() - time_st;
 }
 
- double
-   HEUR::
-   LOCKING_PARALLEL(LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR, const INDEX_MC& IDX, MKL_LONG& IDENTIFIER_ACTION, MKL_LONG& IDENTIFIER_LOCKING)
- {
+double
+HEUR::
+LOCKING_PARALLEL(LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR, const INDEX_MC& IDX, MKL_LONG& IDENTIFIER_ACTION, MKL_LONG& IDENTIFIER_LOCKING)
+{
   double time_st = dsecnd();
   /*
     On the omp critical region, the block will work only one thread.
@@ -343,48 +355,48 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
 
   for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++)
     {
-  if(LOCKER(IDX.beads[I_BEADS]))
-    {
-  IDENTIFIER_ACTION = IDX.CANCEL;
-  IDENTIFIER_LOCKING = TRUE;
-  break;
-}
-}
+      if(LOCKER(IDX.beads[I_BEADS]))
+	{
+	  IDENTIFIER_ACTION = IDX.CANCEL;
+	  IDENTIFIER_LOCKING = TRUE;
+	  break;
+	}
+    }
 
   // this is LOCKING procedure
   if(!IDENTIFIER_LOCKING)
     {
-  VAR.cnt_SS ++;
-  // cnt++;  // preventing LOCKING affect to the IDENTIFICATION of stochastic balance
-  // for(MKL_LONG I_BEADS = 0; I_BEADS < 3 && N_THREADS_SS > 1; I_BEADS++) // N_THREADS_SS > 1 is not necessary
-  for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++) 
-    {
-  LOCKER(IDX.beads[I_BEADS]) = TRUE;
-}
-}
+      VAR.cnt_SS ++;
+      // cnt++;  // preventing LOCKING affect to the IDENTIFICATION of stochastic balance
+      // for(MKL_LONG I_BEADS = 0; I_BEADS < 3 && N_THREADS_SS > 1; I_BEADS++) // N_THREADS_SS > 1 is not necessary
+      for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++) 
+	{
+	  LOCKER(IDX.beads[I_BEADS]) = TRUE;
+	}
+    }
   else
     {
-  VAR.cnt_arr[INDEX_MC::LOCK] ++;
-}
+      VAR.cnt_arr[INDEX_MC::LOCK] ++;
+    }
   return dsecnd() - time_st;
 }
 
- double
-   HEUR::
-   release_LOCKING(LOCK& LOCKER, INDEX_MC& IDX)
- {
+double
+HEUR::
+release_LOCKING(LOCK& LOCKER, INDEX_MC& IDX)
+{
   double time_st = dsecnd();
   for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++)
     {
-  LOCKER(IDX.beads[I_BEADS]) = FALSE;
-}
+      LOCKER(IDX.beads[I_BEADS]) = FALSE;
+    }
   return dsecnd() - time_st;
 }
 
- double
-   HEUR::
-   micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_MC& IDX, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR, double& rolling_dCDF, double& rolling_dCDF_U)
- {
+double
+HEUR::
+micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_MC& IDX, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR, double& rolling_dCDF, double& rolling_dCDF_U)
+{
   double time_st = dsecnd();
   
   IDX.beads[CONNECT.flag_itself] = RANDOM::return_LONG_INT_rand_boost(RNG_BOOST_SS_IT, VAR.Np);
@@ -401,10 +413,10 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   return dsecnd() - time_st;
 }
 
- double
-   HEUR::
-   OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, CHAIN_HANDLE& CHAIN, RNG_BOOST& RNG, RECORD_DATA& DATA, INDEX_MC* IDX_ARR, LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR)
- {
+double
+HEUR::
+OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost, CHAIN_HANDLE& CHAIN, RNG_BOOST& RNG, RECORD_DATA& DATA, INDEX_MC* IDX_ARR, LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR)
+{
   double time_st = dsecnd();
   double time_SS_index = 0., time_SS_LOCK = 0., time_SS_check = 0., time_SS_transition = 0., time_SS_update_info = 0.;
 #pragma omp parallel for default(none) if(VAR.N_THREADS_SS > 1)		\
@@ -442,10 +454,10 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
         {
 #pragma omp critical (LOCKING) // LOCKING is the name for this critical blocks
           {
-	  time_SS_LOCK +=      // this is differ from time_SS_LOCK since it is inside critical directive
-	    HEUR::LOCKING_PARALLEL(LOCKER, VAR, IDX_ARR[it], IDENTIFIER_ACTION, IDENTIFIER_LOCKING);
+	    time_SS_LOCK +=      // this is differ from time_SS_LOCK since it is inside critical directive
+	      HEUR::LOCKING_PARALLEL(LOCKER, VAR, IDX_ARR[it], IDENTIFIER_ACTION, IDENTIFIER_LOCKING);
+	  }
 	}
-    }
       // Note that the critical region only applicable with single thread while the others will be used in parallel regime.
       // In addition, the gap for passing the critical region will tune further gaps, then the computation speed for passing critical region will not be real critical issue.
       if(!IDENTIFIER_LOCKING) 
@@ -480,16 +492,16 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
           }
 
         } // if(!IDENTIFIER_LOCKING)
-}
+    }
 
-// adding the measured time to the variable structure
-VAR.time_SS_index += time_SS_index;
-VAR.time_SS_LOCK += time_SS_LOCK;
-VAR.time_SS_check += time_SS_check;
-VAR.time_SS_transition += time_SS_transition;
-VAR.time_SS_update_info += time_SS_update_info;
+  // adding the measured time to the variable structure
+  VAR.time_SS_index += time_SS_index;
+  VAR.time_SS_LOCK += time_SS_LOCK;
+  VAR.time_SS_check += time_SS_check;
+  VAR.time_SS_transition += time_SS_transition;
+  VAR.time_SS_update_info += time_SS_update_info;
 
-return dsecnd() - time_st;
+  return dsecnd() - time_st;
 }
 
 double
