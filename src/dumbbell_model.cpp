@@ -88,6 +88,7 @@ OMP_time_evolution_Euler
   double RF_connector_xx = 0., RF_connector_yy = 0., RF_connector_zz = 0.;
   double RF_connector_xy = 0., RF_connector_xz = 0., RF_connector_yz = 0.;
 
+  double energy_elastic_potential = 0.;
   
 #pragma omp parallel for default(none) if(N_THREADS_BD > 1)    \
   shared(TRAJ,index_t_now, index_t_next,                       \
@@ -97,7 +98,8 @@ OMP_time_evolution_Euler
   reduction(+:RF_random_xx, RF_random_yy, RF_random_zz,		   \
             RF_random_xy, RF_random_xz, RF_random_yz,		   \
             RF_connector_xx, RF_connector_yy, RF_connector_zz, \
-            RF_connector_xy, RF_connector_xz, RF_connector_yz)
+            RF_connector_xy, RF_connector_xz, RF_connector_yz, \
+	    energy_elastic_potential)
   
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
@@ -110,7 +112,8 @@ OMP_time_evolution_Euler
         INTEGRATOR::EULER::
 	cal_connector_force_boost_with_RF(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca,
 					  RF_connector_xx, RF_connector_yy, RF_connector_zz,
-					  RF_connector_xy, RF_connector_xz, RF_connector_yz);
+					  RF_connector_xy, RF_connector_xz, RF_connector_yz,
+					  energy_elastic_potential);
 
       VAR.time_LV_force_random +=
         INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
@@ -133,31 +136,6 @@ OMP_time_evolution_Euler
       RF_random_xz += TRAJ(index_t_now, i, 0)*force_random[i](2)/sqrt(TRAJ.dt);
       RF_random_yz += TRAJ(index_t_now, i, 1)*force_random[i](2)/sqrt(TRAJ.dt);
 
-      // RF_connector_xx += TRAJ(index_t_now, i, 0)*force_spring[i](0);
-      // RF_connector_yy += TRAJ(index_t_now, i, 1)*force_spring[i](1);
-      // RF_connector_zz += TRAJ(index_t_now, i, 2)*force_spring[i](2);
-
-      // RF_connector_xy += TRAJ(index_t_now, i, 0)*force_spring[i](1);
-      // RF_connector_xz += TRAJ(index_t_now, i, 0)*force_spring[i](2);
-      // RF_connector_yz += TRAJ(index_t_now, i, 1)*force_spring[i](2);
-
-      // MKL_LONG N_half = TRAJ.Np/2;
-      // if(i < N_half)
-      // 	{
-      // 	  /*
-      // 	    It is of importance to note that the virial stress (or Kramer expression) for dumbbell model is used connector vector. In consequence, individual sum over all the particle contribution in the previously commented lines, RF_connector_ab, was wrong because it uses PBC boundary condition, so have different positional contribution (force contribution remains the same condition as the same force value with opposite sign).
-
-      // 	    P_2*F(P_2) + P_1*F(P_1) = P_2*F(P_2) - P_1*F(P_2) = (P_2 - P_1)*F(P_2).
-      // 	   */
-      // 	  RF_connector_xx += R_boost.Rvec[i][i+N_half](0)*force_spring[i](0);
-      // 	  RF_connector_yy += R_boost.Rvec[i][i+N_half](1)*force_spring[i](1);
-      // 	  RF_connector_zz += R_boost.Rvec[i][i+N_half](2)*force_spring[i](2);
-
-      // 	  RF_connector_xy += R_boost.Rvec[i][i+N_half](0)*force_spring[i](1);
-      // 	  RF_connector_xz += R_boost.Rvec[i][i+N_half](0)*force_spring[i](2);
-      // 	  RF_connector_yz += R_boost.Rvec[i][i+N_half](1)*force_spring[i](2);
-	  
-      // 	}
       
     }
 
@@ -167,6 +145,7 @@ OMP_time_evolution_Euler
   VAR.RF_connector_xx = RF_connector_xx/2.; VAR.RF_connector_yy = RF_connector_yy/2.; VAR.RF_connector_zz = RF_connector_zz/2.;
   VAR.RF_connector_xy = RF_connector_xy/2.; VAR.RF_connector_xz = RF_connector_xz/2.; VAR.RF_connector_yz = RF_connector_yz/2.;
 
+  VAR.energy_elastic_potential = energy_elastic_potential/2.;
   
   return dsecnd() - time_st;
 }
@@ -243,8 +222,10 @@ main_DUMBBELL
       
       if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file == 0)
         {
-          VAR.time_AN += // measuring energy of system
-            ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTs, CONNECT, energy, TRAJ(index_t_now), R_boost);
+          // VAR.time_AN += // measuring energy of system
+          //   ANALYSIS::DUMBBELL::CAL_ENERGY_R_boost(POTs, CONNECT, energy, TRAJ(index_t_now), R_boost);
+	  energy(0) = TRAJ(index_t_now);
+	  
           VAR.time_AN +=
             VAR.record_virial_into_energy_array(energy);
 

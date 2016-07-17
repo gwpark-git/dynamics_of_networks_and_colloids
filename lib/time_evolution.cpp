@@ -48,7 +48,8 @@ INTEGRATOR::EULER_ASSOCIATION::
 cal_connector_force_boost_with_RF
 (POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& given_vec, MKL_LONG given_index, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost,
  double& RF_connector_xx, double& RF_connector_yy, double& RF_connector_zz,
- double& RF_connector_xy, double& RF_connector_xz, double& RF_connector_yz)
+ double& RF_connector_xy, double& RF_connector_xz, double& RF_connector_yz,
+ double& energy_elastic_potential)
 {
   double time_st = dsecnd();
   given_vec.set_value(0.);
@@ -58,21 +59,24 @@ cal_connector_force_boost_with_RF
       MATRIX& rel_vector = R_minimum_vec_boost[given_index][target_index];
       double distance = R_minimum_distance_boost[given_index](target_index);
       double force = CONNECT.weight[given_index](j)*POTs.f_connector(distance, POTs.force_variables);
+      double force_div_distance = force/distance;
       // a*x + y -> y
       cblas_daxpy(given_vec.size,
-                  force/distance, // a
+                  force_div_distance, // a
                   rel_vector.data, // x
                   1,
                   given_vec.data, // y
                   1);
 
-      RF_connector_xx += (force/distance)*rel_vector(0)*rel_vector(0);
-      RF_connector_yy += (force/distance)*rel_vector(1)*rel_vector(1);
-      RF_connector_zz += (force/distance)*rel_vector(2)*rel_vector(2);
+      RF_connector_xx += force_div_distance*rel_vector(0)*rel_vector(0);
+      RF_connector_yy += force_div_distance*rel_vector(1)*rel_vector(1);
+      RF_connector_zz += force_div_distance*rel_vector(2)*rel_vector(2);
 
-      RF_connector_xy += (force/distance)*rel_vector(0)*rel_vector(1);
-      RF_connector_xz += (force/distance)*rel_vector(0)*rel_vector(2);
-      RF_connector_yz += (force/distance)*rel_vector(1)*rel_vector(2);
+      RF_connector_xy += force_div_distance*rel_vector(0)*rel_vector(1);
+      RF_connector_xz += force_div_distance*rel_vector(0)*rel_vector(2);
+      RF_connector_yz += force_div_distance*rel_vector(1)*rel_vector(2);
+
+      energy_elastic_potential += CONNECT.weight[given_index](j)*POTs.e_connector(distance, POTs.force_variables);
       
     }
   return dsecnd() - time_st;
@@ -111,7 +115,8 @@ INTEGRATOR::EULER::
 cal_connector_force_boost_with_RF
 (POTENTIAL_SET& POTs, CONNECTIVITY& CONNECT, MATRIX& given_vec, MKL_LONG given_index, MATRIX** R_minimum_vec_boost, MATRIX* R_minimum_distance_boost,
  double& RF_connector_xx, double& RF_connector_yy, double& RF_connector_zz,
- double& RF_connector_xy, double& RF_connector_xz, double& RF_connector_yz)
+ double& RF_connector_xy, double& RF_connector_xz, double& RF_connector_yz,
+ double& energy_elastic_potential)
 {
   double time_st = dsecnd();
   given_vec.set_value(0.);
@@ -121,22 +126,24 @@ cal_connector_force_boost_with_RF
       MATRIX& rel_vector = R_minimum_vec_boost[given_index][target_index];
       double distance = R_minimum_distance_boost[given_index](target_index);
       double force = POTs.f_connector(distance, POTs.force_variables);
+      double force_div_distance = force/distance;
       // a*x + y -> y
       cblas_daxpy(given_vec.size,
-                  force/distance, // a
+                  force_div_distance, // a
                   rel_vector.data, // x
                   1,
                   given_vec.data, // y
                   1);
 
-      RF_connector_xx += (force/distance)*rel_vector(0)*rel_vector(0);
-      RF_connector_yy += (force/distance)*rel_vector(1)*rel_vector(1);
-      RF_connector_zz += (force/distance)*rel_vector(2)*rel_vector(2);
+      RF_connector_xx += force_div_distance*rel_vector(0)*rel_vector(0);
+      RF_connector_yy += force_div_distance*rel_vector(1)*rel_vector(1);
+      RF_connector_zz += force_div_distance*rel_vector(2)*rel_vector(2);
 
-      RF_connector_xy += (force/distance)*rel_vector(0)*rel_vector(1);
-      RF_connector_xz += (force/distance)*rel_vector(0)*rel_vector(2);
-      RF_connector_yz += (force/distance)*rel_vector(1)*rel_vector(2);
-      
+      RF_connector_xy += force_div_distance*rel_vector(0)*rel_vector(1);
+      RF_connector_xz += force_div_distance*rel_vector(0)*rel_vector(2);
+      RF_connector_yz += force_div_distance*rel_vector(1)*rel_vector(2);
+
+      energy_elastic_potential += POTs.e_connector(distance, POTs.force_variables);
       
     }
   return dsecnd() - time_st;
@@ -184,7 +191,8 @@ INTEGRATOR::EULER::
 cal_repulsion_force_R_boost_with_RF
 (POTENTIAL_SET& POTs, MATRIX& given_vec, MKL_LONG index_particle, RDIST& R_boost,
  double& RF_repulsion_xx, double& RF_repulsion_yy, double& RF_repulsion_zz,
- double& RF_repulsion_xy, double& RF_repulsion_xz, double& RF_repulsion_yz)
+ double& RF_repulsion_xy, double& RF_repulsion_xz, double& RF_repulsion_yz,
+ double& energy_repulsive_potential)
 {
   double time_st = dsecnd();
   given_vec.set_value(0.);
@@ -199,6 +207,7 @@ cal_repulsion_force_R_boost_with_RF
           if (index_target != index_particle)
             {
               double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
+	      double repulsion_div_distance = repulsion/distance;
 	      MATRIX& rel_vector = R_boost.Rvec[index_particle][index_target];
               // for(MKL_LONG d=0; d<R_boost.N_dimension; d++)
               //   {
@@ -213,13 +222,15 @@ cal_repulsion_force_R_boost_with_RF
                           given_vec.data,
                           1);
 
-	      RF_repulsion_xx += (repulsion/distance)*rel_vector(0)*rel_vector(0);
-	      RF_repulsion_yy += (repulsion/distance)*rel_vector(1)*rel_vector(1);
-	      RF_repulsion_zz += (repulsion/distance)*rel_vector(2)*rel_vector(2);
+	      RF_repulsion_xx += repulsion_div_distance*rel_vector(0)*rel_vector(0);
+	      RF_repulsion_yy += repulsion_div_distance*rel_vector(1)*rel_vector(1);
+	      RF_repulsion_zz += repulsion_div_distance*rel_vector(2)*rel_vector(2);
 
-	      RF_repulsion_xy += (repulsion/distance)*rel_vector(0)*rel_vector(1);
-	      RF_repulsion_xz += (repulsion/distance)*rel_vector(0)*rel_vector(2);
-	      RF_repulsion_yz += (repulsion/distance)*rel_vector(1)*rel_vector(2);
+	      RF_repulsion_xy += repulsion_div_distance*rel_vector(0)*rel_vector(1);
+	      RF_repulsion_xz += repulsion_div_distance*rel_vector(0)*rel_vector(2);
+	      RF_repulsion_yz += repulsion_div_distance*rel_vector(1)*rel_vector(2);
+
+	      energy_repulsive_potential += POTs.e_repulsion(distance, POTs.force_variables);
 	      
             }
         }

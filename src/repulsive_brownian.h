@@ -62,6 +62,8 @@ struct REPULSIVE_BROWNIAN::
   double RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz;
   double RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz;
 
+  double energy_repulsive_potential;
+  
   // member functions for virials
   MKL_LONG
   virial_initial();
@@ -93,6 +95,9 @@ virial_initial()
   
   RF_repulsion_xx = 0.; RF_repulsion_yy = 0.; RF_repulsion_zz = 0.;
   RF_repulsion_xy = 0.; RF_repulsion_xz = 0.; RF_repulsion_yz = 0.;
+
+  energy_repulsive_potential = 0.;
+  
   return 0;
 }
 
@@ -112,6 +117,9 @@ record_virial_into_energy_array(MATRIX& energy)
   energy(21) = RF_repulsion_xy/(2.*volume_PBC_box);
   energy(22) = RF_repulsion_xz/(2.*volume_PBC_box);
   energy(23) = RF_repulsion_yz/(2.*volume_PBC_box);
+
+  energy(3) = energy_repulsive_potential;
+  
   return time_st - dsecnd();
 }
 				
@@ -126,6 +134,10 @@ sum_virial_components(MATRIX& energy)
     {
       energy(i) += energy(i + 6*2);
     }
+
+
+  energy(1) = energy(2) + energy(3);
+  
   return dsecnd() - time_st;
 }
 

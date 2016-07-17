@@ -86,9 +86,10 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
       
       if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file==0)
         {
-          VAR.time_AN +=
-            ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
-
+          // VAR.time_AN +=
+          //   ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
+	  energy(0) = TRAJ(index_t_now);
+	  
 	  VAR.time_AN +=
 	    VAR.record_virial_into_energy_array(energy);
 	  
@@ -176,6 +177,7 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   double RF_connector_xx = 0., RF_connector_yy = 0., RF_connector_zz = 0.;
   double RF_connector_xy = 0., RF_connector_xz = 0., RF_connector_yz = 0.;
 
+  double energy_repulsive_potential = 0., energy_elastic_potential = 0.;
   
 #pragma omp parallel for default(none) if(N_THREADS_BD > 1)		\
   shared(TRAJ, index_t_now, index_t_next,				\
@@ -188,7 +190,8 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
 	    RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,		\
 	    RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz,		\
 	    RF_connector_xx, RF_connector_yy, RF_connector_zz,		\
-	    RF_connector_xy, RF_connector_xz, RF_connector_yz)
+	    RF_connector_xy, RF_connector_xz, RF_connector_yz,		\
+	    energy_repulsive_potential, energy_elastic_potential)
 	
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
@@ -203,7 +206,8 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
 	INTEGRATOR::EULER_ASSOCIATION::
 	cal_connector_force_boost_with_RF(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca,
 					  RF_connector_xx, RF_connector_yy, RF_connector_zz,
-					  RF_connector_xy, RF_connector_xz, RF_connector_yz);
+					  RF_connector_xy, RF_connector_xz, RF_connector_yz,
+					  energy_elastic_potential);
 	
 	// INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
 	
@@ -211,7 +215,8 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
 	INTEGRATOR::EULER::
 	cal_repulsion_force_R_boost_with_RF(POTs, force_repulsion[i], i, R_boost,
 					    RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,
-					    RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz);
+					    RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz,
+					    energy_repulsive_potential);
       // 	INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
       // time_LV_force_random +=
 	// INTEGRATOR::EULER::cal_random_force_boost_simplified(POTs, force_random[i], RNG.BOOST_BD[it]);
@@ -237,23 +242,6 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
       RF_random_xz += TRAJ(index_t_now, i, 0)*force_random[i](2)/sqrt(TRAJ.dt);
       RF_random_yz += TRAJ(index_t_now, i, 1)*force_random[i](2)/sqrt(TRAJ.dt);
 
-      // RF_repulsion_xx += TRAJ(index_t_now, i, 0)*force_repulsion[i](0);
-      // RF_repulsion_yy += TRAJ(index_t_now, i, 1)*force_repulsion[i](1);
-      // RF_repulsion_zz += TRAJ(index_t_now, i, 2)*force_repulsion[i](2);
-
-      // RF_repulsion_xy += TRAJ(index_t_now, i, 0)*force_repulsion[i](1);
-      // RF_repulsion_xz += TRAJ(index_t_now, i, 0)*force_repulsion[i](2);
-      // RF_repulsion_yz += TRAJ(index_t_now, i, 1)*force_repulsion[i](2);
-
-      // RF_connector_xx += TRAJ(index_t_now, i, 0)*force_spring[i](0);
-      // RF_connector_yy += TRAJ(index_t_now, i, 1)*force_spring[i](1);
-      // RF_connector_zz += TRAJ(index_t_now, i, 2)*force_spring[i](2);
-
-      // RF_connector_xy += TRAJ(index_t_now, i, 0)*force_spring[i](1);
-      // RF_connector_xz += TRAJ(index_t_now, i, 0)*force_spring[i](2);
-      // RF_connector_yz += TRAJ(index_t_now, i, 1)*force_spring[i](2);
-
-      
       time_LV_update += dsecnd() - time_st_update;
     }
   VAR.time_LV_init += time_LV_init;
@@ -275,6 +263,9 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   VAR.RF_connector_xx = RF_connector_xx/2.; VAR.RF_connector_yy = RF_connector_yy/2.; VAR.RF_connector_zz = RF_connector_zz/2.;
   VAR.RF_connector_xy = RF_connector_xy/2.; VAR.RF_connector_xz = RF_connector_xz/2.; VAR.RF_connector_yz = RF_connector_yz/2.;
 
+  VAR.energy_elastic_potential = energy_elastic_potential;
+  VAR.energy_repulsive_potential = energy_repulsive_potential;
+  
   return dsecnd() - time_st;
 }
 

@@ -85,6 +85,8 @@ DUMBBELL::
   double RF_connector_xx, RF_connector_yy, RF_connector_zz;
   double RF_connector_xy, RF_connector_xz, RF_connector_yz;
 
+  double energy_elastic_potential;
+  
   // member functions for virials
   MKL_LONG
   virial_initial();
@@ -132,6 +134,8 @@ virial_initial()
 
   RF_connector_xx = 0.; RF_connector_yy = 0.; RF_connector_zz = 0.;
   RF_connector_xy = 0.; RF_connector_xz = 0.; RF_connector_yz = 0.;
+
+  energy_elastic_potential = 0.;
   return 0;
 
 }
@@ -156,6 +160,8 @@ record_virial_into_energy_array(MATRIX& energy)
   energy(22) = RF_connector_xz/(2.*volume_PBC_box);
   energy(23) = RF_connector_yz/(2.*volume_PBC_box);
 
+  energy(3) = energy_elastic_potential;
+  
   return dsecnd() - time_st;
 }
 
@@ -169,6 +175,8 @@ sum_virial_components(MATRIX& energy)
     {
       energy(i) += energy(i + 6*2);
     }
+
+  energy(1) = energy(2) + energy(3); // related with total energy of the system
   
   return dsecnd() - time_st;
 }

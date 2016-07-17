@@ -44,6 +44,7 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   double RF_random_xy = 0., RF_random_xz = 0., RF_random_yz = 0.;
   double RF_repulsion_xx = 0., RF_repulsion_yy = 0., RF_repulsion_zz = 0.;
   double RF_repulsion_xy = 0., RF_repulsion_xz = 0., RF_repulsion_yz = 0.;
+  double energy_repulsive_potential = 0.;
   
 #pragma omp parallel for default(none) if(N_THREADS_BD > 1)     \
   shared(TRAJ, index_t_now, index_t_next,                       \
@@ -54,7 +55,8 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   reduction(+:RF_random_xx, RF_random_yy, RF_random_zz,         \
             RF_random_xy, RF_random_xz, RF_random_yz,           \
             RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,	\
-            RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz)
+            RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz,  \
+	    energy_repulsive_potential)
   
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
@@ -69,7 +71,8 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
       INTEGRATOR::EULER::
 	cal_repulsion_force_R_boost_with_RF(POTs, force_repulsion[i], i, R_boost,
 					    RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,
-					    RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz);
+					    RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz,
+					    energy_repulsive_potential);
       
       INTEGRATOR::EULER::
         cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]); 
@@ -91,13 +94,6 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
       RF_random_xz += TRAJ(index_t_now, i, 0)*force_random[i](2)/sqrt(TRAJ.dt);
       RF_random_yz += TRAJ(index_t_now, i, 1)*force_random[i](2)/sqrt(TRAJ.dt);
 
-      // RF_repulsion_xx += TRAJ(index_t_now, i, 0)*force_repulsion[i](0);
-      // RF_repulsion_yy += TRAJ(index_t_now, i, 1)*force_repulsion[i](1);
-      // RF_repulsion_zz += TRAJ(index_t_now, i, 2)*force_repulsion[i](2);
-
-      // RF_repulsion_xy += TRAJ(index_t_now, i, 0)*force_repulsion[i](1);
-      // RF_repulsion_xz += TRAJ(index_t_now, i, 0)*force_repulsion[i](2);
-      // RF_repulsion_yz += TRAJ(index_t_now, i, 1)*force_repulsion[i](2);
       
     }
   // allocationc omputed RF values into VAR
@@ -107,6 +103,7 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   VAR.RF_repulsion_xx = RF_repulsion_xx/2.; VAR.RF_repulsion_yy = RF_repulsion_yy/2.; VAR.RF_repulsion_zz = RF_repulsion_zz/2.;
   VAR.RF_repulsion_xy = RF_repulsion_xy/2.; VAR.RF_repulsion_xz = RF_repulsion_xz/2.; VAR.RF_repulsion_yz = RF_repulsion_yz/2.;
 
+  VAR.energy_repulsive_potential = energy_repulsive_potential/2.;
   
   return dsecnd() - time_st;
 }
@@ -198,9 +195,10 @@ main_EQUILIBRATION(TRAJECTORY& TRAJ,
       
       if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file==0)
         {
-          VAR.time_AN += // measuring energy of system
-            ANALYSIS::
-            CAL_ENERGY_R_boost(POTs, energy, TRAJ(index_t_now), R_boost);
+          // VAR.time_AN += // measuring energy of system
+          //   ANALYSIS::
+          //   CAL_ENERGY_R_boost(POTs, energy, TRAJ(index_t_now), R_boost);
+	  energy(0) = TRAJ(index_t_now);
 
           VAR.time_AN +=
             VAR.record_virial_into_energy_array(energy);
