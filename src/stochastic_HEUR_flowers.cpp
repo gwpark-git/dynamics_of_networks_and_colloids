@@ -260,8 +260,8 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   VAR.RF_repulsion_xx = RF_repulsion_xx/2.; VAR.RF_repulsion_yy = RF_repulsion_yy/2.; VAR.RF_repulsion_zz = RF_repulsion_zz/2.;
   VAR.RF_repulsion_xy = RF_repulsion_xy/2.; VAR.RF_repulsion_xz = RF_repulsion_xz/2.; VAR.RF_repulsion_yz = RF_repulsion_yz/2.;
 
-  VAR.RF_connector_xx = RF_connector_xx/2.; VAR.RF_connector_yy = RF_connector_yy/2.; VAR.RF_connector_zz = RF_connector_zz/2.;
-  VAR.RF_connector_xy = RF_connector_xy/2.; VAR.RF_connector_xz = RF_connector_xz/2.; VAR.RF_connector_yz = RF_connector_yz/2.;
+  VAR.RF_connector_xx = RF_connector_xx/(POTs.force_variables[0]*2.); VAR.RF_connector_yy = RF_connector_yy/(POTs.force_variables[0]*2.); VAR.RF_connector_zz = RF_connector_zz/(POTs.force_variables[0]*2.);
+  VAR.RF_connector_xy = RF_connector_xy/(POTs.force_variables[0]*2.); VAR.RF_connector_xz = RF_connector_xz/(POTs.force_variables[0]*2.); VAR.RF_connector_yz = RF_connector_yz/(POTs.force_variables[0]*2.);
 
   VAR.energy_elastic_potential = energy_elastic_potential;
   VAR.energy_repulsive_potential = energy_repulsive_potential;
