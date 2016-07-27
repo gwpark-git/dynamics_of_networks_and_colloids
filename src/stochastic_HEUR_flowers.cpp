@@ -257,11 +257,11 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   VAR.RF_random_xx = RF_random_xx; VAR.RF_random_yy = RF_random_yy; VAR.RF_random_zz = RF_random_zz;
   VAR.RF_random_xy = RF_random_xy; VAR.RF_random_xz = RF_random_xz; VAR.RF_random_yz = RF_random_yz;
 
-  VAR.RF_repulsion_xx = RF_repulsion_xx/2.; VAR.RF_repulsion_yy = RF_repulsion_yy/2.; VAR.RF_repulsion_zz = RF_repulsion_zz/2.;
-  VAR.RF_repulsion_xy = RF_repulsion_xy/2.; VAR.RF_repulsion_xz = RF_repulsion_xz/2.; VAR.RF_repulsion_yz = RF_repulsion_yz/2.;
+  VAR.RF_repulsion_xx = RF_repulsion_xx*POTs.force_variables[0]; VAR.RF_repulsion_yy = RF_repulsion_yy*POTs.force_variables[0]; VAR.RF_repulsion_zz = RF_repulsion_zz*POTs.force_variables[0];
+  VAR.RF_repulsion_xy = RF_repulsion_xy*POTs.force_variables[0]; VAR.RF_repulsion_xz = RF_repulsion_xz*POTs.force_variables[0]; VAR.RF_repulsion_yz = RF_repulsion_yz*POTs.force_variables[0];
 
-  VAR.RF_connector_xx = RF_connector_xx/(POTs.force_variables[0]*2.); VAR.RF_connector_yy = RF_connector_yy/(POTs.force_variables[0]*2.); VAR.RF_connector_zz = RF_connector_zz/(POTs.force_variables[0]*2.);
-  VAR.RF_connector_xy = RF_connector_xy/(POTs.force_variables[0]*2.); VAR.RF_connector_xz = RF_connector_xz/(POTs.force_variables[0]*2.); VAR.RF_connector_yz = RF_connector_yz/(POTs.force_variables[0]*2.);
+  VAR.RF_connector_xx = RF_connector_xx; VAR.RF_connector_yy = RF_connector_yy; VAR.RF_connector_zz = RF_connector_zz;
+  VAR.RF_connector_xy = RF_connector_xy; VAR.RF_connector_xz = RF_connector_xz; VAR.RF_connector_yz = RF_connector_yz;
 
   VAR.energy_elastic_potential = energy_elastic_potential;
   VAR.energy_repulsive_potential = energy_repulsive_potential;
