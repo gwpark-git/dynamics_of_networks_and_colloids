@@ -126,7 +126,7 @@ OMP_time_evolution_Euler
         }
 
       if(VAR.SIMPLE_SHEAR)					// apply simple shear into the time evolution
-	  TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
+        TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_B*TRAJ(index_t_now, i, VAR.shear_grad_axis);
 
       RF_random_xx += TRAJ(index_t_now, i, 0)*force_random[i](0)/sqrt(TRAJ.dt);
       RF_random_yy += TRAJ(index_t_now, i, 1)*force_random[i](1)/sqrt(TRAJ.dt);
@@ -142,8 +142,8 @@ OMP_time_evolution_Euler
   VAR.RF_random_xx = RF_random_xx; VAR.RF_random_yy = RF_random_yy; VAR.RF_random_zz = RF_random_zz;
   VAR.RF_random_xy = RF_random_xy; VAR.RF_random_xz = RF_random_xz; VAR.RF_random_yz = RF_random_yz;
   
-  VAR.RF_connector_xx = RF_connector_xx/2.; VAR.RF_connector_yy = RF_connector_yy/2.; VAR.RF_connector_zz = RF_connector_zz/2.;
-  VAR.RF_connector_xy = RF_connector_xy/2.; VAR.RF_connector_xz = RF_connector_xz/2.; VAR.RF_connector_yz = RF_connector_yz/2.;
+  VAR.RF_connector_xx = RF_connector_xx; VAR.RF_connector_yy = RF_connector_yy; VAR.RF_connector_zz = RF_connector_zz;
+  VAR.RF_connector_xy = RF_connector_xy; VAR.RF_connector_xz = RF_connector_xz; VAR.RF_connector_yz = RF_connector_yz;
 
   VAR.energy_elastic_potential = energy_elastic_potential/2.;
   
