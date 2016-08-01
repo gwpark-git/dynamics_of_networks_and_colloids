@@ -19,7 +19,7 @@ record_RDIST_PARTICLE(ofstream &file_DIST,
             {
               MKL_LONG index_target = R_boost(cell_index_neighbor, p);
               double distance = R_boost.Rsca[index_particle](index_target);
-              if(distance <= R_boost.cell_length)
+              if(distance <= R_boost.cell_length && index_particle != index_target)
                 file_DIST << std::scientific << distance << '\t';
             }
         }
