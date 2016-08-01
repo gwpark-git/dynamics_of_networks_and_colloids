@@ -241,8 +241,8 @@ main_DUMBBELL
 
           if (t%VAR.N_skip_file == 0)
             {
-	      VAR.time_file +=
-		record_RDIST(DATA.r_dist, R_boost, CONNECT);
+              VAR.time_file +=
+                record_RDIST(DATA.r_dist_bridge, R_boost, CONNECT);
 	      
               VAR.time_file +=
                 TRAJ.fprint_row(DATA.traj, index_t_now);

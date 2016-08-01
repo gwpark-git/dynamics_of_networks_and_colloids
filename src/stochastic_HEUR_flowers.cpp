@@ -2,6 +2,50 @@
 
 using namespace HEUR;
 
+double
+HEUR::
+record_RDIST_PARTICLE(ofstream &file_DIST,
+                      RDIST& R_boost)
+{
+  double time_st = dsecnd();
+
+  for(MKL_LONG index_particle=0; index_particle<R_boost.Np/2; index_particle++)
+    {
+      MKL_LONG cell_index_particle = R_boost.cell_index[index_particle];
+      for(MKL_LONG k=0; k<R_boost.N_neighbor_cells; k++)
+        {
+          MKL_LONG cell_index_neighbor = R_boost.NEIGHBOR_CELLS[cell_index_particle][k];
+          for(MKL_LONG p=0; p<R_boost.TOKEN[cell_index_neighbor]; p++)
+            {
+              MKL_LONG index_target = R_boost(cell_index_neighbor, p);
+              double distance = R_boost.Rsca[index_particle](index_target);
+              if(index_target <= R_boost.cell_length)
+                file_DIST << std::scientific << distance << '\t';
+            }
+        }
+    }
+  // file_DIST << '\n';
+  return dsecnd() - time_st;
+}
+
+double
+HEUR::
+record_RDIST_BRIDGE(ofstream &file_DIST,
+                    RDIST& R_boost, ASSOCIATION& CONNECT)
+{
+  double time_st = dsecnd();
+  for(MKL_LONG i=0; i<CONNECT.Np/2; i++)
+    {
+      for(MKL_LONG j=1; j<CONNECT.TOKEN[i]; j++)
+        {
+          double distance = R_boost.Rsca[i](CONNECT.HASH[i](j));
+          file_DIST << std::scientific << distance << '\t';
+        }
+    }
+  // file_DIST << '\n';
+  return dsecnd() - time_st;
+}
+
 MKL_LONG
 HEUR::
 stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, CHAIN_HANDLE& CHAIN, RECORD_DATA& DATA, COND& given_condition)
@@ -65,12 +109,12 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
         OMP_SS_topological_time_evolution(t, CONNECT, CHAIN, POTs, R_boost, RNG, IDX_ARR, DATA, given_condition, LOCKER, VAR);
       VAR.time_LV +=
         OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next,
-				 CONNECT,
-				 POTs, VAR.force_repulsion, VAR.force_random, VAR.force_spring,
-				 R_boost, VAR.vec_boost_Nd_parallel,
-				 RNG,
-				 VAR.N_THREADS_BD,
-				 given_condition, VAR);
+                                 CONNECT,
+                                 POTs, VAR.force_repulsion, VAR.force_random, VAR.force_spring,
+                                 R_boost, VAR.vec_boost_Nd_parallel,
+                                 RNG,
+                                 VAR.N_THREADS_BD,
+                                 given_condition, VAR);
 
       if(VAR.SIMPLE_SHEAR)
         {
@@ -83,35 +127,45 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
       // this is due to the fact that the previous minimum_image_convention cannot cope the shift higher than two times of box dimension
 
       VAR.N_associations = cnt_add - cnt_del;
-      
+
       if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file==0)
         {
           // VAR.time_AN +=
           //   ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
-	  energy(0) = TRAJ(index_t_now);
+          energy(0) = TRAJ(index_t_now);
 	  
-	  VAR.time_AN +=
-	    VAR.record_virial_into_energy_array(energy);
+          VAR.time_AN +=
+            VAR.record_virial_into_energy_array(energy);
 	  
-	  VAR.time_AN +=
-	    HEUR::sum_virial_components(energy);
-	  
+          VAR.time_AN +=
+            HEUR::sum_virial_components(energy);
+
+          
           energy(4) = (double)VAR.N_associations; // number of associations
           energy(5) = dsecnd() - time_st_simulation; // record computation time
-
-	  VAR.time_file +=
-	    energy.fprint_row(DATA.ener, 0);
-
-	  if(t%VAR.N_skip_file==0)
-	    {
-	      VAR.time_file +=
-		record_simulation_data(DATA, TRAJ, CONNECT, CHAIN, index_t_now); // neeed review
-
-	      VAR.simulation_time = TRAJ(index_t_now)/(atof(given_condition("repulsion_coefficient").c_str())*atof(given_condition("Rt").c_str()));
+          energy(30) = VAR.N_diff_associations; // it record number of different associations
           
-	      VAR.time_RECORDED +=
-		report_simulation_info(TRAJ, energy, VAR);
-	    }
+          VAR.time_file +=
+            energy.fprint_row(DATA.ener, 0);
+
+          if(t%VAR.N_skip_file==0)
+            {
+              VAR.time_file +=
+                record_simulation_data(DATA, TRAJ, CONNECT, CHAIN, index_t_now); // neeed review
+
+              VAR.simulation_time = TRAJ(index_t_now)/(atof(given_condition("repulsion_coefficient").c_str())*atof(given_condition("Rt").c_str()));
+          
+              VAR.time_RECORDED +=
+                report_simulation_info(TRAJ, energy, VAR);
+              if(DATA.r_dist_bridge && t%VAR.N_skip_rdist==0)
+                {
+                  VAR.time_RECORDED +=
+                    record_RDIST_BRIDGE(DATA.r_dist_bridge, R_boost, CONNECT);
+                  VAR.time_RECORDED +=
+                    record_RDIST_PARTICLE(DATA.r_dist_particle, R_boost);
+                }
+            }
+
         }
     }
 
@@ -151,7 +205,7 @@ report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABLE_HEUR&
   printf("LV: init = %3.1f%%, force = %3.1f%% (repulsion = %3.1f%%, random = %3.1f%%, connector = %3.1f%%), update = %3.1f%%\n", 100.*VAR.time_LV_init/sum_time_LV, 100.*VAR.time_LV_force/sum_time_LV, 100.*VAR.time_LV_force_repulsion/VAR.time_LV_force, 100.*VAR.time_LV_force_random/VAR.time_LV_force, 100.*VAR.time_LV_force_connector/VAR.time_LV_force, 100.*VAR.time_LV_update/sum_time_LV);
   printf("SS: index process = %3.1f%%, LOCKING = %3.1f%%, check_dissociation = %3.1f%%, transition = %3.1f%%, update info. = %3.1f%%, pre-ASSOCIATION = %3.1f%%, pre-SUGGESTION = %3.1f%%)  \n", 100.*VAR.time_SS_index/VAR.time_SS, 100.*VAR.time_SS_LOCK/VAR.time_SS, 100.*VAR.time_SS_check/VAR.time_SS, 100.*VAR.time_SS_transition/VAR.time_SS, 100.*VAR.time_SS_update_info/VAR.time_SS, 100.*VAR.time_SS_update_ASSOCIATION_MAP/VAR.time_SS, 100.*VAR.time_SS_update_CHAIN_SUGGESTION/VAR.time_SS);
   // 	 100.*VAR.time_SS_update/VAR.time_SS, VAR.time_SS_update_ASSOCIATION_MAP, VAR.time_SS_update_ASSOCIATION_MAP/VAR.time_SS_update, VAR.time_SS_update_CHAIN_SUGGESTION, VAR.time_SS_update_CHAIN_SUGGESTION/VAR.time_SS_update);
-  printf("CHECK LAST STATISTICS: N_tot_asso = %ld, NAS = %ld, fraction=%4.3f ####\n\n", VAR.N_tot_associable_chain, VAR.N_associations, VAR.N_associations/(double)VAR.N_tot_associable_chain);
+  printf("CHECK LAST STATISTICS: N_tot_asso = %ld, NAS = %ld, fraction=%4.3f, dNAS = %ld ####\n\n", VAR.N_tot_associable_chain, VAR.N_associations, VAR.N_associations/(double)VAR.N_tot_associable_chain, VAR.N_diff_associations);
   return total_time;
 }
 
@@ -159,12 +213,12 @@ report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABLE_HEUR&
 double
 HEUR::
 OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL_LONG index_t_next,
-			 ASSOCIATION& CONNECT,
-			 POTENTIAL_SET& POTs, MATRIX* force_repulsion, MATRIX* force_random, MATRIX* force_spring,
-			 RDIST& R_boost, MATRIX* vec_boost_Nd_parallel,
-			 RNG_BOOST& RNG,
-			 const MKL_LONG N_THREADS_BD,
-			 COND& given_condition, TEMPORAL_VARIABLE_HEUR& VAR)
+                         ASSOCIATION& CONNECT,
+                         POTENTIAL_SET& POTs, MATRIX* force_repulsion, MATRIX* force_random, MATRIX* force_spring,
+                         RDIST& R_boost, MATRIX* vec_boost_Nd_parallel,
+                         RNG_BOOST& RNG,
+                         const MKL_LONG N_THREADS_BD,
+                         COND& given_condition, TEMPORAL_VARIABLE_HEUR& VAR)
 {
   double time_st = dsecnd();
   double time_LV_init = 0., time_LV_force = 0., time_LV_update = 0.;
@@ -178,20 +232,22 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   double RF_connector_xy = 0., RF_connector_xz = 0., RF_connector_yz = 0.;
 
   double energy_repulsive_potential = 0., energy_elastic_potential = 0.;
+
+  MKL_LONG N_diff_associations = 0;
   
-#pragma omp parallel for default(none) if(N_THREADS_BD > 1)		\
-  shared(TRAJ, index_t_now, index_t_next,				\
-	 CONNECT, POTs, force_repulsion, force_random, force_spring,	\
-	 R_boost, vec_boost_Nd_parallel,  RNG, VAR, given_condition)	\
-  num_threads(N_THREADS_BD)						\
+#pragma omp parallel for default(none) if(N_THREADS_BD > 1)             \
+  shared(TRAJ, index_t_now, index_t_next,                               \
+         CONNECT, POTs, force_repulsion, force_random, force_spring,	\
+         R_boost, vec_boost_Nd_parallel,  RNG, VAR, given_condition)	\
+  num_threads(N_THREADS_BD)                                             \
   reduction(+: time_LV_init, time_LV_force, time_LV_update, time_LV_force_repulsion, time_LV_force_random, time_LV_force_connector, \
-	    RF_random_xx, RF_random_yy, RF_random_zz,			\
-	    RF_random_xy, RF_random_xz, RF_random_yz,			\
-	    RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,		\
-	    RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz,		\
-	    RF_connector_xx, RF_connector_yy, RF_connector_zz,		\
-	    RF_connector_xy, RF_connector_xz, RF_connector_yz,		\
-	    energy_repulsive_potential, energy_elastic_potential)
+            RF_random_xx, RF_random_yy, RF_random_zz,                   \
+            RF_random_xy, RF_random_xz, RF_random_yz,                   \
+            RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,          \
+            RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz,          \
+            RF_connector_xx, RF_connector_yy, RF_connector_zz,          \
+            RF_connector_xy, RF_connector_xz, RF_connector_yz,          \
+            N_diff_associations, energy_repulsive_potential, energy_elastic_potential)
 	
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
@@ -203,36 +259,36 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
       double time_st_force = dsecnd();
       time_LV_init += time_st_force - time_st_init;
       time_LV_force_connector +=
-	INTEGRATOR::EULER_ASSOCIATION::
-	cal_connector_force_boost_with_RF(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca,
-					  RF_connector_xx, RF_connector_yy, RF_connector_zz,
-					  RF_connector_xy, RF_connector_xz, RF_connector_yz,
-					  energy_elastic_potential);
+        INTEGRATOR::EULER_ASSOCIATION::
+        cal_connector_force_boost_with_RF(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca,
+                                          RF_connector_xx, RF_connector_yy, RF_connector_zz,
+                                          RF_connector_xy, RF_connector_xz, RF_connector_yz,
+                                          energy_elastic_potential);
 	
-	// INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
+      // INTEGRATOR::EULER_ASSOCIATION::cal_connector_force_boost(POTs, CONNECT, force_spring[i], i, R_boost.Rvec, R_boost.Rsca);
 	
       time_LV_force_repulsion +=
-	INTEGRATOR::EULER::
-	cal_repulsion_force_R_boost_with_RF(POTs, force_repulsion[i], i, R_boost,
-					    RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,
-					    RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz,
-					    energy_repulsive_potential);
+        INTEGRATOR::EULER::
+        cal_repulsion_force_R_boost_with_RF(POTs, force_repulsion[i], i, R_boost,
+                                            RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz,
+                                            RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz,
+                                            energy_repulsive_potential);
       // 	INTEGRATOR::EULER::cal_repulsion_force_R_boost(POTs, force_repulsion[i], i, R_boost);
       // time_LV_force_random +=
-	// INTEGRATOR::EULER::cal_random_force_boost_simplified(POTs, force_random[i], RNG.BOOST_BD[it]);
-	INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]);
+      // INTEGRATOR::EULER::cal_random_force_boost_simplified(POTs, force_random[i], RNG.BOOST_BD[it]);
+      INTEGRATOR::EULER::cal_random_force_boost(POTs, force_random[i], RNG.BOOST_BD[it]);
       
       double time_st_update = dsecnd();
       time_LV_force += time_st_update - time_st_force;
       
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
-	{
-	  TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k)
-	    + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k))
-	    + sqrt(TRAJ.dt)*force_random[i](k);
-	}
+        {
+          TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k)
+            + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k))
+            + sqrt(TRAJ.dt)*force_random[i](k);
+        }
       if(VAR.SIMPLE_SHEAR)
-	TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_R*TRAJ(index_t_now, i, VAR.shear_grad_axis);
+        TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_R*TRAJ(index_t_now, i, VAR.shear_grad_axis);
 
       RF_random_xx += TRAJ(index_t_now, i, 0)*force_random[i](0)/sqrt(TRAJ.dt);
       RF_random_yy += TRAJ(index_t_now, i, 1)*force_random[i](1)/sqrt(TRAJ.dt);
@@ -242,6 +298,8 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
       RF_random_xz += TRAJ(index_t_now, i, 0)*force_random[i](2)/sqrt(TRAJ.dt);
       RF_random_yz += TRAJ(index_t_now, i, 1)*force_random[i](2)/sqrt(TRAJ.dt);
 
+      N_diff_associations += CONNECT.TOKEN[i] - 1; // 
+        
       time_LV_update += dsecnd() - time_st_update;
     }
   VAR.time_LV_init += time_LV_init;
@@ -265,6 +323,8 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
 
   VAR.energy_elastic_potential = energy_elastic_potential;
   VAR.energy_repulsive_potential = energy_repulsive_potential;
+
+  VAR.N_diff_associations = (MKL_LONG)N_diff_associations/2; // divisor 2 for removing duplicate count
   
   return dsecnd() - time_st;
 }
@@ -272,11 +332,11 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
 double
 HEUR::
 write_MC_LOG_if_TRUE(bool flag_MC_LOG,
-		     RECORD_DATA& DATA,
-		     ASSOCIATION& CONNECT,
-		     const INDEX_MC& IDX,
-		     const MKL_LONG cnt, const MKL_LONG* cnt_arr,
-		     const double rolling_dCDF, const double rolling_dCDF_U) 
+                     RECORD_DATA& DATA,
+                     ASSOCIATION& CONNECT,
+                     const INDEX_MC& IDX,
+                     const MKL_LONG cnt, const MKL_LONG* cnt_arr,
+                     const double rolling_dCDF, const double rolling_dCDF_U) 
 {
   double time_st = dsecnd();
   if(flag_MC_LOG)
@@ -284,7 +344,7 @@ write_MC_LOG_if_TRUE(bool flag_MC_LOG,
       MKL_LONG total_bonds = CONNECT.N_TOTAL_ASSOCIATION();
 			  
       {
-	DATA.MC_LOG << cnt << '\t' << IDX.beads[CONNECT.flag_itself] << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << IDX.beads[CONNECT.flag_hash_other] << '\t'  << IDX.beads[CONNECT.flag_other] << '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << IDX.beads[CONNECT.flag_hash_backtrace] << '\t'  << IDX.beads[CONNECT.flag_new] << '\t'  << CONNECT.TOKEN[IDX.beads[CONNECT.flag_itself]]<< '\t'<< CONNECT.N_CONNECTED_ENDS(IDX.beads[CONNECT.flag_itself]) << '\t' << CONNECT.weight[IDX.beads[CONNECT.flag_itself]](0) <<'\t' <<  total_bonds << '\t'  << cnt_arr[INDEX_MC::ADD]<< '\t'  << cnt_arr[INDEX_MC::MOV]<< '\t'  << cnt_arr[INDEX_MC::OPP_DEL]<< '\t'  << cnt_arr[INDEX_MC::CANCEL] << '\t' << cnt_arr[INDEX_MC::LOCK] << endl;
+        DATA.MC_LOG << cnt << '\t' << IDX.beads[CONNECT.flag_itself] << '\t' << setprecision(7) << rolling_dCDF<< '\t'  << IDX.beads[CONNECT.flag_hash_other] << '\t'  << IDX.beads[CONNECT.flag_other] << '\t'  << setprecision(7) << rolling_dCDF_U<< '\t'  << IDX.beads[CONNECT.flag_hash_backtrace] << '\t'  << IDX.beads[CONNECT.flag_new] << '\t'  << CONNECT.TOKEN[IDX.beads[CONNECT.flag_itself]]<< '\t'<< CONNECT.N_CONNECTED_ENDS(IDX.beads[CONNECT.flag_itself]) << '\t' << CONNECT.weight[IDX.beads[CONNECT.flag_itself]](0) <<'\t' <<  total_bonds << '\t'  << cnt_arr[INDEX_MC::ADD]<< '\t'  << cnt_arr[INDEX_MC::MOV]<< '\t'  << cnt_arr[INDEX_MC::OPP_DEL]<< '\t'  << cnt_arr[INDEX_MC::CANCEL] << '\t' << cnt_arr[INDEX_MC::LOCK] << endl;
       }
     } // MC_LOG
   return dsecnd() - time_st;
@@ -323,11 +383,11 @@ check_dissociation_probability(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST&
     {
       double rolling_transition = RANDOM::return_double_rand_SUP1_boost(RNG_BOOST_SS_IT);
       if (rolling_transition < tpa)
-	{
-	  IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);
-	}
+        {
+          IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);
+        }
       else
-	IDENTIFIER_ACTION = IDX.CANCEL;
+        IDENTIFIER_ACTION = IDX.CANCEL;
     }
   return dsecnd() - time_st;
 }
@@ -347,11 +407,11 @@ LOCKING_PARALLEL(LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR, const INDEX_MC& IDX,
   for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++)
     {
       if(LOCKER(IDX.beads[I_BEADS]))
-	{
-	  IDENTIFIER_ACTION = IDX.CANCEL;
-	  IDENTIFIER_LOCKING = TRUE;
-	  break;
-	}
+        {
+          IDENTIFIER_ACTION = IDX.CANCEL;
+          IDENTIFIER_LOCKING = TRUE;
+          break;
+        }
     }
 
   // this is LOCKING procedure
@@ -361,9 +421,9 @@ LOCKING_PARALLEL(LOCK& LOCKER, TEMPORAL_VARIABLE_HEUR& VAR, const INDEX_MC& IDX,
       // cnt++;  // preventing LOCKING affect to the IDENTIFICATION of stochastic balance
       // for(MKL_LONG I_BEADS = 0; I_BEADS < 3 && N_THREADS_SS > 1; I_BEADS++) // N_THREADS_SS > 1 is not necessary
       for(MKL_LONG I_BEADS = 0; I_BEADS < 3; I_BEADS++) 
-	{
-	  LOCKER(IDX.beads[I_BEADS]) = TRUE;
-	}
+        {
+          LOCKER(IDX.beads[I_BEADS]) = TRUE;
+        }
     }
   else
     {
@@ -410,9 +470,9 @@ OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost
 {
   double time_st = dsecnd();
   double time_SS_index = 0., time_SS_LOCK = 0., time_SS_check = 0., time_SS_transition = 0., time_SS_update_info = 0.;
-#pragma omp parallel for default(none) if(VAR.N_THREADS_SS > 1)		\
+#pragma omp parallel for default(none) if(VAR.N_THREADS_SS > 1)         \
   shared(DATA, POTs, CONNECT, CHAIN, LOCKER, IDX_ARR, VAR, R_boost, RNG) \
-  num_threads(VAR.N_THREADS_SS)						\
+  num_threads(VAR.N_THREADS_SS)                                         \
   reduction(+: time_SS_index, time_SS_LOCK, time_SS_check, time_SS_transition, time_SS_update_info)    
   
   
@@ -445,10 +505,10 @@ OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost
         {
 #pragma omp critical (LOCKING) // LOCKING is the name for this critical blocks
           {
-	    time_SS_LOCK +=      // this is differ from time_SS_LOCK since it is inside critical directive
-	      HEUR::LOCKING_PARALLEL(LOCKER, VAR, IDX_ARR[it], IDENTIFIER_ACTION, IDENTIFIER_LOCKING);
-	  }
-	}
+            time_SS_LOCK +=      // this is differ from time_SS_LOCK since it is inside critical directive
+              HEUR::LOCKING_PARALLEL(LOCKER, VAR, IDX_ARR[it], IDENTIFIER_ACTION, IDENTIFIER_LOCKING);
+          }
+        }
       // Note that the critical region only applicable with single thread while the others will be used in parallel regime.
       // In addition, the gap for passing the critical region will tune further gaps, then the computation speed for passing critical region will not be real critical issue.
       if(!IDENTIFIER_LOCKING) 
@@ -479,7 +539,7 @@ OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost
             
             VAR.cnt_arr[IDENTIFIER_ACTION] ++;
 
-	    HEUR::write_MC_LOG_if_TRUE(VAR.MC_LOG, DATA, CONNECT, IDX_ARR[it], VAR.cnt_SS + 1, VAR.cnt_arr, rolling_dCDF, rolling_dCDF_U);
+            HEUR::write_MC_LOG_if_TRUE(VAR.MC_LOG, DATA, CONNECT, IDX_ARR[it], VAR.cnt_SS + 1, VAR.cnt_arr, rolling_dCDF, rolling_dCDF_U);
           }
 
         } // if(!IDENTIFIER_LOCKING)
@@ -498,9 +558,9 @@ OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost
 double
 HEUR::
 OMP_SS_update_STATISTICS(ASSOCIATION& CONNECT,
-			 POTENTIAL_SET& POTs,
-			 RDIST& R_boost,
-			 TEMPORAL_VARIABLE_HEUR& VAR)
+                         POTENTIAL_SET& POTs,
+                         RDIST& R_boost,
+                         TEMPORAL_VARIABLE_HEUR& VAR)
 {
   double time_st = dsecnd();
   MKL_LONG Np = VAR.Np;
@@ -514,9 +574,9 @@ OMP_SS_update_STATISTICS(ASSOCIATION& CONNECT,
   double time_update_ASSOCIATION_MAP = 0;
   double time_update_CHAIN_SUGGESTION = 0;
   
-#pragma omp parallel for default(none) if(VAR.N_THREADS_BD > 1)		\
-  shared(Np, POTs, CONNECT, R_boost)					\
-  num_threads(VAR.N_THREADS_BD)						\
+#pragma omp parallel for default(none) if(VAR.N_THREADS_BD > 1)         \
+  shared(Np, POTs, CONNECT, R_boost)                                    \
+  num_threads(VAR.N_THREADS_BD)                                         \
   reduction(+: time_update_ASSOCIATION_MAP, time_update_CHAIN_SUGGESTION)	
   
   
@@ -540,16 +600,16 @@ OMP_SS_update_STATISTICS(ASSOCIATION& CONNECT,
 double
 HEUR::
 OMP_SS_topological_time_evolution(const MKL_LONG time_step_LV,
-				  ASSOCIATION& CONNECT,
-				  CHAIN_HANDLE& CHAIN,
-				  POTENTIAL_SET& POTs,
-				  RDIST& R_boost,
-				  RNG_BOOST& RNG,
-				  INDEX_MC* IDX_ARR,
-				  RECORD_DATA& DATA,
-				  COND& given_condition,
-				  LOCK& LOCKER,
-				  TEMPORAL_VARIABLE_HEUR& VAR)
+                                  ASSOCIATION& CONNECT,
+                                  CHAIN_HANDLE& CHAIN,
+                                  POTENTIAL_SET& POTs,
+                                  RDIST& R_boost,
+                                  RNG_BOOST& RNG,
+                                  INDEX_MC* IDX_ARR,
+                                  RECORD_DATA& DATA,
+                                  COND& given_condition,
+                                  LOCK& LOCKER,
+                                  TEMPORAL_VARIABLE_HEUR& VAR)
 // note that the TRJECTORY class dependency is deleted because of RDIST class.
 {
   double time_st = dsecnd();
@@ -613,7 +673,7 @@ TEMPORAL_VARIABLE_HEUR(COND& given_condition, MKL_LONG given_N_basic)
     MC_LOG = TRUE;
 
   virial_initial();
-  N_components_energy = 30;
+  N_components_energy = 31; // last 30 index for N_diff_associations
       
 }
 

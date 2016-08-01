@@ -207,30 +207,30 @@ cal_repulsion_force_R_boost_with_RF
           if (index_target != index_particle)
             {
               double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
-	      double repulsion_div_distance = repulsion/distance;
-	      MATRIX& rel_vector = R_boost.Rvec[index_particle][index_target];
+              double repulsion_div_distance = repulsion/distance;
+              MATRIX& rel_vector = R_boost.Rvec[index_particle][index_target];
               // for(MKL_LONG d=0; d<R_boost.N_dimension; d++)
               //   {
               //     given_vec(d) += repulsion*R_boost.Rvec[index_particle][index_target](d);
               //   }
-	      // the following make overhead.
+              // the following make overhead.
               cblas_daxpy(given_vec.size,
                           repulsion/distance,
                           // R_boost.Rvec[index_particle][index_target].data,
-			  rel_vector.data,
+                          rel_vector.data,
                           1,
                           given_vec.data,
                           1);
 
-	      RF_repulsion_xx += repulsion_div_distance*rel_vector(0)*rel_vector(0);
-	      RF_repulsion_yy += repulsion_div_distance*rel_vector(1)*rel_vector(1);
-	      RF_repulsion_zz += repulsion_div_distance*rel_vector(2)*rel_vector(2);
+              RF_repulsion_xx += repulsion_div_distance*rel_vector(0)*rel_vector(0);
+              RF_repulsion_yy += repulsion_div_distance*rel_vector(1)*rel_vector(1);
+              RF_repulsion_zz += repulsion_div_distance*rel_vector(2)*rel_vector(2);
 
-	      RF_repulsion_xy += repulsion_div_distance*rel_vector(0)*rel_vector(1);
-	      RF_repulsion_xz += repulsion_div_distance*rel_vector(0)*rel_vector(2);
-	      RF_repulsion_yz += repulsion_div_distance*rel_vector(1)*rel_vector(2);
+              RF_repulsion_xy += repulsion_div_distance*rel_vector(0)*rel_vector(1);
+              RF_repulsion_xz += repulsion_div_distance*rel_vector(0)*rel_vector(2);
+              RF_repulsion_yz += repulsion_div_distance*rel_vector(1)*rel_vector(2);
 
-	      energy_repulsive_potential += POTs.e_repulsion(distance, POTs.force_variables);
+              energy_repulsive_potential += POTs.e_repulsion(distance, POTs.force_variables);
 	      
             }
         }
