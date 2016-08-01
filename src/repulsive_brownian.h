@@ -59,6 +59,8 @@ struct REPULSIVE_BROWNIAN::
   MATRIX *vec_boost_Nd_parallel;
   MATRIX *force_repulsion;
 
+  MKL_LONG N_skip_rdist;
+  
   double RF_repulsion_xx, RF_repulsion_yy, RF_repulsion_zz;
   double RF_repulsion_xy, RF_repulsion_xz, RF_repulsion_yz;
 

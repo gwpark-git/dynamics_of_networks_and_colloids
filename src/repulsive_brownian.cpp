@@ -283,6 +283,11 @@ TEMPORAL_VARIABLE(COND& given_condition, MKL_LONG given_N_basic)
     {
       Wi_tau_R = 0.;
     }
+
+  if(given_condition("record_RDIST") == "TRUE")
+    {
+      N_skip_rdist = atoi(given_condition("N_skip_rdist").c_str());
+    }
   
   INITIALIZATION = TRUE;
 };

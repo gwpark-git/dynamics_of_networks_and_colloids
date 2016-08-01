@@ -35,6 +35,15 @@ namespace HEUR
 			 const MKL_LONG index_t_now);
 
   double
+  record_RDIST_BRIDGE(ofstream &file_DIST,
+                      RDIST& R_boost, ASSOCIATION& CONNECT);
+
+  double
+  record_RDIST_PARTICLE(ofstream &file_DIST,
+                        RDIST& R_boost);
+
+    
+  double
   report_simulation_info(TRAJECTORY& TRAJ,
 			 MATRIX& energy,
 			 TEMPORAL_VARIABLE_HEUR& VAR);
@@ -143,11 +152,14 @@ HEUR::
   MATRIX *force_spring;
 
   MKL_LONG N_tot_associable_chain;
-
+  MKL_LONG N_diff_associations;
+  
   // checking input files
   bool MC_renewal;
   bool MC_LOG;
 
+  
+  
   // related with virials
   double RF_connector_xx, RF_connector_yy, RF_connector_zz;
   double RF_connector_xy, RF_connector_xz, RF_connector_yz;
