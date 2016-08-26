@@ -198,6 +198,7 @@ double
 HEUR::
 report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABLE_HEUR& VAR)
 {
+  printf(" PBC VOLUME = %3.2e\n", VAR.volume_PBC_box);
   double total_time = VAR.time_SS + VAR.time_LV + VAR.time_AN + VAR.time_file + VAR.time_DIST;
   double sum_time_LV = VAR.time_LV_init + VAR.time_LV_force + VAR.time_LV_update;
   printf("##### STEPS = %ld\tTIME = %8.6e tau_B\tENERGY = %6.3e (computing time: %4.3e)\n", TRAJ.c_t, VAR.simulation_time, energy(1), energy(5));
