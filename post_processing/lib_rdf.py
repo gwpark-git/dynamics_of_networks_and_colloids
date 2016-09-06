@@ -30,6 +30,7 @@ def get_ddf(traj, ts, Np, N_dimension, box_dimension, cut_ratio):
                     ddf.append(d)
     return ddf
 
+
 def get_rdf(traj, ts, dr, Np, N_dimension, box_dimension, cut_ratio):
     Nr = int(cut_ratio*box_dimension/dr)
     rdf = zeros([Nr, 3])
@@ -57,6 +58,28 @@ def get_rdf_ref(traj, ts, dr, Np, N_dimension, box_dimension, cut_ratio):
     Nt = size(ts)
     for r in ddf:
         rdf[int(r/dr), 1] += 1
+    if (N_dimension == 3):
+        Vr = (4./3.)*pi*((rdf[:,0]+dr)**3.0 - rdf[:,0]**3.0)
+        Vrmax = (4./3.)*pi*(cut_ratio*box_dimension)**3.0
+        rho_local = N_tot/(Nt*0.5*(Np-1)*Vrmax)
+    elif (N_dimension == 2):
+        Vr = pi*((rdf[:,0]+dr)**2.0 - rdf[:,0]**2.0)
+        Vrmax = pi*(cut_ratio*box_dimension)**2.0
+        rho_local = N_tot/(Nt*0.5*(Np-1)*Vrmax)
+    rdf[:,2] = rdf[:,1]/(Vr*0.5*(Np-1)*Nt*rho_local)
+    rdf[0, 2] = 0. #removing the first term as zero because it is given by nan (division was 0)
+    return rdf, rho_local
+
+def get_rdf_from_ddf(ddf, dr, Np, Nt, N_dimension, box_dimension, cut_ratio):
+    Nr = int(cut_ratio*box_dimension/dr) + 1
+    rdf = zeros([Nr, 3])
+    rdf[:,0] = arange(0, cut_ratio*box_dimension + dr, dr)
+    # ddf = get_ddf(traj, ts, Np, N_dimension, box_dimension, cut_ratio)
+    N_tot = size(ddf)
+    # Nt = size(ts)
+    for r in ddf:
+        if r < box_dimension*cut_ratio:
+            rdf[int(r/dr), 1] += 1
     if (N_dimension == 3):
         Vr = (4./3.)*pi*((rdf[:,0]+dr)**3.0 - rdf[:,0]**3.0)
         Vrmax = (4./3.)*pi*(cut_ratio*box_dimension)**3.0

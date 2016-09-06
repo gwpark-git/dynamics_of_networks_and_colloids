@@ -121,7 +121,7 @@ def corr(x, y):
     re = zeros(N/2)
     for i in range(N/2):
         re[i] = dot(x[:N/2], y[i:i+N/2])
-    return re
+    return re/float(N/2)
 
 def acf_ref(x):
     N = size(x)
