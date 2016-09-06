@@ -112,13 +112,13 @@ record_virial_into_energy_array(MATRIX& energy)
   BROWNIAN::BROWNIAN_VARIABLE::
     record_virial_into_energy_array(energy);
   
-  energy(18) = RF_repulsion_xx/(volume_PBC_box);
-  energy(19) = RF_repulsion_yy/(volume_PBC_box);
-  energy(20) = RF_repulsion_zz/(volume_PBC_box);
+  energy(2.*18) = RF_repulsion_xx/(2.*volume_PBC_box);
+  energy(2.*19) = RF_repulsion_yy/(2.*volume_PBC_box);
+  energy(2.*20) = RF_repulsion_zz/(2.*volume_PBC_box);
 
-  energy(21) = RF_repulsion_xy/(volume_PBC_box);
-  energy(22) = RF_repulsion_xz/(volume_PBC_box);
-  energy(23) = RF_repulsion_yz/(volume_PBC_box);
+  energy(2.*21) = RF_repulsion_xy/(2.*volume_PBC_box);
+  energy(2.*22) = RF_repulsion_xz/(2.*volume_PBC_box);
+  energy(2.*23) = RF_repulsion_yz/(2.*volume_PBC_box);
 
   energy(3) = energy_repulsive_potential;
   
