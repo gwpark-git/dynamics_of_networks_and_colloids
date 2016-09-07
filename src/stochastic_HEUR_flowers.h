@@ -210,13 +210,13 @@ record_virial_into_energy_array(MATRIX& energy)
   REPULSIVE_BROWNIAN::TEMPORAL_VARIABLE::
     record_virial_into_energy_array(energy);
   
-  energy(2.*24) = RF_connector_xx/(2.*volume_PBC_box);
-  energy(2.*25) = RF_connector_yy/(2.*volume_PBC_box);
-  energy(2.*26) = RF_connector_zz/(2.*volume_PBC_box);
+  energy(24) = RF_connector_xx/(2.*volume_PBC_box);
+  energy(25) = RF_connector_yy/(2.*volume_PBC_box);
+  energy(26) = RF_connector_zz/(2.*volume_PBC_box);
 
-  energy(2.*27) = RF_connector_xy/(2.*volume_PBC_box);
-  energy(2.*28) = RF_connector_xz/(2.*volume_PBC_box);
-  energy(2.*29) = RF_connector_yz/(2.*volume_PBC_box);
+  energy(27) = RF_connector_xy/(2.*volume_PBC_box);
+  energy(28) = RF_connector_xz/(2.*volume_PBC_box);
+  energy(29) = RF_connector_yz/(2.*volume_PBC_box);
 
   energy(3) = energy_repulsive_potential + energy_elastic_potential;
 
