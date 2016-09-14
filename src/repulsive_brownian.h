@@ -120,7 +120,7 @@ record_virial_into_energy_array(MATRIX& energy)
   energy(22) = RF_repulsion_xz;
   energy(23) = RF_repulsion_yz;
 
-  energy(3) = energy_repulsive_potential;
+  energy(2) = energy_repulsive_potential;
   
   return time_st - dsecnd();
 }

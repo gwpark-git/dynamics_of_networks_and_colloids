@@ -146,9 +146,9 @@ main_EQUILIBRATION(TRAJECTORY& TRAJ,
                       VAR.N_THREADS_BD);
 
   
-  VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
-    ANALYSIS::
-    CAL_ENERGY_R_boost(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
+  // VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
+  //   ANALYSIS::
+  //   CAL_ENERGY_R_boost(POTs, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
   
   for(MKL_LONG t = 0; t<VAR.Nt-1; t++)
     {

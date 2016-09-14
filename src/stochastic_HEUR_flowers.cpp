@@ -77,8 +77,8 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
   VAR.time_DIST +=
     REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, 0, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
   
-  VAR.time_AN +=
-    ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
+  // VAR.time_AN +=
+  //   ANALYSIS::ANAL_ASSOCIATION::CAL_ENERGY_R_boost(POTs, CONNECT, energy, (TRAJ.c_t - 1.)*TRAJ.dt, R_boost);
 
   RNG_BOOST RNG(given_condition);
   
@@ -333,7 +333,10 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   VAR.RF_connector_xx = RF_connector_xx/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_yy = RF_connector_yy/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_zz = RF_connector_zz/(duplication_divisor*VAR.volume_PBC_box);
   VAR.RF_connector_xy = RF_connector_xy/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_xz = RF_connector_xz/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_yz = RF_connector_yz/(duplication_divisor*VAR.volume_PBC_box);
 
-  VAR.energy_elastic_potential = energy_elastic_potential/duplication_divisor;
+
+  VAR.energy_elastic_potential = energy_elastic_potential/(POTs.force_variables[0]*duplication_divisor);
+  // the divisor C_rep (POTs.force_variables[0]) is used in order to tune time scale as tau_R
+
   VAR.energy_repulsive_potential = energy_repulsive_potential/duplication_divisor;
 
   VAR.N_diff_associations = (MKL_LONG)N_diff_associations/2; // divisor 2 for removing duplicate count

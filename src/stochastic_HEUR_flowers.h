@@ -218,8 +218,9 @@ record_virial_into_energy_array(MATRIX& energy)
   energy(28) = RF_connector_xz;
   energy(29) = RF_connector_yz;
 
-  energy(3) = energy_repulsive_potential + energy_elastic_potential;
-
+  // energy(3) = energy_repulsive_potential + energy_elastic_potential;
+  // energy(2) = energy_repulsive_potential; // it is already in the REPULSIVE_BROWNIAN
+  energy(3) = energy_elastic_potential;
   return time_st - dsecnd();
 }
 				

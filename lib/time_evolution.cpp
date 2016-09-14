@@ -377,6 +377,11 @@ ANALYSIS::ANAL_ASSOCIATION::
 CAL_ENERGY_R_boost
 (POTENTIAL_SET& POTs, ASSOCIATION& CONNECT, MATRIX& mat_energy, double time, RDIST& R_boost)
 {
+  /*
+    Note that this code is old part of previous version.
+    Now, the new analysis part is individually calculate during simulation because of efficiency
+    The individual part will be found in the block of code for analysis in the main lines
+   */
   // mat_energy(0) = (TRAJ.c_t - 1)*TRAJ.dt;
   double time_st = dsecnd();
   mat_energy(0) = time;

@@ -84,8 +84,8 @@ main_PURE_BROWNIAN
   
   printf("DONE\nSTART SIMULATION\n\n");
 
-  VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
-    ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, TRAJ(0));
+  // VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
+  //   ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, TRAJ(0));
   
   for(MKL_LONG t = 0; t<VAR.Nt-1; t++)
     {
@@ -120,8 +120,8 @@ main_PURE_BROWNIAN
 
       if(t%VAR.N_skip_ener==0 || t%VAR.N_skip_file==0)
         {
-          VAR.time_AN += // measuring energy of system
-            ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, TRAJ(index_t_now));
+          // VAR.time_AN += // measuring energy of system
+          //   ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, TRAJ(index_t_now));
 
 	  VAR.time_AN +=
 	    VAR.record_virial_into_energy_array(energy);
