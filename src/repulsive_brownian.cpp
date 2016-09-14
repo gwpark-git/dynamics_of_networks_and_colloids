@@ -97,13 +97,16 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
       
     }
   // allocationc omputed RF values into VAR
-  VAR.RF_random_xx = RF_random_xx; VAR.RF_random_yy = RF_random_yy; VAR.RF_random_zz = RF_random_zz;
-  VAR.RF_random_xy = RF_random_xy; VAR.RF_random_xz = RF_random_xz; VAR.RF_random_yz = RF_random_yz;
+  // note that the following virial stress are used based on the time scale tau_R, which is the basic time scale for this simulation code
+  
+  VAR.RF_random_xx = RF_random_xx/VAR.volume_PBC_box; VAR.RF_random_yy = RF_random_yy/VAR.volume_PBC_box; VAR.RF_random_zz = RF_random_zz/VAR.volume_PBC_box;
+  VAR.RF_random_xy = RF_random_xy/VAR.volume_PBC_box; VAR.RF_random_xz = RF_random_xz/VAR.volume_PBC_box; VAR.RF_random_yz = RF_random_yz/VAR.volume_PBC_box;
 
-  VAR.RF_repulsion_xx = RF_repulsion_xx/2.; VAR.RF_repulsion_yy = RF_repulsion_yy/2.; VAR.RF_repulsion_zz = RF_repulsion_zz/2.;
-  VAR.RF_repulsion_xy = RF_repulsion_xy/2.; VAR.RF_repulsion_xz = RF_repulsion_xz/2.; VAR.RF_repulsion_yz = RF_repulsion_yz/2.;
+  double duplication_divisor = 2.;
+  VAR.RF_repulsion_xx = RF_repulsion_xx/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_repulsion_yy = RF_repulsion_yy/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_repulsion_zz = RF_repulsion_zz/(duplication_divisor*VAR.volume_PBC_box);
+  VAR.RF_repulsion_xy = RF_repulsion_xy/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_repulsion_xz = RF_repulsion_xz/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_repulsion_yz = RF_repulsion_yz/(duplication_divisor*VAR.volume_PBC_box);
 
-  VAR.energy_repulsive_potential = energy_repulsive_potential/2.;
+  VAR.energy_repulsive_potential = energy_repulsive_potential/duplication_divisor;
   
   return dsecnd() - time_st;
 }

@@ -139,11 +139,12 @@ OMP_time_evolution_Euler
       
     }
 
-  VAR.RF_random_xx = RF_random_xx; VAR.RF_random_yy = RF_random_yy; VAR.RF_random_zz = RF_random_zz;
-  VAR.RF_random_xy = RF_random_xy; VAR.RF_random_xz = RF_random_xz; VAR.RF_random_yz = RF_random_yz;
-  
-  VAR.RF_connector_xx = RF_connector_xx; VAR.RF_connector_yy = RF_connector_yy; VAR.RF_connector_zz = RF_connector_zz;
-  VAR.RF_connector_xy = RF_connector_xy; VAR.RF_connector_xz = RF_connector_xz; VAR.RF_connector_yz = RF_connector_yz;
+  VAR.RF_random_xx = RF_random_xx/VAR.volume_PBC_box; VAR.RF_random_yy = RF_random_yy/VAR.volume_PBC_box; VAR.RF_random_zz = RF_random_zz/VAR.volume_PBC_box;
+  VAR.RF_random_xy = RF_random_xy/VAR.volume_PBC_box; VAR.RF_random_xz = RF_random_xz/VAR.volume_PBC_box; VAR.RF_random_yz = RF_random_yz/VAR.volume_PBC_box;
+
+  double duplication_divisor = 2.;
+  VAR.RF_connector_xx = RF_connector_xx/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_yy = RF_connector_yy/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_zz = RF_connector_zz/(duplication_divisor*VAR.volume_PBC_box);
+  VAR.RF_connector_xy = RF_connector_xy/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_xz = RF_connector_xz/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_yz = RF_connector_yz/(duplication_divisor*VAR.volume_PBC_box);
 
   VAR.energy_elastic_potential = energy_elastic_potential/2.;
   

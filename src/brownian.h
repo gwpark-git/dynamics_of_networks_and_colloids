@@ -108,13 +108,13 @@ BROWNIAN::BROWNIAN_VARIABLE::
 record_virial_into_energy_array(MATRIX& energy)
 {
   double time_st = dsecnd();
-  energy(12) = RF_random_xx/(2.*volume_PBC_box);
-  energy(13) = RF_random_yy/(2.*volume_PBC_box);
-  energy(14) = RF_random_zz/(2.*volume_PBC_box);
+  energy(12) = RF_random_xx;
+  energy(13) = RF_random_yy;
+  energy(14) = RF_random_zz;
 
-  energy(15) = RF_random_xy/(2.*volume_PBC_box);
-  energy(16) = RF_random_xz/(2.*volume_PBC_box);
-  energy(17) = RF_random_yz/(2.*volume_PBC_box);
+  energy(15) = RF_random_xy;
+  energy(16) = RF_random_xz;
+  energy(17) = RF_random_yz;
   return time_st - dsecnd();
 }
 

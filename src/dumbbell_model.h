@@ -152,13 +152,13 @@ record_virial_into_energy_array(MATRIX& energy)
   // it might occure confusion between connector virial component compared with stochastic_HEUR
   // however, to keep homogeneous data structure, monotonic increasing function for index number is used.
   
-  energy(18) = RF_connector_xx/(2.*volume_PBC_box);
-  energy(19) = RF_connector_yy/(2.*volume_PBC_box);
-  energy(20) = RF_connector_zz/(2.*volume_PBC_box);
+  energy(18) = RF_connector_xx;
+  energy(19) = RF_connector_yy;
+  energy(20) = RF_connector_zz;
 
-  energy(21) = RF_connector_xy/(2.*volume_PBC_box);
-  energy(22) = RF_connector_xz/(2.*volume_PBC_box);
-  energy(23) = RF_connector_yz/(2.*volume_PBC_box);
+  energy(21) = RF_connector_xy;
+  energy(22) = RF_connector_xz;
+  energy(23) = RF_connector_yz;
 
   energy(3) = energy_elastic_potential;
   

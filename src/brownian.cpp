@@ -54,8 +54,8 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
     }
 
   // allocationc omputed RF values into VAR
-  VAR.RF_random_xx = RF_random_xx; VAR.RF_random_yy = RF_random_yy; VAR.RF_random_zz = RF_random_zz;
-  VAR.RF_random_xy = RF_random_xy; VAR.RF_random_xz = RF_random_xz; VAR.RF_random_yz = RF_random_yz;
+  VAR.RF_random_xx = RF_random_xx/VAR.volume_PBC_box; VAR.RF_random_yy = RF_random_yy/VAR.volume_PBC_box; VAR.RF_random_zz = RF_random_zz/VAR.volume_PBC_box;
+  VAR.RF_random_xy = RF_random_xy/VAR.volume_PBC_box; VAR.RF_random_xz = RF_random_xz/VAR.volume_PBC_box; VAR.RF_random_yz = RF_random_yz/VAR.volume_PBC_box;
   return dsecnd() - time_st;
 }
 
