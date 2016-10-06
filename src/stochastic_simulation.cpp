@@ -30,6 +30,11 @@ int
 main
 (int argc, char* argv[])
 {
+  /* main print */
+  cout << "STOCHASTIC SIMULATION for ASSOCIATING TELECHELIC POLYMERS" << endl;
+  cout << "Version: " << VERSION << endl;
+  cout << "Code developer: Gun Woo Park (gunwoo.park@unina.it)" << endl;
+    
   if(argc==1)
     {
       help();
