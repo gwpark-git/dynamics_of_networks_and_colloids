@@ -9,6 +9,9 @@
 #include <mkl.h>
 #include "H5Cpp.h"
 
+#define TRUE 1
+#define FALSE 0
+
 using namespace std;
 
 
@@ -43,6 +46,7 @@ public:
   }
 
   string& operator()(string option_type);
+  bool identify_effective_parameters(string given_argument);
 };
 
 

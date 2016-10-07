@@ -1,15 +1,43 @@
+//################################################################################//
+//                                                                                //
+// Input file of stochastic simulation for Associating Telechelic Polymers        //
+// Developer: Gun Woo Park (gunwoo.park@unina.it)                                 //
+//                                                                                //
+// Note that single input file runs single computation while sequence of input    //
+// arguments for execution will run all of test following sequence of input files //
+//                                                                                //
+//################################################################################//
+
+
+// Basic Methodological input
+// Method: BROWNIAN, DUMBBELL, REPULSIVE_BROWNIAN, NAPLE_ASSOCIATION
+// Step: EQUILIBRIATION, NO_EQUILIBRIATION
+// Integrator: Only 'Euler' is applied at this moment
+
 Method=NAPLE_ASSOCIATION
 Step=NO_EQUILIBRATION
 Integrator=Euler
+
+// Time scales and data resolutions
+// it allows to track all the index of individual chain ends
 tracking_individual_chain=TRUE
+// for Parallel Langevin Equations
 N_THREADS_BD=4
+// for topological update: Note that it must be 1 at this moment
 N_THREADS_SS=1
+// Spatial Dimensionality. 
 N_dimension=3
+// Box dimension. At this moment, only box with the same size for each axis is allowed
 box_dimension=10.0
+// Number of particles in the system
 Np=400
+// total time step.
 Nt=10000
+// base time step
 dt/tauR=0.01
+// number of skipping for topological update
 N_steps_block=10
+// time scale ratio between 
 Rt=10
 N_skip_ener=10
 N_skip_file=1000
@@ -43,7 +71,7 @@ CONTINUATION_WEIGHT_FN=FALSE
 CONTINUATION_CHAIN_FN=FALSE
 basic_random_seed=100
 basic_random_seed_SS=150
-SIMPLE_SHEAR=FALSE
+MECHANICAL_PERTURBATION=FALSE
 shear_axis=0
 shear_grad_axis=1
 Wi_tau_C=0

@@ -4,6 +4,17 @@
 #include <iomanip> // for setw
 // using namespace std;
 
+bool
+COND::
+identify_effective_parameters(string given_argument)
+{
+  if (given_argument.length() == 0)
+    return FALSE;
+  if (given_argument[0] == '/' && given_argument[1] == '/')
+    return FALSE;
+  return TRUE;
+}
+
 COND::
 COND
 (char* fn)
@@ -45,7 +56,9 @@ operator()
 {
   for(MKL_LONG i=0; i<N_arg; i++)
     {
-      if(arg[i][0] == option_type)
+      // conditional phrase
+      // if(arg[i][0] == option_type && (arg[i][0][0] != '/' && arg[i][0][1] != '/'))
+      if(arg[i][0] == option_type && COND::identify_effective_parameters(arg[i][0]))
         {
           return arg[i][1];
         }
@@ -63,7 +76,9 @@ cond_print()
       cout << "### PRINTING ARGUMENTS ###\n";
       for(MKL_LONG i=0; i<N_arg; i++)
         {
-          cout << setw(50) << left << arg[i][0] << ": " << setw(50) << left  << arg[i][1] << endl;
+          // if(arg[i][0][0] != '/' && arg[i][0][1] != '/')
+          if(COND::identify_effective_parameters(arg[i][0]))
+            cout << setw(50) << left << arg[i][0] << ": " << setw(50) << left  << arg[i][1] << endl;
         }
       cout << "### END PRINT ###\n";
     }
