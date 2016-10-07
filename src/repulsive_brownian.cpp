@@ -277,7 +277,8 @@ TEMPORAL_VARIABLE(COND& given_condition, MKL_LONG given_N_basic)
   virial_initial();
   N_components_energy = 24;
 
-  if(given_condition("SIMPLE_SHEAR") == "TRUE")
+  // if(given_condition("SIMPLE_SHEAR") == "TRUE")
+  if(given_condition("MECHANICAL_PERTURBATION") == "SIMPLE_SHEAR")
     {
       Wi_tau_R = atof(given_condition("Wi_tau_C").c_str());
       Wi_tau_B = Wi_tau_R/atof(given_condition("repulsion_coefficient").c_str()); 

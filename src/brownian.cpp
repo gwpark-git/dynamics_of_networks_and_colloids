@@ -192,7 +192,8 @@ BROWNIAN_VARIABLE
   virial_initial();
   N_components_energy = 18;
   
-  if(given_condition("SIMPLE_SHEAR")=="TRUE")
+  // if(given_condition("SIMPLE_SHEAR")=="TRUE")
+  if(given_condition("MECHANICAL_PERTURBATION")=="SIMPLE_SHEAR")
     {
       SIMPLE_SHEAR = TRUE;
       Wi_tau_B = atof(given_condition("Wi_tau_C").c_str()); // the tau_C in the pure Brownian come with tau_B
