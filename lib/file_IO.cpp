@@ -10,7 +10,9 @@ identify_effective_parameters(string given_argument)
 {
   if (given_argument.length() == 0)
     return FALSE;
-  if (given_argument[0] == '/' && given_argument[1] == '/')
+  // if (given_argument[0] == '/' && given_argument[1] == '/')
+  // the comments in inp file will be changed from // to #
+  if(given_argument[0] == '#')
     return FALSE;
   return TRUE;
 }
