@@ -153,7 +153,7 @@ apply_step_shear(TRAJECTORY& TRAJ, MKL_LONG target_t,
     {
       // apply initial step deformation
       // note that shift in x-direction is given by: y*gamma_0 <= 1
-      TRAJ(target_t, i, shear_axis) += gamma_0*TRAJ(t_init, i, shear_grad_axis);
+      TRAJ(target_t, i, shear_axis) += gamma_0*TRAJ(target_t, i, shear_grad_axis);
     }
   GEOMETRY::
     apply_shear_boundary_condition(TRAJ, target_t, shear_axis, shear_grad_axis, gamma_0*box_dimension);

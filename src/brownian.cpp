@@ -89,7 +89,7 @@ main_PURE_BROWNIAN
       GEOMETRY::
         apply_step_shear(TRAJ, time_init,
                          VAR.shear_axis, VAR.shear_grad_axis,
-                         VAR.gamma_0, VAR.box_dimension);
+                         VAR.gamma_0, TRAJ.box_dimension[VAR.shear_grad_axis]);
     }
 
   // VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle

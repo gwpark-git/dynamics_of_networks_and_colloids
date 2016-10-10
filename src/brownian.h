@@ -47,7 +47,7 @@ BROWNIAN::
   MKL_LONG N_THREADS_BD;
 
   double volume_PBC_box;
-  double box_dimension; // related with box dimension
+  // double box_dimension; // related with box dimension
   
   MKL_LONG *tmp_index_vec;
   MATRIX *force_random;
@@ -75,7 +75,9 @@ BROWNIAN::
   
   // related with shear flow
   bool SIMPLE_SHEAR;
+  bool STEP_SHEAR;
   double Wi_tau_B;
+  double gamma_0;
   MKL_LONG shear_axis;
   MKL_LONG shear_grad_axis;
   double shear_PBC_shift;

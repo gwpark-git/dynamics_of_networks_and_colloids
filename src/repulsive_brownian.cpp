@@ -142,7 +142,7 @@ main_EQUILIBRATION(TRAJECTORY& TRAJ,
       GEOMETRY::
         apply_step_shear(TRAJ, time_init,
                          VAR.shear_axis, VAR.shear_grad_axis,
-                         VAR.gamma_0, VAR.box_dimension);
+                         VAR.gamma_0, TRAJ.box_dimension[VAR.shear_grad_axis]);
     }
 
   VAR.time_DIST +=         // compute RDIST with cell_list advantage
