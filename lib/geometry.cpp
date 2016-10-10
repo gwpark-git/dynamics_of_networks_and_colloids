@@ -141,4 +141,21 @@ apply_shear_boundary_condition(TRAJECTORY& TRAJ, MKL_LONG target_t,
   return dsecnd() - time_st;
 }
 
-
+double
+GEOMETRY::
+apply_step_shear(TRAJECTORY& TRAJ, MKL_LONG target_t,
+                       const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis,
+                       const double gamma_0, const double box_dimension)
+{
+  double time_st = dsecnd();
+  printf("APPLY STEP DEFORMATION (STEP_SHEAR is on)\n");
+  for(MKL_LONG i=0; i<TRAJ.Np; i++)
+    {
+      // apply initial step deformation
+      // note that shift in x-direction is given by: y*gamma_0 <= 1
+      TRAJ(target_t, i, shear_axis) += gamma_0*TRAJ(t_init, i, shear_grad_axis);
+    }
+  GEOMETRY::
+    apply_shear_boundary_condition(TRAJ, target_t, shear_axis, shear_grad_axis, gamma_0*box_dimension);
+  return dsecnd() - time_st;
+}

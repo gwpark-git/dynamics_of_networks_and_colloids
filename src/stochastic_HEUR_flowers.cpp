@@ -85,7 +85,36 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
   INDEX_MC *IDX_ARR = new INDEX_MC [VAR.N_THREADS_SS]; // it will call default constructor
 
   printf("DONE\nSTART SIMULATION\n\n");
-  
+  if(VAR.STEP_SHEAR)
+    {
+      MKL_LONG time_init = 0;
+      GEOMETRY::
+        apply_step_shear(TRAJ, time_init,
+                         VAR.shear_axis, VAR.shear_grad_axis,
+                         VAR.gamma_0, VAR.box_dimension);
+    }
+  // if(VAR.STEP_SHEAR)
+  //   {
+  //     MKL_LONG t_init = 0; // initial
+  //     printf("APPLY STEP DEFORMATION (STEP_SHEAR is on)\n");
+  //     // VAR.shear_PBC_shift will be used for both of STEP_SHEAR and SIMPLE_SHEAR
+  //     // Both of the case, it denote the sliding length for upper part of shear gradient direction (maximum values of deformation)
+  //     double gamma_0 = atof(given_condition("gamma_0").c_str());
+  //     double box_dimension = atof(given_condition("box_dimension").c_str());
+  //     // it will shift upper and lower slidings in shear-gradient direction
+  //     VAR.shear_PBC_shift = gamma_0*box_dimension;
+  //     for(MKL_LONG i=0; i<TRAJ.Np; i++)
+  //       {
+  //         // apply initial step deformation
+  //         // note that shift in x-direction is given by: y*gamma_0 <= 1
+  //         TRAJ(t_init, i, VAR.shear_axis) += gamma_0*TRAJ(t_init, i, VAR.shear_grad_axis);
+  //       }
+  //     GEOMETRY::
+  //       apply_shear_boundary_condition(TRAJ, t_init, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
+  //     // // It is of importance the mapping function for the central standard will not be used
+  //     // // check
+  //     // R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis];
+  //   }
   for(MKL_LONG t = 0; t<VAR.Nt-1; t++)
     {
       MKL_LONG index_t_now = t % VAR.N_basic;

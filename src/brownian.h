@@ -47,6 +47,7 @@ BROWNIAN::
   MKL_LONG N_THREADS_BD;
 
   double volume_PBC_box;
+  double box_dimension; // related with box dimension
   
   MKL_LONG *tmp_index_vec;
   MATRIX *force_random;

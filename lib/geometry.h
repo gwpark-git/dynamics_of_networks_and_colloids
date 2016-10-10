@@ -90,9 +90,12 @@ namespace GEOMETRY
   double
     minimum_image_convention_loop(TRAJECTORY& TRAJ, MKL_LONG target_t);
   double
-    apply_shear_boundary_condition(TRAJECTORY& TRAJ, MKL_LONG target_t,
+  apply_shear_boundary_condition(TRAJECTORY& TRAJ, MKL_LONG target_t,
 				   const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis, const double shift_factor);
-
+  double
+  apply_step_shear(TRAJECTORY& TRAJ, MKL_LONG target_t,
+                   const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis,
+                   const double gamma_0, const double box_dimension);
   
   MKL_LONG
     get_minimum_distance_pos_vector(TRAJECTORY& TRAJ, MKL_LONG index_t,

@@ -174,6 +174,14 @@ main_DUMBBELL
   // MATRIX energy(1, 12, 0.);
   
   printf("DONE\nSTART SIMULATION\n\n");
+  if(VAR.STEP_SHEAR)
+    {
+      MKL_LONG time_init = 0;
+      GEOMETRY::
+        apply_step_shear(TRAJ, time_init,
+                         VAR.shear_axis, VAR.shear_grad_axis,
+                         VAR.gamma_0, VAR.box_dimension);
+    }
 
   
   VAR.time_DIST +=         // compute RDIST with cell_list advantage

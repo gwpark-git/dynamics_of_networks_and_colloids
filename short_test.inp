@@ -8,79 +8,91 @@
 #                                                                                #
 ##################################################################################
 
- 
-## Basic Methodological input
-## Method: BROWNIAN, DUMBBELL, REPULSIVE_BROWNIAN, NAPLE_ASSOCIATION
-## Step: EQUILIBRIATION, NO_EQUILIBRIATION
-## Stochastic Integrator: Only 'Euler' is applied at this moment
+
+## METHOD
+## METHOD::Basic Methodological input
+## METHOD::Method: BROWNIAN, DUMBBELL, REPULSIVE_BROWNIAN, NAPLE_ASSOCIATION
+## METHOD::Step: EQUILIBRIATION, NO_EQUILIBRIATION
+## METHOD::Stochastic Integrator: Only 'Euler' is applied at this moment
 
 Method=NAPLE_ASSOCIATION
 Step=NO_EQUILIBRATION
 Integrator=Euler
 
-## Spatial Dimensionality
+## DIMENSION
 N_dimension=3
 box_dimension=10.0
 
-## Time scales and data resolutions
+## TIME::Time scales and data resolutions
 dt/tauR=0.01
 Nt=10000
 reset_initial_time=TRUE
-### when the topological update is allowed
+## TIME::TOPOLOGY
 N_steps_block=10
 Rt=10
-### related with data resolution
+## TIME::DATA_RESOLUTION
 N_skip_ener=10
 N_skip_file=1000
 record_RDIST=TRUE
 N_skip_rdist=1000
 
-## for Parallel Langevin Equations
+## THREADS
+## THREADS::LANGEVIN   
 N_THREADS_BD=4
-### for topological update: Note that it must be 1 at this moment
+## THREADS::TOPOLOGY
 N_THREADS_SS=1
 
-## Particle Information
+
+## PARTICLE
 Np=400
-### related with repulsive contribution between particles
+## PARTICLE::REPULSION
 repulsion_coefficient=100
 effective_distance=1.0
 
-
-## chain information
+## CHAIN
 N_chains_per_particle=10
-### it allows to track all the index of individual chain ends
+## CHAIN: it allows to track all the index of individual chain ends
 tracking_individual_chain=TRUE
-### typical dissociation check
+
+## CHAIN::KINETICS
+## CHAIN::KINETICS::check transition probability
 transition_probability=DISSOCIATION
-### probability to select the specific chain (end)
+## CHAIN::KINETICS::probability to select the specific chain (end)
 chain_selection=UNIFORM
-### number of allowed fluctuation for chain ends per micelle
+## CHAIN::KINETICS::number of allowed fluctuation for chain ends per micelle
 tolerance_allowing_connections=3
-### stochastic cut-off for bridge forming
+## CHAIN::KINETICS::stochastic cut-off for bridge forming
 cutoff_connection=2.0
-### length scale related with physical aggregation in hydrophobic chain ends
+## CHAIN::KINETICS::length scale related with physical aggregation in hydrophobic chain ends
 l_cap=0.12
 
-### chain properties: Gaussian, Modified_Gaussian, FENE
+## CHAIN::ELASTICITY
+## CHAIN::ELASTICITY::chain properties: Gaussian, Modified_Gaussian, FENE
 connector=Modified_Gaussian
-#### related with re-scaling factor, alpha:= R0/rms(R_chain)
+## CHAIN::ELASTICITY::MODIFIED_GAUSSIAN::related with re-scaling factor, alpha:= R0/rms(R_chain)
 scale_factor_chain=1.5
 
-### some other features
+## UTILITY: some other features
 allowing_multiple_connections=TRUE
 MC_renewal=FALSE
 cell_list=TRUE
 
-## related with mechanical perturbation: FALSE, SIMPLE_SHEAR, STEP_SHEAR
+## NE::Non-Equilibrium Simulation
+## NE::related with mechanical perturbation: FALSE, SIMPLE_SHEAR, STEP_SHEAR
 MECHANICAL_PERTURBATION=FALSE
-### axis (0, 1, 2) = (x, y, z)
+## NE::axis (0, 1, 2) = (x, y, z)
+
+## NE::SHEAR
 shear_axis=0
 shear_grad_axis=1
-### tau_C depends on the definition of the system
-### note that this definition will be chainged in the future
+## NE::SHEAR::SIMPLE_SHEAR
+#### NE::SIMPLE_SHEAR::tau_C depends on the definition of the system
+#### NE::SIMPLE_SHEAR::note that this definition will be chainged in the future
 Wi_tau_C=0
+### NE::SHEAR::STEP_SHEAR
+gamma_0=0
 
+## SEEDS
 ## random seeds: it is related with the random sampling and average over it
 ### in the case for SCoPE grid server, the automatic submission will be varied depends on the 
 basic_random_seed=100

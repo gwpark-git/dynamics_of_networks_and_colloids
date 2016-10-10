@@ -83,6 +83,14 @@ main_PURE_BROWNIAN
   // MATRIX energy(1, 12, 0.);
   
   printf("DONE\nSTART SIMULATION\n\n");
+  if(VAR.STEP_SHEAR)
+    {
+      MKL_LONG time_init = 0;
+      GEOMETRY::
+        apply_step_shear(TRAJ, time_init,
+                         VAR.shear_axis, VAR.shear_grad_axis,
+                         VAR.gamma_0, VAR.box_dimension);
+    }
 
   // VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
   //   ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, TRAJ(0));
@@ -197,6 +205,16 @@ BROWNIAN_VARIABLE
     {
       SIMPLE_SHEAR = TRUE;
       Wi_tau_B = atof(given_condition("Wi_tau_C").c_str()); // the tau_C in the pure Brownian come with tau_B
+      shear_axis = atoi(given_condition("shear_axis").c_str()); // 0 will be set as default. (x-axis)
+      shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str()); // 1 will be set as default. (y-axis)
+      shear_PBC_shift = 0.; // initially, it is zero
+    }
+  else if(given_condition("MECHANICAL_PERTURBATION")=="STEP_SHEAR")
+    {
+      STEP_SHEAR = TRUE;
+      gamma_0 = atof(given_condition("gamma_0").c_str());
+
+      // the following will be the same
       shear_axis = atoi(given_condition("shear_axis").c_str()); // 0 will be set as default. (x-axis)
       shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str()); // 1 will be set as default. (y-axis)
       shear_PBC_shift = 0.; // initially, it is zero

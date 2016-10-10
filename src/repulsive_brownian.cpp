@@ -136,6 +136,14 @@ main_EQUILIBRATION(TRAJECTORY& TRAJ,
   // // 6: (xx)[RF], 7: (yy)[RF], 8: (zz)[RF], 9: (xy)[RF], 10: (xz)[RF], 11:(yz)[RF]
   
   printf("DONE\nSTART SIMULATION\n\n");
+  if(VAR.STEP_SHEAR)
+    {
+      MKL_LONG time_init = 0;
+      GEOMETRY::
+        apply_step_shear(TRAJ, time_init,
+                         VAR.shear_axis, VAR.shear_grad_axis,
+                         VAR.gamma_0, VAR.box_dimension);
+    }
 
   VAR.time_DIST +=         // compute RDIST with cell_list advantage
     // note that even if there is shear flow implementation,
