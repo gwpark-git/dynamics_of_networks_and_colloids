@@ -87,17 +87,20 @@ basic_random_seed=100
 ### random seeds for stochastic evolution
 basic_random_seed_SS=150
 
-
-# file information
+## file information
 output_path=short_test
 filename_base=NP0400_LD10P3_C100
+
 CONTINUATION_TRAJ=TRUE
-CONTINUATION_CONNECTION=FALSE
-CONTINUATION_CHAIN=FALSE
 CONTINUATION_TRAJ_FN=LD10P3/EQ3D_NP0400_LD10P3.traj
+
+CONTINUATION_CONNECTION=FALSE
 CONTINUATION_HASH_FN=FALSE
 CONTINUATION_WEIGHT_FN=FALSE
+
+CONTINUATION_CHAIN=FALSE
 CONTINUATION_CHAIN_FN=FALSE
+### it will record all the stochastic decision including rolling probability
 MC_LOG=FALSE
 
 
