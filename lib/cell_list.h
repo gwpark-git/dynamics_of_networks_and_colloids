@@ -44,6 +44,7 @@ class CLIST
 
   // following are related with mechanical perturbations
   bool SIMPLE_SHEAR;
+  bool STEP_SHEAR;
   MKL_LONG shear_axis;
   MKL_LONG shear_grad_axis;
   double map_to_central_box_image;

@@ -200,7 +200,16 @@ BROWNIAN_VARIABLE
   virial_initial();
   N_components_energy = 18;
   
-  // if(given_condition("SIMPLE_SHEAR")=="TRUE")
+
+  // the default parameter setting for mechanical_perturbation
+  SIMPLE_SHEAR = FALSE;
+  STEP_SHEAR = FALSE;
+  Wi_tau_B = 0.;
+  // the following are set to be on the safe side (sequence effct)
+  shear_axis = 0;
+  shear_grad_axis = 1;
+  shear_PBC_shift = 0;
+  
   if(given_condition("MECHANICAL_PERTURBATION")=="SIMPLE_SHEAR")
     {
       SIMPLE_SHEAR = TRUE;
@@ -218,15 +227,6 @@ BROWNIAN_VARIABLE
       shear_axis = atoi(given_condition("shear_axis").c_str()); // 0 will be set as default. (x-axis)
       shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str()); // 1 will be set as default. (y-axis)
       shear_PBC_shift = 0.; // initially, it is zero
-    }
-  else
-    {
-      SIMPLE_SHEAR = FALSE;
-      Wi_tau_B = 0.;
-      // the following are set to be on the safe side (sequence effct)
-      shear_axis = 0;
-      shear_grad_axis = 1;
-      shear_PBC_shift = 0;
     }
 
   INITIALIZATION = TRUE;

@@ -88,33 +88,16 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
   if(VAR.STEP_SHEAR)
     {
       MKL_LONG time_init = 0;
+      // VAR.shear_PBC_shift = fmod(VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_direction],
+      VAR.shear_PBC_shift = fmod(VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis], TRAJ.box_dimension[VAR.shear_axis]);
+      R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
+      MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
+      R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
       GEOMETRY::
         apply_step_shear(TRAJ, time_init,
                          VAR.shear_axis, VAR.shear_grad_axis,
                          VAR.gamma_0, TRAJ.box_dimension[VAR.shear_grad_axis]);
     }
-  // if(VAR.STEP_SHEAR)
-  //   {
-  //     MKL_LONG t_init = 0; // initial
-  //     printf("APPLY STEP DEFORMATION (STEP_SHEAR is on)\n");
-  //     // VAR.shear_PBC_shift will be used for both of STEP_SHEAR and SIMPLE_SHEAR
-  //     // Both of the case, it denote the sliding length for upper part of shear gradient direction (maximum values of deformation)
-  //     double gamma_0 = atof(given_condition("gamma_0").c_str());
-  //     double box_dimension = atof(given_condition("box_dimension").c_str());
-  //     // it will shift upper and lower slidings in shear-gradient direction
-  //     VAR.shear_PBC_shift = gamma_0*box_dimension;
-  //     for(MKL_LONG i=0; i<TRAJ.Np; i++)
-  //       {
-  //         // apply initial step deformation
-  //         // note that shift in x-direction is given by: y*gamma_0 <= 1
-  //         TRAJ(t_init, i, VAR.shear_axis) += gamma_0*TRAJ(t_init, i, VAR.shear_grad_axis);
-  //       }
-  //     GEOMETRY::
-  //       apply_shear_boundary_condition(TRAJ, t_init, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
-  //     // // It is of importance the mapping function for the central standard will not be used
-  //     // // check
-  //     // R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis];
-  //   }
   for(MKL_LONG t = 0; t<VAR.Nt-1; t++)
     {
       MKL_LONG index_t_now = t % VAR.N_basic;
@@ -123,19 +106,29 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
       ++TRAJ.c_t;
       MKL_LONG cnt = 1;
       VAR.virial_initial();
-      
+
+      // printf("test1\n");
       if(VAR.SIMPLE_SHEAR)
         {
           double time_div_tau_R = t*TRAJ.dt;
+          // check the basic shift factor. Note that relative distance in the upper and lower box in shear gradient direction becomes Wi_R*L_D*t
           VAR.shear_PBC_shift = fmod(VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_R, TRAJ.box_dimension[VAR.shear_axis]);
+          // the modulo scheme will works for efficiency of getting the directly connected boundary of PBC box
           R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
+          // central_standard to identify the middle-point shift factor since something beyond middle point represent the longer upper (or lower) boxes.
+          // it is of importance to identify minimum image convention
           MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
+          // this is the last parts. The corrected re-shift the relative box distance based on middle point identification
           R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
-        }      
+          // note that map_to_central_box_image will be used when we try to measure minimum distance between two micelles
+        }
+      // printf("test1\n");      
       VAR.time_DIST +=
         REPULSIVE_BROWNIAN::OMP_compute_RDIST(TRAJ, index_t_now, R_boost, VAR.tmp_index_vec, VAR.N_THREADS_BD);
+      // printf("test2\n");      
       VAR.time_SS +=
         OMP_SS_topological_time_evolution(t, CONNECT, CHAIN, POTs, R_boost, RNG, IDX_ARR, DATA, given_condition, LOCKER, VAR);
+      // printf("test3\n");      
       VAR.time_LV +=
         OMP_time_evolution_Euler(TRAJ, index_t_now, index_t_next,
                                  CONNECT,
@@ -144,7 +137,7 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
                                  RNG,
                                  VAR.N_THREADS_BD,
                                  given_condition, VAR);
-
+      // printf("test4\n");
       if(VAR.SIMPLE_SHEAR)
         {
           VAR.time_LV +=

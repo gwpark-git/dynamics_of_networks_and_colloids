@@ -39,8 +39,11 @@ RDIST(COND& given_condition)
         }
       Rsca[i].initial(Np, 1, 0.);
     }
-  if(SIMPLE_SHEAR) // it already declare in CLIST class
+  // if(SIMPLE_SHEAR) // it already declare in CLIST class
+  if(SIMPLE_SHEAR || STEP_SHEAR) 
     {
+      // note that both of the cases are applicable based on the following functions
+      // hence the name of functions are subject to change from SIMPLE_SHEAR to SHEAR
       if(CELL_LIST_BOOST)
         {
           printf("ERR: CELL LIST with SIMPLE SHEAR FLOW is not implemented. \n");
@@ -157,5 +160,9 @@ apply_step_shear(TRAJECTORY& TRAJ, MKL_LONG target_t,
     }
   GEOMETRY::
     apply_shear_boundary_condition(TRAJ, target_t, shear_axis, shear_grad_axis, gamma_0*box_dimension);
+
+  // following will apply minimum image convention
+  GEOMETRY::
+    minimum_image_convention_loop(TRAJ, target_t);
   return dsecnd() - time_st;
 }

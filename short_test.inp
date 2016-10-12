@@ -88,9 +88,9 @@ shear_grad_axis=1
 ## NE::SHEAR::SIMPLE_SHEAR
 #### NE::SIMPLE_SHEAR::tau_C depends on the definition of the system
 #### NE::SIMPLE_SHEAR::note that this definition will be chainged in the future
-Wi_tau_C=0
+Wi_tau_C=0.5
 ### NE::SHEAR::STEP_SHEAR
-gamma_0=0
+gamma_0=0.5
 
 ## SEEDS
 ## random seeds: it is related with the random sampling and average over it
