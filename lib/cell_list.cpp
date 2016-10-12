@@ -76,6 +76,15 @@ CLIST(COND& given_condition)
 
   // related with simple shear
   SIMPLE_SHEAR = FALSE;
+  STEP_SHEAR = FALSE;
+  if(given_condition("STEP_SHEAR") == "TRUE")
+    {
+      STEP_SHEAR = TRUE;
+      shear_axis = atoi(given_condition("shear_axis").c_str());
+      shear_grad_axis = atoi(given_condition("shear_grad_axis").c_str());
+      map_to_central_box_image = 0.; // started with zero (equilibrium PBC box)
+
+    }
   // NEIGHBOR_CELLS_OFFSET = NULL; 
   if(given_condition("SIMPLE_SHEAR") == "TRUE")
     {

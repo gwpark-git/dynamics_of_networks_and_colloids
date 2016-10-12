@@ -74,7 +74,7 @@ main
           if(given_condition("Method") == "NAPLE_ASSOCIATION")
             {
               // note that the time scale for Langevin dynamics on here is affected by repulsive coefficient, C_rep, which have differ non-dimensional form compared with pure Brownian motion
-              
+              // printf("settings\n");
               if(given_condition("Step") == "EQUILIBRATION")
                 {
                   FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);

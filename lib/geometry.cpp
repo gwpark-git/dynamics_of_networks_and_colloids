@@ -128,7 +128,7 @@ minimum_image_convention_loop(TRAJECTORY& TRAJ, MKL_LONG target_t)
 double
 GEOMETRY::
 apply_shear_boundary_condition(TRAJECTORY& TRAJ, MKL_LONG target_t,
-			       const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis, const double shift_factor)
+                               const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis, const double shift_factor)
 {
   double time_st = dsecnd();
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
@@ -158,10 +158,11 @@ apply_step_shear(TRAJECTORY& TRAJ, MKL_LONG target_t,
       // note that shift in x-direction is given by: y*gamma_0 <= 1
       TRAJ(target_t, i, shear_axis) += gamma_0*TRAJ(target_t, i, shear_grad_axis);
     }
-  GEOMETRY::
-    apply_shear_boundary_condition(TRAJ, target_t, shear_axis, shear_grad_axis, gamma_0*box_dimension);
+  // the following is not necessary at this moment since the initial box deformation only apply for shear direction (shear gradient direction still in minimum image convention)
+  // GEOMETRY::
+  //   apply_shear_boundary_condition(TRAJ, target_t, shear_axis, shear_grad_axis, gamma_0*box_dimension);
 
-  // following will apply minimum image convention
+  // following will apply minimum image convention (for shear direction)
   GEOMETRY::
     minimum_image_convention_loop(TRAJ, target_t);
   return dsecnd() - time_st;

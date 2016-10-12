@@ -88,8 +88,8 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
   if(VAR.STEP_SHEAR)
     {
       MKL_LONG time_init = 0;
-      // VAR.shear_PBC_shift = fmod(VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_direction],
       VAR.shear_PBC_shift = fmod(VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis], TRAJ.box_dimension[VAR.shear_axis]);
+      // VAR.shear_PBC_shift = VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis];
       R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
       MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
       R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
@@ -97,6 +97,10 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
         apply_step_shear(TRAJ, time_init,
                          VAR.shear_axis, VAR.shear_grad_axis,
                          VAR.gamma_0, TRAJ.box_dimension[VAR.shear_grad_axis]);
+    }
+  if(VAR.SIMPLE_SHEAR)
+    {
+      printf("APPLY SIMPLE_SHEAR\n");
     }
   for(MKL_LONG t = 0; t<VAR.Nt-1; t++)
     {
@@ -115,6 +119,7 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
           VAR.shear_PBC_shift = fmod(VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_R, TRAJ.box_dimension[VAR.shear_axis]);
           // the modulo scheme will works for efficiency of getting the directly connected boundary of PBC box
           R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
+          
           // central_standard to identify the middle-point shift factor since something beyond middle point represent the longer upper (or lower) boxes.
           // it is of importance to identify minimum image convention
           MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
@@ -138,9 +143,11 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
                                  VAR.N_THREADS_BD,
                                  given_condition, VAR);
       // printf("test4\n");
-      if(VAR.SIMPLE_SHEAR)
+      if(VAR.SIMPLE_SHEAR || VAR.STEP_SHEAR)
         {
-          VAR.time_LV +=
+          // when the particles beyond boundary of PBC box in shear gradient direction, the minimum image convention should be changed
+          // this functionality will remap in this case
+          VAR.time_LV += 
             GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
         }
       VAR.time_LV +=
