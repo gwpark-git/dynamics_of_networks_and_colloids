@@ -2,13 +2,22 @@ import sys
 from numpy import *
 from collections import OrderedDict 
 
+def identify_effective_parameters(line):
+    if line[0] == '#':
+        # print line, line[0]
+        return 0
+    return 1
+
 def COND(fn):
     given_condition = OrderedDict() # it keep the given order of input file (note that the typical dictionary in Python will be automatically sorted based on internal hash table)
     with open(fn, 'r') as f:
         while(1):
             try:
-                cond_val = f.readline().rstrip('\n').split('=') # rstrip for preventing \n character into data
-                given_condition[cond_val[0]] = cond_val[1]
+                line = f.readline()
+                # print line
+                if identify_effective_parameters(line) and len(line)>1:
+                    cond_val = line.rstrip('\n').split('=') # rstrip for preventing \n character into data
+                    given_condition[cond_val[0]] = cond_val[1]
             except:
                 break
     return given_condition
