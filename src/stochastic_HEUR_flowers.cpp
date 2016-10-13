@@ -88,15 +88,26 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
   if(VAR.STEP_SHEAR)
     {
       MKL_LONG time_init = 0;
+      
       VAR.shear_PBC_shift = fmod(VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis], TRAJ.box_dimension[VAR.shear_axis]);
       // VAR.shear_PBC_shift = VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis];
       R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
       MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
       R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
+      
+      // VAR.shear_PBC_shift = VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis];
+      // // VAR.shear_PBC_shift = VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis];
+      // R_boost.map_to_central_box_image = VAR.shear_PBC_shift;
+      // MKL_LONG central_standard = 0;
+      // // MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
+      // // R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
+
+      
       GEOMETRY::
         apply_step_shear(TRAJ, time_init,
                          VAR.shear_axis, VAR.shear_grad_axis,
                          VAR.gamma_0, TRAJ.box_dimension[VAR.shear_grad_axis]);
+      printf("RECORD_STEP_DEFORMATION: shear_PBC_shift = %3.1f, central_standard = %d, map_to_central_box_image = %3.1f\n", VAR.shear_PBC_shift, central_standard, R_boost.map_to_central_box_image);
     }
   if(VAR.SIMPLE_SHEAR)
     {

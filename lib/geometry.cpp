@@ -55,6 +55,8 @@ RDIST(COND& given_condition)
       // note again, the cell list implementation is not work at this moment
 
       measure_minimum_distance = GEOMETRY::measure_minimum_distance_simple_shear_fixed_axis;
+      // check
+      printf("DISTANCE is using the function GEOMETRY::measure_minimum_distance_simple_shear_fixed_axis\n");
       
     }
   else
@@ -158,7 +160,7 @@ apply_step_shear(TRAJECTORY& TRAJ, MKL_LONG target_t,
       // note that shift in x-direction is given by: y*gamma_0 <= 1
       TRAJ(target_t, i, shear_axis) += gamma_0*TRAJ(target_t, i, shear_grad_axis);
     }
-  // the following is not necessary at this moment since the initial box deformation only apply for shear direction (shear gradient direction still in minimum image convention)
+  // // the following is not necessary at this moment since the initial box deformation only apply for shear direction (shear gradient direction still in minimum image convention)
   // GEOMETRY::
   //   apply_shear_boundary_condition(TRAJ, target_t, shear_axis, shear_grad_axis, gamma_0*box_dimension);
 
