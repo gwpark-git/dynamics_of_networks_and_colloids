@@ -169,3 +169,36 @@ apply_step_shear(TRAJECTORY& TRAJ, MKL_LONG target_t,
     minimum_image_convention_loop(TRAJ, target_t);
   return dsecnd() - time_st;
 }
+
+double
+GEOMETRY::
+set_box_shift_factor(double &shear_PBC_shift,
+                     double const maximum_displacement,
+                     double const box_dimension_shear_axis)
+{
+  double time_st = dsecnd();
+  shear_PBC_shift = fmod(maximum_displacement, box_dimension_shear_axis);
+  return dsecnd() - time_st;
+}
+
+double
+GEOMETRY::
+set_box_shift_factor(double &shear_PBC_shift,
+                     RDIST& R_boost,
+                     double const maximum_displacement,
+                     double const box_dimension_shear_axis)
+{
+  /* // Original Form
+     VAR.shear_PBC_shift = fmod(VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis], TRAJ.box_dimension[VAR.shear_axis]);
+     // VAR.shear_PBC_shift = VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis];
+     R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
+     MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
+     R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
+  */
+  double time_st = dsecnd();
+  shear_PBC_shift = fmod(maximum_displacement, box_dimension_shear_axis);
+  R_boost.map_to_central_box_image = fmod(shear_PBC_shift, box_dimension_shear_axis);
+  MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/box_dimension_shear_axis);
+  R_boost.map_to_central_box_image -= box_dimension_shear_axis*(double)central_standard;
+  return dsecnd() - time_st;
+}

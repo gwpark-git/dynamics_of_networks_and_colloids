@@ -92,6 +92,18 @@ namespace GEOMETRY
   double
   apply_shear_boundary_condition(TRAJECTORY& TRAJ, MKL_LONG target_t,
 				   const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis, const double shift_factor);
+
+  double
+  set_box_shift_factor(double &shear_PBC_shift,
+                       double const maximum_displacement,
+                       double const box_dimension_shear_axis);
+  
+  double
+  set_box_shift_factor(double &shear_PBC_shift,
+                       RDIST& R_boost,
+                       double const maximum_displacement,
+                       double const box_dimension_shear_axis);
+  
   double
   apply_step_shear(TRAJECTORY& TRAJ, MKL_LONG target_t,
                    const MKL_LONG shear_axis, const MKL_LONG shear_grad_axis,

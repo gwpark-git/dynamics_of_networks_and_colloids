@@ -177,6 +177,11 @@ main_DUMBBELL
   if(VAR.STEP_SHEAR)
     {
       MKL_LONG time_init = 0;
+      
+      GEOMETRY::
+        set_box_shift_factor(VAR.shear_PBC_shift, R_boost,
+                             VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis],
+                             TRAJ.box_dimension[VAR.shear_axis]);
       GEOMETRY::
         apply_step_shear(TRAJ, time_init,
                          VAR.shear_axis, VAR.shear_grad_axis,
@@ -203,10 +208,17 @@ main_DUMBBELL
       if(VAR.SIMPLE_SHEAR)
         {
           double time_div_tau_B = t*TRAJ.dt; // note that TRAJ.dt == dt/tau_B.
-          VAR.shear_PBC_shift = fmod(VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B, TRAJ.box_dimension[VAR.shear_axis]);
-          R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
-          MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
-          R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
+          GEOMETRY::
+            set_box_shift_factor(VAR.shear_PBC_shift,
+                                 R_boost,
+                                 VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B,
+                                 TRAJ.box_dimension[VAR.shear_axis]);
+
+          
+          // VAR.shear_PBC_shift = fmod(VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B, TRAJ.box_dimension[VAR.shear_axis]);
+          // R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
+          // MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
+          // R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
         }
 
       VAR.time_DIST +=

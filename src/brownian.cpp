@@ -86,12 +86,16 @@ main_PURE_BROWNIAN
   if(VAR.STEP_SHEAR)
     {
       MKL_LONG time_init = 0;
+      
+      GEOMETRY::
+        set_box_shift_factor(VAR.shear_PBC_shift, 
+                             VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis],
+                             TRAJ.box_dimension[VAR.shear_axis]);
       GEOMETRY::
         apply_step_shear(TRAJ, time_init,
                          VAR.shear_axis, VAR.shear_grad_axis,
                          VAR.gamma_0, TRAJ.box_dimension[VAR.shear_grad_axis]);
     }
-
   // VAR.time_AN += // this part related with the initial analysis from the given (or generated) positions of micelle
   //   ANALYSIS::CAL_ENERGY_BROWNIAN(POTs, energy, TRAJ(0));
   
@@ -110,16 +114,20 @@ main_PURE_BROWNIAN
       if(VAR.SIMPLE_SHEAR)
         {
           double time_div_tau_B = t*TRAJ.dt; // note that TRAJ.dt == dt/tau_B.
+          GEOMETRY::
+            set_box_shift_factor(VAR.shear_PBC_shift,
+                                 VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B,                 
+                                 TRAJ.box_dimension[VAR.shear_axis]);
 
-          VAR.shear_PBC_shift = fmod(VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B, TRAJ.box_dimension[VAR.shear_axis]);
+          // VAR.shear_PBC_shift = fmod(VAR.Wi_tau_B*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_B, TRAJ.box_dimension[VAR.shear_axis]);
 	  
           // the modulo for float type, fmod, is applied in order to reduce potential overhead for minimum_image_convention function, since shift_factor is proportional to time.
           // note that the original one, shifted by shift_factor without modulo, is tested with loop-type minimum image convention without any changes of modulo scheme with single if-phrase.
           // to be on the safe side, the loop style will be used from now on
           // however, here the modulo scheme will be used instead of full shift factor in order to reduce overhead to apply minimum_image_convention
           
-          VAR.time_LV +=
-            GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
+          // VAR.time_LV +=
+          //   GEOMETRY::apply_shear_boundary_condition(TRAJ, index_t_next, VAR.shear_axis, VAR.shear_grad_axis, VAR.shear_PBC_shift);
 	  
         }
       

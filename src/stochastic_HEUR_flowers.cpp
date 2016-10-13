@@ -89,26 +89,43 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
     {
       MKL_LONG time_init = 0;
       
-      VAR.shear_PBC_shift = fmod(VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis], TRAJ.box_dimension[VAR.shear_axis]);
-      // VAR.shear_PBC_shift = VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis];
-      R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
-      MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
-      R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
-      
-      // VAR.shear_PBC_shift = VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis];
-      // // VAR.shear_PBC_shift = VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis];
-      // R_boost.map_to_central_box_image = VAR.shear_PBC_shift;
-      // MKL_LONG central_standard = 0;
-      // // MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
-      // // R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
-
-      
+      GEOMETRY::
+        set_box_shift_factor(VAR.shear_PBC_shift, R_boost,
+                             VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis],
+                             TRAJ.box_dimension[VAR.shear_axis]);
       GEOMETRY::
         apply_step_shear(TRAJ, time_init,
                          VAR.shear_axis, VAR.shear_grad_axis,
                          VAR.gamma_0, TRAJ.box_dimension[VAR.shear_grad_axis]);
-      printf("RECORD_STEP_DEFORMATION: shear_PBC_shift = %3.1f, central_standard = %d, map_to_central_box_image = %3.1f\n", VAR.shear_PBC_shift, central_standard, R_boost.map_to_central_box_image);
     }
+
+      // VAR.shear_PBC_shift = fmod(VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis], TRAJ.box_dimension[VAR.shear_axis]);
+      // // VAR.shear_PBC_shift = VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis];
+      // R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
+      // MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
+      // R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
+
+      // GEOMETRY::
+      //   set_box_shift_factor(double &shear_PBC_shift,
+      //                        RDIST& R_boost,
+      //                        double maximum_displacement,
+      //                        double box_dimension_shear_axis, double box_dimension_shear_grad_axis)
+      //   {
+      //     /* // Original Form
+      //     VAR.shear_PBC_shift = fmod(VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis], TRAJ.box_dimension[VAR.shear_axis]);
+      //     // VAR.shear_PBC_shift = VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis];
+      //     R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
+      //     MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
+      //     R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
+      //     */
+          
+      //     shear_PBC_shift = fmod(maximum_displacement, box_dimension_shear_axis);
+      //     R_boost.map_to_central_box_image = fmod(shear_PBC_shift, box_dimension_shear_axis);
+      //     MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/box_dimension_shear_axis);
+      //     R_boost.map_to_central_box_image -= box_dimension_shear_axis*(double)central_standard;
+      //   }
+
+  
   if(VAR.SIMPLE_SHEAR)
     {
       printf("APPLY SIMPLE_SHEAR\n");
@@ -126,6 +143,7 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
       if(VAR.SIMPLE_SHEAR)
         {
           double time_div_tau_R = t*TRAJ.dt;
+          /*
           // check the basic shift factor. Note that relative distance in the upper and lower box in shear gradient direction becomes Wi_R*L_D*t
           VAR.shear_PBC_shift = fmod(VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_R, TRAJ.box_dimension[VAR.shear_axis]);
           // the modulo scheme will works for efficiency of getting the directly connected boundary of PBC box
@@ -137,6 +155,12 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
           // this is the last parts. The corrected re-shift the relative box distance based on middle point identification
           R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
           // note that map_to_central_box_image will be used when we try to measure minimum distance between two micelles
+          */
+          GEOMETRY::
+            set_box_shift_factor(VAR.shear_PBC_shift,
+                                 R_boost,
+                                 VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_R,
+                                 TRAJ.box_dimension[VAR.shear_axis]);
         }
       // printf("test1\n");      
       VAR.time_DIST +=

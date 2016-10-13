@@ -139,12 +139,16 @@ main_EQUILIBRATION(TRAJECTORY& TRAJ,
   if(VAR.STEP_SHEAR)
     {
       MKL_LONG time_init = 0;
+      
+      GEOMETRY::
+        set_box_shift_factor(VAR.shear_PBC_shift, R_boost,
+                             VAR.gamma_0*TRAJ.box_dimension[VAR.shear_grad_axis],
+                             TRAJ.box_dimension[VAR.shear_axis]);
       GEOMETRY::
         apply_step_shear(TRAJ, time_init,
                          VAR.shear_axis, VAR.shear_grad_axis,
                          VAR.gamma_0, TRAJ.box_dimension[VAR.shear_grad_axis]);
     }
-
   VAR.time_DIST +=         // compute RDIST with cell_list advantage
     // note that even if there is shear flow implementation,
     // the time zero is not affected by implemented shear (which means the shear flow simulation cannot be inheritance from the previous shear flow implementation at this moment)
@@ -169,13 +173,20 @@ main_EQUILIBRATION(TRAJECTORY& TRAJ,
       if(VAR.SIMPLE_SHEAR)
         {
           double time_div_tau_R = t*TRAJ.dt;
+
+          GEOMETRY::
+            set_box_shift_factor(VAR.shear_PBC_shift,
+                                 R_boost,
+                                 VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_R,
+                                 TRAJ.box_dimension[VAR.shear_axis]);
+          
           // printf("info PBC shift: ");
           // VAR.shear_PBC_shift = (VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_R);
-          VAR.shear_PBC_shift = fmod(VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_R, TRAJ.box_dimension[VAR.shear_axis]); // it will remap the shear_PBC_shift into modulo scheme
-          R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
-          // printf("S0: %3.2f, ", R_boost.map_to_central_box_image);
-          MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
-          R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
+          // VAR.shear_PBC_shift = fmod(VAR.Wi_tau_R*TRAJ.box_dimension[VAR.shear_grad_axis]*time_div_tau_R, TRAJ.box_dimension[VAR.shear_axis]); // it will remap the shear_PBC_shift into modulo scheme
+          // R_boost.map_to_central_box_image = fmod(VAR.shear_PBC_shift, TRAJ.box_dimension[VAR.shear_axis]);
+          // // printf("S0: %3.2f, ", R_boost.map_to_central_box_image);
+          // MKL_LONG central_standard = (MKL_LONG)(2*R_boost.map_to_central_box_image/TRAJ.box_dimension[VAR.shear_axis]);
+          // R_boost.map_to_central_box_image -= TRAJ.box_dimension[VAR.shear_axis]*(double)central_standard;
           // printf("Z(S0/(L/2)): %d, M0: %3.2f\n", central_standard, R_boost.map_to_central_box_image);
         }
       VAR.time_DIST +=         // compute RDIST with cell_list advantage
