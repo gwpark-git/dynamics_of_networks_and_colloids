@@ -54,16 +54,19 @@ if __name__=="__main__":
         print 'USAGE:'
         print 'argv[1] == given input file'
         print 'argv[2] == number of runs'
-        print 'argv[3] == given script file'
-        print 'argv[4] == server information'
+        print 'argv[3] == init random seeds'
+        print 'argv[4] == given script file'
+        print 'argv[5] == server information'
+        print 'argv[>6] == argument string for input box'
     else:
         file_inp = sys.argv[1]
         out_path = file_inp + '.job'
         N_runs = int(sys.argv[2])
-        script_file = sys.argv[3]
-        server_list = sys.argv[4]
+        init_seeds = int(sys.argv[3])
+        script_file = sys.argv[4]
+        server_list = sys.argv[5]
         arg_str = [] # it will be passed for jdl file generation
-        for i in range(5, size(sys.argv)):
+        for i in range(6, size(sys.argv)):
             arg_str.append(sys.argv[i])
 
         given_condition = COND(file_inp)
@@ -71,8 +74,8 @@ if __name__=="__main__":
         base_filename = given_condition['filename_base']
         for i in range(N_runs):
             if(N_runs <> 1):
-                given_condition['basic_random_seed']=i*100 + 100
-                given_condition['basic_random_seed_SS']=i + 1 # changed from i*10 + 10
+                given_condition['basic_random_seed']=(i + init_seeds)*100 + 100
+                given_condition['basic_random_seed_SS']=i + 1 + init_seeds# changed from i*10 + 10
             given_condition['filename_base'] = base_filename + '_%02d'%(i+1)
             given_condition['output_path'] = 'FALSE'
             # jdl_file_name = out_path + '/' + basic_filename + '_%02d.jdl'%(i)
