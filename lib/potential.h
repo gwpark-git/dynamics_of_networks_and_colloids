@@ -116,13 +116,13 @@ namespace FORCE
       (double distance, double N_dimension, double ratio_RM_R0);
     double
       spring_force
-      (double distance, double N_dimension, double ratio_RM_R0);
+    (double distance, double N_dimension, double scale_factor, double ratio_RM_R0);
     double
       spring_potential
-      (double distance, double N_dimension, double ratio_RM_R0);
+    (double distance, double N_dimension, double scale_factor, double ratio_RM_R0);
     double
       Boltzmann_distribution
-      (double distance, double N_dimension, double ratio_RM_R0);
+    (double distance, double N_dimension, double scale_factor, double ratio_RM_R0);
   }
   namespace DEFAULT
   {
@@ -478,28 +478,28 @@ non_Gaussian_factor
 inline double
 FORCE::FENE::
 spring_force
-(double distance, double N_dimension, double ratio_RM_R0)
+(double distance, double N_dimension, double scale_factor, double ratio_RM_R0)
 {
-  return non_Gaussian_factor(distance, N_dimension, ratio_RM_R0)*FORCE::GAUSSIAN::spring_force(distance, N_dimension);
+  return non_Gaussian_factor(distance, N_dimension, ratio_RM_R0)*FORCE::GAUSSIAN::spring_force(scale_factor*scale_factor*distance, N_dimension);
 }
 
 inline double
 FORCE::FENE::
 spring_potential
-(double distance, double N_dimension, double ratio_RM_R0)
+(double distance, double N_dimension, double scale_factor, double ratio_RM_R0)
 {
-  return (-(double)N_dimension/2.0)*pow(ratio_RM_R0, 2.0)*log(1.0 - pow(distance, 2.0)/pow(ratio_RM_R0, 2.0));
+  return (-(double)N_dimension/2.0)*pow(scale_factor*ratio_RM_R0, 2.0)*log(1.0 - pow(distance, 2.0)/pow(ratio_RM_R0, 2.0));
 }
 
 inline double
 FORCE::FENE::
 Boltzmann_distribution
-(double distance, double N_dimension, double ratio_RM_R0)
+(double distance, double N_dimension, double scale_factor, double ratio_RM_R0)
 {
   // Note that even without cut-off range based on the ratio_RM_R0, the code is properly working.
   // However, when we applied this scheme, the sorting procedure is more stable and normalized in naturally.
   if (distance < ratio_RM_R0)
-    return exp(-FORCE::FENE::spring_potential(distance, N_dimension, ratio_RM_R0));
+    return exp(-FORCE::FENE::spring_potential(distance, N_dimension, scale_factor, ratio_RM_R0));
   return 0.;
 }
 
@@ -565,7 +565,7 @@ FORCE::NAPLE::MC_ASSOCIATION::
 MAP_FENE_spring_force
 (double distance, double* given_variables)
 {
-  return FORCE::FENE::spring_force(distance, given_variables[3], given_variables[5]);
+  return FORCE::FENE::spring_force(distance, given_variables[3], given_variables[5], given_variables[8]);
 }
 
 inline double
@@ -573,7 +573,7 @@ FORCE::NAPLE::MC_ASSOCIATION::
 MAP_FENE_spring_potential
 (double distance, double* given_variables)
 {
-  return FORCE::FENE::spring_potential(distance, given_variables[3], given_variables[5]);
+  return FORCE::FENE::spring_potential(distance, given_variables[3], given_variables[5], given_variables[8]);
 }
 
 inline double
@@ -581,7 +581,7 @@ FORCE::NAPLE::MC_ASSOCIATION::
 MAP_FENE_Boltzmann
 (double distance, double* given_variables)
 {
-  return FORCE::FENE::Boltzmann_distribution(distance, given_variables[3], given_variables[5]);
+  return FORCE::FENE::Boltzmann_distribution(distance, given_variables[3], given_variables[5], given_variables[8]);
 }
 
 inline double

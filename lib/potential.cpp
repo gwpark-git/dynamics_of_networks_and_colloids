@@ -93,7 +93,7 @@ MAP_potential_set
 (POTENTIAL_SET& given_POT, COND& given_cond)
 {
 
-  given_POT.force_variables = new double [8];
+  given_POT.force_variables = new double [9];
   given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
   given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
   given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
@@ -105,7 +105,8 @@ MAP_potential_set
 
   if(given_cond("connector")=="FENE")
     {
-      given_POT.force_variables[5] = atof(given_cond("ratio_RM_R0").c_str());
+      given_POT.force_variables[5] = atof(given_cond("scale_factor_chain").c_str());
+      given_POT.force_variables[8] = atof(given_cond("ratio_RM_R0").c_str());
       given_POT.f_connector = MAP_FENE_spring_force;
       given_POT.e_connector = MAP_FENE_spring_potential;
       given_POT.PDF_connector = MAP_FENE_Boltzmann;
