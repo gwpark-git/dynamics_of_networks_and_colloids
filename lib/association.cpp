@@ -10,7 +10,7 @@ MKL_LONG index_set_val(size_t* index, MKL_LONG given_val, MKL_LONG size_of_arr)
   return 0;
 }
 
-MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
+MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight, MKL_LONG N_steps)
 {
   ifstream GIVEN_WEIGHT;
   GIVEN_WEIGHT.open(fn_weight);
@@ -27,11 +27,21 @@ MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight)
     }
   GIVEN_WEIGHT.clear();
   GIVEN_WEIGHT.seekg(0);
-  for(MKL_LONG i=0; i<cnt-Np; i++)
+  if(N_steps == -1)
     {
-      getline(GIVEN_WEIGHT, line);
+      for(MKL_LONG i=0; i<cnt-Np; i++)
+        {
+          getline(GIVEN_WEIGHT, line);
+        }
     }
-
+  else
+    {
+      for(MKL_LONG i=0; i<N_steps*Np; i++)
+        {
+          getline(GIVEN_WEIGHT, line);
+        }
+    }
+  
   for(MKL_LONG i=0; i<Np; i++)
     {
       MKL_LONG weight_k = 0;
@@ -200,7 +210,7 @@ ASSOCIATION::ASSOCIATION(COND& given_condition) : CONNECTIVITY(given_condition)
   if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
     {
       initial_inheritance();      
-      read_exist_weight(given_condition("CONTINUATION_WEIGHT_FN").c_str());
+      read_exist_weight(given_condition("CONTINUATION_WEIGHT_FN").c_str(), atoi(given_condition("CONTINUATION_STEP").c_str()));
       N_ASSOCIATION = N_TOTAL_ASSOCIATION();
     }
   else

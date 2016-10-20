@@ -79,7 +79,7 @@ class TRAJECTORY : public MATRIX
  /* // simple operator for time */
  MKL_LONG
    read_exist_traj
-   (const char* fn_given_traj);
+ (const char* fn_given_traj, MKL_LONG N_steps);
  double&
    operator()
    (MKL_LONG time_t)

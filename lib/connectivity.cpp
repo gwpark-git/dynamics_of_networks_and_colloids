@@ -27,7 +27,7 @@ CONNECTIVITY
   dynamic_allocation(atol(given_condition("Np").c_str()), 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str()));
   if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
     {
-      read_exist_hash(given_condition("CONTINUATION_HASH_FN").c_str());
+      read_exist_hash(given_condition("CONTINUATION_HASH_FN").c_str(), atoi(given_condition("CONTINUATION_STEP").c_str()));
     }
   else
     {
@@ -49,7 +49,7 @@ CONNECTIVITY
 MKL_LONG
 CONNECTIVITY::
 read_exist_hash
-(const char* fn_hash)
+(const char* fn_hash, MKL_LONG N_steps)
 {
   ifstream GIVEN_HASH;
   GIVEN_HASH.open(fn_hash);
@@ -61,16 +61,29 @@ read_exist_hash
     }
   GIVEN_HASH.clear();
   GIVEN_HASH.seekg(0);
-  for(MKL_LONG i=0; i<cnt-Np; i++)
+  if(N_steps == -1)
     {
-      getline(GIVEN_HASH, line); 
+      for(MKL_LONG i=0; i<cnt-Np; i++)
+        {
+          getline(GIVEN_HASH, line); 
+        }
+    }
+  else
+    {
+      for(MKL_LONG i=0; i<N_steps*Np; i++)
+        {
+          getline(GIVEN_HASH, line);
+        }
     }
   // flag will set for the last time steps
   // From here, the Np lines will left as initial conditions
   string str;
   MKL_LONG i=0;
-  while(getline(GIVEN_HASH, str))
+  MKL_LONG count_lines = 0;
+  while(count_lines++ < Np)
+        // getline(GIVEN_HASH, str))
     {
+      getline(GIVEN_HASH, str);
       istringstream ss(str);
       MKL_LONG hash_index;
       MKL_LONG tmp_cnt = 0;

@@ -201,7 +201,7 @@ class ASSOCIATION
 
   MKL_LONG
     read_exist_weight
-    (const char* fn_weight);
+  (const char* fn_weight, MKL_LONG N_steps);
   
 };
 
