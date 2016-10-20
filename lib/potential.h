@@ -117,6 +117,10 @@ namespace FORCE
     double
       spring_force
     (double distance, double N_dimension, double scale_factor, double ratio_RM_R0);
+// =======
+//     spring_force
+//       (double distance, double N_dimension, double ratio_RM_R0);
+// >>>>>>> step_shear
     double
       spring_potential
     (double distance, double N_dimension, double scale_factor, double ratio_RM_R0);
@@ -472,7 +476,9 @@ FORCE::FENE::
 non_Gaussian_factor
 (double distance, double N_dimension, double ratio_RM_R0)
 {
-  return 1.0/(1.0 - pow(distance, 2.0)/pow(ratio_RM_R0, 2.0));
+  // return 1.0/(1.0 - pow(distance, 2.0)/pow(ratio_RM_R0, 2.0));
+  return 1.0/(1.0 - pow(distance/ratio_RM_R0, 2.0));
+  // return ratio_RM_R0/(pow(ratio_RM_R0, 2.0) - pow(distance, 2.0));
 }
 
 inline double

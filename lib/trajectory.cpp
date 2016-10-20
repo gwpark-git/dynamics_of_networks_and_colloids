@@ -5,7 +5,7 @@ using namespace std;
 MKL_LONG
 TRAJECTORY::
 read_exist_traj
-(const char* fn_given_traj)
+(const char* fn_given_traj, MKL_LONG N_steps)
 {
   ifstream GIVEN_FILE;
   GIVEN_FILE.open(fn_given_traj);
@@ -17,10 +17,21 @@ read_exist_traj
     }
   GIVEN_FILE.clear();
   GIVEN_FILE.seekg(0);
-  for(MKL_LONG i=0; i<cnt-1; i++)
+  if (N_steps == -1)
     {
-      getline(GIVEN_FILE, line);
+      for(MKL_LONG i=0; i<cnt-1; i++)
+        {
+          getline(GIVEN_FILE, line);
+        }
     }
+  else
+    {
+      for(MKL_LONG i=0; i<N_steps; i++)
+        {
+          getline(GIVEN_FILE, line);
+        }
+    }
+  
   // then, flag has set for the last line
   GIVEN_FILE >> (*this)(0); // time recording
   for(MKL_LONG i=0; i<Np; i++)
@@ -123,7 +134,7 @@ initialization_COND
 
   if (given_condition("CONTINUATION_TRAJ")=="TRUE")
     {
-      read_exist_traj(given_condition("CONTINUATION_TRAJ_FN").c_str());
+      read_exist_traj(given_condition("CONTINUATION_TRAJ_FN").c_str(), atoi(given_condition("CONTINUATION_STEP").c_str()));
     }
   else
     {

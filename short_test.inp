@@ -103,7 +103,10 @@ basic_random_seed_SS=150
 output_path=short_test
 filename_base=NP0400_LD10P3_C100
 
+## note that CONTINUATION_STEP should be -1 as default
+## otherwise, it will inherit with the given number of steps
 CONTINUATION_TRAJ=TRUE
+CONTINUATION_STEP=-1
 CONTINUATION_TRAJ_FN=LD10P3/EQ3D_NP0400_LD10P3.traj
 
 CONTINUATION_CONNECTION=FALSE

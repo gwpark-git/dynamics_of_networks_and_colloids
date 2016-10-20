@@ -42,7 +42,7 @@ class CONNECTIVITY
 
   MKL_LONG
     read_exist_hash
-    (const char* fn_hash);
+  (const char* fn_hash, MKL_LONG N_steps);
   
   MKL_LONG
     check_valid

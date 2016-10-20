@@ -201,7 +201,7 @@ class ASSOCIATION
 
   MKL_LONG
     read_exist_weight
-    (const char* fn_weight);
+  (const char* fn_weight, MKL_LONG N_steps);
   
 };
 
@@ -439,10 +439,20 @@ class CHAIN_INFORMATION
     while(getline(GIVEN_CHAIN_FILE, line))
       cnt ++;
     GIVEN_CHAIN_FILE.clear();
-    GIVEN_CHAIN_FILE.seekg(0);
-    for(MKL_LONG i=0; i<cnt-1; i++)
-      getline(GIVEN_CHAIN_FILE, line);
 
+    GIVEN_CHAIN_FILE.seekg(0);
+    MKL_LONG N_steps = atoi(given_condition("CONTINUATION_STEP").c_str());
+    if(N_steps == -1)
+      {
+        for(MKL_LONG i=0; i<cnt-1; i++)
+          getline(GIVEN_CHAIN_FILE, line);
+      }
+    else
+      {
+        for(MKL_LONG i=0; i<N_steps; i++)
+          getline(GIVEN_CHAIN_FILE, line);
+      }
+    
     for(MKL_LONG k=0; k<N_chains; k++)
       GIVEN_CHAIN_FILE >> HEAD(k); // index from 0 to N_chains-1 : HEAD
     
