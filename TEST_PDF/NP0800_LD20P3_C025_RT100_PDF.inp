@@ -25,7 +25,7 @@ box_dimension=20.0
 
 ## TIME::Time scales and data resolutions
 dt/tauR=0.01
-Nt=1000000
+Nt=10000000
 reset_initial_time=TRUE
 ## TIME::TOPOLOGY
 N_steps_block=1
@@ -109,7 +109,7 @@ filename_base=NP0800_LD20P3_C025_RT100_PDF
 ## otherwise, it will inherit with the given number of steps
 CONTINUATION_TRAJ=TRUE
 CONTINUATION_STEP=-1
-CONTINUATION_TRAJ_FN=../LD20P3/EQ3D_NP0800_LD20P3_C100.traj
+CONTINUATION_TRAJ_FN=../LD20P3/EQ_RB_NP0800_LD20P3_C100.traj
 
 CONTINUATION_CONNECTION=FALSE
 CONTINUATION_HASH_FN=FALSE
