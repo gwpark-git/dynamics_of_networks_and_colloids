@@ -32,7 +32,8 @@ class ASSOCIATION
   MKL_LONG N_ASSOCIATION;
   bool MULTIPLE_CONNECTIONS;
   bool NUMBER_RESTRICTION;
-
+  bool PROBABILITY_AREA;
+  
   MATRIX *weight;
   // related with suggestion probability (selecting a degenerated pair)
   MATRIX *CASE_SUGGESTION;

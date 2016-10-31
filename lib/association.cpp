@@ -206,6 +206,15 @@ ASSOCIATION::ASSOCIATION(COND& given_condition) : CONNECTIVITY(given_condition)
     {
       NUMBER_RESTRICTION = TRUE;
     }
+
+  if(given_condition("probability_area") == "TRUE")
+    {
+      PROBABILITY_AREA = TRUE;
+    }
+  else
+    {
+      PROBABILITY_AREA = FALSE;
+    }
   
   if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
     {
@@ -630,7 +639,41 @@ double ASSOCIATION::update_ASSOCIATION_MAP_particle(const MKL_LONG index_particl
           count_CDF_TOKEN++;
         }
     }
+
+  // sorting for increasing order for distance
+  // note that r_1 > r_2 => PDF(r_1) < PDF(r_2)
   dCDF_ASSOCIATION[index_particle].sort2(INDEX_ASSOCIATION[index_particle]);
+
+  if(PROBABILITY_AREA)
+    {
+      /*
+	Using Area effects: Weighted by dr_i
+	Initial value use the same dr_i value (check the consistency)
+      */
+      for(MKL_LONG k=Np - TOKEN_ASSOCIATION[index_particle] + 1; k<Np; k++)
+	{
+	  double dr_km = R_boost.Rsca[index_particle](INDEX_ASSOCIATION[index_particle](k - 1));
+	  double dr_kp = R_boost.Rsca[index_particle](INDEX_ASSOCIATION[index_particle](k));
+
+	  double dr_k = dr_km - dr_kp; // dr_km > dr_kp
+	  // printf("check dr: %3.2e, %3.2e, diff = %3.2e\n", dr_km, dr_kp, dr_k);
+	  if (dr_k < 0)
+	    printf("ERR\n");
+	  dCDF_ASSOCIATION[index_particle](k) *= dr_k;
+	  if(k== Np - TOKEN_ASSOCIATION[index_particle] + 1)
+	    {
+	      // beginning
+	      dCDF_ASSOCIATION[index_particle](k - 1) *= dr_k;
+	    }
+	}
+      // the second sorting after weighted by dr_k
+      dCDF_ASSOCIATION[index_particle].sort2(INDEX_ASSOCIATION[index_particle]);
+    }
+
+  
+  /*
+    Final Cumulating and Normalization Step
+  */
   for(MKL_LONG k=Np - TOKEN_ASSOCIATION[index_particle] + 1; k<Np; k++)
     {
       dCDF_ASSOCIATION[index_particle](k) += dCDF_ASSOCIATION[index_particle](k-1);
