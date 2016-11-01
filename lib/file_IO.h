@@ -53,8 +53,8 @@ public:
 class RECORD_DATA
 {
 public:
-  string filename_trajectory, filename_energy, filename_HASH, filename_weight, filename_chain, filename_MC_LOG, filename_r_dist_bridge, filename_r_dist_particle;
-  ofstream traj, ener, hash, weight, chain, MC_LOG, r_dist_bridge, r_dist_particle;
+  string filename_trajectory, filename_energy, filename_HASH, filename_weight, filename_chain, filename_MC_LOG, filename_r_dist_bridge, filename_r_dist_particle, filename_MC_ASSOCIATION;
+  ofstream traj, ener, hash, weight, chain, MC_LOG, r_dist_bridge, r_dist_particle, MC_ASSOCIATION;
 
   
   RECORD_DATA()
@@ -65,82 +65,126 @@ public:
   RECORD_DATA
   (COND& given_condition)
   {
-    if(given_condition("output_path")=="FALSE")
+    string base_path;
+    if(given_condition("output_path") != "FALSE")
+      base_path = given_condition("output_path") + '/';
+
+    filename_trajectory = (base_path + given_condition("filename_base") + ".traj").c_str();
+    traj.open(filename_trajectory.c_str(), std::ios_base::app);
+      
+    filename_energy = (base_path + given_condition("filename_base") + ".ener").c_str();
+    ener.open(filename_energy.c_str(), std::ios_base::app);
+      
+    filename_HASH = (base_path + given_condition("filename_base") + ".hash").c_str();
+    hash.open(filename_HASH.c_str(), std::ios_base::app);
+      
+    filename_weight = (base_path + given_condition("filename_base") + ".weight").c_str();
+    weight.open(filename_weight.c_str(), std::ios_base::app);
+
+    if(given_condition("tracking_individual_chain")=="TRUE")
       {
-        filename_trajectory = (given_condition("filename_base") + ".traj").c_str();
-        traj.open(filename_trajectory.c_str(), std::ios_base::app);
+	filename_chain = (base_path + given_condition("filename_base") + ".chain").c_str();
+	chain.open(filename_chain.c_str(), std::ios_base::app);
+      }
+
+    if(given_condition("MC_LOG")=="TRUE")
+      {
+	filename_MC_LOG = (base_path + given_condition("filename_base") + ".MC_LOG").c_str();
+	MC_LOG.open(filename_MC_LOG.c_str(), std::ios_base::app);
+      }
+    // if(given_condition("record_RDIST")=="TRUE" && given_condition("Method") == "DUMBBELL")
+    if(given_condition("record_RDIST")=="TRUE")
+      {
+	filename_r_dist_bridge = (base_path + given_condition("filename_base") + ".rbdist").c_str();
+	r_dist_bridge.open(filename_r_dist_bridge.c_str(), std::ios_base::app);
+	filename_r_dist_particle = (base_path + given_condition("filename_base") + ".rpdist").c_str();
+	r_dist_particle.open(filename_r_dist_particle.c_str(), std::ios_base::app);
+        
+      }
+
+    if(given_condition("MC_ASSOCIATION_MAP")=="TRUE")
+      {
+	filename_MC_ASSOCIATION = (base_path + given_condition("filename_base") + ".AMAP").c_str();
+	MC_ASSOCIATION.open(filename_MC_ASSOCIATION.c_str(), std::ios_base::app);
+      }
+    
+    // if(given_condition("output_path")=="FALSE")
+    //   {
+    //     filename_trajectory = (given_condition("filename_base") + ".traj").c_str();
+    //     traj.open(filename_trajectory.c_str(), std::ios_base::app);
       
-        filename_energy = (given_condition("filename_base") + ".ener").c_str();
-        ener.open(filename_energy.c_str(), std::ios_base::app);
+    //     filename_energy = (given_condition("filename_base") + ".ener").c_str();
+    //     ener.open(filename_energy.c_str(), std::ios_base::app);
       
-        filename_HASH = (given_condition("filename_base") + ".hash").c_str();
-        hash.open(filename_HASH.c_str(), std::ios_base::app);
+    //     filename_HASH = (given_condition("filename_base") + ".hash").c_str();
+    //     hash.open(filename_HASH.c_str(), std::ios_base::app);
       
-        filename_weight = (given_condition("filename_base") + ".weight").c_str();
-        weight.open(filename_weight.c_str(), std::ios_base::app);
+    //     filename_weight = (given_condition("filename_base") + ".weight").c_str();
+    //     weight.open(filename_weight.c_str(), std::ios_base::app);
 
-        if(given_condition("tracking_individual_chain")=="TRUE")
-          {
-            filename_chain = (given_condition("filename_base") + ".chain").c_str();
-            chain.open(filename_chain.c_str(), std::ios_base::app);
-          }
+    //     if(given_condition("tracking_individual_chain")=="TRUE")
+    //       {
+    //         filename_chain = (given_condition("filename_base") + ".chain").c_str();
+    //         chain.open(filename_chain.c_str(), std::ios_base::app);
+    //       }
 
-        if(given_condition("MC_LOG")=="TRUE")
-          {
-            filename_MC_LOG = (given_condition("filename_base") + ".MC_LOG").c_str();
-            MC_LOG.open(filename_MC_LOG.c_str(), std::ios_base::app);
-          }
+    //     if(given_condition("MC_LOG")=="TRUE")
+    //       {
+    //         filename_MC_LOG = (given_condition("filename_base") + ".MC_LOG").c_str();
+    //         MC_LOG.open(filename_MC_LOG.c_str(), std::ios_base::app);
+    //       }
 
-	// if(given_condition("record_RDIST")=="TRUE" && given_condition("Method") == "DUMBBELL")
-	if(given_condition("record_RDIST")=="TRUE")
-	  {
-	    filename_r_dist_bridge = (given_condition("filename_base") + ".rbdist").c_str();
-	    r_dist_bridge.open(filename_r_dist_bridge.c_str(), std::ios_base::app);
-        filename_r_dist_particle = (given_condition("filename_base") + ".rpdist").c_str();
-	    r_dist_particle.open(filename_r_dist_particle.c_str(), std::ios_base::app);
-
-	  }
+    // 	// if(given_condition("record_RDIST")=="TRUE" && given_condition("Method") == "DUMBBELL")
+    // 	if(given_condition("record_RDIST")=="TRUE")
+    // 	  {
+    // 	    filename_r_dist_bridge = (given_condition("filename_base") + ".rbdist").c_str();
+    // 	    r_dist_bridge.open(filename_r_dist_bridge.c_str(), std::ios_base::app);
+    //     filename_r_dist_particle = (given_condition("filename_base") + ".rpdist").c_str();
+    // 	    r_dist_particle.open(filename_r_dist_particle.c_str(), std::ios_base::app);
+    // 	  }
 
     
 	  
-      }
-    else
-      {
-        filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
-        traj.open(filename_trajectory.c_str(), std::ios_base::app);
+    //   }
+    // else
+    //   {
+    // filename_trajectory = (given_condition("output_path") + '/' + given_condition("filename_base") + ".traj").c_str();
+    // traj.open(filename_trajectory.c_str(), std::ios_base::app);
       
-        filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
-        ener.open(filename_energy.c_str(), std::ios_base::app);
+    // filename_energy = (given_condition("output_path") + '/' + given_condition("filename_base") + ".ener").c_str();
+    // ener.open(filename_energy.c_str(), std::ios_base::app);
       
-        filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
-        hash.open(filename_HASH.c_str(), std::ios_base::app);
+    // filename_HASH = (given_condition("output_path") + '/' + given_condition("filename_base") + ".hash").c_str();
+    // hash.open(filename_HASH.c_str(), std::ios_base::app);
       
-        filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
-        weight.open(filename_weight.c_str(), std::ios_base::app);
+    // filename_weight = (given_condition("output_path") + '/' + given_condition("filename_base") + ".weight").c_str();
+    // weight.open(filename_weight.c_str(), std::ios_base::app);
 
-        if(given_condition("tracking_individual_chain")=="TRUE")
-          {
-            filename_chain = (given_condition("output_path") + '/' + given_condition("filename_base") + ".chain").c_str();
-            chain.open(filename_chain.c_str(), std::ios_base::app);
-          }
+    // if(given_condition("tracking_individual_chain")=="TRUE")
+    //   {
+    // 	filename_chain = (given_condition("output_path") + '/' + given_condition("filename_base") + ".chain").c_str();
+    // 	chain.open(filename_chain.c_str(), std::ios_base::app);
+    //   }
 
-        if(given_condition("MC_LOG")=="TRUE")
-          {
-            filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
-            MC_LOG.open(filename_MC_LOG.c_str(), std::ios_base::app);
-          }
-	// if(given_condition("record_RDIST")=="TRUE" && given_condition("Method") == "DUMBBELL")
-	if(given_condition("record_RDIST")=="TRUE")
-	  {
-	    filename_r_dist_bridge = (given_condition("output_path") + '/' + given_condition("filename_base") + ".rbdist").c_str();
-	    r_dist_bridge.open(filename_r_dist_bridge.c_str(), std::ios_base::app);
-	    filename_r_dist_particle = (given_condition("output_path") + '/' + given_condition("filename_base") + ".rpdist").c_str();
-	    r_dist_particle.open(filename_r_dist_particle.c_str(), std::ios_base::app);
+    // if(given_condition("MC_LOG")=="TRUE")
+    //   {
+    // 	filename_MC_LOG = (given_condition("output_path") + '/' + given_condition("filename_base") + ".MC_LOG").c_str();
+    // 	MC_LOG.open(filename_MC_LOG.c_str(), std::ios_base::app);
+    //   }
+    // // if(given_condition("record_RDIST")=="TRUE" && given_condition("Method") == "DUMBBELL")
+    // if(given_condition("record_RDIST")=="TRUE")
+    //   {
+    // 	filename_r_dist_bridge = (given_condition("output_path") + '/' + given_condition("filename_base") + ".rbdist").c_str();
+    // 	r_dist_bridge.open(filename_r_dist_bridge.c_str(), std::ios_base::app);
+    // 	filename_r_dist_particle = (given_condition("output_path") + '/' + given_condition("filename_base") + ".rpdist").c_str();
+    // 	r_dist_particle.open(filename_r_dist_particle.c_str(), std::ios_base::app);
         
-	  }
+    //   }
 
 	
-      }
+      // }
+
+    
   }
   
   ~RECORD_DATA()
@@ -161,6 +205,8 @@ public:
       r_dist_bridge.close();
     if(r_dist_particle)
       r_dist_particle.close();
+    if(MC_ASSOCIATION)
+      MC_ASSOCIATION.close();
   }
 };
 

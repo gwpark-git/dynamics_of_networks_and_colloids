@@ -638,7 +638,8 @@ HEUR::
 OMP_SS_update_STATISTICS(ASSOCIATION& CONNECT,
                          POTENTIAL_SET& POTs,
                          RDIST& R_boost,
-                         TEMPORAL_VARIABLE_HEUR& VAR)
+                         TEMPORAL_VARIABLE_HEUR& VAR,
+			 RECORD_DATA& DATA)
 {
   double time_st = dsecnd();
   MKL_LONG Np = VAR.Np;
@@ -669,6 +670,11 @@ OMP_SS_update_STATISTICS(ASSOCIATION& CONNECT,
         CONNECT.update_ASSOCIATION_MAP_particle(index_particle, POTs, R_boost);
     }
 
+  // if(VAR.MC_ASSOCIATION)
+  //   {
+  //     DATA.
+  //   }
+  
   VAR.time_SS_update_ASSOCIATION_MAP += time_update_ASSOCIATION_MAP;
   VAR.time_SS_update_CHAIN_SUGGESTION += time_update_CHAIN_SUGGESTION;
   return dsecnd() - time_st;
@@ -698,7 +704,7 @@ OMP_SS_topological_time_evolution(const MKL_LONG time_step_LV,
       // initialization_topological_update(CONNECT, POTs, given_condition, VAR);
       
       VAR.time_SS_update +=
-        HEUR::OMP_SS_update_STATISTICS(CONNECT, POTs, R_boost, VAR);
+        HEUR::OMP_SS_update_STATISTICS(CONNECT, POTs, R_boost, VAR, DATA);
 
       VAR.time_SS_CORE +=
         HEUR::OMP_SS_update_topology(CONNECT, POTs, R_boost, CHAIN, RNG, DATA, IDX_ARR, LOCKER, VAR);
@@ -750,6 +756,10 @@ TEMPORAL_VARIABLE_HEUR(COND& given_condition, MKL_LONG given_N_basic)
   if(given_condition("MC_LOG")=="TRUE")
     MC_LOG = TRUE;
 
+  MC_ASSOCIATION = FALSE;
+  if(given_condition("MC_ASSOCIATION_MAP") == "TRUE")
+    MC_ASSOCIATION = TRUE;
+  
   virial_initial();
   N_components_energy = 31; // last 30 index for N_diff_associations
       

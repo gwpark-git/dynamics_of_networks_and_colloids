@@ -112,7 +112,8 @@ namespace HEUR
   OMP_SS_update_STATISTICS(ASSOCIATION& CONNECT,
 			   POTENTIAL_SET& POTs,
 			   RDIST& R_boost,
-			   TEMPORAL_VARIABLE_HEUR& VAR);
+			   TEMPORAL_VARIABLE_HEUR& VAR,
+			   RECORD_DATA& DATA);
 
   double
   OMP_SS_topological_time_evolution(const MKL_LONG time_step_LV,
@@ -158,6 +159,8 @@ HEUR::
   bool MC_renewal;
   bool MC_LOG;
 
+  // for debugging or analysis of instance of time
+  bool MC_ASSOCIATION;
   
   
   // related with virials
