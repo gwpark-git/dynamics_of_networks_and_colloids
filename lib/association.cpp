@@ -650,7 +650,16 @@ double ASSOCIATION::update_ASSOCIATION_MAP_particle(const MKL_LONG index_particl
 	Using Area effects: Weighted by dr_i
 	Initial value use the same dr_i value (check the consistency)
       */
-      for(MKL_LONG k=Np - TOKEN_ASSOCIATION[index_particle] + 1; k<Np; k++)
+      MKL_LONG hash_st = Np - TOKEN_ASSOCIATION[index_particle] + 1;
+      // it is sort-of long-range approximation
+      // when the box of the system or the given cut-off range is sufficiently large,
+      // the last probability density approximately zero
+      // if it is not the case, either the box size is too small or cut-off is not well defined.
+      double dr_k = 0.;
+      dCDF_ASSOCIATION[index_particle](hash_st) *= dr_k;
+      
+      // for(MKL_LONG k=Np - TOKEN_ASSOCIATION[index_particle] + 2; k<Np; k++)
+      for(MKL_LONG k=hash_st + 1; k<Np; k++)
 	{
 	  double dr_km = R_boost.Rsca[index_particle](INDEX_ASSOCIATION[index_particle](k - 1));
 	  double dr_kp = R_boost.Rsca[index_particle](INDEX_ASSOCIATION[index_particle](k));
@@ -660,11 +669,11 @@ double ASSOCIATION::update_ASSOCIATION_MAP_particle(const MKL_LONG index_particl
 	  if (dr_k < 0)
 	    printf("ERR\n");
 	  dCDF_ASSOCIATION[index_particle](k) *= dr_k;
-	  if(k== Np - TOKEN_ASSOCIATION[index_particle] + 1)
-	    {
-	      // beginning
-	      dCDF_ASSOCIATION[index_particle](k - 1) *= dr_k;
-	    }
+	  // if(k== Np - TOKEN_ASSOCIATION[index_particle] + 1)
+	  //   {
+	  //     // beginning
+	  //     dCDF_ASSOCIATION[index_particle](k - 1) *= dr_k;
+	  //   }
 	}
       // the second sorting after weighted by dr_k
       dCDF_ASSOCIATION[index_particle].sort2(INDEX_ASSOCIATION[index_particle]);
