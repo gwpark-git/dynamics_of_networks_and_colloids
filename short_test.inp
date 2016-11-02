@@ -59,6 +59,8 @@ tracking_individual_chain=TRUE
 transition_probability=DISSOCIATION
 ## CHAIN::KINETICS::probability to select the specific chain (end)
 chain_selection=UNIFORM
+## CHAIN::KINETICS:: probability using area: P(r_i)dr_i / \sum_i P(r_i)dr_i (TRUE) or  P(r_i)/\suma_i P(r_i) (FALSE)
+probability_area=FALSE
 ## CHAIN::KINETICS::number of allowed fluctuation for chain ends per micelle
 tolerance_allowing_connections=3
 ## CHAIN::KINETICS::stochastic cut-off for bridge forming
@@ -115,9 +117,11 @@ CONTINUATION_WEIGHT_FN=FALSE
 
 CONTINUATION_CHAIN=FALSE
 CONTINUATION_CHAIN_FN=FALSE
-### it will record all the stochastic decision including rolling probability
-MC_LOG=FALSE
 
+## the following will be used for debugging or analysis of each instance of stochastic step
+## it will record all the stochastic decision including rolling probability
+MC_LOG=FALSE
+MC_ASSOCIATION_MAP=FALSE
 
 # unncessary options at this moment
 # tolerance_association=0.001
