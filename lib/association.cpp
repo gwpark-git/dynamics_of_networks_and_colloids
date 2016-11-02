@@ -656,6 +656,7 @@ double ASSOCIATION::update_ASSOCIATION_MAP_particle(const MKL_LONG index_particl
       // the last probability density approximately zero
       // if it is not the case, either the box size is too small or cut-off is not well defined.
       double dr_k = 0.;
+      double pre_val = dCDF_ASSOCIATION[index_particle](hash_st);
       dCDF_ASSOCIATION[index_particle](hash_st) *= dr_k;
       
       // for(MKL_LONG k=Np - TOKEN_ASSOCIATION[index_particle] + 2; k<Np; k++)
@@ -668,7 +669,11 @@ double ASSOCIATION::update_ASSOCIATION_MAP_particle(const MKL_LONG index_particl
 	  // printf("check dr: %3.2e, %3.2e, diff = %3.2e\n", dr_km, dr_kp, dr_k);
 	  if (dr_k < 0)
 	    printf("ERR\n");
-	  dCDF_ASSOCIATION[index_particle](k) *= dr_k;
+	  double tmp_record = dCDF_ASSOCIATION[index_particle](k);
+	  dCDF_ASSOCIATION[index_particle](k) += pre_val;
+	  dCDF_ASSOCIATION[index_particle](k) *= 0.5*dr_k; // apply trapezoidal rule
+	  pre_val = tmp_record;
+	  // dCDF_ASSOCIATION[index_particle](k) *= dr_k;
 	  // if(k== Np - TOKEN_ASSOCIATION[index_particle] + 1)
 	  //   {
 	  //     // beginning
@@ -676,9 +681,9 @@ double ASSOCIATION::update_ASSOCIATION_MAP_particle(const MKL_LONG index_particl
 	  //   }
 	}
       // the second sorting after weighted by dr_k
+      // this is very importance but temporally turn-off for verification purpose
       dCDF_ASSOCIATION[index_particle].sort2(INDEX_ASSOCIATION[index_particle]);
     }
-
   
   /*
     Final Cumulating and Normalization Step

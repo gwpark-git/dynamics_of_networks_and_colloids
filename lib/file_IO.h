@@ -53,8 +53,8 @@ public:
 class RECORD_DATA
 {
 public:
-  string filename_trajectory, filename_energy, filename_HASH, filename_weight, filename_chain, filename_MC_LOG, filename_r_dist_bridge, filename_r_dist_particle, filename_MC_ASSOCIATION;
-  ofstream traj, ener, hash, weight, chain, MC_LOG, r_dist_bridge, r_dist_particle, MC_ASSOCIATION;
+  string filename_trajectory, filename_energy, filename_HASH, filename_weight, filename_chain, filename_MC_LOG, filename_r_dist_bridge, filename_r_dist_particle, filename_MC_ASSOCIATION, filename_RDIST_ASSOCIATION, filename_INDEX_ASSOCIATION;
+  ofstream traj, ener, hash, weight, chain, MC_LOG, r_dist_bridge, r_dist_particle, MC_ASSOCIATION, RDIST_ASSOCIATION, INDEX_ASSOCIATION;
 
   
   RECORD_DATA()
@@ -106,6 +106,10 @@ public:
       {
 	filename_MC_ASSOCIATION = (base_path + given_condition("filename_base") + ".AMAP").c_str();
 	MC_ASSOCIATION.open(filename_MC_ASSOCIATION.c_str(), std::ios_base::app);
+	filename_RDIST_ASSOCIATION = (base_path + given_condition("filename_base") + ".RMAP").c_str();
+	RDIST_ASSOCIATION.open(filename_RDIST_ASSOCIATION.c_str(), std::ios_base::app);
+	filename_INDEX_ASSOCIATION = (base_path + given_condition("filename_base") + ".IMAP").c_str();
+	INDEX_ASSOCIATION.open(filename_INDEX_ASSOCIATION.c_str(), std::ios_base::app);
       }
     
     // if(given_condition("output_path")=="FALSE")
@@ -207,6 +211,11 @@ public:
       r_dist_particle.close();
     if(MC_ASSOCIATION)
       MC_ASSOCIATION.close();
+    if(RDIST_ASSOCIATION)
+      RDIST_ASSOCIATION.close();
+    if(INDEX_ASSOCIATION)
+      INDEX_ASSOCIATION.close();
+    
   }
 };
 

@@ -22,6 +22,7 @@ record_RDIST_PARTICLE(ofstream &file_DIST,
               if(distance <= R_boost.cell_length && index_particle != index_target)
                 file_DIST << std::scientific << distance << '\t';
             }
+	  file_DIST << std::endl;
         }
     }
   // file_DIST << '\n';
@@ -670,10 +671,22 @@ OMP_SS_update_STATISTICS(ASSOCIATION& CONNECT,
         CONNECT.update_ASSOCIATION_MAP_particle(index_particle, POTs, R_boost);
     }
 
-  // if(VAR.MC_ASSOCIATION)
-  //   {
-  //     DATA.
-  //   }
+  if(VAR.MC_ASSOCIATION)
+    {
+      for(MKL_LONG index_particle = 0; index_particle < Np; index_particle++)
+	{
+	  MKL_LONG hash_init = Np - CONNECT.TOKEN_ASSOCIATION[index_particle] + 1;
+	  for(MKL_LONG k=hash_init; k<Np; k++)
+	    {
+	      DATA.MC_ASSOCIATION << CONNECT.dCDF_ASSOCIATION[index_particle](k) << '\t';
+	      DATA.RDIST_ASSOCIATION << R_boost.Rsca[index_particle](CONNECT.INDEX_ASSOCIATION[index_particle](k)) << '\t';
+	      DATA.INDEX_ASSOCIATION << CONNECT.INDEX_ASSOCIATION[index_particle](k) << '\t';
+	    }
+	  DATA.MC_ASSOCIATION << std::endl;
+	  DATA.RDIST_ASSOCIATION << std::endl;
+	  DATA.INDEX_ASSOCIATION << std::endl;
+	}
+    }
   
   VAR.time_SS_update_ASSOCIATION_MAP += time_update_ASSOCIATION_MAP;
   VAR.time_SS_update_CHAIN_SUGGESTION += time_update_CHAIN_SUGGESTION;
