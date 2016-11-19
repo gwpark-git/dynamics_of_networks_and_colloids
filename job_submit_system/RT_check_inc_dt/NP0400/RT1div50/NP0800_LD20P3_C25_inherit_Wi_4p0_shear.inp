@@ -47,3 +47,7 @@ MECHANICAL_PERTURBATION=SIMPLE_SHEAR
 shear_axis=0
 shear_grad_axis=1
 Wi_tau_C=4.0
+
+CONTINUATION_STEP=-1
+MC_ASSOCIATION_MAP=FALSE
+probability_area=FALSE
