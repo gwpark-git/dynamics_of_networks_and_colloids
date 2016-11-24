@@ -22,7 +22,7 @@ else:
             if(sys.argv[3] == 'HALF'):
                 N_cut = Nt/2
             else:
-                N_cut = int(sys.argv[2])
+                N_cut = int(sys.argv[3])
         print 'compute stress autocorrelation for number of time steps %ld out of %ld'%(N_cut, Nt)                
         if size(sys.argv) == 5:
 
