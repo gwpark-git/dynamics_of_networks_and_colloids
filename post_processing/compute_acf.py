@@ -19,7 +19,7 @@ else:
         ener = loadtxt(sys.argv[1])
         Nt = shape(ener)[0]
         N_cut = 0
-        if size(sys.argv) == 4:
+        if size(sys.argv) > 4:
             if(sys.argv[3] == 'HALF'):
                 N_cut = Nt/2
             else:
