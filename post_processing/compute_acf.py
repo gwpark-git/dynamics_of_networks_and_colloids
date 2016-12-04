@@ -9,7 +9,8 @@ if size(sys.argv) < 3:
     print 'argv[1] == .ener file name'
     print 'argv[2] == output file name'
     print 'argv[3] (optional) == number of cutting variables (HALF will cut half). Default = 0.'
-    print 'argv[4] (optional) == number of divisor (average over).'
+    print 'argv[4] (optional) == stride'
+    print 'argv[?] (disabled) == number of divisor (average over).'
 else:
     if (sys.argv[1] == sys.argv[2]):
         print 'ERR: input and output have the same file name'
@@ -23,8 +24,11 @@ else:
                 N_cut = Nt/2
             else:
                 N_cut = int(sys.argv[3])
-        print 'compute stress autocorrelation for number of time steps %ld out of %ld'%(N_cut, Nt)                
+        stride = 1
         if size(sys.argv) == 5:
+            stride = int(sys.argv[4])
+        print 'compute stress autocorrelation for number of time steps %ld out of %ld with stride %ld'%(N_cut, Nt, stride)                
+        if size(sys.argv) > 5:
 
             N_div = int(sys.argv[4])
             print 'average over %d blocks'%(N_div)            
@@ -47,12 +51,15 @@ else:
             corr_rep_con /= float(N_div)
             
         else:
-            corr_con = (corr(ener[:,27], ener[:,27]) + corr(ener[:,28], ener[:,28]) + corr(ener[:,29], ener[:,29]))/3.
-            corr_rep = (corr(ener[:,21], ener[:,21]) + corr(ener[:,22], ener[:,22]) + corr(ener[:,23], ener[:,23]))/3.
-            corr_con_rep = (corr(ener[:,27], ener[:,21]) + corr(ener[:,28], ener[:,22]) + corr(ener[:,29], ener[:,23]))/3.
-            corr_rep_con = (corr(ener[:,21], ener[:,27]) + corr(ener[:,22], ener[:,28]) + corr(ener[:,23], ener[:,29]))/3.
+            Nt = shape(ener)[0]
+            dat_range = arange(N_cut, Nt, stride)
+            corr_con = (corr(ener[dat_range,27], ener[dat_range,27]) + corr(ener[dat_range,28], ener[dat_range,28]) + corr(ener[dat_range,29], ener[dat_range,29]))/3.
+            corr_rep = (corr(ener[dat_range,21], ener[dat_range,21]) + corr(ener[dat_range,22], ener[dat_range,22]) + corr(ener[dat_range,23], ener[dat_range,23]))/3.
+            corr_con_rep = (corr(ener[dat_range,27], ener[dat_range,21]) + corr(ener[dat_range,28], ener[dat_range,22]) + corr(ener[dat_range,29], ener[dat_range,23]))/3.
+            corr_rep_con = (corr(ener[dat_range,21], ener[dat_range,27]) + corr(ener[dat_range,22], ener[dat_range,28]) + corr(ener[dat_range,23], ener[dat_range,29]))/3.
         dat = zeros([size(corr_con), 6])
         dat[:,0] = ener[:size(corr_con),0] - ener[0, 0]
+        dat[:,0] *= float(stride)
         dat[:,1] = corr_con + corr_rep + corr_con_rep + corr_rep_con
         dat[:,2] = corr_con
         dat[:,3] = corr_rep
