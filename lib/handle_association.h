@@ -210,6 +210,10 @@ class CHAIN_HANDLE
         N_CE_MAX = 2*N_chains;
         hash_initial(atoi(given_condition("basic_random_seed_SS").c_str()));
       }
+    else
+      {
+	INITIALIZATION = FALSE;
+      }
   }
   
   ~CHAIN_HANDLE()
