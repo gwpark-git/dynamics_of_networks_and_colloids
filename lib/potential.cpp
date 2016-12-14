@@ -167,6 +167,11 @@ MAP_potential_set
       // from now on, the Rt = tau_0/tau_B instead of tau_0/tau_R      
       given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
     }
+  else if (given_cond("transition_probability")=="Modified_Gaussian")
+    {
+      given_POT.transition = KINETICS::dissociation_probability_equal_modified_gaussian;
+      given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));      
+    }
   else
     {
       // this is default setting

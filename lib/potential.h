@@ -233,6 +233,8 @@ namespace KINETICS
   }
 
   double dissociation_probability(double distance, double tension, double* given_variables);
+  double dissociation_probability_equal_modified_gaussian(double distance, double tension, double* given_variables);
+  
   namespace FIRST_ORDER
   {
     double dissociation_probability(double distance, double tension, double* given_variables);
@@ -309,6 +311,21 @@ dissociation_probability
 (double distance, double tension, double* given_variables)
 {
   double tpa = given_variables[6]*exp(tension*given_variables[4]);
+  if (tpa > 1.0)
+    return 1.0;
+  return tpa;
+}
+
+inline double
+KINETICS::
+dissociation_probability_equal_modified_gaussian
+(double distance, double tension, double* given_variables)
+{
+  /*
+    Unlike the previous approach, it set the dissociation probability as the same with Boltzman distribution without normalization.
+    In consequence, the detachment frequency have the same form with the association map.
+   */
+  double tpa = given_variables[6]*FORCE::NAPLE::MC_ASSOCIATION::MAP_modified_Gaussian_Boltzmann(distance, given_variables);
   if (tpa > 1.0)
     return 1.0;
   return tpa;
