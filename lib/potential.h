@@ -325,7 +325,7 @@ dissociation_probability_equal_modified_gaussian
     Unlike the previous approach, it set the dissociation probability as the same with Boltzman distribution without normalization.
     In consequence, the detachment frequency have the same form with the association map.
    */
-  double tpa = given_variables[6]*FORCE::NAPLE::MC_ASSOCIATION::MAP_modified_Gaussian_Boltzmann(distance, given_variables);
+  double tpa = given_variables[6]*exp(FORCE::NAPLE::MC_ASSOCIATION::MAP_modified_Gaussian_spring_potential(distance, given_variables));
   if (tpa > 1.0)
     return 1.0;
   return tpa;
