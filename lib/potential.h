@@ -57,6 +57,12 @@ class POTENTIAL_SET
 
 namespace FORCE
 {
+  namespace CUTOFF_ASSOCIATION
+  {
+    double
+    cutoff_equal_probability(double distance, double effective_distance);
+
+  }
   namespace BROWNIAN
   {
     MKL_LONG
@@ -147,7 +153,7 @@ namespace FORCE
   namespace NAPLE
   {
     double
-      excluded_volume_force
+    excluded_volume_force
       (double distance, double effective_distance);
     double
       excluded_volume_potential
@@ -192,6 +198,11 @@ namespace FORCE
       double
 	MAP_cutoff_modified_Gaussian_Boltzmann
 	(double distance, double* given_variables);
+
+      double
+      MAP_cutoff_equal_probability
+      (double distance, double* given_variables);
+
       
       double
 	MAP_FENE_spring_force
@@ -233,6 +244,8 @@ namespace KINETICS
   }
 
   double dissociation_probability(double distance, double tension, double* given_variables);
+  double cutoff_dissociation_probability(double distance, double tension, double* given_variables);
+
   double dissociation_probability_equal_modified_gaussian(double distance, double tension, double* given_variables);
   
   namespace FIRST_ORDER
@@ -312,6 +325,18 @@ dissociation_probability
 {
   double tpa = given_variables[6]*exp(tension*given_variables[4]);
   if (tpa > 1.0)
+    return 1.0;
+  return tpa;
+}
+
+inline double
+KINETICS::
+cutoff_dissociation_probability
+(double distance, double tension, double* given_variables)
+{
+  // double tpa = given_variables[6]*exp(tension*given_variables[4]);
+  double tpa = given_variables[6];
+  if (tpa > 1.0 || distance >= 1.0)
     return 1.0;
   return tpa;
 }
@@ -526,6 +551,15 @@ Boltzmann_distribution
   return 0.;
 }
 
+inline double
+FORCE::CUTOFF_ASSOCIATION::
+cutoff_equal_probability
+(double distance, double effective_distance)
+{
+  if (distance < effective_distance)
+    return 1.;
+  return 0.;
+}
 
 inline double
 FORCE::NAPLE::MC_ASSOCIATION::
@@ -573,6 +607,14 @@ MAP_modified_Gaussian_Boltzmann
 (double distance, double* given_variables)
 {
   return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(distance, given_variables[3], given_variables[5]);
+}
+
+inline double
+FORCE::NAPLE::MC_ASSOCIATION::
+MAP_cutoff_equal_probability
+(double distance, double* given_variables)
+{
+  return FORCE::CUTOFF_ASSOCIATION::cutoff_equal_probability(distance, given_variables[1]);
 }
 
 inline double

@@ -207,13 +207,10 @@ ASSOCIATION::ASSOCIATION(COND& given_condition) : CONNECTIVITY(given_condition)
       NUMBER_RESTRICTION = TRUE;
     }
 
+  PROBABILITY_AREA = FALSE;
   if(given_condition("probability_area") == "TRUE")
     {
       PROBABILITY_AREA = TRUE;
-    }
-  else
-    {
-      PROBABILITY_AREA = FALSE;
     }
   
   if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
@@ -634,6 +631,8 @@ double ASSOCIATION::update_ASSOCIATION_MAP_particle(const MKL_LONG index_particl
           dCDF_ASSOCIATION[index_particle](count_CDF_TOKEN) = POTs.PDF_connector(distance, POTs.force_variables);
           if(dCDF_ASSOCIATION[index_particle](count_CDF_TOKEN) > 0.)
             {
+	      // if (distance > 1.0)
+	      // 	printf("%f\n", distance);
               TOKEN_ASSOCIATION[index_particle] ++;
             }
           count_CDF_TOKEN++;

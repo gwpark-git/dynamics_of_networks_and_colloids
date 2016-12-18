@@ -25,11 +25,11 @@ box_dimension=10.0
 
 ## TIME::Time scales and data resolutions
 dt/tauR=0.01
-Nt=10000
+Nt=100000000
 reset_initial_time=TRUE
 ## TIME::TOPOLOGY
 N_steps_block=10
-Rt=10
+Rt=100
 ## TIME::DATA_RESOLUTION
 N_skip_ener=10
 N_skip_file=1000
@@ -46,7 +46,7 @@ N_THREADS_SS=1
 ## PARTICLE
 Np=400
 ## PARTICLE::REPULSION
-repulsion_coefficient=100
+repulsion_coefficient=25
 effective_distance=1.0
 
 ## CHAIN
@@ -56,11 +56,12 @@ tracking_individual_chain=TRUE
 
 ## CHAIN::KINETICS
 ## CHAIN::KINETICS::check transition probability
+### transition_probability can be DISSOCIATION or CUTOFF_DISSOCIATION
 transition_probability=DISSOCIATION
+### association_probability can be DEFAULT or EQUAL_CUTOFF_RANGE
+association_probability=DEFAULT
 ## CHAIN::KINETICS::probability to select the specific chain (end)
 chain_selection=UNIFORM
-## CHAIN::KINETICS:: probability using area: P(r_i)dr_i / \sum_i P(r_i)dr_i (TRUE) or  P(r_i)/\suma_i P(r_i) (FALSE)
-probability_area=FALSE
 ## CHAIN::KINETICS::number of allowed fluctuation for chain ends per micelle
 tolerance_allowing_connections=3
 ## CHAIN::KINETICS::stochastic cut-off for bridge forming
@@ -103,7 +104,7 @@ basic_random_seed_SS=150
 
 ## file information
 output_path=short_test
-filename_base=NP0400_LD10P3_C100
+filename_base=NP0400_LD10P3_C025
 
 ## note that CONTINUATION_STEP should be -1 as default
 ## otherwise, it will inherit with the given number of steps

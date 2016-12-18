@@ -95,7 +95,11 @@ namespace HEUR
 		    INDEX_MC& IDX,
 		    RDIST& R_boost,
 		    TEMPORAL_VARIABLE_HEUR& VAR,
-		    double& rolling_dCDF, double& rolling_dCDF_U);
+		    double& rolling_dCDF, double& rolling_dCDF_U, MKL_LONG& time_step);
+  bool
+  get_index_bridge_distance_larger_than_unity(MKL_LONG& index_particle, MKL_LONG& index_hash, MKL_LONG& index_target,
+					      ASSOCIATION& CONNECT,
+					      RDIST& R_boost);
 
   double
   OMP_SS_update_topology(ASSOCIATION& CONNECT,
@@ -161,7 +165,10 @@ HEUR::
 
   // for debugging or analysis of instance of time
   bool MC_ASSOCIATION;
-  
+
+  // for cutoff_scheme
+  bool CUTOFF_BRIDGES;
+  bool SIGN_DESTROY;
   
   // related with virials
   double RF_connector_xx, RF_connector_yy, RF_connector_zz;
