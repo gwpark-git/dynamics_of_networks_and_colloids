@@ -2,6 +2,30 @@
 
 using namespace HEUR;
 
+bool
+HEUR::
+get_index_bridge_distance_larger_than_unity(MKL_LONG& index_particle, MKL_LONG& index_hash, MKL_LONG& index_target, ASSOCIATION& CONNECT, RDIST& R_boost)
+{
+  
+  for (MKL_LONG i=0; i<CONNECT.Np; i++)
+    {
+      for(MKL_LONG j=1; j<CONNECT.TOKEN[i]; j++)
+	{
+	  MKL_LONG tmp_index_target = CONNECT.HASH[i](j);
+	  double distance = R_boost.Rsca[i](tmp_index_target);
+	  if (distance > 1.0)
+	    {
+	      index_particle = i;
+	      index_hash = j;
+	      index_target = tmp_index_target;
+	      // printf("%d, %d, %d, %f\n", i, j, tmp_index_target, distance);
+	      return 1;
+	    }
+	}
+    }
+  return 0;
+}
+
 double
 HEUR::
 record_RDIST_PARTICLE(ofstream &file_DIST,
@@ -35,7 +59,7 @@ record_RDIST_BRIDGE(ofstream &file_DIST,
                     RDIST& R_boost, ASSOCIATION& CONNECT)
 {
   double time_st = dsecnd();
-  for(MKL_LONG i=0; i<CONNECT.Np/2; i++)
+  for(MKL_LONG i=0; i<CONNECT.Np; i++)
     {
       for(MKL_LONG j=1; j<CONNECT.TOKEN[i]; j++)
         {
@@ -300,7 +324,7 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   double energy_repulsive_potential = 0., energy_elastic_potential = 0.;
 
   MKL_LONG N_diff_associations = 0;
-  
+
 #pragma omp parallel for default(none) if(N_THREADS_BD > 1)             \
   shared(TRAJ, index_t_now, index_t_next,                               \
          CONNECT, POTs, force_repulsion, force_random, force_spring,	\
@@ -314,7 +338,7 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
             RF_connector_xx, RF_connector_yy, RF_connector_zz,          \
             RF_connector_xy, RF_connector_xz, RF_connector_yz,          \
             N_diff_associations, energy_repulsive_potential, energy_elastic_potential)
-	
+  
   for (MKL_LONG i=0; i<TRAJ.Np; i++)
     {
       MKL_LONG it = omp_get_thread_num(); // get thread number for shared array objects
@@ -457,6 +481,10 @@ check_dissociation_probability(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST&
   if (tpa == 1.0)
     {
       IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);
+      // if(IDX.beads[CONNECT.flag_itself] == 25 && IDX.beads[CONNECT.flag_new] == 25 && IDX.beads[CONNECT.flag_other] == 106)
+      // 	{
+      // 	  printf("tpa = %f, IDENTIFIER_ACTION = %d\n", tpa, IDENTIFIER_ACTION);
+      // 	}      
     }
   else
     {
@@ -468,6 +496,10 @@ check_dissociation_probability(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST&
       else
         IDENTIFIER_ACTION = IDX.CANCEL;
     }
+  // if(IDX.beads[CONNECT.flag_itself] == 25 && IDX.beads[CONNECT.flag_new] == 25 && IDX.beads[CONNECT.flag_other] == 106)
+  //   {
+  //     printf("tpa = %f, IDENTIFIER_ACTION = %d\n", tpa, IDENTIFIER_ACTION);
+  //   }
   return dsecnd() - time_st;
 }
 
@@ -525,21 +557,66 @@ release_LOCKING(LOCK& LOCKER, INDEX_MC& IDX)
 
 double
 HEUR::
-micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_MC& IDX, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR, double& rolling_dCDF, double& rolling_dCDF_U)
+micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_MC& IDX, RDIST& R_boost, TEMPORAL_VARIABLE_HEUR& VAR, double& rolling_dCDF, double& rolling_dCDF_U, MKL_LONG& time_step)
 {
   double time_st = dsecnd();
-  
-  IDX.beads[CONNECT.flag_itself] = RANDOM::return_LONG_INT_rand_boost(RNG_BOOST_SS_IT, VAR.Np);
-  // choice for selected chain end
-  rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(RNG_BOOST_SS_IT);
-  IDX.beads[CONNECT.flag_hash_other] = CONNECT.GET_INDEX_HASH_FROM_ROLL(IDX.beads[CONNECT.flag_itself], rolling_dCDF); 
-  IDX.beads[CONNECT.flag_other] = CONNECT.HASH[IDX.beads[CONNECT.flag_itself]](IDX.beads[CONNECT.flag_hash_other]); 
-  // choice for behaviour of selected chain end
+  if (VAR.SIGN_DESTROY == TRUE)
+    {
+      MKL_LONG IDENTIFIER = get_index_bridge_distance_larger_than_unity(IDX.beads[CONNECT.flag_itself], IDX.beads[CONNECT.flag_hash_other], IDX.beads[CONNECT.flag_other], CONNECT, R_boost);
+      if (IDENTIFIER == 0)
+	{
+	  VAR.SIGN_DESTROY = FALSE;
+	}
+      else
+	{
+	  time_step --; // it prevent to count the destroy process of bridge when it's distance is larger than 1.
+	}
+    }
+
+  if (VAR.SIGN_DESTROY == FALSE)  // it must be checked in individual way since the first block can be skipped
+    {
+      // printf("tmp_check_block\n");
+      IDX.beads[CONNECT.flag_itself] = RANDOM::return_LONG_INT_rand_boost(RNG_BOOST_SS_IT, VAR.Np);
+      // choice for selected chain end
+      rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(RNG_BOOST_SS_IT);
+      IDX.beads[CONNECT.flag_hash_other] = CONNECT.GET_INDEX_HASH_FROM_ROLL(IDX.beads[CONNECT.flag_itself], rolling_dCDF); 
+      IDX.beads[CONNECT.flag_other] = CONNECT.HASH[IDX.beads[CONNECT.flag_itself]](IDX.beads[CONNECT.flag_hash_other]); 
+      // choice for behaviour of selected chain end
+    }
+  // printf("1\n");
   rolling_dCDF_U = RANDOM::return_double_rand_SUP1_boost(RNG_BOOST_SS_IT);
+  // printf("2\n");  
   // the PDF is already computed in the previous map
   IDX.beads[CONNECT.flag_hash_backtrace] = SEARCHING::backtrace_cell_list(CONNECT.dCDF_ASSOCIATION[IDX.beads[CONNECT.flag_itself]], CONNECT.TOKEN_ASSOCIATION[IDX.beads[CONNECT.flag_itself]], rolling_dCDF_U, IDX.beads[CONNECT.flag_itself], R_boost);
+  // printf("3\n");
+  // printf("%d, %d\n", IDX.beads[CONNECT.flag_itself], IDX.beads[CONNECT.flag_hash_backtrace]);
   IDX.beads[CONNECT.flag_new] = CONNECT.INDEX_ASSOCIATION[IDX.beads[CONNECT.flag_itself]](IDX.beads[CONNECT.flag_hash_backtrace]);
-  
+
+  // if(IDX.beads[CONNECT.flag_itself] == 25 && IDX.beads[CONNECT.flag_new] == 25 && IDX.beads[CONNECT.flag_other] == 106)
+  //   {
+  //     double distance_other = R_boost.Rsca[IDX.beads[CONNECT.flag_itself]](IDX.beads[CONNECT.flag_other]);
+  //     printf("current: %d, (%d, %d, %d, %d), %f, weight_itself=%d\n", time_step, IDX.beads[CONNECT.flag_itself], IDX.beads[CONNECT.flag_hash_other], IDX.beads[CONNECT.flag_other], IDX.beads[CONNECT.flag_new], distance_other, (MKL_LONG)CONNECT.weight[IDX.beads[CONNECT.flag_itself]](0));
+  //     // printf("dCDF: %f, %f\n", CONNECT.dCDF_ASSOCIATION[IDX.beads[CONNECT.flag_itself]](0), CONNECT.dCDF_ASSOCIATION[IDX.beads[CONNECT.flag_itself]](1));
+  //     for(MKL_LONG i=0; i<CONNECT.TOKEN_ASSOCIATION[i]; i++)
+  // 	{
+  // 	  MKL_LONG index = CONNECT.Np - i - 1;
+  // 	  printf("%d: %f\n", (MKL_LONG)CONNECT.INDEX_ASSOCIATION[IDX.beads[CONNECT.flag_itself]](index), CONNECT.dCDF_ASSOCIATION[IDX.beads[CONNECT.flag_itself]](index));
+  // 	}
+  //     printf("\n");
+
+  //   }
+  // printf("done\n");
+  // double distance = R_boost.Rsca[IDX.beads[CONNECT.flag_itself]](IDX.beads[CONNECT.flag_new]);
+  // if(distance > 1.0)
+  //   {
+  //     printf ("WRONG! %f, %f\n", distance, CONNECT.dCDF_ASSOCIATION[IDX.beads[CONNECT.flag_itself]](IDX.beads[CONNECT.flag_hash_other]));
+  //     // for(MKL_LONG i=CONNECT.Np - CONNECT.TOKEN_ASSOCIATION[CONNECT.flag_itself]; i<CONNECT.Np; i++)
+  //     // 	{
+  //     // 	  printf("(%f, %f)\t", R_boost.Rsca[IDX.beads[CONNECT.flag_itself]](CONNECT.dCDF_ASSOCIATION[IDX.beads[CONNECT.flag_itself]](i));
+  //     // 	}
+  //     // printf("\n");
+      
+  //   }
   return dsecnd() - time_st;
 }
 
@@ -574,7 +651,8 @@ OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost
       double rolling_dCDF = 0., rolling_dCDF_U = 0.;
       
       time_SS_index +=
-        HEUR::micelle_selection(CONNECT, RNG.BOOST_SS[it], IDX_ARR[it], R_boost, VAR, rolling_dCDF, rolling_dCDF_U);
+        HEUR::micelle_selection(CONNECT, RNG.BOOST_SS[it], IDX_ARR[it], R_boost, VAR, rolling_dCDF, rolling_dCDF_U, tp);
+      
       if(CONNECT.TOKEN[IDX_ARR[it].beads[CONNECT.flag_itself]] == 0) // if there is no chain end attached for selected bead
         IDENTIFIER_ACTION = FALSE;                                   // there are not action take
       
@@ -593,9 +671,15 @@ OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost
       if(!IDENTIFIER_LOCKING) 
         {
           // This block only compute when the thread is NOT LOCKED
-          time_SS_check +=
-            HEUR::check_dissociation_probability(CONNECT, POTs, R_boost, IDX_ARR[it], RNG.BOOST_SS[it], IDENTIFIER_ACTION);
-
+	  if(VAR.SIGN_DESTROY == TRUE)
+	    {
+	      IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST_NO_RESTRICTION(CONNECT, IDX_ARR[it]);
+	    }
+	  else
+	    {
+	      time_SS_check +=
+		HEUR::check_dissociation_probability(CONNECT, POTs, R_boost, IDX_ARR[it], RNG.BOOST_SS[it], IDENTIFIER_ACTION);
+	    }
           time_SS_transition +=
             HEUR::transition_single_chain_end(CONNECT, POTs, CHAIN, R_boost, IDX_ARR[it], IDENTIFIER_ACTION);
 
@@ -607,7 +691,12 @@ OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost
           if(VAR.N_THREADS_SS > 1)
             time_SS_LOCK +=
               HEUR::release_LOCKING(LOCKER, IDX_ARR[it]);
-          
+
+	  // if(IDX.beads[CONNECT.flag_itself] == 25 && IDX.beads[CONNECT.flag_new] == 25 && IDX.beads[CONNECT.flag_other] == 106)
+	  //   {
+	  //     printf("IDENTIFIER_ACTION: %d\n", IDENTIFIER_ACTION);
+	  //   }
+	  
 #pragma omp critical (COUNTING)
           {
             /*
@@ -623,6 +712,7 @@ OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost
 
         } // if(!IDENTIFIER_LOCKING)
     }
+
 
   // adding the measured time to the variable structure
   VAR.time_SS_index += time_SS_index;
@@ -715,12 +805,24 @@ OMP_SS_topological_time_evolution(const MKL_LONG time_step_LV,
       // this is rearranged in order to use the previously updated information when MC_renewal is not turned on.
       // #pragma omp for
       // initialization_topological_update(CONNECT, POTs, given_condition, VAR);
+
+      if(VAR.CUTOFF_BRIDGES == TRUE)
+	{
+	  VAR.SIGN_DESTROY = TRUE;
+	}
       
       VAR.time_SS_update +=
         HEUR::OMP_SS_update_STATISTICS(CONNECT, POTs, R_boost, VAR, DATA);
 
       VAR.time_SS_CORE +=
         HEUR::OMP_SS_update_topology(CONNECT, POTs, R_boost, CHAIN, RNG, DATA, IDX_ARR, LOCKER, VAR);
+
+      // MKL_LONG t1, t2, t3;
+      // MKL_LONG IDENTIFIER = HEUR::get_index_bridge_distance_larger_than_unity(t1, t2, t3, CONNECT, R_boost);
+      // if (IDENTIFIER > 0)
+      //   printf("IDENTIFIER is NOT zero! %d, (%d, %d, %d), distance = %f\n", time_step_LV, t1, t2, t3, R_boost.Rsca[t1](t3));
+      
+      
     }
   return dsecnd() - time_st;
 }
@@ -775,7 +877,16 @@ TEMPORAL_VARIABLE_HEUR(COND& given_condition, MKL_LONG given_N_basic)
   
   virial_initial();
   N_components_energy = 31; // last 30 index for N_diff_associations
-      
+
+
+  // for cutoff_scheme
+  CUTOFF_BRIDGES = FALSE;
+  SIGN_DESTROY = FALSE;
+  if(given_condition("transition_probability") == "CUTOFF_DISSOCIATION")
+    {
+      CUTOFF_BRIDGES = TRUE;
+      SIGN_DESTROY = TRUE;
+    }
 }
 
 

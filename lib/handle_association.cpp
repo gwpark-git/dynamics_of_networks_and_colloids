@@ -315,6 +315,48 @@ IDENTIFIER_ACTION_BOOLEAN_BOOST
 }
 
 MKL_LONG
+ACTION::
+IDENTIFIER_ACTION_BOOLEAN_BOOST_NO_RESTRICTION
+(ASSOCIATION& CONNECT, INDEX_MC& IDX)
+{
+  // MKL_LONG &index_itself = index_set[2], &index_other = index_set[0], &index_new = index_set[1];
+  // check index_other == index_new
+  if (TRUTH_MAP::CANCEL_ASSOCIATION_BOOST(CONNECT, IDX.beads))
+    {
+      // this is the most probable case for canceling
+      return IDX.CANCEL;
+    }
+  // check index_itself == index_new
+  else if (TRUTH_MAP::ADD_ASSOCIATION_BOOST(CONNECT, IDX.beads))
+    {
+      return IDX.ADD;
+      // if (TRUTH_MAP::CHECK_N_ADD_ASSOCIATION_BOOST(CONNECT, IDX.beads))
+      //   return IDX.ADD;
+      // else
+      //   return IDX.CANCEL;
+    }
+  // check index_itself == index_other
+  else if (TRUTH_MAP::OPP_DEL_ASSOCIATION_BOOST(CONNECT, IDX.beads))
+    {
+      return IDX.OPP_DEL;
+      // if (TRUTH_MAP::CHECK_N_OPP_DEL_ASSOCIATION_BOOST(CONNECT, IDX.beads))
+      //   return IDX.OPP_DEL;
+      // else return IDX.CANCEL;
+    }
+  // with nested case, this is only the case of MOV
+  else
+    {
+      return IDX.MOV;
+      // if (TRUTH_MAP::CHECK_N_MOV_ASSOCIATION_BOOST(CONNECT, IDX.beads))
+      //   return IDX.MOV;
+      // return IDX.CANCEL;
+    }
+  printf("ERR:TRUTH_MAP::NO SPECIFIED ACTION CASE\n");
+  return IDX.CANCEL;
+}
+
+
+MKL_LONG
 SEARCHING::
 bisection
 (MATRIX& given_arr, double p)

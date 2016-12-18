@@ -160,6 +160,11 @@ MAP_potential_set
       // from now on, the Rt = tau_0/tau_B instead of tau_0/tau_R
       given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
     }
+  else if (given_cond("transition_probability")=="CUTOFF_DISSOCIATION")
+    {
+      given_POT.transition = KINETICS::cutoff_dissociation_probability;
+      given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
+    }
   else if (given_cond("transition_probability")=="FIRST_ORDER")
     {
       given_POT.transition = KINETICS::FIRST_ORDER::dissociation_probability;
@@ -172,11 +177,19 @@ MAP_potential_set
       given_POT.transition = KINETICS::dissociation_probability_equal_modified_gaussian;
       given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));      
     }
+
   else
     {
       // this is default setting
       given_POT.transition = KINETICS::UNIFORM::transition_probability;
     }
+
+  if(given_cond("association_probability") == "EQUAL_CUTOFF_RANGE")
+    {
+
+      given_POT.PDF_connector = MAP_cutoff_equal_probability;
+    }
+
   
   if(given_cond("chain_selection")=="METROPOLIS")
     {
