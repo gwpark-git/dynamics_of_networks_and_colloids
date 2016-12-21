@@ -186,7 +186,8 @@ MAP_potential_set
 
   if(given_cond("association_probability") == "EQUAL_CUTOFF_RANGE")
     {
-
+      double cutoff_connection = atof(given_cond("cutoff_connection").c_str());
+      given_POT.force_variables[7] = cutoff_connection;
       given_POT.PDF_connector = MAP_cutoff_equal_probability;
     }
 

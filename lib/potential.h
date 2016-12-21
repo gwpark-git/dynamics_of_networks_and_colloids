@@ -614,7 +614,7 @@ FORCE::NAPLE::MC_ASSOCIATION::
 MAP_cutoff_equal_probability
 (double distance, double* given_variables)
 {
-  return FORCE::CUTOFF_ASSOCIATION::cutoff_equal_probability(distance, given_variables[1]);
+  return FORCE::CUTOFF_ASSOCIATION::cutoff_equal_probability(distance, given_variables[7]);
 }
 
 inline double
