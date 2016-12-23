@@ -97,9 +97,10 @@ namespace HEUR
 		    TEMPORAL_VARIABLE_HEUR& VAR,
 		    double& rolling_dCDF, double& rolling_dCDF_U, MKL_LONG& time_step);
   bool
-  get_index_bridge_distance_larger_than_unity(MKL_LONG& index_particle, MKL_LONG& index_hash, MKL_LONG& index_target,
-					      ASSOCIATION& CONNECT,
-					      RDIST& R_boost);
+  get_index_bridge_distance_larger_than_cutoff_range(MKL_LONG& index_particle, MKL_LONG& index_hash, MKL_LONG& index_target,
+                                                     ASSOCIATION& CONNECT,
+                                                     RDIST& R_boost,
+                                                     MKL_LONG cutoff_range);
 
   double
   OMP_SS_update_topology(ASSOCIATION& CONNECT,
@@ -169,6 +170,7 @@ HEUR::
   // for cutoff_scheme
   bool CUTOFF_BRIDGES;
   bool SIGN_DESTROY;
+  double CUTOFF_RANGE;
   
   // related with virials
   double RF_connector_xx, RF_connector_yy, RF_connector_zz;

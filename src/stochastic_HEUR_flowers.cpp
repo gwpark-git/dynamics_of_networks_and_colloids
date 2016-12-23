@@ -4,7 +4,7 @@ using namespace HEUR;
 
 bool
 HEUR::
-get_index_bridge_distance_larger_than_unity(MKL_LONG& index_particle, MKL_LONG& index_hash, MKL_LONG& index_target, ASSOCIATION& CONNECT, RDIST& R_boost)
+get_index_bridge_distance_larger_than_cutoff_range(MKL_LONG& index_particle, MKL_LONG& index_hash, MKL_LONG& index_target, ASSOCIATION& CONNECT, RDIST& R_boost, MKL_LONG cutoff_range)
 {
   
   for (MKL_LONG i=0; i<CONNECT.Np; i++)
@@ -13,7 +13,7 @@ get_index_bridge_distance_larger_than_unity(MKL_LONG& index_particle, MKL_LONG& 
 	{
 	  MKL_LONG tmp_index_target = CONNECT.HASH[i](j);
 	  double distance = R_boost.Rsca[i](tmp_index_target);
-	  if (distance > 1.0)
+	  if (distance > cutoff_range)//1.0)
 	    {
 	      index_particle = i;
 	      index_hash = j;
@@ -562,15 +562,15 @@ micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_MC& IDX,
   double time_st = dsecnd();
   if (VAR.SIGN_DESTROY == TRUE)
     {
-      MKL_LONG IDENTIFIER = get_index_bridge_distance_larger_than_unity(IDX.beads[CONNECT.flag_itself], IDX.beads[CONNECT.flag_hash_other], IDX.beads[CONNECT.flag_other], CONNECT, R_boost);
+      MKL_LONG IDENTIFIER = get_index_bridge_distance_larger_than_cutoff_range(IDX.beads[CONNECT.flag_itself], IDX.beads[CONNECT.flag_hash_other], IDX.beads[CONNECT.flag_other], CONNECT, R_boost, VAR.CUTOFF_RANGE);
       if (IDENTIFIER == 0)
-	{
-	  VAR.SIGN_DESTROY = FALSE;
-	}
+        {
+          VAR.SIGN_DESTROY = FALSE;
+        }
       else
-	{
-	  time_step --; // it prevent to count the destroy process of bridge when it's distance is larger than 1.
-	}
+        {
+          time_step --; // it prevent to count the destroy process of bridge when it's distance is larger than 1.
+        }
     }
 
   if (VAR.SIGN_DESTROY == FALSE)  // it must be checked in individual way since the first block can be skipped
@@ -886,7 +886,26 @@ TEMPORAL_VARIABLE_HEUR(COND& given_condition, MKL_LONG given_N_basic)
     {
       CUTOFF_BRIDGES = TRUE;
       SIGN_DESTROY = TRUE;
+      CUTOFF_RANGE = 1.0; // it is related with R0 cutoff dissociation rule
     }
+  
+  if(given_condition("connector") == "Modified_Gaussian" || given_condition("connector") == "FENE") 
+    {
+      /*
+        For Gaussian chain, the R_max value only affect to cutoff. It is design to prevent the equilibrium simulation when the bridge chain longer than half dimension of box, the length will be change during minimum image convention. It is of importance to aware that ratio_RM_R0 set with Ld/2 is not useful since it is already regarded as specific index set is replaced by some images. Therefore, it must have at least some tolerance factor such as Tf*Ld/2 with Tf<1.
+
+        For finite extensible chain, this factor definitely related with maximally extendable length scale. Keep in mind that this factor is unit of R0. If scale_factor_chain (alpha) = 2.0, ratio_RM_R0 = 4 means maximally extendable chain is alpha*ratio_RM_R0 (8 in this example) times larger than end-to-end distance of chain. Therefore, cutoff_connection value must be set with ratio_RM_R0 value or lesser than it.
+
+        Note that the cutoff_connection no matter what the equilibrium simulation or not. Even if the case for cell_list in equilibrium simulation, it is used the same parameter. However, keep rule the cutoff_connection value. It will destroy all the bridge beyond cutoff_connection which means we have to set lower value when CELL_LIST is applied and it should set lower than Ld/2 for nonequilibrium simulation (at this moment, nonequilibrium simulation with CELL_LIST is not applied).
+
+        From now on, the cutoff_connection value must be positive all the non-equilibrium simulation since it is related with safety of statistics. Gaussian with this factor with higher Wi value might be suffer from it, which however, better than wrong distance contribution from bridges.
+
+      */
+      CUTOFF_BRIDGES = TRUE;
+      SIGN_DESTROY = TRUE;
+      CUTOFF_RANGE = atof(given_condition("cutoff_connection").c_str());
+    }  
+
 }
 
 

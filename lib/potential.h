@@ -519,7 +519,10 @@ non_Gaussian_factor
 (double distance, double N_dimension, double ratio_RM_R0)
 {
   // return 1.0/(1.0 - pow(distance, 2.0)/pow(ratio_RM_R0, 2.0));
-  return 1.0/(1.0 - pow(distance/ratio_RM_R0, 2.0));
+  if (distance < ratio_RM_R0)
+    return 1.0/(1.0 - pow(distance/ratio_RM_R0, 2.0));
+  else
+    return 0.;
   // return ratio_RM_R0/(pow(ratio_RM_R0, 2.0) - pow(distance, 2.0));
 }
 
@@ -536,7 +539,13 @@ FORCE::FENE::
 spring_potential
 (double distance, double N_dimension, double scale_factor, double ratio_RM_R0)
 {
-  return (-(double)N_dimension/2.0)*pow(scale_factor*ratio_RM_R0, 2.0)*log(1.0 - pow(distance, 2.0)/pow(ratio_RM_R0, 2.0));
+  if (distance < ratio_RM_R0)
+    return (-(double)N_dimension/2.0)*pow(scale_factor*ratio_RM_R0, 2.0)*log(1.0 - pow(distance, 2.0)/pow(ratio_RM_R0, 2.0));
+  else
+    {
+      printf("ERR: FENE::spring_potential cannot be over than finite extensibility\n");
+      return 0.;
+    }
 }
 
 inline double
