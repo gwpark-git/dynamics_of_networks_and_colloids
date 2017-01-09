@@ -78,7 +78,7 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
 
   using namespace std;
   double time_st_simulation = dsecnd();
-  
+  // printf("N_min : %d\n", CONNECT.N_min);
   printf("### STOCHASTIC SIMULATION FOR HEUR FLOWER ###\n");
   printf("SETTING simulation environment ...");
   TEMPORAL_VARIABLE_HEUR VAR(given_condition, TRAJ.rows);
@@ -290,7 +290,7 @@ report_simulation_info(TRAJECTORY& TRAJ, MATRIX& energy, TEMPORAL_VARIABLE_HEUR&
   printf(" PBC VOLUME = %3.2e\n", VAR.volume_PBC_box);
   double total_time = VAR.time_SS + VAR.time_LV + VAR.time_AN + VAR.time_file + VAR.time_DIST;
   double sum_time_LV = VAR.time_LV_init + VAR.time_LV_force + VAR.time_LV_update;
-  printf("##### STEPS = %ld\tTIME = %8.6e tau_B\tENERGY = %6.3e (computing time: %4.3e)\n", TRAJ.c_t, VAR.simulation_time, energy(1), energy(5));
+  printf("##### STEPS = %ld\tTIME = %8.6e tau_0\tENERGY = %6.3e (computing time: %4.3e)\n", TRAJ.c_t, VAR.simulation_time, energy(1), energy(5));
   printf("time consuming: LV = %3.2e (%3.1f%%), SS = %3.2e (%3.1f%%), AN = %3.2e (%3.1f%%), FILE = %3.2e (%3.1f%%), DIST = %3.2e (%3.1f%%)\n", VAR.time_LV, VAR.time_LV*100/total_time, VAR.time_SS, VAR.time_SS*100/total_time, VAR.time_AN, VAR.time_AN*100/total_time, VAR.time_file, VAR.time_file*100/total_time, VAR.time_DIST, VAR.time_DIST*100/total_time);
   printf("LV: init = %3.1f%%, force = %3.1f%% (repulsion = %3.1f%%, random = %3.1f%%, connector = %3.1f%%), update = %3.1f%%\n", 100.*VAR.time_LV_init/sum_time_LV, 100.*VAR.time_LV_force/sum_time_LV, 100.*VAR.time_LV_force_repulsion/VAR.time_LV_force, 100.*VAR.time_LV_force_random/VAR.time_LV_force, 100.*VAR.time_LV_force_connector/VAR.time_LV_force, 100.*VAR.time_LV_update/sum_time_LV);
   printf("SS: index process = %3.1f%%, LOCKING = %3.1f%%, check_dissociation = %3.1f%%, transition = %3.1f%%, update info. = %3.1f%%, pre-ASSOCIATION = %3.1f%%, pre-SUGGESTION = %3.1f%%)  \n", 100.*VAR.time_SS_index/VAR.time_SS, 100.*VAR.time_SS_LOCK/VAR.time_SS, 100.*VAR.time_SS_check/VAR.time_SS, 100.*VAR.time_SS_transition/VAR.time_SS, 100.*VAR.time_SS_update_info/VAR.time_SS, 100.*VAR.time_SS_update_ASSOCIATION_MAP/VAR.time_SS, 100.*VAR.time_SS_update_CHAIN_SUGGESTION/VAR.time_SS);
