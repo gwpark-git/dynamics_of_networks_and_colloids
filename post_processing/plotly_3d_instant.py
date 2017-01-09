@@ -146,13 +146,13 @@ else:
               title='')
 
 
-    layout = go.Layout(title='3d plot',
+    layout = go.Layout(title=sys.argv[1],
                        margin=go.Margin(t=100),
                        showlegend=False,
                        scene=go.Scene(xaxis=go.XAxis(axis), yaxis=go.YAxis(axis), zaxis=go.ZAxis(axis)))
 
     fig = go.Figure(data=trace, layout=layout)
-    plot_url = plotly.offline.plot(fig, filename='%s/inst_t.html'%(o_path), auto_open=False)
+    plot_url = plotly.offline.plot(fig, filename='%s/%s.html'%(o_path, sys.argv[1]), auto_open=False)
 
     d_dist = asarray(d_dist)
     t_dist.append(d_dist)
