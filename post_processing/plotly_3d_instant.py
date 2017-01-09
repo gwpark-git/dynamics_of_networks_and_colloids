@@ -8,7 +8,7 @@ import sys
 # Np = 3200 # number of particles
 # Nd = 3 # spatial dimension
 
-if size(sys.argv) < 8:
+if size(sys.argv) < 7:
     print 'USAGE: 3D plot via plotly package'
     print 'return file in html format'
     print 'argv[1] == trajectory'
@@ -17,15 +17,30 @@ if size(sys.argv) < 8:
     print 'argv[4] == spatial dimension'
     print 'argv[5] == number of particles'
     print 'argv[6] == box dimension'
-    print 'argv[7] == df for given trajectory'
+    # print 'argv[7] == df for given trajectory'
 else:    
     dat = loadtxt(sys.argv[1])
-    hash = loadtxt(sys.argv[2])
+    # hash = loadtxt(sys.argv[2])
     o_path = sys.argv[3]
     Nd = long(sys.argv[4])
     Np = long(sys.argv[5])
     box_dimension = float(sys.argv[6])
     # df = float(sys.argv[7])
+    hash = []
+
+    with open (sys.argv[2], 'r') as f_hash:
+        # hash_tmp = zeros([Np, Np])
+        cnt = 0
+        for line in f_hash:
+            hash_tmp = -1*ones(Np)
+            tmp_str = line.replace('\t\n','').split('\t')
+            for i,h in enumerate(tmp_str):
+                hash_tmp[i] = float(h)
+                # print tmp_str[:5]
+                # print hash_tmp[:5]
+            hash.append(hash_tmp)
+    # print hash
+    hash = asarray(hash)
 
     from scipy.linalg import norm
     def distance(x_pair, y_pair, z_pair):
@@ -101,26 +116,28 @@ else:
     trace = [tr_particle]
     hash_st = 0
     d_dist = []
-    for i in range(Np):
-        for j in range(N_cols):
-            if i <> hash[hash_st + i,j]:
-                if hash[hash_st + i,j] != -1:
-                    # The following scheme is used 'None' in order to generate disconnected line plot
-                    # Unlike 2d line plot, however, the functionality is not properly working which is weird for me
-                    # Loosing disconnected line for one trace means we need big overhead to show the plot in web browser.
-                    # tr_association['x'] += [pos[i, 0], get_minimum_distance_k_from_x(pos[i, 0], pos[hash[i,j], 0], box_dimension), None]
-                    # tr_association['y'] += [pos[i, 1], get_minimum_distance_k_from_x(pos[i, 1], pos[hash[i,j], 1], box_dimension), None]
-                    # tr_association['z'] += [pos[i, 2], get_minimum_distance_k_from_x(pos[i, 2], pos[hash[i,j], 2], box_dimension), None]
-                    x_pair = [pos[i, 0], get_minimum_distance_k_from_x(pos[i, 0], pos[hash[hash_st + i,j], 0], box_dimension)]
-                    y_pair = [pos[i, 1], get_minimum_distance_k_from_x(pos[i, 1], pos[hash[hash_st + i,j], 1], box_dimension)]
-                    z_pair = [pos[i, 2], get_minimum_distance_k_from_x(pos[i, 2], pos[hash[hash_st + i,j], 2], box_dimension)]
-                    d_pair = distance(x_pair, y_pair, z_pair)
-                    # d_dist.append([cnt, d_pair])
-                    d_dist.append(d_pair)
-                    cnt += 1
-                    trace.append(go.Scatter3d(x=x_pair, y=y_pair, z=z_pair, legendgroup='bridge', mode='lines', text='p(%d, %d)\nd=%4.3f\n'%(i,j,d_pair)))
-                else:
-                    break
+    print hash
+    for i in range(Np/2 + (Np%2)): # excluding duplication
+        for j in range(1, N_cols): # excluding itself
+            # if i > hash[hash_st + i, j]
+            # if i <> hash[hash_st + i,j]:
+            if hash[hash_st + i,j] != -1:
+                # The following scheme is used 'None' in order to generate disconnected line plot
+                # Unlike 2d line plot, however, the functionality is not properly working which is weird for me
+                # Loosing disconnected line for one trace means we need big overhead to show the plot in web browser.
+                # tr_association['x'] += [pos[i, 0], get_minimum_distance_k_from_x(pos[i, 0], pos[hash[i,j], 0], box_dimension), None]
+                # tr_association['y'] += [pos[i, 1], get_minimum_distance_k_from_x(pos[i, 1], pos[hash[i,j], 1], box_dimension), None]
+                # tr_association['z'] += [pos[i, 2], get_minimum_distance_k_from_x(pos[i, 2], pos[hash[i,j], 2], box_dimension), None]
+                x_pair = [pos[i, 0], get_minimum_distance_k_from_x(pos[i, 0], pos[hash[hash_st + i,j], 0], box_dimension)]
+                y_pair = [pos[i, 1], get_minimum_distance_k_from_x(pos[i, 1], pos[hash[hash_st + i,j], 1], box_dimension)]
+                z_pair = [pos[i, 2], get_minimum_distance_k_from_x(pos[i, 2], pos[hash[hash_st + i,j], 2], box_dimension)]
+                d_pair = distance(x_pair, y_pair, z_pair)
+                # d_dist.append([cnt, d_pair])
+                d_dist.append(d_pair)
+                cnt += 1
+                trace.append(go.Scatter3d(x=x_pair, y=y_pair, z=z_pair, legendgroup='bridge', mode='lines', text='p(%d, %d)\nd=%4.3f\n'%(i,j,d_pair)))
+            else:
+                break
 
     axis=dict(showbackground=False,
               zeroline=False,

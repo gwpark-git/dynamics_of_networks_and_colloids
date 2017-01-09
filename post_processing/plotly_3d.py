@@ -20,10 +20,40 @@ if size(sys.argv) < 8:
     print 'argv[7] == df for given trajectory'
 else:    
     dat = loadtxt(sys.argv[1])
-    hash = loadtxt(sys.argv[2])
+    # hash = loadtxt(sys.argv[2])
     o_path = sys.argv[3]
     Nd = long(sys.argv[4])
     Np = long(sys.argv[5])
+    hash = []
+    with open (sys.argv[2], 'r') as f_hash:
+        # hash_tmp = zeros([Np, Np])
+        cnt = 0
+        for line in f_hash:
+            hash_tmp = -1*ones(Np)
+            tmp_str = line.replace('\t\n','').split('\t')
+            for i,h in enumerate(tmp_str):
+                hash_tmp[i] = float(h)
+                # print tmp_str[:5]
+                # print hash_tmp[:5]
+            hash.append(hash_tmp)
+    # print hash
+    hash = asarray(hash)
+
+    # with open (sys.argv[2], 'r') as f_hash:
+    #     # hash_tmp = zeros([Np, Np])
+    #     hash_tmp = -1*ones(Np)
+    #     cnt = 0
+    #     for line in f_hash:
+    #         tmp_str = line.replace('\t\n','').split('\t')
+    #         for i,h in enumerate(tmp_str):
+    #             hash_tmp[i] = int(h)
+    #         hash.append(hash_tmp)
+    # hash = asarray(hash)
+    #         # for token,h in enumerate(tmp_str):
+    #         #         hash_tmp[i, token] = int(h)
+    #         #     cnt += 1
+                
+
     box_dimension = float(sys.argv[6])
     df = float(sys.argv[7])
 
@@ -101,8 +131,8 @@ else:
         trace = [tr_particle]
         hash_st = t*Np
         d_dist = []
-        for i in range(Np):
-            for j in range(N_cols):
+        for i in range(Np/2 + (Np%2)): # excluding duplication
+            for j in range(1, N_cols): # excluding itself
                 if i <> hash[hash_st + i,j]:
                     if hash[hash_st + i,j] != -1:
                         # The following scheme is used 'None' in order to generate disconnected line plot
