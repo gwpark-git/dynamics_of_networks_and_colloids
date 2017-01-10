@@ -89,6 +89,9 @@ namespace HEUR
   double
   release_LOCKING(LOCK& LOCKER, INDEX_MC& IDX);
 
+  MKL_LONG
+  safety_random_micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, MKL_LONG& Np);
+
   double
   micelle_selection(ASSOCIATION& CONNECT,
 		    gsl_rng* RNG_BOOST_SS_IT,

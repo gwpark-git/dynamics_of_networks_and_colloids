@@ -2,6 +2,25 @@
 
 using namespace HEUR;
 
+MKL_LONG
+HEUR::
+safety_random_micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, MKL_LONG& Np)
+{
+  /*
+    This safety function is design to avoid selection '0' chain end micelle as subject.
+    The '0' chain end micelle is possible during simulation, but it is only acted by target micelle, i.e., suggestion connection junctions
+    Note that even if this case, the adjacent list should be consistent with TOKEN 1, which means itself
+   */
+  MKL_LONG selected_micelle = -1;
+  do
+    {
+      selected_micelle = RANDOM::return_LONG_INT_rand_boost(RNG_BOOST_SS_IT, Np);
+      // if  (CONNECT.TOKEN[selected_micelle] == 1 && CONNECT.weight[selected_micelle](0) == 0)
+      //   printf("IT HAPPENS!!\n");
+    } while (CONNECT.TOKEN[selected_micelle] == 1 && CONNECT.weight[selected_micelle](0) == 0);
+  return selected_micelle;
+}
+
 bool
 HEUR::
 get_index_bridge_distance_larger_than_cutoff_range(MKL_LONG& index_particle, MKL_LONG& index_hash, MKL_LONG& index_target, ASSOCIATION& CONNECT, RDIST& R_boost, MKL_LONG cutoff_range)
@@ -576,7 +595,8 @@ micelle_selection(ASSOCIATION& CONNECT, gsl_rng* RNG_BOOST_SS_IT, INDEX_MC& IDX,
   if (VAR.SIGN_DESTROY == FALSE)  // it must be checked in individual way since the first block can be skipped
     {
       // printf("tmp_check_block\n");
-      IDX.beads[CONNECT.flag_itself] = RANDOM::return_LONG_INT_rand_boost(RNG_BOOST_SS_IT, VAR.Np);
+      // IDX.beads[CONNECT.flag_itself] = RANDOM::return_LONG_INT_rand_boost(RNG_BOOST_SS_IT, VAR.Np);
+      IDX.beads[CONNECT.flag_itself] = safety_random_micelle_selection(CONNECT, RNG_BOOST_SS_IT, VAR.Np);
       // choice for selected chain end
       rolling_dCDF = RANDOM::return_double_rand_SUP1_boost(RNG_BOOST_SS_IT);
       IDX.beads[CONNECT.flag_hash_other] = CONNECT.GET_INDEX_HASH_FROM_ROLL(IDX.beads[CONNECT.flag_itself], rolling_dCDF); 
@@ -678,7 +698,7 @@ OMP_SS_update_topology(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST& R_boost
 	  else
 	    {
 	      time_SS_check +=
-		HEUR::check_dissociation_probability(CONNECT, POTs, R_boost, IDX_ARR[it], RNG.BOOST_SS[it], IDENTIFIER_ACTION);
+            HEUR::check_dissociation_probability(CONNECT, POTs, R_boost, IDX_ARR[it], RNG.BOOST_SS[it], IDENTIFIER_ACTION);
 	    }
           time_SS_transition +=
             HEUR::transition_single_chain_end(CONNECT, POTs, CHAIN, R_boost, IDX_ARR[it], IDENTIFIER_ACTION);

@@ -190,6 +190,11 @@ ASSOCIATION::ASSOCIATION(COND& given_condition) : CONNECTIVITY(given_condition)
   Nc = atol(given_condition("N_chains_per_particle").c_str());
   Tec = atol(given_condition("tolerance_allowing_connections").c_str());
   N_min = 2*Nc - Tec;
+  if(N_min < 0)
+    {
+      printf("WARNING: N_min(2*Nc - Tec) is set with %d. It will be zero insteady of %d.\n", N_min, N_min);
+      N_min = 0;
+    }
   N_max = 2*Nc + Tec;
   if(given_condition("allowing_multiple_connections") == "TRUE")
     MULTIPLE_CONNECTIONS = TRUE;
@@ -403,6 +408,12 @@ MKL_LONG ASSOCIATION::GET_INDEX_HASH_FROM_ROLL(const MKL_LONG index_particle, do
       if (dCDF_SUGGESTION[index_particle](i) > rolled_p)
         return i;
     }
+  printf("ERROR: GET_INDEX_HASH_FROM_ROLL(%ld, %lf) return with -1\n",index_particle, rolled_p);
+  printf("\tTOKEN:%ld: ", TOKEN[index_particle]);
+  for(i=0; i<TOKEN[index_particle]; i++)
+    printf("dCDF_SUGGESTION(%ld)=%lf, ", i, dCDF_SUGGESTION[index_particle](i));
+  printf("\n");
+
   return -1;
 }
 
@@ -457,7 +468,11 @@ MKL_LONG ASSOCIATION::add_association_INFO(POTENTIAL_SET& POTs, const MKL_LONG i
 MKL_LONG ASSOCIATION::opp_del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K)
 {
   weight[index_I](hash_index_K) -= 1;
-  if((MKL_LONG)weight[index_I](hash_index_K) == 0)
+  if((MKL_LONG)weight[index_I](hash_index_K) == 0 && hash_index_K > 0)
+    /*
+      It is of importance to avoid deleting itself.
+      When hash == 0 is allowed, the micelle index itself will be deleted.
+     */
     {
       for(MKL_LONG j=hash_index_K; j<TOKEN[index_I] - 1; j++)
         {

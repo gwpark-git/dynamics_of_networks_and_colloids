@@ -64,9 +64,16 @@ TRACKING_ACTION
       if(index_subject_chain_end == -1)
         {
           printf("particle info: (itself, other, new) = (%ld, %ld, %ld)\n", IDX.beads[CONNECT.flag_itself], IDX.beads[CONNECT.flag_other], IDX.beads[CONNECT.flag_new]);
+          printf("connectivity info from itself: ");
+          for (MKL_LONG i=0; i<CONNECT.TOKEN[IDX.beads[CONNECT.flag_itself]]; i++)
+            printf("(%ld, %ld) = %ld (%lf), ", IDX.beads[CONNECT.flag_itself], i, CONNECT.HASH[IDX.beads[CONNECT.flag_itself]](i), CONNECT.weight[IDX.beads[CONNECT.flag_itself]](i));
+          printf("\nconnectivity info from other: ");
+          for (MKL_LONG i=0; i<CONNECT.TOKEN[IDX.beads[CONNECT.flag_other]]; i++)
+            printf("(%ld, %ld) = %ld (%lf), ", IDX.beads[CONNECT.flag_other], i, CONNECT.HASH[IDX.beads[CONNECT.flag_other]](i), CONNECT.weight[IDX.beads[CONNECT.flag_other]](i));
+          
           for(MKL_LONG i=0; i<P_TOKEN[IDX.beads[CONNECT.flag_other]]; i++)
             {
-              printf("(C, OC)([%ld, %ld] = %ld) = (%ld, %ld)\n", IDX.beads[CONNECT.flag_other], i, PARTICLE[IDX.beads[CONNECT.flag_other]][i], (MKL_LONG)CE_ATTACHED_REF(PARTICLE[IDX.beads[CONNECT.flag_other]][i]), (MKL_LONG)CE_ATTACHED_REF(opp_chain_end_index(PARTICLE[IDX.beads[CONNECT.flag_other]][i])));
+              printf("\n(C, OC)([%ld, %ld] = %ld) = (%ld, %ld)\n", IDX.beads[CONNECT.flag_other], i, PARTICLE[IDX.beads[CONNECT.flag_other]][i], (MKL_LONG)CE_ATTACHED_REF(PARTICLE[IDX.beads[CONNECT.flag_other]][i]), (MKL_LONG)CE_ATTACHED_REF(opp_chain_end_index(PARTICLE[IDX.beads[CONNECT.flag_other]][i])));
             }
         }
 	  
