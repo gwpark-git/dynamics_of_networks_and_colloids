@@ -24,7 +24,7 @@ CONNECTIVITY::
 CONNECTIVITY
 (COND& given_condition)
 {
-  dynamic_allocation(atol(given_condition("Np").c_str()), 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str()));
+  dynamic_allocation(atol(given_condition("Np").c_str()), 5 + 2*atol(given_condition("N_chains_per_particle").c_str()) + atol(given_condition("tolerance_allowing_connections").c_str())); // 5 is added for preventing overwhelemd cases
   if (given_condition("CONTINUATION_CONNECTION")=="TRUE")
     {
       read_exist_hash(given_condition("CONTINUATION_HASH_FN").c_str(), atoi(given_condition("CONTINUATION_STEP").c_str()));

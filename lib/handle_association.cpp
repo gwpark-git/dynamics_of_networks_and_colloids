@@ -66,10 +66,10 @@ TRACKING_ACTION
           printf("particle info: (itself, other, new) = (%ld, %ld, %ld)\n", IDX.beads[CONNECT.flag_itself], IDX.beads[CONNECT.flag_other], IDX.beads[CONNECT.flag_new]);
           printf("connectivity info from itself: ");
           for (MKL_LONG i=0; i<CONNECT.TOKEN[IDX.beads[CONNECT.flag_itself]]; i++)
-            printf("(%ld, %ld) = %ld (%lf), ", IDX.beads[CONNECT.flag_itself], i, CONNECT.HASH[IDX.beads[CONNECT.flag_itself]](i), CONNECT.weight[IDX.beads[CONNECT.flag_itself]](i));
+            printf("(%ld, %ld) = %ld (%ld), ", IDX.beads[CONNECT.flag_itself], i, CONNECT.HASH[IDX.beads[CONNECT.flag_itself]](i), (MKL_LONG)CONNECT.weight[IDX.beads[CONNECT.flag_itself]](i));
           printf("\nconnectivity info from other: ");
           for (MKL_LONG i=0; i<CONNECT.TOKEN[IDX.beads[CONNECT.flag_other]]; i++)
-            printf("(%ld, %ld) = %ld (%lf), ", IDX.beads[CONNECT.flag_other], i, CONNECT.HASH[IDX.beads[CONNECT.flag_other]](i), CONNECT.weight[IDX.beads[CONNECT.flag_other]](i));
+            printf("(%ld, %ld) = %ld (%ld), ", IDX.beads[CONNECT.flag_other], i, CONNECT.HASH[IDX.beads[CONNECT.flag_other]](i), (MKL_LONG)CONNECT.weight[IDX.beads[CONNECT.flag_other]](i));
           
           for(MKL_LONG i=0; i<P_TOKEN[IDX.beads[CONNECT.flag_other]]; i++)
             {

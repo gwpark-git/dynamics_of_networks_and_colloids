@@ -60,14 +60,14 @@ MKL_LONG ASSOCIATION::set_initial_condition()
 {
   for(MKL_LONG i=0; i<Np; i++)
     {
-      HASH[i].initial(N_max, 1, -1); // this is temporal initialization
-      weight[i].initial(N_max, 1, 0);
+      HASH[i].initial(N_max + 5, 1, -1); // this is temporal initialization
+      weight[i].initial(N_max + 5, 1, 0);
 
       // related with suggestion probability
       // note that it is related with N_max ~ 10*Nc + Tec << Np
-      CASE_SUGGESTION[i].initial(N_max, 1, 0.);
-      dPDF_SUGGESTION[i].initial(N_max, 1, 0.);
-      dCDF_SUGGESTION[i].initial(N_max, 1, 0.);
+      CASE_SUGGESTION[i].initial(N_max + 5, 1, 0.);
+      dPDF_SUGGESTION[i].initial(N_max + 5, 1, 0.);
+      dCDF_SUGGESTION[i].initial(N_max + 5, 1, 0.);
       Z_SUGGESTION[i] = 0.;
 
       // related with association probability
@@ -161,12 +161,12 @@ MKL_LONG ASSOCIATION::initial_inheritance() // it should not be called by outsid
   // set_initial_condition();
   for(MKL_LONG i=0; i<Np; i++)
     {
-      weight[i].initial(N_max, 1, 0);
+      weight[i].initial(N_max + 5, 1, 0);
 
       // related with suggestion probability
-      CASE_SUGGESTION[i].initial(N_max, 1, 0.);
-      dPDF_SUGGESTION[i].initial(N_max, 1, 0.);
-      dCDF_SUGGESTION[i].initial(N_max, 1, 0.);
+      CASE_SUGGESTION[i].initial(N_max + 5, 1, 0.);
+      dPDF_SUGGESTION[i].initial(N_max + 5, 1, 0.);
+      dCDF_SUGGESTION[i].initial(N_max + 5, 1, 0.);
       Z_SUGGESTION[i] = 0.;
 
       // related with association probability
@@ -190,12 +190,13 @@ ASSOCIATION::ASSOCIATION(COND& given_condition) : CONNECTIVITY(given_condition)
   Nc = atol(given_condition("N_chains_per_particle").c_str());
   Tec = atol(given_condition("tolerance_allowing_connections").c_str());
   N_min = 2*Nc - Tec;
+  N_max = 2*Nc + Tec;
   if(N_min < 0)
     {
       printf("WARNING: N_min(2*Nc - Tec) is set with %d. It will be zero insteady of %d.\n", N_min, N_min);
       N_min = 0;
+      // printf("N_max is set with %d\n", N_max);
     }
-  N_max = 2*Nc + Tec;
   if(given_condition("allowing_multiple_connections") == "TRUE")
     MULTIPLE_CONNECTIONS = TRUE;
   else
@@ -263,6 +264,7 @@ bool TRUTH_MAP::MULTIPLE::CHECK_N_OPP_DEL_BOOST(ASSOCIATION& CONNECT, MKL_LONG i
 bool TRUTH_MAP::MULTIPLE::CHECK_N_MOV_BOOST(ASSOCIATION& CONNECT, MKL_LONG index_set[])
 {
   if (CONNECT.N_CONNECTED_ENDS(index_set[CONNECT.flag_other]) > CONNECT.N_min && CONNECT.N_CONNECTED_ENDS(index_set[CONNECT.flag_new]) < CONNECT.N_max)
+  // if TRUTH_MAP::MULTIPLE::CHECK_N_ADD_BOOST(
     return TRUE;
   return FALSE;
 }
@@ -433,22 +435,64 @@ MKL_LONG ASSOCIATION::add_association(const MKL_LONG index_particle, MKL_LONG in
   // but, one weight should transfer from the itself index, 0, to the other has index
   // for this reason, the weight(index_particle, 0) is decreases with number 2
   // basically, it preserve total number of chain ends on the system
-  weight[index_particle](0) -= 2; 
-  weight[index_particle](hash_index_target) += 1; 
 
-  if (hash_index_target == TOKEN[index_particle])
+  // if((MKL_LONG)weight[index_particle](0) % 2 != 0)
+  //   {
+  //     printf("ERR: weight itself must be even number (or zeros): pairs (%ld, %ld)\n", index_particle, index_target);
+  //     printf("\tDETAIL: (%ld, 0) = %ld (%ld), (%ld, %ld) = %ld (%ld)\n", index_particle, (MKL_LONG)HASH[index_particle](0), (MKL_LONG)weight[index_particle](0), index_particle, hash_index_target, (MKL_LONG)HASH[index_particle](hash_index_target), (MKL_LONG)weight[index_particle](hash_index_target));
+  //   }
+  
+  weight[index_particle](0) -= 2;
+  // if(weight[index_particle](0) < 0)
+  //   printf("ERR: weight cannot be below 0\n");
+  weight[index_particle](hash_index_target) += 1; 
+  if (hash_index_target == TOKEN[index_particle]) // when it is new bridge for itself
     {
       HASH[index_particle](hash_index_target) = index_target;
       TOKEN[index_particle] += 1;
     }
 
+  // if((MKL_LONG)weight[index_particle](0) % 2 != 0)
+  //   {
+  //     printf("ERR: weight itself must be even number (or zeros) for corrected pairs (%ld, %ld)\n", index_particle, index_target);
+  //     printf("\tDETAIL: (%ld, 0) = %ld (%ld), (%ld, %ld) = %ld (%ld)\n", index_particle, (MKL_LONG)HASH[index_particle](0), (MKL_LONG)weight[index_particle](0), index_particle, hash_index_target, (MKL_LONG)HASH[index_particle](hash_index_target), (MKL_LONG)weight[index_particle](hash_index_target));
+  //   }
+
   MKL_LONG hash_index_particle = FIND_HASH_INDEX(index_target, index_particle);
-  weight[index_target](hash_index_particle) += 1 ;
-  if (hash_index_particle == TOKEN[index_target])
+
+  
+  // if((MKL_LONG)weight[index_target](0) % 2 != 0)
+  //   {
+  //     printf("ERR: weight itself must be even number (or zeros) for opposite pairs (%ld, %ld)\n", index_target, index_particle);
+  //     printf("\tDETAIL: (%ld, 0) = %ld (%ld), (%ld, %ld) = %ld (%ld)\n", index_target, (MKL_LONG)HASH[index_target](0), (MKL_LONG)weight[index_target](0), index_target, hash_index_particle, (MKL_LONG)HASH[index_target](hash_index_particle), (MKL_LONG)weight[index_target](hash_index_particle));
+  //   }
+  MKL_LONG check_weight = weight[index_target](0);
+  weight[index_target](hash_index_particle) += 1;
+  // if (weight[index_target](0) != check_weight)
+  //   {
+  //     printf("SOMETHING WRONG 1!!: %ld, %ld\n", check_weight, (MKL_LONG)weight[index_target](0));
+  //   }
+  
+  if (hash_index_particle == TOKEN[index_target]) // when it is new bridge for opponents
     {
       HASH[index_target](hash_index_particle) = index_particle;
+      // if (weight[index_target](0) != check_weight)
+      //   {
+      //     printf("SOMETHING WRONG 2!!: HASH[%ld](%ld) = %ld, N_max = %ld, size(HASH[])=%ld\n", index_target, hash_index_particle, (MKL_LONG)HASH[index_target](hash_index_particle), N_max, HASH[index_target].size);
+      //   }
+      
       TOKEN[index_target] += 1;
     }
+  // if (weight[index_target](0) != check_weight)
+  //   {
+  //     printf("SOMETHING WRONG 3!!: %ld, %ld\n", check_weight, (MKL_LONG)weight[index_target](0));
+  //   }
+  // if((MKL_LONG)weight[index_target](0) % 2 != 0)
+  //   {
+  //     printf("ERR: weight itself must be even number (or zeros) for corrected opposite pairs (%ld, %ld)\n", index_target, index_particle);
+  //     printf("\tDETAIL: (%ld, 0) = %ld (%ld), (%ld, %ld) = %ld (%ld)\n", index_target, (MKL_LONG)HASH[index_target](0), (MKL_LONG)weight[index_target](0), index_target, hash_index_particle, (MKL_LONG)HASH[index_target](hash_index_particle), (MKL_LONG)weight[index_target](hash_index_particle));
+  //     printf("check again weight: %ld\n", (MKL_LONG)weight[index_target](0));
+  //   }
 
   return 0;
 }
@@ -467,25 +511,49 @@ MKL_LONG ASSOCIATION::add_association_INFO(POTENTIAL_SET& POTs, const MKL_LONG i
 // for further implementation, the infrastructure for the interface should be refined.
 MKL_LONG ASSOCIATION::opp_del_association_IK(MKL_LONG index_I, MKL_LONG hash_index_K)
 {
+  // if(hash_index_K == 0)
+  //   {
+  //     printf("ERR: opp_del_association_IK for itself is prohibit\n");
+  //   }
   weight[index_I](hash_index_K) -= 1;
-  if((MKL_LONG)weight[index_I](hash_index_K) == 0 && hash_index_K > 0)
-    /*
-      It is of importance to avoid deleting itself.
-      When hash == 0 is allowed, the micelle index itself will be deleted.
-     */
+  if((MKL_LONG)weight[index_I](hash_index_K) == 0 )
     {
-      for(MKL_LONG j=hash_index_K; j<TOKEN[index_I] - 1; j++)
+      if (hash_index_K > 0) // if it is not itself
         {
-          // draw for deleted hash position
-          HASH[index_I](j) = HASH[index_I](j+1);
-          CASE_SUGGESTION[index_I](j) = CASE_SUGGESTION[index_I](j+1);
-          weight[index_I](j) = weight[index_I](j+1);
+          /*
+            It is of importance to avoid deleting itself.
+            When hash == 0 is allowed, the micelle index itself will be deleted.
+          */
+    
+          {
+            for(MKL_LONG j=hash_index_K; j<TOKEN[index_I] - 1; j++)
+              {
+                // draw for deleted hash position
+                HASH[index_I](j) = HASH[index_I](j+1);
+                CASE_SUGGESTION[index_I](j) = CASE_SUGGESTION[index_I](j+1);
+                weight[index_I](j) = weight[index_I](j+1);
+              }
+            // removing end-tail of the hash table
+            HASH[index_I](TOKEN[index_I] - 1) = -1;
+            weight[index_I](TOKEN[index_I] - 1) = 0;
+            CASE_SUGGESTION[index_I](TOKEN[index_I] - 1) = 0.;
+            TOKEN[index_I] -= 1;
+          }
         }
-      // removing end-tail of the hash table
-      HASH[index_I](TOKEN[index_I] - 1) = -1;
-      weight[index_I](TOKEN[index_I] - 1) = 0;
-      CASE_SUGGESTION[index_I](TOKEN[index_I] - 1) = 0.;
-      TOKEN[index_I] -= 1;
+      else // if the target is itself
+        {
+          /*
+            It must not be happens since the weight[i](0) is always even numbers of zero.
+            Because the loop chain make 2 of chain number contribution to its weight
+           */
+      //     /*
+      //       it is not necessary when it will del the normal micelle, but I suspect it might be the problem when we delete single chain end micelle, so there are no more chain ends (while suggestion probability still in exist)
+      //       printf("CK: (%ld, %ld) = %ld (%ld)\n", index_I, hash_index_K, HASH[index_I](hash_index_K), (MKL_LONG)weight[index_I](hash_index_K));
+
+      //       Add Comments: with default verification test, the previous print is not delivered.
+      //     */
+      //     CASE_SUGGESTION[index_I](hash_index_K) = 0.; 
+        }
     }
   return 0; 
 }
@@ -508,6 +576,12 @@ MKL_LONG ASSOCIATION::opp_del_association_hash(const MKL_LONG index_particle, MK
     This is the reason the function is called 'opp_del' rather than 'del'
    */
   MKL_LONG index_target = (MKL_LONG)HASH[index_particle](hash_index_target);
+  
+  // if(hash_index_target == 0)
+  //   printf("ERR: something wrong in opp_del_association_hash. The given hash index is zero\n");
+  // if(FIND_HASH_INDEX(index_target, index_particle) == 0)
+  //   printf("ERR: something wrong in opp_del_association_hash. THE return value of FIND_HAS_INDEX is zero\n");
+    
   opp_del_association_grab_IK(index_particle, hash_index_target);
   opp_del_association_IK(index_target, FIND_HASH_INDEX(index_target, index_particle));
   return 0;
