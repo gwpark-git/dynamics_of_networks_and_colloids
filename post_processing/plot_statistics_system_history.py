@@ -44,7 +44,7 @@ if size(sys.argv) > 1:
     plt.plot(ener[:,0]/(C_rep*Rt), 100.*ener[:,30]/(Nc*Np), 'r-')
     plt.xlabel(r'time / $\tau_0$')
     plt.ylabel('fNAS (%)')
-    plt.title(fn_base)
+    plt.title(fn_base.split('/')[-1]) # it will be used the last filename as its title
     plt.subplot(412)
     plt.plot(ener[:,0]/(C_rep*Rt), ener[:,27], 'b-', label = 'elastic shear stress')
     plt.plot(ener[:,0]/(C_rep*Rt), ener[:,21], 'r-', label = 'repulsive shear stress', alpha=0.2)
