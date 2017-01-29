@@ -28,7 +28,7 @@ if size(sys.argv) > 1:
         f.write('AUTHOR    Gun Woo Park\n')
         for i in range(Np):
             index_st = get_px_index(i)
-            f.write('HETATM %4d PS1  PSD P%4d       %4.3f   %4.3f   %4.3f  1.00  0.00      PSDOPS\n'%(i, i, float(line_str[index_st + 0]), float(line_str[index_st + 1]), float(line_str[index_st + 2])))
+            f.write('HETATM %4d PS1  PSD P%4d      %6.3f  %6.3f  %6.3f  0.00  0.00      PSDOPS\n'%(i, i, float(line_str[index_st + 0]), float(line_str[index_st + 1]), float(line_str[index_st + 2])))
             # f.write('MIC\t%s\t%s\t%s\n'%(line_str[index_st + 0], line_str[index_st + 1], line_str[index_st + 2]))
         with open ('%s.hash'%(fn_base), 'r') as f_hash:
             cnt = 0

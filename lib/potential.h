@@ -543,7 +543,7 @@ spring_potential
     return (-(double)N_dimension/2.0)*pow(scale_factor*ratio_RM_R0, 2.0)*log(1.0 - pow(distance, 2.0)/pow(ratio_RM_R0, 2.0));
   else
     {
-      printf("ERR: FENE::spring_potential cannot be over than finite extensibility\n");
+      printf("ERR: FENE::the length of spring (%lf) cannot be over than finite extensibility (%lf)\n", distance, ratio_RM_R0);
       return 0.;
     }
 }
