@@ -110,12 +110,21 @@ MAP_potential_set
       given_POT.f_connector = MAP_FENE_spring_force;
       given_POT.e_connector = MAP_FENE_spring_potential;
       given_POT.PDF_connector = MAP_FENE_Boltzmann;
+      if(given_cond("association_probability") == "minimum_R0_Boltzmann")
+	{
+	  given_POT.PDF_connector = MAP_minimum_R0_FENE_Boltzmann;
+	}
     }
   else if (given_cond("connector") == "Gaussian")
     {
       given_POT.f_connector = MAP_Gaussian_spring_force;
       given_POT.e_connector = MAP_Gaussian_spring_potential;
       given_POT.PDF_connector = MAP_Gaussian_Boltzmann;
+      if(given_cond("association_probability") == "minimum_R0_Boltzmann")
+	{
+	  given_POT.PDF_connector = MAP_minimum_R0_Gaussian_Boltzmann;
+	}
+      
     }
   else if (given_cond("connector") == "Modified_Gaussian")
     {
@@ -135,6 +144,11 @@ MAP_potential_set
       else
         {
           given_POT.PDF_connector = MAP_modified_Gaussian_Boltzmann;
+	  if(given_cond("association_probability") == "minimum_R0_Boltzmann")
+	    {
+	      given_POT.PDF_connector = MAP_minimum_R0_modified_Gaussian_Boltzmann;
+	    }
+	  
         }
     }
   else

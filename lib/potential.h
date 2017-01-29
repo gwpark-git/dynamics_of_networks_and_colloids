@@ -186,8 +186,12 @@ namespace FORCE
 	MAP_Gaussian_spring_potential
 	(double distance, double* given_variables);
       double
-	MAP_Gaussian_Boltzmann
+      MAP_Gaussian_Boltzmann
 	(double distance, double* given_variables);
+
+      double
+      MAP_minimum_R0_Gaussian_Boltzmann
+      (double distance, double* given_variables);
 
       double
 	MAP_modified_Gaussian_spring_force
@@ -196,8 +200,12 @@ namespace FORCE
 	MAP_modified_Gaussian_spring_potential
 	(double distance, double* given_variables);
       double
-	MAP_modified_Gaussian_Boltzmann
+      MAP_modified_Gaussian_Boltzmann
 	(double distance, double* given_variables);
+      double
+      MAP_minimum_R0_modified_Gaussian_Boltzmann
+	(double distance, double* given_variables);
+      
       double
 	MAP_cutoff_modified_Gaussian_Boltzmann
 	(double distance, double* given_variables);
@@ -218,8 +226,11 @@ namespace FORCE
 	MAP_FENE_spring_potential
 	(double distance, double* given_variables);
       double
-	MAP_FENE_Boltzmann
+      MAP_FENE_Boltzmann
 	(double distance, double* given_variables);
+      double
+	MAP_minimum_R0_FENE_Boltzmann
+	(double distance, double* given_variables);      
       double
 	MAP_time_scaling_random
 	(MATRIX& given_basic_random, double* given_variables);
@@ -653,6 +664,16 @@ MAP_Gaussian_Boltzmann
 
 inline double
 FORCE::NAPLE::MC_ASSOCIATION::
+MAP_minimum_R0_Gaussian_Boltzmann
+(double distance, double* given_variables)
+{
+  if (distance < 1.0)
+    FORCE::GAUSSIAN::Boltzmann_distribution(1.0, given_variables[3]);
+  return FORCE::GAUSSIAN::Boltzmann_distribution(distance, given_variables[3]);
+}
+
+inline double
+FORCE::NAPLE::MC_ASSOCIATION::
 MAP_modified_Gaussian_spring_force
 (double distance, double* given_variables)
 {
@@ -675,6 +696,15 @@ MAP_modified_Gaussian_Boltzmann
   return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(distance, given_variables[3], given_variables[5]);
 }
 
+inline double
+FORCE::NAPLE::MC_ASSOCIATION::
+MAP_minimum_R0_modified_Gaussian_Boltzmann
+(double distance, double* given_variables)
+{
+  if (distance < 1.0)
+    return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(1.0, given_variables[3], given_variables[5]);
+  return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(distance, given_variables[3], given_variables[5]);
+}
 
 inline double
 FORCE::NAPLE::MC_ASSOCIATION::
@@ -727,6 +757,16 @@ FORCE::NAPLE::MC_ASSOCIATION::
 MAP_FENE_Boltzmann
 (double distance, double* given_variables)
 {
+  return FORCE::FENE::Boltzmann_distribution(distance, given_variables[3], given_variables[5], given_variables[8]);
+}
+
+inline double
+FORCE::NAPLE::MC_ASSOCIATION::
+MAP_minimum_R0_FENE_Boltzmann
+(double distance, double* given_variables)
+{
+  if (distance < 1.0)
+    FORCE::FENE::Boltzmann_distribution(1.0, given_variables[3], given_variables[5], given_variables[8]);
   return FORCE::FENE::Boltzmann_distribution(distance, given_variables[3], given_variables[5], given_variables[8]);
 }
 
