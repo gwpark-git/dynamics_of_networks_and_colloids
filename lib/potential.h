@@ -203,6 +203,10 @@ namespace FORCE
 	(double distance, double* given_variables);
 
       double
+      MAP_minimum_R0_cutoff_modified_Gaussian_Boltzmann
+	(double distance, double* given_variables);
+      
+      double
       MAP_cutoff_equal_probability
       (double distance, double* given_variables);
 
@@ -364,13 +368,13 @@ minimum_R0_dissociation_probability
 (double distance, double (*force)(double, double*), double* given_variables)
 // (double distance, double tension, double* given_variables)
 {
-    double tension = force(distance, given_variables);
+  double tension = 0.;
+  if (distance < 1.0)
+    tension = force(1.0, given_variables);
+  else
+    tension = force(distance, given_variables);
 
   double tpa = 0.;
-  // if (distance < 1.0)
-  //   tpa = given_variables[6]*exp(
-  // else
-  //   tpa = given_variables[6]*exp(tension*given_variables[4]);
 
   if (tpa > 1.0)
     return 1.0;
@@ -671,6 +675,7 @@ MAP_modified_Gaussian_Boltzmann
   return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(distance, given_variables[3], given_variables[5]);
 }
 
+
 inline double
 FORCE::NAPLE::MC_ASSOCIATION::
 MAP_cutoff_equal_probability
@@ -679,6 +684,8 @@ MAP_cutoff_equal_probability
   return FORCE::CUTOFF_ASSOCIATION::cutoff_equal_probability(distance, given_variables[7]);
 }
 
+
+
 inline double
 FORCE::NAPLE::MC_ASSOCIATION::
 MAP_cutoff_modified_Gaussian_Boltzmann
@@ -686,6 +693,18 @@ MAP_cutoff_modified_Gaussian_Boltzmann
 {
   return FORCE::MODIFIED_GAUSSIAN::cutoff_Boltzmann_distribution(distance, given_variables[3], given_variables[5], given_variables[7]);
 }
+
+
+inline double
+FORCE::NAPLE::MC_ASSOCIATION::
+MAP_minimum_R0_cutoff_modified_Gaussian_Boltzmann
+(double distance, double* given_variables)
+{
+  if (distance < 1.0)
+    return FORCE::MODIFIED_GAUSSIAN::cutoff_Boltzmann_distribution(1.0, given_variables[3], given_variables[5], given_variables[7]);
+  return FORCE::MODIFIED_GAUSSIAN::cutoff_Boltzmann_distribution(distance, given_variables[3], given_variables[5], given_variables[7]);
+}
+
 
 inline double
 FORCE::NAPLE::MC_ASSOCIATION::

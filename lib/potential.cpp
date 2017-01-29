@@ -127,6 +127,10 @@ MAP_potential_set
         {
           given_POT.force_variables[7] = cutoff_connection;
           given_POT.PDF_connector = MAP_cutoff_modified_Gaussian_Boltzmann;
+	  if(given_cond("association_probability") == "minimum_R0_Boltzmann")
+	    {
+	      given_POT.PDF_connector = MAP_minimum_R0_cutoff_modified_Gaussian_Boltzmann;
+	    }
         }
       else
         {
