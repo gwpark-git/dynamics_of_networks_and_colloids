@@ -496,7 +496,9 @@ check_dissociation_probability(ASSOCIATION& CONNECT, POTENTIAL_SET& POTs, RDIST&
   MKL_LONG index_attached_bead = IDX.beads[CONNECT.flag_other];
   
   double distance_exist_bridge = R_boost.Rsca[index_itself](index_attached_bead);
-  double tpa = POTs.transition(distance_exist_bridge, POTs.f_connector(distance_exist_bridge, POTs.force_variables), POTs.force_variables);
+  // double tpa = POTs.transition(distance_exist_bridge, POTs.f_connector(distance_exist_bridge, POTs.force_variables), POTs.force_variables);
+  double tpa = POTs.transition(distance_exist_bridge, POTs.f_connector, POTs.force_variables);
+
   if (tpa == 1.0)
     {
       IDENTIFIER_ACTION = ACTION::IDENTIFIER_ACTION_BOOLEAN_BOOST(CONNECT, IDX);

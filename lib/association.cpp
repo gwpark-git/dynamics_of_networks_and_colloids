@@ -499,7 +499,9 @@ MKL_LONG ASSOCIATION::add_association(const MKL_LONG index_particle, MKL_LONG in
 
 MKL_LONG ASSOCIATION::add_association_INFO(POTENTIAL_SET& POTs, const MKL_LONG index_particle, MKL_LONG index_target, double distance)
 {
-  double val_CASE_SUGGESTION = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
+  // double val_CASE_SUGGESTION = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
+  double val_CASE_SUGGESTION = POTs.w_function(distance, POTs.f_connector, POTs.force_variables);
+  
   add_association(index_particle, index_target);
   CASE_SUGGESTION[index_particle](FIND_HASH_INDEX(index_particle, index_target)) = val_CASE_SUGGESTION;
   CASE_SUGGESTION[index_target](FIND_HASH_INDEX(index_target, index_particle)) = val_CASE_SUGGESTION;
@@ -597,7 +599,8 @@ MKL_LONG ASSOCIATION::opp_del_association(const MKL_LONG index_particle, MKL_LON
 
 double KINETICS::CONNECTIVITY_update_CASE_SUGGESTION_particle_hash_target(ASSOCIATION* CONNECT, POTENTIAL_SET& POTs, const MKL_LONG index_particle, MKL_LONG hash_index_target, double distance)
 {
-  CONNECT->CASE_SUGGESTION[index_particle](hash_index_target) = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
+  CONNECT->CASE_SUGGESTION[index_particle](hash_index_target) = POTs.w_function(distance, POTs.f_connector, POTs.force_variables);
+  // CONNECT->CASE_SUGGESTION[index_particle](hash_index_target) = POTs.w_function(distance, POTs.f_connector(distance, POTs.force_variables), POTs.force_variables);
   return CONNECT->CASE_SUGGESTION[index_particle](hash_index_target);
 }
 

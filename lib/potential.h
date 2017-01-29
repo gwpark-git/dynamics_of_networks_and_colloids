@@ -37,10 +37,13 @@ class POTENTIAL_SET
     (MATRIX& basic_random_var_unity, double* given_variables);
   double
     (*w_function)
-    (double distance, double tension, double* given_variables);
+  (double distance, double (*force)(double, double*), double* given_varialbes);
+  
+    // (double distance, double tension, double* given_variables);
   double
     (*transition)
-    (double distance, double tension, double* given_varialbes);
+  (double distance, double (*force)(double, double*), double* given_varialbes);
+    // (double distance, double tension, double* given_varialbes);
 
 
   POTENTIAL_SET()
@@ -183,8 +186,12 @@ namespace FORCE
 	MAP_Gaussian_spring_potential
 	(double distance, double* given_variables);
       double
-	MAP_Gaussian_Boltzmann
+      MAP_Gaussian_Boltzmann
 	(double distance, double* given_variables);
+
+      double
+      MAP_minimum_R0_Gaussian_Boltzmann
+      (double distance, double* given_variables);
 
       double
 	MAP_modified_Gaussian_spring_force
@@ -193,12 +200,20 @@ namespace FORCE
 	MAP_modified_Gaussian_spring_potential
 	(double distance, double* given_variables);
       double
-	MAP_modified_Gaussian_Boltzmann
+      MAP_modified_Gaussian_Boltzmann
 	(double distance, double* given_variables);
+      double
+      MAP_minimum_R0_modified_Gaussian_Boltzmann
+	(double distance, double* given_variables);
+      
       double
 	MAP_cutoff_modified_Gaussian_Boltzmann
 	(double distance, double* given_variables);
 
+      double
+      MAP_minimum_R0_cutoff_modified_Gaussian_Boltzmann
+	(double distance, double* given_variables);
+      
       double
       MAP_cutoff_equal_probability
       (double distance, double* given_variables);
@@ -211,8 +226,11 @@ namespace FORCE
 	MAP_FENE_spring_potential
 	(double distance, double* given_variables);
       double
-	MAP_FENE_Boltzmann
+      MAP_FENE_Boltzmann
 	(double distance, double* given_variables);
+      double
+	MAP_minimum_R0_FENE_Boltzmann
+	(double distance, double* given_variables);      
       double
 	MAP_time_scaling_random
 	(MATRIX& given_basic_random, double* given_variables);
@@ -228,29 +246,42 @@ namespace KINETICS
 {
   namespace UNIFORM
   {
-    double detachment_weight(double distance, double tension, double* given_variables);
-    double transition_probability(double distance, double tension, double* given_variables);
+    double detachment_weight(double distance, double (*force)(double, double*), double* given_variables);
+// (double distance, double tension, double* given_variables);
+    double transition_probability(double distance, double (*force)(double, double*), double* given_variables);
+// (double distance, double tension, double* given_variables);
   }
   namespace WEIGHTED
   {
-    double detachment_weight(double distance, double tension, double* given_variables);
-    double transition_probability(double distance, double tension, double* given_variables);
+    double detachment_weight(double distance, double (*force)(double, double*), double* given_variables);
+// (double distance, double tension, double* given_variables);
+    double transition_probability(double distance, double (*force)(double, double*), double* given_variables);
+// (double distance, double tension, double* given_variables);
   }
 
   namespace METROPOLIS
   {
-    double detachment_weight(double distance, double tension, double* given_variables);
-    double transition_probability(double distance, double tension, double* given_varialbes);
+    double detachment_weight(double distance, double (*force)(double, double*), double* given_variables);
+// (double distance, double tension, double* given_variables);
+    double transition_probability(double distance, double (*force)(double, double*), double* given_variables);
+// (double distance, double tension, double* given_varialbes);
   }
 
-  double dissociation_probability(double distance, double tension, double* given_variables);
-  double cutoff_dissociation_probability(double distance, double tension, double* given_variables);
+  double dissociation_probability(double distance, double (*force)(double, double*), double* given_variables);
+// (double distance, double tension, double* given_variables);
+  double cutoff_dissociation_probability(double distance, double (*force)(double, double*), double* given_variables);
+// (double distance, double tension, double* given_variables);
+  double minimum_R0_dissociation_probability(double distance, double (*force)(double, double*), double* given_variables);
 
-  double dissociation_probability_equal_modified_gaussian(double distance, double tension, double* given_variables);
+  // (double distance, double tension, doouble* given_variables);
+  double dissociation_probability_equal_modified_gaussian(double distance, double (*force)(double, double*), double* given_variables);
+// (double distance, double tension, double* given_variables);
   
   namespace FIRST_ORDER
   {
-    double dissociation_probability(double distance, double tension, double* given_variables);
+    double dissociation_probability(double distance, double (*force)(double, double*), double* given_variables);
+
+    // (double distance, double tension, double* given_variables);
   }
 
 }
@@ -262,12 +293,14 @@ namespace KINETICS
 inline double
 KINETICS::WEIGHTED::
 detachment_weight
-(double distance, double tension, double* given_variables)
+(double distance, double (*force)(double, double*), double* given_variables)
+// (double distance, double tension, double* given_variables)
 {
   // given_variables[3] == Nd
   // given_variables[4] == l_cap
   // in normalized scheme, the energy barrier is canceled out with normalization factor
   // therefore, it is only affected by the tension exerted on the chain
+  double tension = force(distance, given_variables);
   return exp(tension*given_variables[4]);
 }
 
@@ -275,7 +308,8 @@ detachment_weight
 inline double
 KINETICS::METROPOLIS::
 detachment_weight
-(double distance, double tension, double* given_variables)
+(double distance, double (*force)(double, double*), double* given_variables)
+// (double distance, double tension, double* given_variables)
 {
   return 1.0;
 }
@@ -283,8 +317,10 @@ detachment_weight
 inline double
 KINETICS::METROPOLIS::
 transition_probability
-(double distance, double tension, double* given_variables)
+(double distance, double (*force)(double, double*), double* given_variables)
+// (double distance, double tension, double* given_variables)
 {
+  double tension = force(distance, given_variables);
   double tpa = exp(tension*given_variables[4] - given_variables[6]);
   if (tpa > 1.0)
     return 1.0;
@@ -294,8 +330,11 @@ transition_probability
 inline double
 KINETICS::WEIGHTED::
 transition_probability
-(double distance, double tension, double* given_variables)
+(double distance, double (*force)(double, double*), double* given_variables)
+// (double distance, double tension, double* given_variables)
 {
+  double tension = force(distance, given_variables);
+
   double tpa = exp(tension*given_variables[4]);
   if (tpa > 1.0)
     return 1.0;
@@ -305,7 +344,8 @@ transition_probability
 inline double
 KINETICS::UNIFORM::
 detachment_weight
-(double distance, double tension, double *given_variables)
+// (double distance, double tension, double *given_variables)
+(double distance, double (*force)(double, double*), double* given_variables)
 {
   return 1.0;
 }
@@ -313,7 +353,8 @@ detachment_weight
 inline double
 KINETICS::UNIFORM::
 transition_probability
-(double distance, double tension, double* given_varialbes)
+(double distance, double (*force)(double, double*), double* given_variables)
+// (double distance, double tension, double* given_varialbes)
 {
   return 1.0;
 }
@@ -321,8 +362,11 @@ transition_probability
 inline double
 KINETICS::
 dissociation_probability
-(double distance, double tension, double* given_variables)
+(double distance, double (*force)(double, double*), double* given_variables)
+// (double distance, double tension, double* given_variables)
 {
+  double tension = force(distance, given_variables);
+
   double tpa = given_variables[6]*exp(tension*given_variables[4]);
   if (tpa > 1.0)
     return 1.0;
@@ -331,8 +375,29 @@ dissociation_probability
 
 inline double
 KINETICS::
+minimum_R0_dissociation_probability
+(double distance, double (*force)(double, double*), double* given_variables)
+// (double distance, double tension, double* given_variables)
+{
+  double tension = 0.;
+  if (distance < 1.0)
+    tension = force(1.0, given_variables);
+  else
+    tension = force(distance, given_variables);
+
+  double tpa = given_variables[6]*exp(tension*given_variables[4]);
+
+  if (tpa > 1.0)
+    return 1.0;
+  return tpa;
+}
+
+
+inline double
+KINETICS::
 cutoff_dissociation_probability
-(double distance, double tension, double* given_variables)
+(double distance, double (*force)(double, double*), double* given_variables)
+// (double distance, double tension, double* given_variables)
 {
   // double tpa = given_variables[6]*exp(tension*given_variables[4]);
   double tpa = given_variables[6];
@@ -344,7 +409,8 @@ cutoff_dissociation_probability
 inline double
 KINETICS::
 dissociation_probability_equal_modified_gaussian
-(double distance, double tension, double* given_variables)
+(double distance, double (*force)(double, double*), double* given_variables)
+// (double distance, double tension, double* given_variables)
 {
   /*
     Unlike the previous approach, it set the dissociation probability as the same with Boltzman distribution without normalization.
@@ -359,8 +425,10 @@ dissociation_probability_equal_modified_gaussian
 inline double
 KINETICS::FIRST_ORDER::
 dissociation_probability
-(double distance, double tension, double* given_variables)
+(double distance, double (*force)(double, double*), double* given_variables)
+// (double distance, double tension, double* given_variables)
 {
+  double tension = force(distance, given_variables);
   double Dt = given_variables[6];
   double lcap = given_variables[4];
   double beta = exp(tension*lcap);
@@ -596,6 +664,16 @@ MAP_Gaussian_Boltzmann
 
 inline double
 FORCE::NAPLE::MC_ASSOCIATION::
+MAP_minimum_R0_Gaussian_Boltzmann
+(double distance, double* given_variables)
+{
+  if (distance < 1.0)
+    FORCE::GAUSSIAN::Boltzmann_distribution(1.0, given_variables[3]);
+  return FORCE::GAUSSIAN::Boltzmann_distribution(distance, given_variables[3]);
+}
+
+inline double
+FORCE::NAPLE::MC_ASSOCIATION::
 MAP_modified_Gaussian_spring_force
 (double distance, double* given_variables)
 {
@@ -620,11 +698,23 @@ MAP_modified_Gaussian_Boltzmann
 
 inline double
 FORCE::NAPLE::MC_ASSOCIATION::
+MAP_minimum_R0_modified_Gaussian_Boltzmann
+(double distance, double* given_variables)
+{
+  if (distance < 1.0)
+    return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(1.0, given_variables[3], given_variables[5]);
+  return FORCE::MODIFIED_GAUSSIAN::Boltzmann_distribution(distance, given_variables[3], given_variables[5]);
+}
+
+inline double
+FORCE::NAPLE::MC_ASSOCIATION::
 MAP_cutoff_equal_probability
 (double distance, double* given_variables)
 {
   return FORCE::CUTOFF_ASSOCIATION::cutoff_equal_probability(distance, given_variables[7]);
 }
+
+
 
 inline double
 FORCE::NAPLE::MC_ASSOCIATION::
@@ -633,6 +723,18 @@ MAP_cutoff_modified_Gaussian_Boltzmann
 {
   return FORCE::MODIFIED_GAUSSIAN::cutoff_Boltzmann_distribution(distance, given_variables[3], given_variables[5], given_variables[7]);
 }
+
+
+inline double
+FORCE::NAPLE::MC_ASSOCIATION::
+MAP_minimum_R0_cutoff_modified_Gaussian_Boltzmann
+(double distance, double* given_variables)
+{
+  if (distance < 1.0)
+    return FORCE::MODIFIED_GAUSSIAN::cutoff_Boltzmann_distribution(1.0, given_variables[3], given_variables[5], given_variables[7]);
+  return FORCE::MODIFIED_GAUSSIAN::cutoff_Boltzmann_distribution(distance, given_variables[3], given_variables[5], given_variables[7]);
+}
+
 
 inline double
 FORCE::NAPLE::MC_ASSOCIATION::
@@ -655,6 +757,16 @@ FORCE::NAPLE::MC_ASSOCIATION::
 MAP_FENE_Boltzmann
 (double distance, double* given_variables)
 {
+  return FORCE::FENE::Boltzmann_distribution(distance, given_variables[3], given_variables[5], given_variables[8]);
+}
+
+inline double
+FORCE::NAPLE::MC_ASSOCIATION::
+MAP_minimum_R0_FENE_Boltzmann
+(double distance, double* given_variables)
+{
+  if (distance < 1.0)
+    FORCE::FENE::Boltzmann_distribution(1.0, given_variables[3], given_variables[5], given_variables[8]);
   return FORCE::FENE::Boltzmann_distribution(distance, given_variables[3], given_variables[5], given_variables[8]);
 }
 
