@@ -385,7 +385,7 @@ minimum_R0_dissociation_probability
   else
     tension = force(distance, given_variables);
 
-  double tpa = 0.;
+  double tpa = given_variables[6]*exp(tension*given_variables[4]);
 
   if (tpa > 1.0)
     return 1.0;
