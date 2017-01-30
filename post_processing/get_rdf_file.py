@@ -33,9 +33,10 @@ else:
     half_bd = box_dimension/2.0
     Np = int(sys.argv[8])
     dr = float(sys.argv[9])
-    rho = 0.4
+    rho = Np/box_dimension**3.0
+    # rho = 0.4
     cut_ratio = 0.5
-    fac_t = 1
+    # fac_t = 1
     t = t_st + arange(N_t_block)*fac_t
     rdf, rho_local = get_rdf_ref(traj, t, dr, Np, N_dimension, box_dimension, cut_ratio)
     print rho_local
