@@ -62,7 +62,7 @@ def Nij_corr_con_rep(dat):
     N_23_rep = Nij_rep(dat, 2, 3)
     return (corr(N_12_con, N_12_rep) + corr(N_13_con, N_13_rep) + corr(N_23_con, N_23_rep))/30.
 
-def tauij_corr_rep_rep(dat):
+def tauij_corr_rep_con(dat):
     tau_12_con = dat[:, 27]
     tau_13_con = dat[:, 28]
     tau_23_con = dat[:, 29]
