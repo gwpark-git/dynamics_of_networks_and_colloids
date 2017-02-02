@@ -358,6 +358,16 @@ MKL_LONG ASSOCIATION::N_TOTAL_ASSOCIATION()
   return total_association/2.;
 }
 
+MKL_LONG ASSOCIATION::N_PARTICLE_ASSOCIATION(MKL_LONG index_particle)
+{
+  MKL_LONG N_association = 0;
+  for(MKL_LONG j=1; j<TOKEN[index_particle]; j++)
+    {
+      N_association += (MKL_LONG)weight[index_particle](j);
+    }
+  return N_association;
+}
+
 MKL_LONG ASSOCIATION::N_CONNECTED_ENDS(MKL_LONG given_index)
 {
   MKL_LONG cnt = 0;

@@ -392,9 +392,12 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
       
       for (MKL_LONG k=0; k<TRAJ.N_dimension; k++)
         {
+	  MKL_LONG N_connectors_k = CONNECT.N_PARTICLE_ASSOCIATION(k);
+	  double zeta_corrector = POTs.zeta_particle(N_connectors_k, POTs.force_variables);
+	  // double zeta_corrector = POTs.zeta_particle(N_connectors_k, POTs.force_variables);
           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k)
-            + TRAJ.dt*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k))
-            + sqrt(TRAJ.dt)*force_random[i](k);
+            + (TRAJ.dt/zeta_corrector)*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k))
+            + sqrt(TRAJ.dt/zeta_corrector)*force_random[i](k);
         }
       if(VAR.SIMPLE_SHEAR)
         TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_R*TRAJ(index_t_now, i, VAR.shear_grad_axis);
