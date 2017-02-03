@@ -1,11 +1,11 @@
 
 from numpy import *
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import scipy.special as sp
-from matplotlib.font_manager import FontProperties
+# from matplotlib.font_manager import FontProperties
 import sys
-fontP = FontProperties()
-fontP.set_size('x-small')
+# fontP = FontProperties()
+# fontP.set_size('x-small')
 
 def sample_signal(x_peak, y_peak, cut_ident):
     Np = size(x_peak)
@@ -60,7 +60,7 @@ def recursive_convex(x, y, max_cut, max_recursion):
         return re_x, re_y
     return recursive_convex(re_x, re_y, max_cut)
 
-def gr2Sq_2d(q, r, gr):
+def gr2Sq_2d(q, r, gr, rho):
     Nq = size(q)
     Nr = size(r)
     re = zeros(Nq)
@@ -71,15 +71,32 @@ def gr2Sq_2d(q, r, gr):
             f1 = r1*sp.j0(r1*q[i])*(gr[j] - 1.)
             f2 = r2*sp.j0(r2*q[i])*(gr[j+1] - 1.)
             re[i] += 0.5*dr*(f1 + f2)  #trapezoidal rule
-    return re + 1.0
+    return rho*re + 1.0
 
-if size(sys.argv) < 5:
+def gr2Sq_3d(q, r, gr, rho):
+    Nq = size(q)
+    Nr = size(r)
+    re = zeros(Nq)
+    for i in range(Nq):
+        for j in range(Nr - 1):
+            r1 = r[j]; r2 = r[j+1];
+            dr = r2 - r1
+            f1 = r1*sin(r1*q[i])*(gr[j] - 1.)
+            f2 = r2*sin(r2*q[i])*(gr[j+1] - 1.)
+            re[i] += 0.5*dr*(f1 + f2)/q[i]
+    # return re + 1.0
+    return 4.*pi*rho*re + 1.0
+            
+
+if size(sys.argv) < 6:
     print 'USAGE:'
     print 'argv[1] == input rdf file name'
-    print 'argv[2] == output pdf file name'
+    print 'argv[2] == output Sq file name'
     # print 'argv[3] == cutting identification for sampling'
     print 'argv[3] == minimum of log10(q)'
     print 'argv[4] == maximum of log10(q)'
+    print 'argv[5] == number density of particles'
+    print 'argv[6] == spatial dimension'
     # print 'argv[6] == minimum of log10(Sq) (plot window)'
     # print 'argv[7] == maximum of log10(Sq) (plot window)'
     # print 'argv[8] == given density (rho)'
@@ -97,7 +114,14 @@ else:
     gr11 = rdf_r11[:,2]
     r11_max = r11[argmax(gr11)]
     dr11 = r11[1] - r11[0]
-    Sq11 = gr2Sq_2d(q, r11, gr11)
+    rho = float(sys.argv[5])
+    Nd = int(sys.argv[6])
+    if Nd == 2:
+        Sq11 = gr2Sq_2d(q, r11, gr11, rho)
+    elif Nd == 3:
+        Sq11 = gr2Sq_3d(q, r11, gr11, rho)
+    else:
+        print 'Wrong Condition for spatial dimension'
     re = zeros([size(q), 2])
     re[:,0] = q*r11_max/(2.*pi)
     re[:,1] = Sq11

@@ -40,10 +40,10 @@ def get_rdf(traj, ts, dr, Np, N_dimension, box_dimension, cut_ratio):
         rdf[int(r/dr), 1] += 1
     if (N_dimension == 3):
         rdf[:,2] = rdf[:,1]/(4.*pi*rdf[:,0]**2.0)
-        rdf_local = size(ddf)/(0.5*(Np-1)*(4./3.)*pi*(cut_ratio*box_dimension)**3.0)
+        rho_local = size(ddf)/(0.5*(Np-1)*(4./3.)*pi*(cut_ratio*box_dimension)**3.0)
     elif (N_dimension == 2):
         rdf[:,2] = rdf[:,1]/(2.*pi*rdf[:,0])
-    rho_local = size(ddf)/(0.5*(Np-1)*pi*(0.5*box_dimension)**2.0)
+        rho_local = size(ddf)/(0.5*(Np-1)*pi*(0.5*box_dimension)**2.0)
     normal_fac = dr*size(ts)
     rdf[:,2] /= rho_local*normal_fac
     return rdf
@@ -89,5 +89,33 @@ def get_rdf_from_ddf(ddf, dr, Np, Nt, N_dimension, box_dimension, cut_ratio):
         Vrmax = pi*(cut_ratio*box_dimension)**2.0
         rho_local = N_tot/(Nt*0.5*(Np-1)*Vrmax)
     rdf[:,2] = rdf[:,1]/(Vr*0.5*(Np-1)*Nt*rho_local)
+    rdf[0, 2] = 0. #removing the first term as zero because it is given by nan (division was 0)
+    return rdf, rho_local
+
+
+def get_rdf_from_rpdist(rpdist, dr, Np, Nt, N_dimension, box_dimension, cut_ratio):
+    # Nr = int(cut_ratio*box_dimension/dr) + 1
+    r_arr = arange(0, cut_ratio*box_dimension + dr, dr)
+    Nr = size(r_arr)
+    rdf = zeros([Nr, 3])
+    rdf[:,0] = r_arr
+    
+    # ddf = get_ddf(traj, ts, Np, N_dimension, box_dimension, cut_ratio)
+    N_tot = size(rpdist)
+    # Nt = size(ts)
+    for r in rpdist:
+        if r < box_dimension*cut_ratio:
+            rdf[int(r/dr), 1] += 1
+    if (N_dimension == 3):
+        Vr = (4./3.)*pi*((rdf[:,0]+dr)**3.0 - rdf[:,0]**3.0)
+        Vrmax = (4./3.)*pi*(cut_ratio*box_dimension)**3.0
+        rho_local = N_tot/(Nt*(Np-1)*Vrmax)
+    elif (N_dimension == 2):
+        Vr = pi*((rdf[:,0]+dr)**2.0 - rdf[:,0]**2.0)
+        Vrmax = pi*(cut_ratio*box_dimension)**2.0
+        rho_local = N_tot/(Nt*0.5*(Np-1)*Vrmax)
+    # rdf[:,2] = rdf[:,1]/(Vr*0.5*(Np-1)*Nt*rho_local)
+    rho_global = Np/(box_dimension)**3.0
+    rdf[:,2] = rdf[:,1]/(Vr*0.5*(Np-1)*Nt*rho_global)
     rdf[0, 2] = 0. #removing the first term as zero because it is given by nan (division was 0)
     return rdf, rho_local
