@@ -1,0 +1,4 @@
+## PARTICLE::friction: DEFAULT or DISSOCIATION_TIME
+friction_junction=LOOP_DISSOCIATION_TIME
+### association_probability can be DEFAULT, EQUAL_CUTOFF_RANGE, or minimum_R0_Boltzmann
+association_probability=DEFAULT

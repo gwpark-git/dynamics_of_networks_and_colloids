@@ -17,6 +17,11 @@ class POTENTIAL_SET
   
   // member variables
   double *force_variables;
+
+  double
+  (*zeta_particle)
+  (MKL_LONG N_connectors, double* given_variables);
+  
   double
     (*f_connector)
     (double distance, double* given_variables);
@@ -152,6 +157,10 @@ namespace FORCE
       EMPTY_force_set
       (POTENTIAL_SET& given_POT, COND& given_condition);
 
+    double
+    dimensionless_friction
+    (MKL_LONG N_connectors, double* given_variables);
+
   }
   namespace NAPLE
   {
@@ -179,6 +188,11 @@ namespace FORCE
     }
     namespace MC_ASSOCIATION
     {
+      double
+      friction_LOOP_DISSOCIATION_TIME
+      (MKL_LONG N_connectors, double* given_variables);
+
+      
       double
 	MAP_Gaussian_spring_force
 	(double distance, double* given_variables);
@@ -467,6 +481,14 @@ time_scaling_random
 }
 
 inline double
+FORCE::DEFAULT::dimensionless_friction
+(MKL_LONG N_connectors, double* given_variables)
+{
+  return 1.; // dimensionless contribution in basic part will be unity.
+}
+
+
+inline double
 FORCE::NAPLE::SIMPLE_REPULSION::
 MAP_time_scaling_random
 (MATRIX& given_basic_random, double* given_variables)
@@ -481,6 +503,18 @@ MAP_time_scaling_random
 {
   return FORCE::DEFAULT::time_scaling_random(given_basic_random, given_variables[2]);
 }
+
+inline double
+FORCE::NAPLE::MC_ASSOCIATION::
+friction_LOOP_DISSOCIATION_TIME
+(MKL_LONG N_connectors, double* given_variables)
+{
+  if (N_connectors == 0)
+    return 1.;
+  return N_connectors*given_variables[9]/2.; // the denominator 2 related with correction for multiple counter
+}
+
+
 
 inline double
 FORCE::NAPLE::

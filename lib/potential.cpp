@@ -93,7 +93,7 @@ MAP_potential_set
 (POTENTIAL_SET& given_POT, COND& given_cond)
 {
 
-  given_POT.force_variables = new double [9];
+  given_POT.force_variables = new double [10];
   given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
   given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
   given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
@@ -215,6 +215,13 @@ MAP_potential_set
       given_POT.PDF_connector = MAP_cutoff_equal_probability;
     }
 
+  given_POT.zeta_particle = FORCE::DEFAULT::dimensionless_friction;
+  if(given_cond("friction_junction")=="LOOP_DISSOCIATION_TIME")
+    {
+      given_POT.force_variables[9] = atof(given_cond("Rt").c_str())*atof(given_cond("repulsion_coefficient").c_str());
+      given_POT.zeta_particle = FORCE::NAPLE::MC_ASSOCIATION::friction_LOOP_DISSOCIATION_TIME;
+    }
+  
   
   if(given_cond("chain_selection")=="METROPOLIS")
     {
