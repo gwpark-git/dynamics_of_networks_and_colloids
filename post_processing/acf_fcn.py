@@ -123,6 +123,25 @@ def corr(x, y):
         re[i] = dot(x[:N/2], y[i:i+N/2])
     return re/float(N/2)
 
+def corr_FFT(x, y):
+    Fx = fft.rfft(x)
+    tempY = []
+    y = list(y)
+    while len(y) > 0:
+        tempY.append(y.pop())
+    Fy = fft.rfft(tempY)
+    # note that complex conjugate for 1-dimensional real number is itself 
+    return fft.irfft(Fx*Fy)/size(x)
+    # Nt = size(x)
+    # Fx = fft.fft(x, norm='ortho')
+    # Fy = fft.fft(y, norm='ortho')
+    # F_Corr_xy = conj(Fx)*Fy
+    # return abs(fft.fft(F_Corr_xy, norm='ortho'))
+    # Fx = fft.fft(x)
+    # Fy = fft.fft(y)
+    # from scipy.signal import correlate
+    # return correlate(asarray(x), asarray(y), mode='same')
+
 def acf_ref(x):
     N = size(x)
     re = zeros(N/2)
