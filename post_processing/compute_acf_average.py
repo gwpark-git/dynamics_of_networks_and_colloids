@@ -123,7 +123,7 @@ else:
             # Nt_block = Nt/N_div
 
             print '\taverage over %ld blocks:'%(N_div)
-            print '\t### %ld out of %ld is being processing'%(0, N_div)
+            print '\t### %ld out of %ld is being processing: from %ld to %ld'%(0, N_div, 0, Nt_block)
 
             corr_con = tauij_acf_con(ener[N_st:N_st+Nt_block, :]) + Nij_acf_con(ener[N_st:N_st+Nt_block, :])
             corr_rep = tauij_acf_rep(ener[N_st:N_st+Nt_block, :]) + Nij_acf_rep(ener[N_st:N_st+Nt_block, :])
@@ -144,8 +144,9 @@ else:
             #                 + corr(ener[N_st:N_st+Nt_block, 23], ener[N_st:N_st+Nt_block, 29]))/3.
 
             for i in range(1, N_div):
-                print '\t### %ld out of %ld is being processing'%(i, N_div)                
+
                 N_st = N_cut + i*Nt_inc
+                print '\t### %ld out of %ld is being processing: from %ld to %ld'%(i, N_div, N_st, N_st + Nt_block)                                
                 corr_con += tauij_acf_con(ener[N_st:N_st+Nt_block, :]) + Nij_acf_con(ener[N_st:N_st+Nt_block, :])
                 corr_rep += tauij_acf_rep(ener[N_st:N_st+Nt_block, :]) + Nij_acf_rep(ener[N_st:N_st+Nt_block, :])
                 corr_con_rep += tauij_corr_con_rep(ener[N_st:N_st+Nt_block, :]) + Nij_corr_con_rep(ener[N_st:N_st+Nt_block, :])
