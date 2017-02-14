@@ -10,6 +10,7 @@ if size(sys.argv) < 4:
     # print 'argv[2] == number of effective time. Note that HALF option will be used'
     print 'argv[2] == dr'
     print 'argv[3] == cut ratio. In this case, cutoff_length/box_dimension should be add'
+    print 'argv[4] (optional) == cut time ratio. Default is 0.5 (half of time steps)'
 else:
     fn_rpdist = sys.argv[1]
 
@@ -17,8 +18,12 @@ else:
     Np = int(fn_rpdist.split('NP')[1][0:4])
 
     rpdist = loadtxt(fn_rpdist)
-    Nt = (shape(rpdist)[0]/Np)/2
-    rpdist = (rpdist.flatten())[size(rpdist)/2:]
+
+    cut_time_ratio = 0.5
+    if size(sys.argv) == 5:
+        cut_time_ratio = float(sys.argv[4])
+    Nt = int((shape(rpdist)[0]/Np)*(1. - cut_time_ratio)) # left time steps 
+    rpdist = (rpdist[int(shape(rpdist)[0]*cut_time_ratio):, :].flatten())
 
     dr = float(sys.argv[2])
     Ld = float(fn_rpdist.split('_LD')[1][0:2])
