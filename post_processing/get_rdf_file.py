@@ -17,6 +17,8 @@ if size(sys.argv) < 10:
     print 'argv[7] == box_dimension'
     print 'argv[8] == number of particles'
     print 'argv[9] == dr'
+    print 'argv[10](optional) == 0, 1, 2 for index of axis for angular unit vector for rdf (default is FALSE. For simple shear, z axis should be set with 2)'
+    print 'argv[11](optional) == dtheta when angular unit is given in argv[10]'
 else:
 
     fn_traj = sys.argv[1]
@@ -38,7 +40,14 @@ else:
     cut_ratio = 0.5
     # fac_t = 1
     t = t_st + arange(N_t_block)*fac_t
-    rdf, rho_local = get_rdf_ref(traj, t, dr, Np, N_dimension, box_dimension, cut_ratio)
+    
+    if size(sys.argv) > 11:
+        unit_vec = zeros(3)
+        unit_vec[int(sys.argv[10])] = 1.
+        dtheta = float(sys.argv[11])
+        rdf, rho_local = get_rdf_from_traj_angle(traj, t, dr, Np, Nt, N_dimension, box_dimension, cut_ratio, unit_vec, dtheta)
+    else:
+        rdf, rho_local = get_rdf_ref(traj, t, dr, Np, N_dimension, box_dimension, cut_ratio)
     print rho_local
     savetxt(fn_rdf_out, rdf)
     # ref_unity = asarray([[0, 1], [cut_ratio*box_dimension, 1]])
