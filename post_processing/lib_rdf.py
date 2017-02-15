@@ -103,11 +103,21 @@ def get_rdf_ref(traj, ts, dr, Np, N_dimension, box_dimension, cut_ratio):
     Nr = int(cut_ratio*box_dimension/dr)
     rdf = zeros([Nr, 3])
     rdf[:,0] = arange(0, cut_ratio*box_dimension, dr)
-    ddf = get_ddf(traj, ts, Np, N_dimension, box_dimension, cut_ratio)
-    N_tot = size(ddf)
+    # ddf = get_ddf(traj, ts, Np, N_dimension, box_dimension, cut_ratio)
+    N_tot = 0
     Nt = size(ts)
-    for r in ddf:
-        rdf[int(r/dr), 1] += 1
+    for t in ts:
+        if t%10 == 0:
+            print 'processing %d out of %d'%(t, ts[-1])
+        
+        for i in range(Np-1):
+            for j in range(i+1, Np):
+                d = lin.norm(get_rel_vec(traj, t, i, j, N_dimension, box_dimension))
+                if d<cut_ratio*box_dimension:
+                    rdf[int(d/dr), 1] += 1
+                    N_tot += 1
+    # for r in ddf:
+    #     rdf[int(r/dr), 1] += 1
     if (N_dimension == 3):
         Vr = (4./3.)*pi*((rdf[:,0]+dr)**3.0 - rdf[:,0]**3.0)
         Vrmax = (4./3.)*pi*(cut_ratio*box_dimension)**3.0
