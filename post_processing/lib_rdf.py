@@ -45,6 +45,24 @@ def get_ddf_angle(traj, ts, Np, N_dimension, box_dimension, cut_ratio, vec_u):
                     angles.append(arccos(dot(tmp_vec/d, vec_u)))
     return ddf, angles
 
+def get_xy_df(traj, ts, Np, N_dimension, box_dimension, cut_ratio):
+    xdf = []
+    ydf = []
+    cut_distance = box_dimension*cut_ratio
+    for t in ts:
+        if t%10 == 0:
+            print 'processing %d out of %d'%(t, ts[-1])
+        
+        for i in range(Np-1):
+            for j in range(i+1, Np):
+                # d = lin.norm(tmp_vec)
+                tmp_vec = get_rel_vec(traj, t, i, j, N_dimension, box_dimension)
+                
+                if tmp_vec[0] < cut_distance and tmp_vec[1] < cut_distance:
+                    xdf.append(tmp_vec[0])
+                    ydf.append(tmp_vec[1])
+    return xdf, ydf
+
 def get_rdf(traj, ts, dr, Np, N_dimension, box_dimension, cut_ratio):
     Nr = int(cut_ratio*box_dimension/dr)
     rdf = zeros([Nr, 3])
@@ -103,6 +121,7 @@ def get_rdf_ref(traj, ts, dr, Np, N_dimension, box_dimension, cut_ratio):
     return rdf, rho_local
 
 
+
 def get_rdf_from_ddf(ddf, dr, Np, Nt, N_dimension, box_dimension, cut_ratio):
     Nr = int(cut_ratio*box_dimension/dr) + 1
     rdf = zeros([Nr, 3])
@@ -148,16 +167,58 @@ def get_rdf_from_traj_angle(traj, ts, dr, Np, Nt, N_dimension, box_dimension, cu
         for j in range(1, 1 + N_theta):
             V_ij = (2./3.)*pi*((rdf[i, 0] + dr)**3.0 - rdf[i, 0]**3.0)*(cos(rdf[0, j]) - cos(rdf[0, j] + dtheta))
             rdf[i, j] /= V_ij * 0.5*(Np-1)*Nt*rho_local
-    # Vr = (4./3.)*pi*((rdf[:,0]+dr)**3.0 - rdf[:,0]**3.0)
-    # if (N_dimension == 3):        
-    # because it is anistropic radial distribution function, 2-dimensional case does not have any meaning
-    # elif (N_dimension == 2):
-    #     Vr = pi*((rdf[:,0]+dr)**2.0 - rdf[:,0]**2.0)
-    #     Vrmax = pi*(cut_ratio*box_dimension)**2.0
-    #     rho_local = N_tot/(Nt*0.5*(Np-1)*Vrmax)
-    # rdf[:,2] = rdf[:,1]/(Vr*0.5*(Np-1)*Nt*rho_local)
-    # rdf[0, 2] = 0. #removing the first term as zero because it is given by nan (division was 0)
     return rdf, rho_local
+
+def get_xydf_from_traj(traj, ts, dr, Np, Nt, N_dimension, box_dimension, cut_ratio):
+    # print cut_ratio, box_dimension, dr
+    Nr = int(cut_ratio*box_dimension/dr)*2 + 1
+    # N_theta = int(2*pi/dtheta) + 1
+    rdf = zeros([1 + Nr, 1 + Nr]) # 1 + for Nr means describing theta index. 1 + for N_theta means describing r index
+    base_coord = cut_ratio*box_dimension
+    rdf[1:,0] = arange(-base_coord, base_coord + dr, dr)
+    rdf[0, 1:] = arange(-base_coord, base_coord + dr, dr)
+
+    cut_distance = base_coord
+    N_tot = 0
+    for t in ts:
+        if t%10 == 0:
+            print 'processing %d out of %d'%(t, ts[-1])
+        
+        for i in range(Np-1):
+            for j in range(i+1, Np):
+                # d = lin.norm(tmp_vec)
+                tmp_vec = get_rel_vec(traj, t, i, j, N_dimension, box_dimension)
+                
+                if tmp_vec[0] < cut_distance and tmp_vec[1] < cut_distance:
+                    rdf[ 1 + int((base_coord + tmp_vec[0])/dr), 1 + int((base_coord + tmp_vec[1])/dr)] += 1
+                    N_tot += 1
+                    # xdf.append(tmp_vec[0])
+                    # ydf.append(tmp_vec[1])
+    
+    # xdf, ydf = get_xy_df(traj, ts, Np, N_dimension, box_dimension, cut_ratio)
+    # ddf, angles = get_ddf_angle(traj, ts, Np, N_dimension, box_dimension, cut_ratio, vec_u)
+    # N_tot = size(xdf)
+    print N_tot
+    # for x in xdf:
+    #     for y in ydf:
+    #         rdf[ 1 + int(x/dr), 1 + int(y/dr)] += 1            
+    # for i in range(size(xdf)):
+    #     x = xdf[i]
+    #     for j in range(size(ydf)):
+    #         y = ydf[j]
+
+        # rdf[ 1 + int(/dr), 1 + int((t + pi)/dtheta)] += 1 # making symmetric
+    # Vrmax = (4./3.)*pi*(cut_ratio*box_dimension)**3.0
+    Vrmax = (box_dimension*cut_ratio)**3.0
+    rho_local = N_tot/(Nt*0.5*(Np-1)*Vrmax)
+    for i in range(1, 1 + Nr):
+        for j in range(1, 1 + Nr):
+            V_xy = box_dimension*dr**2.0
+            rdf[i, j] /= V_xy * 0.5 *(Np - 1)*Nt * rho_local
+            # V_ij = (2./3.)*pi*((rdf[i, 0] + dr)**3.0 - rdf[i, 0]**3.0)*(cos(rdf[0, j]) - cos(rdf[0, j] + dtheta))
+            # rdf[i, j] /= V_ij * 0.5*(Np-1)*Nt*rho_local
+    return rdf, rho_local
+
 
 def get_rdf_from_rpdist(rpdist, dr, Np, Nt, N_dimension, box_dimension, cut_ratio):
     # Nr = int(cut_ratio*box_dimension/dr) + 1
