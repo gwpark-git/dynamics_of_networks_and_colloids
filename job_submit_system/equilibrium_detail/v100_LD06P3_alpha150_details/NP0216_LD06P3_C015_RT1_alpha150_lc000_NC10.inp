@@ -122,3 +122,6 @@ MC_LOG=FALSE
 CONTINUATION_STEP=-1
 MC_ASSOCIATION_MAP=FALSE
 probability_area=FALSE
+
+### association_probability can be DEFAULT or EQUAL_CUTOFF_RANGE
+association_probability=DEFAULT
