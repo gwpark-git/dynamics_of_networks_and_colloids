@@ -29,6 +29,7 @@ else:
     tr_RR = zeros([Nt, 2])
     tr_RR[:,0] = traj[Nst:Nst+Nt,0]
     for i in range(NP):
+        print 'processing particle %d'%(i)
         for k in range(ND):
             index_Rik = 2*ND*i + 1 + k
             tr_RR[:,1] += (traj[Nst:Nst+Nt, index_Rik] - traj[Nst, index_Rik])**2.

@@ -104,6 +104,7 @@ else:
                 
             
     for i in range(NP):
+        print 'processing particle %d'%(i)
         for k in range(ND):
             # the sequence of processing is of importance
             # it affect to the identification of inverse PBC boundary condition
@@ -120,6 +121,9 @@ else:
             coord_shift_factor = 0
             inv_PBC_shift_factor = 0
             for t in range(1, Nt):
+                # ident_t = Nt/10
+                # if t%ident_t==0:
+                #     print 'processing %d out of %d'%(int(t/ident_t), 10)
                 record_pre_coord = record_now_coord
                 record_now_coord = dat[t, index_Rik]
                 
