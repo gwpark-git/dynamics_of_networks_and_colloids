@@ -2,6 +2,7 @@
 fn=$1
 fn_submit='submit_'$fn'_transient'
 rm ${fn_submit}_gen.sh
+# cat control_random_stream.txt > ${fn_submit}_gen.sh
 for cnt in $(seq 0 1 99)
 do
     fn_new=$(echo ${fn}_CONT$(printf "%03d" $cnt))
@@ -22,7 +23,7 @@ do
     echo $fn_new is being processing
     echo 'echo '$fn_new >> ${fn_submit}_gen.sh
     bash ${fn_submit}_tmp.sh >> ${fn_submit}_gen.sh
-    rm ${fn_submit}_tmp.sh
 done
-           
+rm ${fn_submit}_tmp.sh
+
 
