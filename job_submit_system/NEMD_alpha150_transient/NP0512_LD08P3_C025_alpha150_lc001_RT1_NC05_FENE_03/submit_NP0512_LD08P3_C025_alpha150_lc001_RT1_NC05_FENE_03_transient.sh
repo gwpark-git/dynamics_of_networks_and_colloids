@@ -1,3 +1,5 @@
+N_runs=1
+init_sample_number=0
 base_path='NP0512_LD08P3_C025_alpha150_lc001_RT1_NC05_FENE_03'
 CONT=-1
 sub_path=${base_path}_CONT$CONT
