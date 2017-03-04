@@ -13,12 +13,12 @@ do
     for fn_inp in $fn_new/*.inp
     do
         # echo $fn_inp
-        sed -i '' $str_sed $fn_inp
-        sed -i '' $str_sed2 $fn_inp
+        sed -i $str_sed $fn_inp
+        sed -i $str_sed2 $fn_inp
     done
     cp $fn_submit.sh ${fn_submit}_tmp.sh
     str_sed_submit='s/CONT=-1/CONT='$(printf "%03d" $cnt)'/g'
-    sed -i '' $str_sed_submit ${fn_submit}_tmp.sh
+    sed -i $str_sed_submit ${fn_submit}_tmp.sh
     echo $fn_new is being processing
     echo 'echo '$fn_new >> ${fn_submit}_gen.sh
     bash ${fn_submit}_tmp.sh >> ${fn_submit}_gen.sh
