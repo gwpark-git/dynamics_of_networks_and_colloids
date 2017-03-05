@@ -1,0 +1,8 @@
+bash automation_submit_recasna.sh equilibrium_detail/alpha150_lc001_NC10/NP0512_LD08P3_C025_RT1_alpha150_lc001_NC10.inp $N_runs $init_sample_number ../LD08P3VER/EQ_NP0512_LD08P3/NP0512_LD08P3.traj
+bash automation_submit_recasna.sh equilibrium_detail/alpha150_lc001_NC10/NP0512_LD08P3_C025_RT10_alpha150_lc001_NC10.inp $N_runs $init_sample_number ../LD08P3VER/EQ_NP0512_LD08P3/NP0512_LD08P3.traj
+bash automation_submit_recasna.sh equilibrium_detail/alpha150_lc001_NC10/NP0324_LD06P3_C025_RT1_alpha150_lc001_NC10.inp $N_runs $init_sample_number ../LD06P3VER/EQ_NP0324_LD06P3/NP0324_LD06P3.traj
+bash automation_submit_recasna.sh equilibrium_detail/alpha150_lc001_NC10/NP0324_LD06P3_C025_RT10_alpha150_lc001_NC10.inp $N_runs $init_sample_number ../LD06P3VER/EQ_NP0324_LD06P3/NP0324_LD06P3.traj
+bash automation_submit_recasna.sh equilibrium_detail/alpha150_lc001_NC10/NP0432_LD06P3_C025_RT1_alpha150_lc001_NC10.inp $N_runs $init_sample_number ../LD06P3VER/EQ_NP0432_LD06P3/NP0432_LD06P3.traj
+bash automation_submit_recasna.sh equilibrium_detail/alpha150_lc001_NC10/NP0432_LD06P3_C025_RT10_alpha150_lc001_NC10.inp $N_runs $init_sample_number ../LD06P3VER/EQ_NP0432_LD06P3/NP0432_LD06P3.traj
+bash automation_submit_recasna.sh equilibrium_detail/alpha150_lc001_NC10/NP0375_LD05P3_C025_RT1_alpha150_lc001_NC10.inp $N_runs $init_sample_number ../LD05P3VER/EQ_NP0375_LD05P3/NP0375_LD05P3.traj
+bash automation_submit_recasna.sh equilibrium_detail/alpha150_lc001_NC10/NP0375_LD05P3_C025_RT10_alpha150_lc001_NC10.inp $N_runs $init_sample_number ../LD05P3VER/EQ_NP0375_LD05P3/NP0375_LD05P3.traj
