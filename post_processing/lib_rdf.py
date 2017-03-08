@@ -1,4 +1,3 @@
-
 from numpy import *
 import scipy.linalg as lin
 
@@ -240,7 +239,12 @@ def get_rdf_from_rpdist(rpdist, dr, Np, Nt, N_dimension, box_dimension, cut_rati
     # ddf = get_ddf(traj, ts, Np, N_dimension, box_dimension, cut_ratio)
     N_tot = size(rpdist)
     # Nt = size(ts)
+    cnt = 0
     for r in rpdist:
+        if cnt % int(Nr/100) == 0:
+            print '%d out of %d'%(cnt, Nr)
+        cnt += 1
+
         if r < box_dimension*cut_ratio:
             rdf[int(r/dr), 1] += 1
     if (N_dimension == 3):

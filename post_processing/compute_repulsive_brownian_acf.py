@@ -3,6 +3,25 @@ from numpy import *
 from acf_fcn import *
 import sys
 
+def Nij_rep(dat, i, j):
+    con_st = 17
+    tau_ii = dat[:, con_st + i]
+    tau_jj = dat[:, con_st + j]
+    N_ij = tau_ii - tau_jj
+    return N_ij
+
+def Nij_acf_rep(dat):
+    N_12 = Nij_rep(dat, 1, 2)
+    N_13 = Nij_rep(dat, 1, 3)
+    N_23 = Nij_rep(dat, 2, 3)
+    return (corr_FFT(N_12, N_12) + corr_FFT(N_13, N_13) + corr_FFT(N_23, N_23))/30.
+
+def tauij_acf_rep(dat):
+    tau_12 = dat[:, 21]
+    tau_13 = dat[:, 22]
+    tau_23 = dat[:, 23]
+    return (corr_FFT(tau_12, tau_12) + corr_FFT(tau_13, tau_13) + corr_FFT(tau_23, tau_23))/5.
+
 if size(sys.argv) < 3:
     print 'Get stress autocorrelation from given .ener file for associating telechelic polymers'
     print 'USAGE :'
@@ -50,9 +69,11 @@ else:
             # corr_con = (corr(ener[N_st:N_st+Nt_block, 27], ener[N_st:N_st+Nt_block, 27])
             #             + corr(ener[N_st:N_st+Nt_block, 28], ener[N_st:N_st+Nt_block, 28])
             #             + corr(ener[N_st:N_st+Nt_block, 29], ener[N_st:N_st+Nt_block, 29]))/3.
-            corr_rep = (corr(ener[N_st:N_st+Nt_block, 21], ener[N_st:N_st+Nt_block, 21])
-                        + corr(ener[N_st:N_st+Nt_block, 22], ener[N_st:N_st+Nt_block, 22])
-                        + corr(ener[N_st:N_st+Nt_block, 23], ener[N_st:N_st+Nt_block, 23]))/3.
+            corr_rep = tauij_acf_rep(ener[N_st:N_st+Nt_block, :]) + Nij_acf_rep(ener[N_st:N_st+Nt_block, :])
+            
+            # corr_rep = (corr(ener[N_st:N_st+Nt_block, 21], ener[N_st:N_st+Nt_block, 21])
+            #             + corr(ener[N_st:N_st+Nt_block, 22], ener[N_st:N_st+Nt_block, 22])
+            #             + corr(ener[N_st:N_st+Nt_block, 23], ener[N_st:N_st+Nt_block, 23]))/3.
             # corr_con_rep = (corr(ener[N_st:N_st+Nt_block, 27], ener[N_st:N_st+Nt_block, 21])
             #                 + corr(ener[N_st:N_st+Nt_block, 28], ener[N_st:N_st+Nt_block, 22])
             #                 + corr(ener[N_st:N_st+Nt_block, 29], ener[N_st:N_st+Nt_block, 23]))/3.
@@ -66,9 +87,11 @@ else:
                 # corr_con += (corr(ener[N_st:N_st+Nt_block, 27], ener[N_st:N_st+Nt_block, 27])
                 #              + corr(ener[N_st:N_st+Nt_block, 28], ener[N_st:N_st+Nt_block, 28])
                 #              + corr(ener[N_st:N_st+Nt_block, 29], ener[N_st:N_st+Nt_block, 29]))/3.
-                corr_rep += (corr(ener[N_st:N_st+Nt_block, 21], ener[N_st:N_st+Nt_block, 21])
-                             + corr(ener[N_st:N_st+Nt_block, 22], ener[N_st:N_st+Nt_block, 22])
-                             + corr(ener[N_st:N_st+Nt_block, 23], ener[N_st:N_st+Nt_block, 23]))/3.
+                corr_rep += tauij_acf_rep(ener[N_st:N_st+Nt_block, :]) + Nij_acf_rep(ener[N_st:N_st+Nt_block, :])
+                
+                # corr_rep += (corr(ener[N_st:N_st+Nt_block, 21], ener[N_st:N_st+Nt_block, 21])
+                #              + corr(ener[N_st:N_st+Nt_block, 22], ener[N_st:N_st+Nt_block, 22])
+                #              + corr(ener[N_st:N_st+Nt_block, 23], ener[N_st:N_st+Nt_block, 23]))/3.
                 # corr_con_rep += (corr(ener[N_st:N_st+Nt_block, 27], ener[N_st:N_st+Nt_block, 21])
                 #                  + corr(ener[N_st:N_st+Nt_block, 28], ener[N_st:N_st+Nt_block, 22])
                 #                  + corr(ener[N_st:N_st+Nt_block, 29], ener[N_st:N_st+Nt_block, 23]))/3.
@@ -76,16 +99,18 @@ else:
                 #                  + corr(ener[N_st:N_st+Nt_block, 22], ener[N_st:N_st+Nt_block, 28])
                 #                  + corr(ener[N_st:N_st+Nt_block, 23], ener[N_st:N_st+Nt_block, 29]))/3.
 
-            corr_con /= float(N_div)
+            # corr_con /= float(N_div)
             corr_rep /= float(N_div)
-            corr_con_rep /= float(N_div)
-            corr_rep_con /= float(N_div)
+            # corr_con_rep /= float(N_div)
+            # corr_rep_con /= float(N_div)
             
         else:
             Nt = shape(ener)[0]
             dat_range = arange(N_cut, Nt, stride)
             # corr_con = (corr(ener[dat_range,27], ener[dat_range,27]) + corr(ener[dat_range,28], ener[dat_range,28]) + corr(ener[dat_range,29], ener[dat_range,29]))/3.
-            corr_rep = (corr(ener[dat_range,21], ener[dat_range,21]) + corr(ener[dat_range,22], ener[dat_range,22]) + corr(ener[dat_range,23], ener[dat_range,23]))/3.
+            corr_rep = tauij_acf_rep(ener[dat_range, :]) + Nij_acf_rep(ener[dat_range, :])
+            
+            # corr_rep = (corr(ener[dat_range,21], ener[dat_range,21]) + corr(ener[dat_range,22], ener[dat_range,22]) + corr(ener[dat_range,23], ener[dat_range,23]))/3.
             # corr_con_rep = (corr(ener[dat_range,27], ener[dat_range,21]) + corr(ener[dat_range,28], ener[dat_range,22]) + corr(ener[dat_range,29], ener[dat_range,23]))/3.
             # corr_rep_con = (corr(ener[dat_range,21], ener[dat_range,27]) + corr(ener[dat_range,22], ener[dat_range,28]) + corr(ener[dat_range,23], ener[dat_range,29]))/3.
         dat = zeros([size(corr_rep), 6])
