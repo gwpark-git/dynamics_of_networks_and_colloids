@@ -99,10 +99,10 @@ else:
                 #                  + corr(ener[N_st:N_st+Nt_block, 22], ener[N_st:N_st+Nt_block, 28])
                 #                  + corr(ener[N_st:N_st+Nt_block, 23], ener[N_st:N_st+Nt_block, 29]))/3.
 
-            corr_con /= float(N_div)
+            # corr_con /= float(N_div)
             corr_rep /= float(N_div)
-            corr_con_rep /= float(N_div)
-            corr_rep_con /= float(N_div)
+            # corr_con_rep /= float(N_div)
+            # corr_rep_con /= float(N_div)
             
         else:
             Nt = shape(ener)[0]
