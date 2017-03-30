@@ -92,6 +92,7 @@ if size(sys.argv) < 3:
     print '       |-----------|-----------| : data range is sectionized by half (say cut=HALF)'
     print '       |--|--|--|--|-----------| : initial data range when (say N_div=4)'
     print '       |-----------|--|--|--|--| : data coverage with each section'
+    print 'argv[6] (optional) == test mode (TEST means test mode, otherwise ignore this option)'
 
 else:
     if (sys.argv[1] == sys.argv[2]):
@@ -109,7 +110,17 @@ else:
         stride = 1
         if size(sys.argv) == 5:
             stride = int(sys.argv[4])
-        print 'compute stress autocorrelation for number of time steps %ld out of %ld with stride %ld'%(N_cut, Nt, stride)                
+        print 'compute stress autocorrelation for number of time steps %ld out of %ld with stride %ld'%(N_cut, Nt, stride)
+        if (size(sys.argv) == 7 and sys.argv[6] == 'TEST'):
+            N_div = 1
+            print 'Test Mode'
+            Nt_block = (size(ener[:, 0]) - N_cut)/2 # it will the raw data range
+            N_st = N_cut
+            Nt_inc = Nt_block/N_div # it will increment of data
+            corr_con = tauij_acf_con(ener[N_st:N_st+Nt_block, :])
+            corr_rep = tauij_acf_rep(ener[N_st:N_st+Nt_block, :])
+            corr_con_rep = tauij_corr_con_rep(ener[N_st:N_st+Nt_block, :])
+            corr_rep_con = tauij_corr_rep_con(ener[N_st:N_st+Nt_block, :])
         if size(sys.argv) > 5:
 
             N_div = int(sys.argv[5])
@@ -169,7 +180,6 @@ else:
             corr_rep /= float(N_div)
             corr_con_rep /= float(N_div)
             corr_rep_con /= float(N_div)
-            
         else:
             Nt = shape(ener)[0]
             dat_range = arange(N_cut, Nt, stride)
