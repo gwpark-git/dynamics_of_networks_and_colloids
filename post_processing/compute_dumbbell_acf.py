@@ -3,6 +3,12 @@ from numpy import *
 from acf_fcn import *
 import sys
 
+def tauij_acf_con(dat):
+    tau_12 = dat[:, 21]
+    tau_13 = dat[:, 22]
+    tau_23 = dat[:, 23]
+    return (corr_FFT(tau_12, tau_12) + corr_FFT(tau_13, tau_13) + corr_FFT(tau_23, tau_23))/3.
+
 if size(sys.argv) < 3:
     print 'Get stress autocorrelation from given .ener file for associating telechelic polymers'
     print 'USAGE :'
@@ -29,7 +35,19 @@ else:
             stride = int(sys.argv[4])
         print 'compute stress autocorrelation for number of time steps %ld out of %ld with stride %ld'%(N_cut, Nt, stride)                
         if size(sys.argv) > 5:
-            print 'NO SUPPORT AT THIS MOMENT'
+            N_div = int(sys.argv[5])
+            print 'average over %d blocks'%(N_div)
+            Nt_block = (size(ener[:, 0]) - N_cut)/2 # it will the raw data range
+            N_st = N_cut
+            Nt_inc = Nt_block/N_div # it will increment of data
+            print '\taverage over %ld blocks:'%(N_div)
+            print '\t### %ld out of %ld is being processing: from %ld to %ld'%(0, N_div, N_st, N_st + Nt_block)
+            corr_con = tauij_acf_con(ener[N_st:N_st+Nt_block, :])
+            for i in range(1, N_div):
+                N_st = N_cut + i*Nt_inc
+                print '\t### %ld out of %ld is being processing: from %ld to %ld'%(i, N_div, N_st, N_st + Nt_block)
+                corr_con += tauij_acf_con(ener[N_st:N_st+Nt_block, :])
+            corr_con /= float(N_div)
             # N_div = int(sys.argv[4])
             # print 'average over %d blocks'%(N_div)            
             # Nt_block = Nt/N_div
@@ -53,7 +71,8 @@ else:
         else:
             Nt = shape(ener)[0]
             dat_range = arange(N_cut, Nt, stride)
-            corr_con = (corr(ener[dat_range,21], ener[dat_range,21]) + corr(ener[dat_range,22], ener[dat_range,22]) + corr(ener[dat_range,23], ener[dat_range,23]))/3.
+            corr_con = tauij_acf_con(ener[dat_range, :])
+            # corr_con = (corr(ener[dat_range,21], ener[dat_range,21]) + corr(ener[dat_range,22], ener[dat_range,22]) + corr(ener[dat_range,23], ener[dat_range,23]))/3.
         dat = zeros([size(corr_con), 2])
         dat[:,0] = ener[:size(corr_con),0] - ener[0, 0]
         dat[:,0] *= float(stride)
