@@ -153,4 +153,4 @@ else:
                         dat[t, index_shear_direction] += coord_shift_factor
                         
                         
-    savetxt(sys.argv[2], dat)
+    savetxt(sys.argv[2], dat, fmt='%9.7e')
