@@ -25,16 +25,16 @@ box_dimension=10.0
 
 ## TIME::Time scales and data resolutions
 dt/tauR=0.01
-Nt=100000000
+Nt=100000
 reset_initial_time=TRUE
 ## TIME::TOPOLOGY
-N_steps_block=10
-Rt=100
+N_steps_block=1
+Rt=1
 ## TIME::DATA_RESOLUTION
-N_skip_ener=10
-N_skip_file=1000
+N_skip_ener=100
+N_skip_file=100
 record_RDIST=TRUE
-N_skip_rdist=1000
+N_skip_rdist=100
 
 ## THREADS
 ## THREADS::LANGEVIN   
