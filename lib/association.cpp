@@ -1,6 +1,27 @@
 
 #include "association.h"
 
+MKL_LONG ASSOCIATION::update_N_association()
+{
+  for(MKL_LONG i=0; i<Np; i++)
+    {
+      N_ASSOCIATION_PARTICLE(i) = get_N_association_particle(i);
+    }
+  return 0;
+}
+
+  
+
+MKL_LONG ASSOCIATION::get_N_association_particle(MKL_LONG index_particle)
+{
+  MKL_LONG re = 0;
+  for(MKL_LONG i=0; i<TOKEN_ASSOCIATION[index_particle]; i++)
+    {
+      re += (MKL_LONG)weight[index_particle](i);
+    }
+  return re;
+}
+
 MKL_LONG index_set_val(size_t* index, MKL_LONG given_val, MKL_LONG size_of_arr)
 {
   for(MKL_LONG i=0; i<size_of_arr; i++)
@@ -50,7 +71,7 @@ MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight, MKL_LONG N_steps)
           GIVEN_WEIGHT >> weight_k;
           weight[i](k) = weight_k;
         }
-      
+      N_ASSOCIATION_PARTICLE(i) = get_N_association_particle(i); // it will allocate number of association (attached chain ends) of the selected particles.
     }
   GIVEN_WEIGHT.close();
   return 0;
@@ -58,6 +79,7 @@ MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight, MKL_LONG N_steps)
 
 MKL_LONG ASSOCIATION::set_initial_condition()
 {
+  N_ASSOCIATION_PARTICLE.initial(Np, 1, 2*Nc);
   for(MKL_LONG i=0; i<Np; i++)
     {
       HASH[i].initial(N_max + 5, 1, -1); // this is temporal initialization
@@ -159,6 +181,7 @@ MKL_LONG ASSOCIATION::initial_inheritance() // it should not be called by outsid
   //   // this violate the inheritance of association information from the previous computation
   //   // hence, even if it is quite duplicate, the set_initial_condition() is replaced by the real sequence
   // set_initial_condition();
+  N_ASSOCIATION_PARTICLE.initial(Np, 1, 2*Nc);  
   for(MKL_LONG i=0; i<Np; i++)
     {
       weight[i].initial(N_max + 5, 1, 0);

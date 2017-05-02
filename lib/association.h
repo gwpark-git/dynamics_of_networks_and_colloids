@@ -33,7 +33,8 @@ class ASSOCIATION
   bool MULTIPLE_CONNECTIONS;
   bool NUMBER_RESTRICTION;
   bool PROBABILITY_AREA;
-  
+
+  MATRIX N_ASSOCIATION_PARTICLE;
   MATRIX *weight;
   // related with suggestion probability (selecting a degenerated pair)
   MATRIX *CASE_SUGGESTION;
@@ -123,7 +124,13 @@ class ASSOCIATION
   MKL_LONG
     FIND_HASH_INDEX
     (MKL_LONG index_A, MKL_LONG index_B);
-
+  MKL_LONG
+  update_N_association
+  ();
+  
+  MKL_LONG
+  get_N_association_particle
+  (MKL_LONG index_particle);
 
   // At the moment, there is no namespace dependence between KINETICS::NORMALIZED and KINETICS::METROPOLIS.
   // The dependency is set with the w_function and transtion_probability that is developed with lib_potential.
