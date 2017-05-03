@@ -13,7 +13,7 @@ no_time_scaling_random
 double
 FORCE::BROWNIAN::
 MAP_no_time_scaling_random
-(MATRIX& given_basic_random, double *given_variables)
+(MATRIX& given_basic_random, POTENTIAL_VARIABLE& given_variables)
 {
   // the last argument *given_variables is related with POTs.force_variables. In the case for pure Brownian motion, however, the pointer for force_variables will be set with NULL. Therefore, it will be ignored, but the argument remains in order to use function pointer.
   return FORCE::BROWNIAN::no_time_scaling_random(given_basic_random, 1.); // anyhow, the unity will be ignored for performance
@@ -21,16 +21,38 @@ MAP_no_time_scaling_random
 
 MKL_LONG
 FORCE::BROWNIAN::
+MAP_potential_variable
+(POTENTIAL_SET& given_POT, COND& given_cond)
+{
+  // given_POT.force_variables = NULL;
+  return 0;
+}
+
+MKL_LONG
+FORCE::BROWNIAN::
 MAP_potential_set
 (POTENTIAL_SET& given_POT, COND& given_cond)
 {
-  given_POT.force_variables = NULL;
+  // given_POT.force_variables = NULL;
+  FORCE::BROWNIAN::MAP_potential_variable(given_POT, given_cond);
   given_POT.f_repulsion = NULL;
   given_POT.e_repulsion = NULL;
   given_POT.f_connector = NULL;
   given_POT.e_connector = NULL;
   given_POT.scale_random = FORCE::BROWNIAN::MAP_no_time_scaling_random; // without any changes for time scaling since pure Brownian motion uses the basic time scale
   return 0;
+}
+
+
+MKL_LONG
+FORCE::DUMBBELL::
+MAP_potential_variable
+(POTENTIAL_SET& given_POT, COND& given_cond) 
+{
+  FORCE::BROWNIAN::MAP_potential_variable(given_POT, given_cond);  
+ given_POT.force_variables.N_dimension = atol(given_cond("N_dimension").c_str());
+ given_POT.force_variables.scale_factor_chain = atof(given_cond("scale_factor_chain").c_str());
+ return 0;
 }
 
 MKL_LONG
@@ -42,9 +64,12 @@ MAP_potential_set
      At this moment, the only Gaussian chain is implemented for dumbbell model.
      Note that Dumbbell model is not necessary any cut-off since there are only one permanent connection
   */
-  given_POT.force_variables = new double [3];
-  given_POT.force_variables[0] = atol(given_cond("N_dimension").c_str());
-  given_POT.force_variables[1] = atof(given_cond("scale_factor_chain").c_str());
+  // given_POT.force_variables = new double [3];
+  // given_POT.force_variables[0] = atol(given_cond("N_dimension").c_str());
+  // given_POT.force_variables[1] = atof(given_cond("scale_factor_chain").c_str());
+  // given_POT.force_variables.N_dimension = atol(given_cond("N_dimension").c_str());
+  // given_POT.force_variables.scale_factor_chain = atof(given_cond("scale_factor_chain").c_str());
+  FORCE::DUMBBELL::MAP_potential_variable(given_POT, given_cond);
   given_POT.f_connector = FORCE::DUMBBELL::MAP_modified_Gaussian_spring_force;
   given_POT.e_connector = FORCE::DUMBBELL::MAP_modified_Gaussian_spring_potential;
   given_POT.scale_random = FORCE::BROWNIAN::MAP_no_time_scaling_random;
@@ -67,15 +92,31 @@ EMPTY_force_set
 
 MKL_LONG
 FORCE::NAPLE::SIMPLE_REPULSION::
+MAP_potential_variable
+(POTENTIAL_SET& given_POT, COND& given_cond) 
+{
+  FORCE::BROWNIAN::MAP_potential_variable(given_POT, given_cond);  
+  given_POT.force_variables.repulsion_coefficient = atof(given_cond("repulsion_coefficient").c_str());
+  given_POT.force_variables.effective_distance = atof(given_cond("effective_distance").c_str());
+  given_POT.force_variables.inv_sqrt_repulsion_coefficient = 1./sqrt(given_POT.force_variables.repulsion_coefficient);
+  return 0;
+}
+
+MKL_LONG
+FORCE::NAPLE::SIMPLE_REPULSION::
 MAP_potential_set
 (POTENTIAL_SET& given_POT, COND& given_cond)
 {
 
-  given_POT.force_variables = new double [3];
-  given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
-  given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
-  given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
-
+  // given_POT.force_variables = new double [3];
+  // given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
+  // given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
+  // given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
+  // given_POT.force_variables.repulsion_coefficient = atof(given_cond("repulsion_coefficient").c_str());
+  // given_POT.force_variables.effective_distance = atof(given_cond("effective_distance").c_str());
+  // given_POT.force_variables.inv_sqrt_repulsion_coefficient = 1./sqrt(given_POT.force_variables.repulsion_coefficient);
+  FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_variable(given_POT, given_cond);
+  
   given_POT.f_repulsion = MAP_excluded_volume_force;
   given_POT.e_repulsion = MAP_excluded_volume_potential;
 
@@ -89,31 +130,52 @@ MAP_potential_set
 
 MKL_LONG
 FORCE::NAPLE::MC_ASSOCIATION::
+MAP_potential_variable
+(POTENTIAL_SET& given_POT, COND& given_cond) 
+{
+  FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_variable(given_POT, given_cond);
+  return 0;
+}
+
+// MKL_LONG
+// FORCE::NAPLE::MC_ASSOCIATION::
+// MAP_potential_set_FENE(POTENTIAL_SET& given_POT)
+// {
+//   given_POT.force_variables.scale_factor_chain = atof(given_cond("scale_factor_chain").c_str());
+//   given_POT.force_variables.ratio_RM_R0 = atof(given_cond("ratio_RM_R0").c_str());
+  
+// }
+
+MKL_LONG
+FORCE::NAPLE::MC_ASSOCIATION::
 MAP_potential_set
 (POTENTIAL_SET& given_POT, COND& given_cond)
 {
+  
+  // given_POT.force_variables = new double [10];
+  // given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
+  // given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
+  // given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
+  // given_POT.force_variables[3] = atol(given_cond("N_dimension").c_str());
+  // given_POT.force_variables[4] = atof(given_cond("l_cap").c_str());
 
-  given_POT.force_variables = new double [10];
-  given_POT.force_variables[0] = atof(given_cond("repulsion_coefficient").c_str());
-  given_POT.force_variables[1] = atof(given_cond("effective_distance").c_str());
-  given_POT.force_variables[2] = 1./sqrt(given_POT.force_variables[0]);
-  given_POT.force_variables[3] = atol(given_cond("N_dimension").c_str());
-  given_POT.force_variables[4] = atof(given_cond("l_cap").c_str());
-
+  FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_variable(given_POT, given_cond); 
   given_POT.f_repulsion = FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_force;
   given_POT.e_repulsion = FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_potential;
 
   if(given_cond("connector")=="FENE")
     {
-      given_POT.force_variables[5] = atof(given_cond("scale_factor_chain").c_str());
-      given_POT.force_variables[8] = atof(given_cond("ratio_RM_R0").c_str());
+      // given_POT.force_variables[5] = atof(given_cond("scale_factor_chain").c_str());
+      // given_POT.force_variables[8] = atof(given_cond("ratio_RM_R0").c_str());
+      given_POT.force_variables.scale_factor_chain = atof(given_cond("scale_factor_chain").c_str());
+      given_POT.force_variables.ratio_RM_R0 = atof(given_cond("ratio_RM_R0").c_str());
       given_POT.f_connector = MAP_FENE_spring_force;
       given_POT.e_connector = MAP_FENE_spring_potential;
       given_POT.PDF_connector = MAP_FENE_Boltzmann;
       if(given_cond("association_probability") == "minimum_R0_Boltzmann")
-	{
-	  given_POT.PDF_connector = MAP_minimum_R0_FENE_Boltzmann;
-	}
+        {
+          given_POT.PDF_connector = MAP_minimum_R0_FENE_Boltzmann;
+        }
     }
   else if (given_cond("connector") == "Gaussian")
     {
@@ -128,13 +190,15 @@ MAP_potential_set
     }
   else if (given_cond("connector") == "Modified_Gaussian")
     {
-      given_POT.force_variables[5] = atof(given_cond("scale_factor_chain").c_str());
+      // given_POT.force_variables[5] = atof(given_cond("scale_factor_chain").c_str());
+      given_POT.force_variables.scale_factor_chain = atof(given_cond("scale_factor_chain").c_str());
       given_POT.f_connector = MAP_modified_Gaussian_spring_force;
       given_POT.e_connector = MAP_modified_Gaussian_spring_potential;
       double cutoff_connection = atof(given_cond("cutoff_connection").c_str());
       if (cutoff_connection > 0.0 && cutoff_connection < atof(given_cond("box_dimension").c_str()))
         {
-          given_POT.force_variables[7] = cutoff_connection;
+          // given_POT.force_variables[7] = cutoff_connection;
+          given_POT.force_variables.cutoff_connection = cutoff_connection;
           given_POT.PDF_connector = MAP_cutoff_modified_Gaussian_Boltzmann;
 	  if(given_cond("association_probability") == "minimum_R0_Boltzmann")
 	    {
@@ -176,17 +240,22 @@ MAP_potential_set
       // note that it is dt*N_steps_block
       // given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str())/atof(given_cond("Rt").c_str());
       // from now on, the Rt = tau_0/tau_B instead of tau_0/tau_R
-      given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
+      // given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
+      given_POT.force_variables.delta_t0 = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
+      
     }
   else if (given_cond("transition_probability")=="CUTOFF_DISSOCIATION")
     {
       given_POT.transition = KINETICS::cutoff_dissociation_probability;
-      given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
+      // given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
+      given_POT.force_variables.delta_t0 = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
+      
     }
   else if (given_cond("transition_probability")=="MINIMUM_R0_DISSOCIATION")
     {
       given_POT.transition = KINETICS::minimum_R0_dissociation_probability;
-      given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
+      // given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
+      given_POT.force_variables.delta_t0 = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
 
     }
   else if (given_cond("transition_probability")=="FIRST_ORDER")
@@ -194,12 +263,15 @@ MAP_potential_set
       given_POT.transition = KINETICS::FIRST_ORDER::dissociation_probability;
       // given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str())/atof(given_cond("Rt").c_str());
       // from now on, the Rt = tau_0/tau_B instead of tau_0/tau_R      
-      given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
+      // given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
+      given_POT.force_variables.delta_t0 = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));
+      
     }
   else if (given_cond("transition_probability")=="Modified_Gaussian")
     {
       given_POT.transition = KINETICS::dissociation_probability_equal_modified_gaussian;
-      given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));      
+      // given_POT.force_variables[6] = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));  
+      given_POT.force_variables.delta_t0 = atof(given_cond("dt/tauR").c_str())*atof(given_cond("N_steps_block").c_str()) / (atof(given_cond("repulsion_coefficient").c_str())*atof(given_cond("Rt").c_str()));      
     }
 
   else
@@ -211,21 +283,27 @@ MAP_potential_set
   if(given_cond("association_probability") == "EQUAL_CUTOFF_RANGE")
     {
       double cutoff_connection = atof(given_cond("cutoff_connection").c_str());
-      given_POT.force_variables[7] = cutoff_connection;
+      // given_POT.force_variables[7] = cutoff_connection;
+      given_POT.force_variables.cutoff_connection = cutoff_connection;
+      
       given_POT.PDF_connector = MAP_cutoff_equal_probability;
     }
 
   given_POT.zeta_particle = FORCE::DEFAULT::dimensionless_friction;
   if(given_cond("friction_junction")=="LOOP_DISSOCIATION_TIME")
     {
-      given_POT.force_variables[9] = atof(given_cond("Rt").c_str())*atof(given_cond("repulsion_coefficient").c_str());
+      // given_POT.force_variables[9] = atof(given_cond("Rt").c_str())*atof(given_cond("repulsion_coefficient").c_str());
+      given_POT.force_variables.modified_friction_tau0 = atof(given_cond("Rt").c_str())*atof(given_cond("repulsion_coefficient").c_str());
+      
       given_POT.zeta_particle = FORCE::NAPLE::MC_ASSOCIATION::friction_LOOP_DISSOCIATION_TIME;
     }
   
   
   if(given_cond("chain_selection")=="METROPOLIS")
     {
-      given_POT.force_variables[6] = atof(given_cond("energy_barrier").c_str());
+      // given_POT.force_variables[6] = atof(given_cond("energy_barrier").c_str());
+      given_POT.force_variables.energy_barrier = atof(given_cond("energy_barrier").c_str());
+      
       given_POT.w_function = KINETICS::METROPOLIS::detachment_weight;
     }
   else if (given_cond("chain_selection")=="WEIGHTED")

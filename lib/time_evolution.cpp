@@ -167,6 +167,7 @@ cal_repulsion_force_R_boost
           double distance = R_boost.Rsca[index_particle](index_target);
           if (index_target != index_particle)
             {
+              // double dimensionless_C_rep = 
               double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
               // for(MKL_LONG d=0; d<R_boost.N_dimension; d++)
               //   {
