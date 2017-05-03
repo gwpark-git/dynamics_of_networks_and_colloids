@@ -1,6 +1,51 @@
 
 #include "potential.h"
 
+MKL_LONG
+FORCE::BROWNIAN::
+MAP_potential_variable
+(POTENTIAL_SET& given_POT, COND& given_cond)
+{
+  // given_POT.force_variables = NULL;
+  given_POT.force_variables.N_dimension = atol(given_cond("N_dimension").c_str());
+  return 0;
+}
+
+
+MKL_LONG
+FORCE::DUMBBELL::
+MAP_potential_variable
+(POTENTIAL_SET& given_POT, COND& given_cond) 
+{
+  FORCE::BROWNIAN::MAP_potential_variable(given_POT, given_cond);  
+ given_POT.force_variables.scale_factor_chain = atof(given_cond("scale_factor_chain").c_str());
+ return 0;
+}
+
+MKL_LONG
+FORCE::NAPLE::SIMPLE_REPULSION::
+MAP_potential_variable
+(POTENTIAL_SET& given_POT, COND& given_cond) 
+{
+  FORCE::BROWNIAN::MAP_potential_variable(given_POT, given_cond);
+ 
+  given_POT.force_variables.repulsion_coefficient = atof(given_cond("repulsion_coefficient").c_str());
+  given_POT.force_variables.effective_distance = atof(given_cond("effective_distance").c_str());
+  given_POT.force_variables.inv_sqrt_repulsion_coefficient = 1./sqrt(given_POT.force_variables.repulsion_coefficient);
+  return 0;
+}
+
+MKL_LONG
+FORCE::NAPLE::MC_ASSOCIATION::
+MAP_potential_variable
+(POTENTIAL_SET& given_POT, COND& given_cond) 
+{
+  FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_variable(given_POT, given_cond);
+  given_POT.force_variables.scale_factor_chain = atof(given_cond("scale_factor_chain").c_str());
+  given_POT.force_variables.l_cap = atof(given_cond("l_cap").c_str());
+  return 0;
+}
+
 
 double
 FORCE::BROWNIAN::
@@ -19,14 +64,6 @@ MAP_no_time_scaling_random
   return FORCE::BROWNIAN::no_time_scaling_random(given_basic_random, 1.); // anyhow, the unity will be ignored for performance
 }
 
-MKL_LONG
-FORCE::BROWNIAN::
-MAP_potential_variable
-(POTENTIAL_SET& given_POT, COND& given_cond)
-{
-  // given_POT.force_variables = NULL;
-  return 0;
-}
 
 MKL_LONG
 FORCE::BROWNIAN::
@@ -44,16 +81,6 @@ MAP_potential_set
 }
 
 
-MKL_LONG
-FORCE::DUMBBELL::
-MAP_potential_variable
-(POTENTIAL_SET& given_POT, COND& given_cond) 
-{
-  FORCE::BROWNIAN::MAP_potential_variable(given_POT, given_cond);  
- given_POT.force_variables.N_dimension = atol(given_cond("N_dimension").c_str());
- given_POT.force_variables.scale_factor_chain = atof(given_cond("scale_factor_chain").c_str());
- return 0;
-}
 
 MKL_LONG
 FORCE::DUMBBELL::
@@ -90,17 +117,6 @@ EMPTY_force_set
   return 0;
 }
 
-MKL_LONG
-FORCE::NAPLE::SIMPLE_REPULSION::
-MAP_potential_variable
-(POTENTIAL_SET& given_POT, COND& given_cond) 
-{
-  FORCE::BROWNIAN::MAP_potential_variable(given_POT, given_cond);  
-  given_POT.force_variables.repulsion_coefficient = atof(given_cond("repulsion_coefficient").c_str());
-  given_POT.force_variables.effective_distance = atof(given_cond("effective_distance").c_str());
-  given_POT.force_variables.inv_sqrt_repulsion_coefficient = 1./sqrt(given_POT.force_variables.repulsion_coefficient);
-  return 0;
-}
 
 MKL_LONG
 FORCE::NAPLE::SIMPLE_REPULSION::
@@ -128,14 +144,6 @@ MAP_potential_set
   return 0;
 }
 
-MKL_LONG
-FORCE::NAPLE::MC_ASSOCIATION::
-MAP_potential_variable
-(POTENTIAL_SET& given_POT, COND& given_cond) 
-{
-  FORCE::NAPLE::SIMPLE_REPULSION::MAP_potential_variable(given_POT, given_cond);
-  return 0;
-}
 
 // MKL_LONG
 // FORCE::NAPLE::MC_ASSOCIATION::
