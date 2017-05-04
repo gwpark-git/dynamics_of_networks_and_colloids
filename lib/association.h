@@ -286,7 +286,15 @@ namespace TRUTH_MAP
     (ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
 }
 
+namespace MICELLE
+{
+  double
+  update_SOFT_REPULSION_P2(POTENTIAL_SET& given_POT, ASSOCIATION& CONNECT);
 
+  double
+  update_SOFT_REPULSION_P2_particle(POTENTIAL_SET& given_POT, ASSOCIATION& CONNECT, MKL_LONG index_particle);
+
+}
 
 namespace KINETICS
 {
@@ -524,5 +532,14 @@ class CHAIN_INFORMATION
     }
 };
 
+
+
+// double inline MICELLE::update_SOFT_REPULSION_P2_particle(POTENTIAL_SET& given_POT, ASSOCIATION& CONNECT, MKL_LONG index_particle)
+// {
+//   given_POT.force_variables.C_rep_arr(index_particle) = given_POT.force_variables.repulsion_coefficient_base*CONNECT.N_ASSOCIATION_PARTICLE(index_particle)*CONNECT.N_ASSOCIATION_PARTICLE(index_particle);
+//   // C_rep(p) = C_0 * p^2
+  
+//   return given_POT.force_variables.C_rep_arr(index_particle);
+// }
 
 #endif

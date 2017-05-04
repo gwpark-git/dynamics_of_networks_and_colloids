@@ -1,5 +1,14 @@
 
 #include "association.h"
+// double MICELLE::update_SOFT_REPULSION_P2(POTENTIAL_SET& given_POT, ASSOCIATION& CONNECT)
+// {
+//   for(MKL_LONG i=0; i<CONNECT.Np; i++)
+//     {
+//       MICELLE::update_SOFT_REPULSION_P2_particle(given_POT, CONNECT, i);
+//       // given_POT.force_variables.C_rep_arr(i) = given_POT.force_variables.repulsion_coefficient_base*CONNECT.N_ASSOCIATION_PARTICLE(i)*CONNECT.N_ASSOCIATION_PARTICLE(i);
+//     }
+//   return 0;
+// }
 
 MKL_LONG ASSOCIATION::update_N_association()
 {

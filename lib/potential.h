@@ -22,7 +22,10 @@ struct POTENTIAL_VARIABLE
   given_POT.force_variables[3] = atol(given_cond("N_dimension").c_str());
   given_POT.force_variables[4] = atof(given_cond("l_cap").c_str());
    */
-  double repulsion_coefficient;  // C_rep
+  double repulsion_coefficient;  // C_rep (this is pre-averaged value)
+  double repulsion_coefficient_base; // C_0
+  MATRIX* N_ASSOCIATION_PARTICLE; // it will be pointer of N_ASSOCIATION_PARTICLE in the class object "ASSOCIATION"
+  // MATRIX C_rep_arr;
   double effective_distance;
   double inv_sqrt_repulsion_coefficient; // 1/C_rep
   MKL_LONG N_dimension;
@@ -48,7 +51,7 @@ MKL_LONG constructor_POTENTIAL_VARIABLE()
   delta_t0 = 0;
   modified_friction_tau0 = 0;
   energy_barrier = 0;
-    
+  C_rep_arr = NULL;
   return 0;
 }
 
@@ -86,6 +89,9 @@ class POTENTIAL_SET
   double
     (*f_repulsion)
     (double distance, POTENTIAL_VARIABLE& given_variables);
+  // double
+  // (*f_repulsion_coupling)
+  // (double C0, MKL_LONG index_particle_1, MKL_LONG index_particle_2);
   double
     (*e_repulsion)
     (double distance, POTENTIAL_VARIABLE& given_variables);
@@ -227,69 +233,82 @@ namespace FORCE
     excluded_volume_force
       (double distance, double effective_distance);
     double
-      excluded_volume_potential
-      (double distance, double effective_distance);
+    excluded_volume_potential
+    (double distance, double effective_distance);
     
     namespace SIMPLE_REPULSION
     {
-
+      // double
+      // pre_averaged_repulsive_coefficient(double C0, MKL_LONG index_particle_1, MKL_LONG index_particle_2)
+      // {
+      //   return 1.;
+      // }
+      // double
+      // geometrical_mean_repulsive_coefficient(double C0, MKL_LONG index_particle_1, MKL_LONG index_particle_2)
+      // {
+      //   /*
+      //     For SOFT_REPULSION_P2, the coupled coefficient should be C_0*p_i*p_j where p_i and p_j are aggregation number for i-th and j-th particles.
+      //    */
+      //   // return var_1*var_2*var_3;
+      //   return C0*(float)
+      // }
+      
       MKL_LONG MAP_potential_variable(POTENTIAL_SET& given_POT, COND& given_cond);
       double
-	MAP_excluded_volume_force
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      MAP_excluded_volume_force
+      (double distance, POTENTIAL_VARIABLE& given_variables);
       double
-	MAP_excluded_volume_potential
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      MAP_excluded_volume_potential
+      (double distance, POTENTIAL_VARIABLE& given_variables);
       double
-	MAP_time_scaling_random
-	(MATRIX& given_basic_random, POTENTIAL_VARIABLE& given_variables);
+      MAP_time_scaling_random
+      (MATRIX& given_basic_random, POTENTIAL_VARIABLE& given_variables);
       MKL_LONG
-	MAP_potential_set
-	(POTENTIAL_SET& given_POT, COND& given_cond);
+      MAP_potential_set
+      (POTENTIAL_SET& given_POT, COND& given_cond);
     }
     namespace MC_ASSOCIATION
     {
-
+      
       MKL_LONG MAP_potential_variable(POTENTIAL_SET& given_POT, COND& given_cond);
       double
       friction_LOOP_DISSOCIATION_TIME
       (MKL_LONG N_connectors, POTENTIAL_VARIABLE& given_variables);
-
       
       double
-	MAP_Gaussian_spring_force
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      MAP_Gaussian_spring_force
+      (double distance, POTENTIAL_VARIABLE& given_variables);
       double
-	MAP_Gaussian_spring_potential
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      MAP_Gaussian_spring_potential
+      (double distance, POTENTIAL_VARIABLE& given_variables);
       double
       MAP_Gaussian_Boltzmann
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      (double distance, POTENTIAL_VARIABLE& given_variables);
 
       double
       MAP_minimum_R0_Gaussian_Boltzmann
       (double distance, POTENTIAL_VARIABLE& given_variables);
 
       double
-	MAP_modified_Gaussian_spring_force
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      MAP_modified_Gaussian_spring_force
+      (double distance, POTENTIAL_VARIABLE& given_variables);
       double
-	MAP_modified_Gaussian_spring_potential
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      MAP_modified_Gaussian_spring_potential
+      (double distance, POTENTIAL_VARIABLE& given_variables);
       double
       MAP_modified_Gaussian_Boltzmann
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      (double distance, POTENTIAL_VARIABLE& given_variables);
       double
       MAP_minimum_R0_modified_Gaussian_Boltzmann
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      (double distance, POTENTIAL_VARIABLE& given_variables);
       
       double
-	MAP_cutoff_modified_Gaussian_Boltzmann
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      MAP_cutoff_modified_Gaussian_Boltzmann
+      (double distance, POTENTIAL_VARIABLE& given_variables);
 
       double
       MAP_minimum_R0_cutoff_modified_Gaussian_Boltzmann
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      (double distance, POTENTIAL_VARIABLE& given_variables);
       
       double
       MAP_cutoff_equal_probability
@@ -297,23 +316,23 @@ namespace FORCE
 
       
       double
-	MAP_FENE_spring_force
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      MAP_FENE_spring_force
+      (double distance, POTENTIAL_VARIABLE& given_variables);
       double
-	MAP_FENE_spring_potential
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      MAP_FENE_spring_potential
+      (double distance, POTENTIAL_VARIABLE& given_variables);
       double
       MAP_FENE_Boltzmann
-	(double distance, POTENTIAL_VARIABLE& given_variables);
+      (double distance, POTENTIAL_VARIABLE& given_variables);
       double
-	MAP_minimum_R0_FENE_Boltzmann
-	(double distance, POTENTIAL_VARIABLE& given_variables);      
+      MAP_minimum_R0_FENE_Boltzmann
+      (double distance, POTENTIAL_VARIABLE& given_variables);      
       double
-	MAP_time_scaling_random
-	(MATRIX& given_basic_random, POTENTIAL_VARIABLE& given_variables);
+      MAP_time_scaling_random
+      (MATRIX& given_basic_random, POTENTIAL_VARIABLE& given_variables);
       MKL_LONG
-	MAP_potential_set
-	(POTENTIAL_SET& given_POT, COND& given_cond);
+      MAP_potential_set
+      (POTENTIAL_SET& given_POT, COND& given_cond);
     }
 
   }

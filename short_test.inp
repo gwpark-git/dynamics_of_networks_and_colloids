@@ -45,8 +45,14 @@ N_THREADS_SS=1
 
 ## PARTICLE
 Np=400
-## PARTICLE::REPULSION
+## PARTICLE::REPULSION the default type is "SOFT_REPULSION_P2". It can be change in the future.
+repulsion_type=SOFT_REPULSION_P2
+## repulsion_coefficient is necessary for DEFAULT or SOFT_REPULSION
 repulsion_coefficient=25
+## repulsion_coefficient_base is necessary for SOFT_REPULSION_P2
+repulsion_coefficient_base=0.25
+## PARTICLE::REPULSION::repulsion_coupling can be "PRE_AVERAGE" or "GEOMETRIC_MEAN"
+repulsion_coupling=PRE_AVERAGE
 effective_distance=1.0
 
 ## CHAIN

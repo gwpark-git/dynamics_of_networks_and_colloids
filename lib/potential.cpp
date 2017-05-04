@@ -1,6 +1,8 @@
 
 #include "potential.h"
 
+
+
 MKL_LONG
 FORCE::BROWNIAN::
 MAP_potential_variable
@@ -30,8 +32,12 @@ MAP_potential_variable
   FORCE::BROWNIAN::MAP_potential_variable(given_POT, given_cond);
  
   given_POT.force_variables.repulsion_coefficient = atof(given_cond("repulsion_coefficient").c_str());
+  given_POT.force_variables.inv_sqrt_repulsion_coefficient = 1./sqrt(given_POT.force_variables.repulsion_coefficient);  
+  // given_POT.force_variables.C_rep_arr.initial(Np, 1, 1.);
+  // note that initialization setting 1 means C_rep/C_rep=1 for all the particle.
+  // this is due to the fact that the repulsive coefficient is invariance for repulsive Brownian dynamics (RBD)
   given_POT.force_variables.effective_distance = atof(given_cond("effective_distance").c_str());
-  given_POT.force_variables.inv_sqrt_repulsion_coefficient = 1./sqrt(given_POT.force_variables.repulsion_coefficient);
+
   return 0;
 }
 
@@ -73,6 +79,7 @@ MAP_potential_set
   // given_POT.force_variables = NULL;
   FORCE::BROWNIAN::MAP_potential_variable(given_POT, given_cond);
   given_POT.f_repulsion = NULL;
+  given_POT.f_repulsion_coupling = NULL;
   given_POT.e_repulsion = NULL;
   given_POT.f_connector = NULL;
   given_POT.e_connector = NULL;
@@ -110,6 +117,7 @@ EMPTY_force_set
 (POTENTIAL_SET& given_POT, COND& given_condition)
 {
   given_POT.f_repulsion = FORCE::DEFAULT::EMPTY_force_contribution;
+  given_POT.f_repulsion_coupling = NULL;
   given_POT.e_repulsion = FORCE::DEFAULT::EMPTY_force_contribution;
   given_POT.f_connector = FORCE::DEFAULT::EMPTY_force_contribution;
   given_POT.e_connector = FORCE::DEFAULT::EMPTY_force_contribution;
@@ -136,6 +144,8 @@ MAP_potential_set
   given_POT.f_repulsion = MAP_excluded_volume_force;
   given_POT.e_repulsion = MAP_excluded_volume_potential;
 
+  given_POT.f_repulsion_coupling = FORCE::NAPLE::SIMPLE_REPULSION::pre_average_repulsive_coefficient;
+  
   given_POT.f_connector = FORCE::DEFAULT::EMPTY_force_contribution;
   given_POT.e_connector = FORCE::DEFAULT::EMPTY_force_contribution;
 
@@ -154,6 +164,7 @@ MAP_potential_set
   
 // }
 
+
 MKL_LONG
 FORCE::NAPLE::MC_ASSOCIATION::
 MAP_potential_set
@@ -171,6 +182,20 @@ MAP_potential_set
   given_POT.f_repulsion = FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_force;
   given_POT.e_repulsion = FORCE::NAPLE::SIMPLE_REPULSION::MAP_excluded_volume_potential;
 
+  if(given_cond("repulsion_coupling")=="GEOMETRIC_MEAN")
+    {
+      given_POT.f_repulsion_coupling = FORCE::NAPLE::SIMPLE_REPULSION::geometrical_mean_repulsive_coefficient;
+    }
+  else
+    {
+      /*
+        default
+       */
+      given_POT.f_repulsion_coupling = FORCE::NAPLE::SIMPLE_REPULSION::pre_averaged_repulsive_coefficient;
+    }
+  
+  given_POT.f_repulsion_coupling = FORCE::NAPLE::SIMPLE_REPULSION::pre_average_repulsive_coefficient;
+  
   if(given_cond("connector")=="FENE")
     {
       // given_POT.force_variables[5] = atof(given_cond("scale_factor_chain").c_str());
@@ -329,6 +354,39 @@ MAP_potential_set
     }
   
   given_POT.scale_random = MAP_time_scaling_random;
+
+  
+  if(given_cond("repulsion_type")=="SOFT_REPULSION_P2")
+    {
+      /* 
+         SOFT_REPULSION_P2 means C_rep(p) = C_0*p^2,
+         which is the default function at this moment
+       */
+      given_POT.force_variables.repulsion_coefficient_base = atof(given_cond("repulsion_coefficient_base").c_str());
+      
+    }
+  else
+    {
+      /*
+        default option. The definition will be called "SOFT_REPULSION". However, for compatibility with the previous inp files, if "repulsion_type" is not defined or is not given by "SOFT_REPULSION_P2", it will be regarded as default test.
+       */
+    }
+
+  if(given_cond("repulsion_coupling")=="PRE_AVERAGE")
+    {
+      // default option. no further change is necessary
+    }
+  else if(given_cond("repulsion_coupling")=="GEOMETRIC_MEAN")
+    {
+      
+    }
+  else
+    {
+      print("ERR: no option for repulsion_coupling.\n")
+        return -1;
+    }
+  
+  
   return 0;
 }
 
