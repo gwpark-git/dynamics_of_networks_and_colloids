@@ -1,8 +1,6 @@
 
 #include "potential.h"
 
-
-
 MKL_LONG
 FORCE::BROWNIAN::
 MAP_potential_variable
@@ -12,7 +10,6 @@ MAP_potential_variable
   given_POT.force_variables.N_dimension = atol(given_cond("N_dimension").c_str());
   return 0;
 }
-
 
 MKL_LONG
 FORCE::DUMBBELL::
@@ -363,13 +360,14 @@ MAP_potential_set
          which is the default function at this moment
        */
       given_POT.force_variables.repulsion_coefficient_base = atof(given_cond("repulsion_coefficient_base").c_str());
-      
+      given_POT.f_repulsion_coupling = geometrical_mean_repulsive_coefficient;
     }
   else
     {
       /*
         default option. The definition will be called "SOFT_REPULSION". However, for compatibility with the previous inp files, if "repulsion_type" is not defined or is not given by "SOFT_REPULSION_P2", it will be regarded as default test.
        */
+      given_POT.f_repulsion_coupling = pre_averaged_repulsive_coefficient;
     }
 
   if(given_cond("repulsion_coupling")=="PRE_AVERAGE")

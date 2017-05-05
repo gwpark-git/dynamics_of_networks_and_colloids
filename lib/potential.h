@@ -89,8 +89,9 @@ class POTENTIAL_SET
   double
     (*f_repulsion)
     (double distance, POTENTIAL_VARIABLE& given_variables);
-  // double
-  // (*f_repulsion_coupling)
+  double
+  (*f_repulsion_coupling)
+  (POTENTIAL_VARIABLE& given_variables, MKL_LONG index_i, MKL_LONG index_j);
   // (double C0, MKL_LONG index_particle_1, MKL_LONG index_particle_2);
   double
     (*e_repulsion)
@@ -238,20 +239,21 @@ namespace FORCE
     
     namespace SIMPLE_REPULSION
     {
-      // double
-      // pre_averaged_repulsive_coefficient(double C0, MKL_LONG index_particle_1, MKL_LONG index_particle_2)
-      // {
-      //   return 1.;
-      // }
-      // double
-      // geometrical_mean_repulsive_coefficient(double C0, MKL_LONG index_particle_1, MKL_LONG index_particle_2)
-      // {
-      //   /*
-      //     For SOFT_REPULSION_P2, the coupled coefficient should be C_0*p_i*p_j where p_i and p_j are aggregation number for i-th and j-th particles.
-      //    */
-      //   // return var_1*var_2*var_3;
-      //   return C0*(float)
-      // }
+      double
+      pre_averaged_repulsive_coefficient(POTENTIAL_VARIABLE& given_variables, MKL_LONG index_i, MKL_LONG index_j)
+      {
+        return 1.;
+      }
+      double
+      geometrical_mean_repulsive_coefficient(POTENTIAL_VARIABLE& given_variables, MKL_LONG index_i, MKL_LONG index_j)
+      {
+        /*
+          For SOFT_REPULSION_P2, the coupled coefficient should be C_0*p_i*p_j where p_i and p_j are aggregation number for i-th and j-th particles.
+         */
+        // return var_1*var_2*var_3;
+        // return C0*(float)
+        return given_variables.repulsion_coefficient_base*given_variables.N_ASSOCIATION_PARTICLE->data(index_i)*given_variables.N_ASSOCIATION_PARTICLE->data(index_j);
+      }
       
       MKL_LONG MAP_potential_variable(POTENTIAL_SET& given_POT, COND& given_cond);
       double

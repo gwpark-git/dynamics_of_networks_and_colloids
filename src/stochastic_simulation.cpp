@@ -86,7 +86,12 @@ main
 
                   FORCE::NAPLE::MC_ASSOCIATION::MAP_potential_set(POTs, given_condition);
                   CHAIN_HANDLE CHAIN(given_condition, CONNECT);
-
+                  POTs.force_variables.N_ASSOCIATION_PARTICLE = &CONNECT.N_ASSOCIATION_PARTICLE;
+                  /*
+                   this is added on purpose
+                   the initialization outside the class constructor is weird
+                   the main reason to use non-recommendable initialization for force_variables is due to the hierachical library load.
+                  */
                   HEUR::stochastic_simulation_HEUR_flowers(TRAJ, POTs, CONNECT, CHAIN, DATA, given_condition);
                   // }
                 }
