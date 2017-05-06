@@ -51,7 +51,7 @@ MKL_LONG constructor_POTENTIAL_VARIABLE()
   delta_t0 = 0;
   modified_friction_tau0 = 0;
   energy_barrier = 0;
-  C_rep_arr = NULL;
+  // C_rep_arr = NULL;
   return 0;
 }
 
@@ -240,20 +240,9 @@ namespace FORCE
     namespace SIMPLE_REPULSION
     {
       double
-      pre_averaged_repulsive_coefficient(POTENTIAL_VARIABLE& given_variables, MKL_LONG index_i, MKL_LONG index_j)
-      {
-        return 1.;
-      }
+      pre_averaged_repulsive_coefficient(POTENTIAL_VARIABLE& given_variables, MKL_LONG index_i, MKL_LONG index_j);
       double
-      geometrical_mean_repulsive_coefficient(POTENTIAL_VARIABLE& given_variables, MKL_LONG index_i, MKL_LONG index_j)
-      {
-        /*
-          For SOFT_REPULSION_P2, the coupled coefficient should be C_0*p_i*p_j where p_i and p_j are aggregation number for i-th and j-th particles.
-         */
-        // return var_1*var_2*var_3;
-        // return C0*(float)
-        return given_variables.repulsion_coefficient_base*given_variables.N_ASSOCIATION_PARTICLE->data(index_i)*given_variables.N_ASSOCIATION_PARTICLE->data(index_j);
-      }
+      geometrical_mean_repulsive_coefficient(POTENTIAL_VARIABLE& given_variables, MKL_LONG index_i, MKL_LONG index_j);
       
       MKL_LONG MAP_potential_variable(POTENTIAL_SET& given_POT, COND& given_cond);
       double
@@ -594,6 +583,33 @@ MAP_time_scaling_random
   // return FORCE::DEFAULT::time_scaling_random(given_basic_random, given_variables[2]);
   return FORCE::DEFAULT::time_scaling_random(given_basic_random, given_variables.inv_sqrt_repulsion_coefficient);
 }
+
+inline double
+FORCE::NAPLE::SIMPLE_REPULSION::
+pre_averaged_repulsive_coefficient
+(POTENTIAL_VARIABLE& given_variables, MKL_LONG index_i, MKL_LONG index_j)
+{
+  // printf("=================WARNING: It called PRE_AVERAGED================\n");      
+
+  return 1.;
+}
+
+
+inline double
+FORCE::NAPLE::SIMPLE_REPULSION::
+geometrical_mean_repulsive_coefficient
+(POTENTIAL_VARIABLE& given_variables, MKL_LONG index_i, MKL_LONG index_j)
+{
+  // printf("=================WARNING: It called GEOMETRICAL_MEA================\n");
+  /*
+    For SOFT_REPULSION_P2, the coupled coefficient should be C_0*p_i*p_j where p_i and p_j are aggregation number for i-th and j-th particles.
+  */
+  // return var_1*var_2*var_3;
+  // return C0*(float)
+  // return given_variables.repulsion_coefficient_base*given_variables.N_ASSOCIATION_PARTICLE->data(index_i)*given_variables.N_ASSOCIATION_PARTICLE->data(index_j);
+  return given_variables.repulsion_coefficient_base*given_variables.N_ASSOCIATION_PARTICLE->data[index_i]*given_variables.N_ASSOCIATION_PARTICLE->data[index_j];
+}
+
 
 inline double
 FORCE::NAPLE::MC_ASSOCIATION::

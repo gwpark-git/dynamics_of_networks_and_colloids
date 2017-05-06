@@ -141,7 +141,7 @@ MAP_potential_set
   given_POT.f_repulsion = MAP_excluded_volume_force;
   given_POT.e_repulsion = MAP_excluded_volume_potential;
 
-  given_POT.f_repulsion_coupling = FORCE::NAPLE::SIMPLE_REPULSION::pre_average_repulsive_coefficient;
+  given_POT.f_repulsion_coupling = FORCE::NAPLE::SIMPLE_REPULSION::pre_averaged_repulsive_coefficient;
   
   given_POT.f_connector = FORCE::DEFAULT::EMPTY_force_contribution;
   given_POT.e_connector = FORCE::DEFAULT::EMPTY_force_contribution;
@@ -191,7 +191,7 @@ MAP_potential_set
       given_POT.f_repulsion_coupling = FORCE::NAPLE::SIMPLE_REPULSION::pre_averaged_repulsive_coefficient;
     }
   
-  given_POT.f_repulsion_coupling = FORCE::NAPLE::SIMPLE_REPULSION::pre_average_repulsive_coefficient;
+  // given_POT.f_repulsion_coupling = FORCE::NAPLE::SIMPLE_REPULSION::pre_averaged_repulsive_coefficient;
   
   if(given_cond("connector")=="FENE")
     {
@@ -360,14 +360,20 @@ MAP_potential_set
          which is the default function at this moment
        */
       given_POT.force_variables.repulsion_coefficient_base = atof(given_cond("repulsion_coefficient_base").c_str());
-      given_POT.f_repulsion_coupling = geometrical_mean_repulsive_coefficient;
+      /*
+      // The following code is commented because the function is deatched from repulsion_type but it is related with the repulsion_coupling.
+      // To be specific, SOFT_REPULSION_P2 means the repulsive coefficient is given by C_rep = C_0 p^2 where p is aggregation number (number of chain ends per micelle), which, however, has individual role compare with how coupled between different particles.
+      
+      given_POT.f_repulsion_coupling = FORCE::NAPLE::SIMPLE_REPULSION::geometrical_mean_repulsive_coefficient;
+      */
+
     }
   else
     {
       /*
         default option. The definition will be called "SOFT_REPULSION". However, for compatibility with the previous inp files, if "repulsion_type" is not defined or is not given by "SOFT_REPULSION_P2", it will be regarded as default test.
        */
-      given_POT.f_repulsion_coupling = pre_averaged_repulsive_coefficient;
+      given_POT.f_repulsion_coupling = FORCE::NAPLE::SIMPLE_REPULSION::pre_averaged_repulsive_coefficient;
     }
 
   if(given_cond("repulsion_coupling")=="PRE_AVERAGE")
@@ -380,8 +386,8 @@ MAP_potential_set
     }
   else
     {
-      print("ERR: no option for repulsion_coupling.\n")
-        return -1;
+      printf("ERR: no option for repulsion_coupling.\n");
+      return -1;
     }
   
   

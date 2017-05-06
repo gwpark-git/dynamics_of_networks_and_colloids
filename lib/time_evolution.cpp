@@ -169,6 +169,8 @@ cal_repulsion_force_R_boost
             {
               // double dimensionless_C_rep =
               double repulsion = POTs.f_repulsion_coupling(POTs.force_variables, index_particle, index_target)*POTs.f_repulsion(distance, POTs.force_variables);
+              // double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
+	      
               // for(MKL_LONG d=0; d<R_boost.N_dimension; d++)
               //   {
               //     given_vec(d) += repulsion*R_boost.Rvec[index_particle][index_target](d);
@@ -208,6 +210,8 @@ cal_repulsion_force_R_boost_with_RF
           if (index_target != index_particle)
             {
               double repulsion = POTs.f_repulsion_coupling(POTs.force_variables, index_target, index_particle)*POTs.f_repulsion(distance, POTs.force_variables);
+              // double repulsion = POTs.f_repulsion(distance, POTs.force_variables);
+	      
               double repulsion_div_distance = repulsion/distance;
               MATRIX& rel_vector = R_boost.Rvec[index_particle][index_target];
               // for(MKL_LONG d=0; d<R_boost.N_dimension; d++)
