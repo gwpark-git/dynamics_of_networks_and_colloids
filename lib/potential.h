@@ -607,7 +607,11 @@ geometrical_mean_repulsive_coefficient
   // return var_1*var_2*var_3;
   // return C0*(float)
   // return given_variables.repulsion_coefficient_base*given_variables.N_ASSOCIATION_PARTICLE->data(index_i)*given_variables.N_ASSOCIATION_PARTICLE->data(index_j);
-  return given_variables.repulsion_coefficient_base*given_variables.N_ASSOCIATION_PARTICLE->data[index_i]*given_variables.N_ASSOCIATION_PARTICLE->data[index_j];
+  double re = given_variables.repulsion_coefficient_base*given_variables.N_ASSOCIATION_PARTICLE->data[index_i]*given_variables.N_ASSOCIATION_PARTICLE->data[index_j];
+  // if(re != 1.)
+  //   printf("COUPLED_REPULSION: C_0 = %4.3f, p(%ld)=%ld, p(%ld)=%ld => C_0*pi*pj=%3.2e\n", given_variables.repulsion_coefficient_base, index_i, (MKL_LONG)given_variables.N_ASSOCIATION_PARTICLE->data[index_i], index_j, (MKL_LONG)given_variables.N_ASSOCIATION_PARTICLE->data[index_j], re);
+  // return given_variables.repulsion_coefficient_base*given_variables.N_ASSOCIATION_PARTICLE->data[index_i]*given_variables.N_ASSOCIATION_PARTICLE->data[index_j];
+  return re;
 }
 
 

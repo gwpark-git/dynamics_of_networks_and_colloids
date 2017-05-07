@@ -358,8 +358,14 @@ MAP_potential_set
       /* 
          SOFT_REPULSION_P2 means C_rep(p) = C_0*p^2,
          which is the default function at this moment
+	 Note that C_0 should be divided by C_rep = <C_rep> because of the base unit is related to the C_rep.
+	 Therefore, when the number of chains are uniformly distributed over micelles, the C_rep(p) should be the same with <C_rep(p)> which implies repulsion_coefficient_base becomes unity.
        */
-      given_POT.force_variables.repulsion_coefficient_base = atof(given_cond("repulsion_coefficient_base").c_str());
+      given_POT.force_variables.repulsion_coefficient_base = atof(given_cond("repulsion_coefficient_base").c_str())/atof(given_cond("repulsion_coefficient").c_str());
+
+
+
+      
       /*
       // The following code is commented because the function is deatched from repulsion_type but it is related with the repulsion_coupling.
       // To be specific, SOFT_REPULSION_P2 means the repulsive coefficient is given by C_rep = C_0 p^2 where p is aggregation number (number of chain ends per micelle), which, however, has individual role compare with how coupled between different particles.

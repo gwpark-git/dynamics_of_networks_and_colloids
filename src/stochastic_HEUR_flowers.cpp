@@ -221,6 +221,20 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
                                  RNG,
                                  VAR.N_THREADS_BD,
                                  given_condition, VAR);
+
+      // printf("\n\n=====CHECK number of chain ends\n\n");
+      // for(MKL_LONG i=0; i<TRAJ.Np; i++)
+      // 	{
+      // 	  if((MKL_LONG)CONNECT.N_ASSOCIATION_PARTICLE(i) != (MKL_LONG)CONNECT.get_N_association_particle(i))
+      // 	    {
+      // 	      printf("ERR N_ASSOCIATION_PARTICLE: p(%ld)=%ld (expected %ld)\n", i, (MKL_LONG)CONNECT.N_ASSOCIATION_PARTICLE(i), CONNECT.get_N_association_particle(i));
+      // 	      for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
+      // 		printf("%ld\t", (MKL_LONG)CONNECT.weight[i](j));
+      // 	      printf("\n");
+      // 	    }
+		       
+      // 	}
+      
       // printf("test4\n");
       if(VAR.SIMPLE_SHEAR || VAR.STEP_SHEAR)
         {

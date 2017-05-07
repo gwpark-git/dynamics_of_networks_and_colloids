@@ -24,7 +24,7 @@ MKL_LONG ASSOCIATION::update_N_association()
 MKL_LONG ASSOCIATION::get_N_association_particle(MKL_LONG index_particle)
 {
   MKL_LONG re = 0;
-  for(MKL_LONG i=0; i<TOKEN_ASSOCIATION[index_particle]; i++)
+  for(MKL_LONG i=0; i<TOKEN[index_particle]; i++)
     {
       re += (MKL_LONG)weight[index_particle](i);
     }
@@ -484,10 +484,15 @@ MKL_LONG ASSOCIATION::add_association(const MKL_LONG index_particle, MKL_LONG in
   //     printf("\tDETAIL: (%ld, 0) = %ld (%ld), (%ld, %ld) = %ld (%ld)\n", index_particle, (MKL_LONG)HASH[index_particle](0), (MKL_LONG)weight[index_particle](0), index_particle, hash_index_target, (MKL_LONG)HASH[index_particle](hash_index_target), (MKL_LONG)weight[index_particle](hash_index_target));
   //   }
   
-  weight[index_particle](0) -= 2;
+  weight[index_particle](0) -= 2; // this is because weight[i](0) has number of loop chain ends 
   // if(weight[index_particle](0) < 0)
   //   printf("ERR: weight cannot be below 0\n");
-  weight[index_particle](hash_index_target) += 1; 
+  weight[index_particle](hash_index_target) += 1; // it will add new has_index_target
+
+  
+  N_ASSOCIATION_PARTICLE(index_particle) -= 1; // number of chain ends of subjected micelle is decreased by 1
+  N_ASSOCIATION_PARTICLE(index_target) += 1; // number of chain ends of target micelle is increased by 1
+  
   if (hash_index_target == TOKEN[index_particle]) // when it is new bridge for itself
     {
       HASH[index_particle](hash_index_target) = index_target;
@@ -615,9 +620,8 @@ MKL_LONG ASSOCIATION::opp_del_association_hash(const MKL_LONG index_particle, MK
 {
   /*
     This is the basic call for deleting the existing connection.
-    The subjected chain ends is opposite chain ends that selected at this moment, because for the association distribution subjected by itself particle, which means the subjected chains. 
     The transition probability for chain ends in the same chain is the same with its opponents, which means we can tweak things by detachment opponent chain ends rather than subjected chain end.
-    This is the reason the function is called 'opp_del' rather than 'del'
+    This is the reason why the function is called 'opp_del' rather than 'del'
    */
   MKL_LONG index_target = (MKL_LONG)HASH[index_particle](hash_index_target);
   
@@ -625,7 +629,10 @@ MKL_LONG ASSOCIATION::opp_del_association_hash(const MKL_LONG index_particle, MK
   //   printf("ERR: something wrong in opp_del_association_hash. The given hash index is zero\n");
   // if(FIND_HASH_INDEX(index_target, index_particle) == 0)
   //   printf("ERR: something wrong in opp_del_association_hash. THE return value of FIND_HAS_INDEX is zero\n");
-    
+
+  N_ASSOCIATION_PARTICLE(index_particle) += 1; // number of chain end attached to subjected micelle is increased by 1 because the opp_del_association will delete the opposite chain end of the selected chain end
+  N_ASSOCIATION_PARTICLE(index_target) -= 1; 
+  
   opp_del_association_grab_IK(index_particle, hash_index_target);
   opp_del_association_IK(index_target, FIND_HASH_INDEX(index_target, index_particle));
   return 0;
