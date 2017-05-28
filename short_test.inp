@@ -22,6 +22,10 @@ Integrator=Euler
 ## DIMENSION
 N_dimension=3
 box_dimension=10.0
+## box_dimension::LBx, LBy, LBz => for asymmetric PBC box
+## for NEMD: x is for shear and y is for shear-gradient directions
+## without define it, it will be used box_dimension as default value
+LBx=50.0
 
 ## TIME::Time scales and data resolutions
 dt/tauR=0.01

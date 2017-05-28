@@ -118,6 +118,12 @@ initialization_COND
     {
       box_dimension[k] = atof(given_condition("box_dimension").c_str());
     }
+  if (atof(given_condition("LBx").c_str()) > atof(given_condition("box_dimension").c_str())):
+    box_dimension[0] = atof(given_condition("LBx").c_str());
+  if (atof(given_condition("LBy").c_str()) > atof(given_condition("box_dimension").c_str())):
+    box_dimension[1] = atof(given_condition("LBy").c_str());
+  if (atof(given_condition("LBz").c_str()) > atof(given_condition("box_dimension").c_str())):
+    box_dimension[2] = atof(given_condition("LBz").c_str());
 
   if(given_condition("Method") == "BROWNIAN" || given_condition("Method") == "DUMBBELL")
     {

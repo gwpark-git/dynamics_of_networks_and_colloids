@@ -6,8 +6,21 @@ CLIST(COND& given_condition)
 {
   printf("\tCLIST initialization");
   INITIALIZATION = TRUE;
-  box_dimension = atof(given_condition("box_dimension").c_str());
   N_dimension = atol(given_condition("N_dimension").c_str());
+
+  box_dimension = new double [N_dimension];
+  for (MKL_LONG k=0; k<N_dimension; k++)
+    {
+      box_dimension[k] = atof(given_condition("box_dimension").c_str());
+    }
+  if (atof(given_condition("LBx").c_str()) > atof(given_condition("box_dimension").c_str())):
+    box_dimension[0] = atof(given_condition("LBx").c_str());
+  if (atof(given_condition("LBy").c_str()) > atof(given_condition("box_dimension").c_str())):
+    box_dimension[1] = atof(given_condition("LBy").c_str());
+  if (atof(given_condition("LBz").c_str()) > atof(given_condition("box_dimension").c_str())):
+    box_dimension[2] = atof(given_condition("LBz").c_str());
+  
+  
   cut_off_radius = atof(given_condition("cutoff_connection").c_str());
   Np = atol(given_condition("Np").c_str());
   MAX_IN_CELL = Np; // default
@@ -35,14 +48,24 @@ CLIST(COND& given_condition)
 
   
   N_div = 1;
-  cell_length = box_dimension;
-  N_cells = 1;
+  // cell_length = box_dimension;
+  cell_length = new double [N_dimension];
+  N_cells = new MKL_LONG [N_dimension];
+  for (MKL_LONG k=0; k<N_dimension; k++)
+    {
+      cell_length[k] = atof(given_condition("box_dimension").c_str());
+      N_cells[k] = 1;
+    }
   N_neighbor_cells = 1;
+  N_div = new MKL_LONG [N_dimension];
   if(CELL_LIST_BOOST)
     {
-      N_div = (MKL_LONG) box_dimension/cut_off_radius; // floor refine the given divisor
-      cell_length = (double) box_dimension/(double)N_div; // real length scale of cells in each axis
-      N_cells = (MKL_LONG)pow(N_div, N_dimension); // N_cells = N_div^N_dimension
+      for(MKL_LONG k=0; k<N_dimension; k++)
+	{
+	  N_div[k] = (MKL_LONG) box_dimension[k]/cut_off_radius; // floor refine the given divisor
+	  cell_length[k] = (double) box_dimension[k]/(double)N_div[k]; // real length scale of cells in each axis
+	  N_cells[k] = (MKL_LONG)pow(N_div[k], N_dimension); // N_cells = N_div^N_dimension
+	}
       N_neighbor_cells = (MKL_LONG)pow(3, N_dimension); // 3 means number for shift factor {-1, 0, +1}
     }
   printf("\tdynamic allocating CLIST member variables");
@@ -152,7 +175,7 @@ identify_cell_from_given_position(TRAJECTORY& TRAJ, MKL_LONG index_t_now,
   MKL_LONG re = 0;  
   for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
     {
-      index_vec_boost[k] = (MKL_LONG)(TRAJ(index_t_now, index_particle, k)/cell_length);
+      index_vec_boost[k] = (MKL_LONG)(TRAJ(index_t_now, index_particle, k)/cell_length[k]);
     }
   index_vec2sca(index_vec_boost, re);
   return re;
@@ -166,7 +189,7 @@ identify_cell_from_given_position(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now,
   MKL_LONG re = 0;  
   for(MKL_LONG k=0; k<TRAJ.N_dimension; k++)
     {
-      index_vec_boost[k] =(MKL_LONG)(TRAJ.data[index_t_now][index_particle][k]/cell_length);
+      index_vec_boost[k] =(MKL_LONG)(TRAJ.data[index_t_now][index_particle][k]/cell_length[k]);
     }
   index_vec2sca(index_vec_boost, re);
   return re;
@@ -216,6 +239,9 @@ index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca,
   MKL_LONG re = 0;
   for(MKL_LONG n=0; n<N_dimension; n++)
     {
+      /*
+	must be checked on here
+      */
       re += index_vec[n]*(MKL_LONG)pow(N_div, N_dimension - (n+1));
     }
   index_sca = re;
