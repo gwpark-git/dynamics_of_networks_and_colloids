@@ -62,7 +62,12 @@ record_RDIST_PARTICLE(ofstream &file_DIST,
             {
               MKL_LONG index_target = R_boost(cell_index_neighbor, p);
               double distance = R_boost.Rsca[index_particle](index_target);
-              if(distance <= R_boost.cell_length && index_particle != index_target)
+              // if(distance <= R_boost.cell_length && index_particle != index_target)
+              //   file_DIST << std::scientific << distance << '\t';
+              bool check_asymmetric_cells = 0;
+              for(MKL_LONG n=0; n<R_boost.Rvec[index_particle][index_target].size; n++)
+                check_asymmetric_cells = check_asymmetric_cells | (R_boost.Rvec[index_particle][index_target](n) <= R_boost.cell_length[n]);
+              if (index_particle != index_target && check_asymmetric_cells)
                 file_DIST << std::scientific << distance << '\t';
             }
 	  file_DIST << std::endl;

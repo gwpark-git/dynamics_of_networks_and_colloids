@@ -4,6 +4,28 @@
 #include <iomanip> // for setw
 // using namespace std;
 
+double HANDLE_COND::get_LBk(COND& given_condition, MKL_LONG k_dimension)
+{
+  double box_dimension = atof(given_condition("box_dimension").c_str());
+  double LBk = box_dimension;
+  switch (k_dimension)
+    {
+    case 0:
+      LBk = atof(given_condition("LBx").c_str());
+      break;
+    case 1:
+      LBk = atof(given_condition("LBy").c_str());
+      break;
+    case 2:
+      LBk = atof(given_condition("LBz").c_str());
+      break;
+    }
+  if (LBk > box_dimension)
+    return LBk;
+  return box_dimension;
+}
+
+
 bool
 COND::
 identify_effective_parameters(string given_argument)

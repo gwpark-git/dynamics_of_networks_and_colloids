@@ -1,5 +1,5 @@
 #include "cell_list.h"
-
+#define min(a, b) ((a) < (b) ? (a) : (b))
 
 CLIST::
 CLIST(COND& given_condition)
@@ -9,16 +9,19 @@ CLIST(COND& given_condition)
   N_dimension = atol(given_condition("N_dimension").c_str());
 
   box_dimension = new double [N_dimension];
+  double min_box_dimension = 0.;
   for (MKL_LONG k=0; k<N_dimension; k++)
     {
-      box_dimension[k] = atof(given_condition("box_dimension").c_str());
+      // box_dimension[k] = atof(given_condition("box_dimension").c_str());
+      box_dimension[k] = HANDLE_COND::get_LBk(given_condition, k);
+      min_box_dimension = min(min_box_dimension, box_dimension[k]);
     }
-  if (atof(given_condition("LBx").c_str()) > atof(given_condition("box_dimension").c_str())):
-    box_dimension[0] = atof(given_condition("LBx").c_str());
-  if (atof(given_condition("LBy").c_str()) > atof(given_condition("box_dimension").c_str())):
-    box_dimension[1] = atof(given_condition("LBy").c_str());
-  if (atof(given_condition("LBz").c_str()) > atof(given_condition("box_dimension").c_str())):
-    box_dimension[2] = atof(given_condition("LBz").c_str());
+  // if (atof(given_condition("LBx").c_str()) > atof(given_condition("box_dimension").c_str())):
+  //   box_dimension[0] = atof(given_condition("LBx").c_str());
+  // if (atof(given_condition("LBy").c_str()) > atof(given_condition("box_dimension").c_str())):
+  //   box_dimension[1] = atof(given_condition("LBy").c_str());
+  // if (atof(given_condition("LBz").c_str()) > atof(given_condition("box_dimension").c_str())):
+  //   box_dimension[2] = atof(given_condition("LBz").c_str());
   
   
   cut_off_radius = atof(given_condition("cutoff_connection").c_str());
@@ -29,42 +32,46 @@ CLIST(COND& given_condition)
     CELL_LIST_BOOST = TRUE;
   printf("\tcheck cut-off scheme");
 
-  if((cut_off_radius <= 0 || cut_off_radius > box_dimension/3.) || (!CELL_LIST_BOOST))
+  if((cut_off_radius <= 0 || cut_off_radius > min_box_dimension/3.) || (!CELL_LIST_BOOST))
     {
       // it prevent to use wrong value of cut_off_radius
       // when it is set with 0 or -1, the cut_off will not be applied
       // when the cut_off sectionize the box as number 3, the cell_list is not benefit to use it
       // at least, the number of cells per axis should be 4, so we have benefit to compute
       // note that it is of importance to prevent the cell_list functionality is turned on/off.
-      cut_off_radius = box_dimension;
+      cut_off_radius = min_box_dimension;
       if(CELL_LIST_BOOST)
         {
           CELL_LIST_BOOST = FALSE; 
-          printf("\nWARNING:cell_list=TRUE but the cut_off_radius is given by %4.3f while box_dimension is %4.3f\n", cut_off_radius, box_dimension);
+          printf("\nWARNING:cell_list=TRUE but the cut_off_radius is given by %4.3f while min_box_dimension is %4.3f\n", cut_off_radius, min_box_dimension);
           printf("\tcell list is turned off\n");
         }
     }
 
 
   
-  N_div = 1;
+  // N_div = 1;
   // cell_length = box_dimension;
   cell_length = new double [N_dimension];
-  N_cells = new MKL_LONG [N_dimension];
+  // N_cells = new MKL_LONG [N_dimension];
   for (MKL_LONG k=0; k<N_dimension; k++)
     {
       cell_length[k] = atof(given_condition("box_dimension").c_str());
-      N_cells[k] = 1;
+      N_cells = 1;
     }
   N_neighbor_cells = 1;
   N_div = new MKL_LONG [N_dimension];
+  for (MKL_LONG k=0; k<N_dimension; k++)
+    N_div[k] = 1;
+  N_cells = 1;
   if(CELL_LIST_BOOST)
     {
       for(MKL_LONG k=0; k<N_dimension; k++)
 	{
 	  N_div[k] = (MKL_LONG) box_dimension[k]/cut_off_radius; // floor refine the given divisor
 	  cell_length[k] = (double) box_dimension[k]/(double)N_div[k]; // real length scale of cells in each axis
-	  N_cells[k] = (MKL_LONG)pow(N_div[k], N_dimension); // N_cells = N_div^N_dimension
+      N_cells *= (MKL_LONG)N_div[k];
+	  // N_cells[k] = (MKL_LONG)pow(N_div[k], N_dimension); // N_cells = N_div^N_dimension
 	}
       N_neighbor_cells = (MKL_LONG)pow(3, N_dimension); // 3 means number for shift factor {-1, 0, +1}
     }
@@ -231,7 +238,7 @@ allocate_cells_from_positions(TRAJECTORY_HDF5& TRAJ, MKL_LONG index_t_now,
 MKL_LONG
 UTILITY::
 index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca,
-	      const MKL_LONG N_dimension, const MKL_LONG N_div)
+	      const MKL_LONG N_dimension, const MKL_LONG *N_div)
 {
   /*
     This is the original index mapping function for general N-dimensional case. 
@@ -242,7 +249,13 @@ index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca,
       /*
 	must be checked on here
       */
-      re += index_vec[n]*(MKL_LONG)pow(N_div, N_dimension - (n+1));
+      double multiplier = 1.;
+      for(MKL_LONG k=n + 1; k<N_dimension; k++)
+        {
+          multiplier *= N_div[k];
+        }
+      re += index_vec[n]*(MKL_LONG)multiplier;
+      // re += index_vec[n]*(MKL_LONG)pow(N_div, N_dimension - (n+1));
     }
   index_sca = re;
   return re;
@@ -251,14 +264,20 @@ index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca,
 MKL_LONG
 UTILITY::
 index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec,
-	      const MKL_LONG N_dimension, const MKL_LONG N_div)
+	      const MKL_LONG N_dimension, const MKL_LONG *N_div)
 {
   /*
     This inverse map applied to 
   */
   for(MKL_LONG n=0; n<N_dimension; n++)
     {
-      index_vec[n] = ((MKL_LONG)(index_sca/pow(N_div, N_dimension - (n+1))))%N_div;
+      double multiplier = 1.;
+      for(MKL_LONG k=n+1; k<N_dimension; k++)
+        {
+          multiplier *= N_div[k];
+        }
+      index_vec[n] = ((MKL_LONG)(index_sca/multiplier))%N_div[n];
+      // index_vec[n] = ((MKL_LONG)(index_sca/pow(N_div, N_dimension - (n+1))))%N_div;
     }
   return index_sca;
 }
@@ -303,9 +322,16 @@ get_neighbor_cell_list(const MKL_LONG& index_sca,
     For non-equilibrium simulation such as simple shear flow, the re-usability will decrease which eventually adds some overhead to compute additional lists.
   */
   CLIST::index_sca2vec(index_sca, self_index_vec_boost);
-  MKL_LONG N_sf = 3; // {-1, 0, +1}
+  MKL_LONG *N_sf = new MKL_LONG [N_dimension];
+  MKL_LONG N_blocks = 1.;
+  for(MKL_LONG n=0; n<N_dimension; n++)
+    {
+      N_sf[n] = 3; // {-1, 0, +1} for each direction
+      N_blocks *= N_sf[n];
+    }
+  // MKL_LONG N_sf[] = {3, 3, 3}; // {-1, 0, +1} for each direction
   
-  for(MKL_LONG nsf=0; nsf<pow(N_sf, N_dimension); nsf++)
+  for(MKL_LONG nsf=0; nsf<N_blocks; nsf++)
     // nsf have value from 0 to number of all possible neighbor cells
     {
       UTILITY::index_sca2vec(nsf, sf_vec_boost, N_dimension, N_sf);
@@ -318,12 +344,12 @@ get_neighbor_cell_list(const MKL_LONG& index_sca,
             {
               // this will reduce the overhead during relative distance between particle with PBC boundary condition	      
               BEYOND_BOX[index_sca][nsf][n] = -1;  // when the neighbor cell is beyond PBC boundary in left side
-              sf_vec_boost[n] += N_div;
+              sf_vec_boost[n] += N_div[n];
             }
-          else if(sf_vec_boost[n] >= N_div)
+          else if(sf_vec_boost[n] >= N_div[n])
             {
               BEYOND_BOX[index_sca][nsf][n] = +1; // when the neighbor cell is beyond PBC boundary in right side
-              sf_vec_boost[n] -= N_div;
+              sf_vec_boost[n] -= N_div[n];
             }
           
         }

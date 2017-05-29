@@ -28,7 +28,7 @@ class CLIST
   double cut_off_radius; // cut_off_radius
   double *cell_length; // length for cell
   MKL_LONG *N_div; // number of cells per axis
-  MKL_LONG *N_cells; // number of cells
+  MKL_LONG N_cells; // number of cells
   MKL_LONG N_neighbor_cells; // including itself
   MKL_LONG MAX_IN_CELL; // it state how many particles are allowed for one cell. Set as all the number of particles as default.
   
@@ -102,7 +102,7 @@ class CLIST
           delete[] TOKEN;
 	  delete[] box_dimension;
 	  delete[] cell_length;
-	  delete[] N_cells;
+	  // delete[] N_cells;
 	  delete[] N_div;
 	  
           for(MKL_LONG i=0; i<N_cells; i++)
@@ -140,11 +140,11 @@ class CLIST
 namespace UTILITY
 {
   MKL_LONG
-    index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca,
-		  const MKL_LONG N_dimension, const MKL_LONG N_div);
+  index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca,
+                const MKL_LONG N_dimension, const MKL_LONG *N_div);
   MKL_LONG
-    index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec,
-		  const MKL_LONG N_dimension, const MKL_LONG N_div);
+  index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec,
+                const MKL_LONG N_dimension, const MKL_LONG *N_div);
 }
 
 #endif

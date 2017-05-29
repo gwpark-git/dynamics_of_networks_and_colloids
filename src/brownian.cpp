@@ -185,7 +185,10 @@ BROWNIAN_VARIABLE
 {
   Np = atoi(given_condition("Np").c_str());
   MKL_LONG N_dimension = atoi(given_condition("N_dimension").c_str());
-  volume_PBC_box = pow(atof(given_condition("box_dimension").c_str()), N_dimension); // note that the definition should be changed when the box dimension have dependency with the direction
+  // volume_PBC_box = pow(atof(given_condition("box_dimension").c_str()), N_dimension); // note that the definition should be changed when the box dimension have dependency with the direction
+  volume_PBC_box = 1.;
+  for(MKL_LONG k=0; k<N_dimension; k++)
+    volume_PBC_box *= HANDLE_COND::get_LBk(given_condition, k);
   N_THREADS_BD = atol(given_condition("N_THREADS_BD").c_str());
   tmp_index_vec = new MKL_LONG [N_dimension];
   force_random = new MATRIX [Np];
