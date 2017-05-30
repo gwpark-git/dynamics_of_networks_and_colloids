@@ -33,7 +33,8 @@ class ASSOCIATION
   bool MULTIPLE_CONNECTIONS;
   bool NUMBER_RESTRICTION;
   bool PROBABILITY_AREA;
-  
+
+  MATRIX N_ASSOCIATION_PARTICLE;
   MATRIX *weight;
   // related with suggestion probability (selecting a degenerated pair)
   MATRIX *CASE_SUGGESTION;
@@ -123,7 +124,13 @@ class ASSOCIATION
   MKL_LONG
     FIND_HASH_INDEX
     (MKL_LONG index_A, MKL_LONG index_B);
-
+  MKL_LONG
+  update_N_association
+  ();
+  
+  MKL_LONG
+  get_N_association_particle
+  (MKL_LONG index_particle);
 
   // At the moment, there is no namespace dependence between KINETICS::NORMALIZED and KINETICS::METROPOLIS.
   // The dependency is set with the w_function and transtion_probability that is developed with lib_potential.
@@ -279,7 +286,15 @@ namespace TRUTH_MAP
     (ASSOCIATION& CONNECT, MKL_LONG index_itself, MKL_LONG index_target, MKL_LONG index_new);
 }
 
+namespace MICELLE
+{
+  double
+  update_SOFT_REPULSION_P2(POTENTIAL_SET& given_POT, ASSOCIATION& CONNECT);
 
+  double
+  update_SOFT_REPULSION_P2_particle(POTENTIAL_SET& given_POT, ASSOCIATION& CONNECT, MKL_LONG index_particle);
+
+}
 
 namespace KINETICS
 {
@@ -517,5 +532,14 @@ class CHAIN_INFORMATION
     }
 };
 
+
+
+// double inline MICELLE::update_SOFT_REPULSION_P2_particle(POTENTIAL_SET& given_POT, ASSOCIATION& CONNECT, MKL_LONG index_particle)
+// {
+//   given_POT.force_variables.C_rep_arr(index_particle) = given_POT.force_variables.repulsion_coefficient_base*CONNECT.N_ASSOCIATION_PARTICLE(index_particle)*CONNECT.N_ASSOCIATION_PARTICLE(index_particle);
+//   // C_rep(p) = C_0 * p^2
+  
+//   return given_POT.force_variables.C_rep_arr(index_particle);
+// }
 
 #endif

@@ -116,8 +116,15 @@ initialization_COND
   box_dimension = new double [N_dimension];
   for (MKL_LONG k=0; k<N_dimension; k++)
     {
-      box_dimension[k] = atof(given_condition("box_dimension").c_str());
+      // box_dimension[k] = atof(given_condition("box_dimension").c_str());
+      box_dimension[k] = HANDLE_COND::get_LBk(given_condition, k);
     }
+  // if (atof(given_condition("LBx").c_str()) > atof(given_condition("box_dimension").c_str())):
+  //   box_dimension[0] = atof(given_condition("LBx").c_str());
+  // if (atof(given_condition("LBy").c_str()) > atof(given_condition("box_dimension").c_str())):
+  //   box_dimension[1] = atof(given_condition("LBy").c_str());
+  // if (atof(given_condition("LBz").c_str()) > atof(given_condition("box_dimension").c_str())):
+  //   box_dimension[2] = atof(given_condition("LBz").c_str());
 
   if(given_condition("Method") == "BROWNIAN" || given_condition("Method") == "DUMBBELL")
     {

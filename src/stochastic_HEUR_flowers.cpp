@@ -62,7 +62,12 @@ record_RDIST_PARTICLE(ofstream &file_DIST,
             {
               MKL_LONG index_target = R_boost(cell_index_neighbor, p);
               double distance = R_boost.Rsca[index_particle](index_target);
-              if(distance <= R_boost.cell_length && index_particle != index_target)
+              // if(distance <= R_boost.cell_length && index_particle != index_target)
+              //   file_DIST << std::scientific << distance << '\t';
+              bool check_asymmetric_cells = 0;
+              for(MKL_LONG n=0; n<R_boost.Rvec[index_particle][index_target].size; n++)
+                check_asymmetric_cells = check_asymmetric_cells | (R_boost.Rvec[index_particle][index_target](n) <= R_boost.cell_length[n]);
+              if (index_particle != index_target && check_asymmetric_cells)
                 file_DIST << std::scientific << distance << '\t';
             }
 	  file_DIST << std::endl;
@@ -221,6 +226,20 @@ stochastic_simulation_HEUR_flowers(TRAJECTORY& TRAJ, POTENTIAL_SET& POTs, ASSOCI
                                  RNG,
                                  VAR.N_THREADS_BD,
                                  given_condition, VAR);
+
+      // printf("\n\n=====CHECK number of chain ends\n\n");
+      // for(MKL_LONG i=0; i<TRAJ.Np; i++)
+      // 	{
+      // 	  if((MKL_LONG)CONNECT.N_ASSOCIATION_PARTICLE(i) != (MKL_LONG)CONNECT.get_N_association_particle(i))
+      // 	    {
+      // 	      printf("ERR N_ASSOCIATION_PARTICLE: p(%ld)=%ld (expected %ld)\n", i, (MKL_LONG)CONNECT.N_ASSOCIATION_PARTICLE(i), CONNECT.get_N_association_particle(i));
+      // 	      for(MKL_LONG j=0; j<CONNECT.TOKEN[i]; j++)
+      // 		printf("%ld\t", (MKL_LONG)CONNECT.weight[i](j));
+      // 	      printf("\n");
+      // 	    }
+		       
+      // 	}
+      
       // printf("test4\n");
       if(VAR.SIMPLE_SHEAR || VAR.STEP_SHEAR)
         {
@@ -395,9 +414,14 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
 	  MKL_LONG N_connectors_k = CONNECT.N_PARTICLE_ASSOCIATION(k);
 	  double zeta_corrector = POTs.zeta_particle(N_connectors_k, POTs.force_variables);
 	  // double zeta_corrector = POTs.zeta_particle(N_connectors_k, POTs.force_variables);
+          // TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k)
+          //   + (TRAJ.dt/zeta_corrector)*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k))
+          //   + sqrt(TRAJ.dt/zeta_corrector)*force_random[i](k);
           TRAJ(index_t_next, i, k) = TRAJ(index_t_now, i, k)
-            + (TRAJ.dt/zeta_corrector)*((1./POTs.force_variables[0])*force_spring[i](k) + force_repulsion[i](k))
+            + (TRAJ.dt/zeta_corrector)*((1./POTs.force_variables.repulsion_coefficient)*force_spring[i](k) + force_repulsion[i](k))
             + sqrt(TRAJ.dt/zeta_corrector)*force_random[i](k);
+
+          
         }
       if(VAR.SIMPLE_SHEAR)
         TRAJ(index_t_next, i, VAR.shear_axis) += TRAJ.dt*VAR.Wi_tau_R*TRAJ(index_t_now, i, VAR.shear_grad_axis);
@@ -441,10 +465,18 @@ OMP_time_evolution_Euler(TRAJECTORY& TRAJ, const MKL_LONG index_t_now, const MKL
   VAR.RF_repulsion_xx = RF_repulsion_xx/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_repulsion_yy = RF_repulsion_yy/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_repulsion_zz = RF_repulsion_zz/(duplication_divisor*VAR.volume_PBC_box);
   VAR.RF_repulsion_xy = RF_repulsion_xy/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_repulsion_xz = RF_repulsion_xz/(duplication_divisor*VAR.volume_PBC_box); VAR.RF_repulsion_yz = RF_repulsion_yz/(duplication_divisor*VAR.volume_PBC_box);
 
-  VAR.RF_connector_xx = RF_connector_xx/(POTs.force_variables[0]*duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_yy = RF_connector_yy/(POTs.force_variables[0]*duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_zz = RF_connector_zz/(POTs.force_variables[0]*duplication_divisor*VAR.volume_PBC_box);
-  VAR.RF_connector_xy = RF_connector_xy/(POTs.force_variables[0]*duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_xz = RF_connector_xz/(POTs.force_variables[0]*duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_yz = RF_connector_yz/(POTs.force_variables[0]*duplication_divisor*VAR.volume_PBC_box);
+  VAR.RF_connector_xx = RF_connector_xx/(POTs.force_variables.repulsion_coefficient*duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_yy = RF_connector_yy/(POTs.force_variables.repulsion_coefficient*duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_zz = RF_connector_zz/(POTs.force_variables.repulsion_coefficient*duplication_divisor*VAR.volume_PBC_box);
+  VAR.RF_connector_xy = RF_connector_xy/(POTs.force_variables.repulsion_coefficient*duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_xz = RF_connector_xz/(POTs.force_variables.repulsion_coefficient*duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_yz = RF_connector_yz/(POTs.force_variables.repulsion_coefficient*duplication_divisor*VAR.volume_PBC_box);
 
-  VAR.energy_elastic_potential = energy_elastic_potential/(POTs.force_variables[0]*duplication_divisor);
+  
+  VAR.energy_elastic_potential = energy_elastic_potential/(POTs.force_variables.repulsion_coefficient*duplication_divisor);
+
+  
+  // VAR.RF_connector_xx = RF_connector_xx/(POTs.force_variables[0]*duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_yy = RF_connector_yy/(POTs.force_variables[0]*duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_zz = RF_connector_zz/(POTs.force_variables[0]*duplication_divisor*VAR.volume_PBC_box);
+  // VAR.RF_connector_xy = RF_connector_xy/(POTs.force_variables[0]*duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_xz = RF_connector_xz/(POTs.force_variables[0]*duplication_divisor*VAR.volume_PBC_box); VAR.RF_connector_yz = RF_connector_yz/(POTs.force_variables[0]*duplication_divisor*VAR.volume_PBC_box);
+
+  
+  // VAR.energy_elastic_potential = energy_elastic_potential/(POTs.force_variables[0]*duplication_divisor);
   // the divisor C_rep (POTs.force_variables[0]) is used in order to tune time scale as tau_R
 
   VAR.energy_repulsive_potential = energy_repulsive_potential/duplication_divisor;

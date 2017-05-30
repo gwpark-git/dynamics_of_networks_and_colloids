@@ -22,20 +22,14 @@ Integrator=Euler
 ## DIMENSION
 N_dimension=3
 box_dimension=10.0
-## box_dimension::LBx, LBy, LBz => for asymmetric PBC box
-## for NEMD: x is for shear and y is for shear-gradient directions
-## without define it, it will be used box_dimension as default value
-LBx=12.0
-LBy=10.0
-LBz=10.0
 
 ## TIME::Time scales and data resolutions
 dt/tauR=0.01
-Nt=100000
+Nt=10000000
 reset_initial_time=TRUE
 ## TIME::TOPOLOGY
-N_steps_block=1
-Rt=1
+N_steps_block=10
+Rt=10
 ## TIME::DATA_RESOLUTION
 N_skip_ener=100
 N_skip_file=100
@@ -44,7 +38,7 @@ N_skip_rdist=100
 
 ## THREADS
 ## THREADS::LANGEVIN   
-N_THREADS_BD=4
+N_THREADS_BD=2
 ## THREADS::TOPOLOGY
 N_THREADS_SS=1
 
@@ -62,7 +56,7 @@ repulsion_coupling=PRE_AVERAGE
 effective_distance=1.0
 
 ## CHAIN
-N_chains_per_particle=10
+N_chains_per_particle=5
 ## CHAIN: it allows to track all the index of individual chain ends
 tracking_individual_chain=TRUE
 
@@ -115,14 +109,14 @@ basic_random_seed=100
 basic_random_seed_SS=150
 
 ## file information
-output_path=short_test
+output_path=short_test_PRE_AVERAGE
 filename_base=NP0400_LD10P3_C025
 
 ## note that CONTINUATION_STEP should be -1 as default
 ## otherwise, it will inherit with the given number of steps
-CONTINUATION_TRAJ=FALSE
+CONTINUATION_TRAJ=TRUE
 CONTINUATION_STEP=-1
-CONTINUATION_TRAJ_FN=FALSE
+CONTINUATION_TRAJ_FN=LD10P3/EQ3D_NP0400_LD10P3.traj
 
 CONTINUATION_CONNECTION=FALSE
 CONTINUATION_HASH_FN=FALSE

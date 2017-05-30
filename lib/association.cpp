@@ -1,5 +1,35 @@
 
 #include "association.h"
+// double MICELLE::update_SOFT_REPULSION_P2(POTENTIAL_SET& given_POT, ASSOCIATION& CONNECT)
+// {
+//   for(MKL_LONG i=0; i<CONNECT.Np; i++)
+//     {
+//       MICELLE::update_SOFT_REPULSION_P2_particle(given_POT, CONNECT, i);
+//       // given_POT.force_variables.C_rep_arr(i) = given_POT.force_variables.repulsion_coefficient_base*CONNECT.N_ASSOCIATION_PARTICLE(i)*CONNECT.N_ASSOCIATION_PARTICLE(i);
+//     }
+//   return 0;
+// }
+
+MKL_LONG ASSOCIATION::update_N_association()
+{
+  for(MKL_LONG i=0; i<Np; i++)
+    {
+      N_ASSOCIATION_PARTICLE(i) = get_N_association_particle(i);
+    }
+  return 0;
+}
+
+  
+
+MKL_LONG ASSOCIATION::get_N_association_particle(MKL_LONG index_particle)
+{
+  MKL_LONG re = 0;
+  for(MKL_LONG i=0; i<TOKEN[index_particle]; i++)
+    {
+      re += (MKL_LONG)weight[index_particle](i);
+    }
+  return re;
+}
 
 MKL_LONG index_set_val(size_t* index, MKL_LONG given_val, MKL_LONG size_of_arr)
 {
@@ -50,7 +80,7 @@ MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight, MKL_LONG N_steps)
           GIVEN_WEIGHT >> weight_k;
           weight[i](k) = weight_k;
         }
-      
+      N_ASSOCIATION_PARTICLE(i) = get_N_association_particle(i); // it will allocate number of association (attached chain ends) of the selected particles.
     }
   GIVEN_WEIGHT.close();
   return 0;
@@ -58,6 +88,7 @@ MKL_LONG ASSOCIATION::read_exist_weight(const char* fn_weight, MKL_LONG N_steps)
 
 MKL_LONG ASSOCIATION::set_initial_condition()
 {
+  N_ASSOCIATION_PARTICLE.initial(Np, 1, 2*Nc);
   for(MKL_LONG i=0; i<Np; i++)
     {
       HASH[i].initial(N_max + 5, 1, -1); // this is temporal initialization
@@ -159,6 +190,7 @@ MKL_LONG ASSOCIATION::initial_inheritance() // it should not be called by outsid
   //   // this violate the inheritance of association information from the previous computation
   //   // hence, even if it is quite duplicate, the set_initial_condition() is replaced by the real sequence
   // set_initial_condition();
+  N_ASSOCIATION_PARTICLE.initial(Np, 1, 2*Nc);  
   for(MKL_LONG i=0; i<Np; i++)
     {
       weight[i].initial(N_max + 5, 1, 0);
@@ -452,10 +484,15 @@ MKL_LONG ASSOCIATION::add_association(const MKL_LONG index_particle, MKL_LONG in
   //     printf("\tDETAIL: (%ld, 0) = %ld (%ld), (%ld, %ld) = %ld (%ld)\n", index_particle, (MKL_LONG)HASH[index_particle](0), (MKL_LONG)weight[index_particle](0), index_particle, hash_index_target, (MKL_LONG)HASH[index_particle](hash_index_target), (MKL_LONG)weight[index_particle](hash_index_target));
   //   }
   
-  weight[index_particle](0) -= 2;
+  weight[index_particle](0) -= 2; // this is because weight[i](0) has number of loop chain ends 
   // if(weight[index_particle](0) < 0)
   //   printf("ERR: weight cannot be below 0\n");
-  weight[index_particle](hash_index_target) += 1; 
+  weight[index_particle](hash_index_target) += 1; // it will add new has_index_target
+
+  
+  N_ASSOCIATION_PARTICLE(index_particle) -= 1; // number of chain ends of subjected micelle is decreased by 1
+  N_ASSOCIATION_PARTICLE(index_target) += 1; // number of chain ends of target micelle is increased by 1
+  
   if (hash_index_target == TOKEN[index_particle]) // when it is new bridge for itself
     {
       HASH[index_particle](hash_index_target) = index_target;
@@ -583,9 +620,8 @@ MKL_LONG ASSOCIATION::opp_del_association_hash(const MKL_LONG index_particle, MK
 {
   /*
     This is the basic call for deleting the existing connection.
-    The subjected chain ends is opposite chain ends that selected at this moment, because for the association distribution subjected by itself particle, which means the subjected chains. 
     The transition probability for chain ends in the same chain is the same with its opponents, which means we can tweak things by detachment opponent chain ends rather than subjected chain end.
-    This is the reason the function is called 'opp_del' rather than 'del'
+    This is the reason why the function is called 'opp_del' rather than 'del'
    */
   MKL_LONG index_target = (MKL_LONG)HASH[index_particle](hash_index_target);
   
@@ -593,7 +629,10 @@ MKL_LONG ASSOCIATION::opp_del_association_hash(const MKL_LONG index_particle, MK
   //   printf("ERR: something wrong in opp_del_association_hash. The given hash index is zero\n");
   // if(FIND_HASH_INDEX(index_target, index_particle) == 0)
   //   printf("ERR: something wrong in opp_del_association_hash. THE return value of FIND_HAS_INDEX is zero\n");
-    
+
+  N_ASSOCIATION_PARTICLE(index_particle) += 1; // number of chain end attached to subjected micelle is increased by 1 because the opp_del_association will delete the opposite chain end of the selected chain end
+  N_ASSOCIATION_PARTICLE(index_target) -= 1; 
+  
   opp_del_association_grab_IK(index_particle, hash_index_target);
   opp_del_association_IK(index_target, FIND_HASH_INDEX(index_target, index_particle));
   return 0;

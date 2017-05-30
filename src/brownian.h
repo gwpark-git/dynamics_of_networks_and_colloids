@@ -8,7 +8,6 @@
 #include "../lib/potential.h"
 #include "../lib/parallel.h"
 #include "../lib/geometry.h"
-
 #include "omp.h"
 
 namespace BROWNIAN

@@ -15,6 +15,7 @@
 using namespace std;
 
 
+
 class COND
 {
 public:
@@ -218,6 +219,14 @@ public:
     
   }
 };
+
+
+
+namespace HANDLE_COND
+{
+  double get_LBk(COND& given_condition, MKL_LONG k_dimension);
+
+}
 
 
 

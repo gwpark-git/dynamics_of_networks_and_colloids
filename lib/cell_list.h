@@ -20,14 +20,14 @@ class CLIST
 
   bool CELL_LIST_BOOST;
   MKL_LONG N_dimension; // spatial dimension
-  double box_dimension; // box dimension for one axis
+  double *box_dimension; // box dimension for one axis
   bool INITIALIZATION;
   /*
     Based on the given critical radius, rc, the real length for cell is computed based on proper divisor of whole box. For instance, if the given box length is 10 and the critical length scale is 0.9, then the length for cell becomes 1.0, which is the slight larger than the critical length scale.
   */
   double cut_off_radius; // cut_off_radius
-  double cell_length; // length for cell
-  MKL_LONG N_div; // number of cells per axis
+  double *cell_length; // length for cell
+  MKL_LONG *N_div; // number of cells per axis
   MKL_LONG N_cells; // number of cells
   MKL_LONG N_neighbor_cells; // including itself
   MKL_LONG MAX_IN_CELL; // it state how many particles are allowed for one cell. Set as all the number of particles as default.
@@ -100,6 +100,11 @@ class CLIST
       if(INITIALIZATION)
         {
           delete[] TOKEN;
+	  delete[] box_dimension;
+	  delete[] cell_length;
+	  // delete[] N_cells;
+	  delete[] N_div;
+	  
           for(MKL_LONG i=0; i<N_cells; i++)
             {
               delete[] CELL[i];
@@ -135,11 +140,11 @@ class CLIST
 namespace UTILITY
 {
   MKL_LONG
-    index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca,
-		  const MKL_LONG N_dimension, const MKL_LONG N_div);
+  index_vec2sca(const MKL_LONG* index_vec, MKL_LONG& index_sca,
+                const MKL_LONG N_dimension, const MKL_LONG *N_div);
   MKL_LONG
-    index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec,
-		  const MKL_LONG N_dimension, const MKL_LONG N_div);
+  index_sca2vec(const MKL_LONG& index_sca, MKL_LONG* index_vec,
+                const MKL_LONG N_dimension, const MKL_LONG *N_div);
 }
 
 #endif
