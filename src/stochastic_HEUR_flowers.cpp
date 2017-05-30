@@ -946,7 +946,8 @@ TEMPORAL_VARIABLE_HEUR(COND& given_condition, MKL_LONG given_N_basic)
       CUTOFF_RANGE = 1.0; // it is related with R0 cutoff dissociation rule
     }
   
-  if(given_condition("connector") == "Modified_Gaussian" || given_condition("connector") == "FENE") 
+  // if(given_condition("connector") == "Modified_Gaussian" || given_condition("connector") == "FENE")
+  if(given_condition("connector") == "FENE") 
     {
       /*
         For Gaussian chain, the R_max value only affect to cutoff. It is design to prevent the equilibrium simulation when the bridge chain longer than half dimension of box, the length will be change during minimum image convention. It is of importance to aware that ratio_RM_R0 set with Ld/2 is not useful since it is already regarded as specific index set is replaced by some images. Therefore, it must have at least some tolerance factor such as Tf*Ld/2 with Tf<1.
