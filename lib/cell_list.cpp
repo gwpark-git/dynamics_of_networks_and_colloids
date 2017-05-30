@@ -1,5 +1,6 @@
 #include "cell_list.h"
 #define min(a, b) ((a) < (b) ? (a) : (b))
+#define max(a, b) ((a) > (b) ? (a) : (b))
 
 CLIST::
 CLIST(COND& given_condition)
@@ -9,13 +10,24 @@ CLIST(COND& given_condition)
   N_dimension = atol(given_condition("N_dimension").c_str());
 
   box_dimension = new double [N_dimension];
-  double min_box_dimension = 0.;
+  double min_box_dimension = atof(given_condition("box_dimension").c_str());
+  double max_box_dimension = atof(given_condition("box_dimension").c_str());
   for (MKL_LONG k=0; k<N_dimension; k++)
     {
       // box_dimension[k] = atof(given_condition("box_dimension").c_str());
       box_dimension[k] = HANDLE_COND::get_LBk(given_condition, k);
       min_box_dimension = min(min_box_dimension, box_dimension[k]);
+      max_box_dimension = max(max_box_dimension, box_dimension[k]);
     }
+  if(min_box_dimension != max_box_dimension)
+    {
+      printf("\nAsymmetric PBC box is setted: ");
+      for(MKL_LONG k=0; k<N_dimension; k++)
+        {
+          printf("%lf ", box_dimension[k]);
+        }
+      printf("\n");
+    }  
   // if (atof(given_condition("LBx").c_str()) > atof(given_condition("box_dimension").c_str())):
   //   box_dimension[0] = atof(given_condition("LBx").c_str());
   // if (atof(given_condition("LBy").c_str()) > atof(given_condition("box_dimension").c_str())):
@@ -67,12 +79,12 @@ CLIST(COND& given_condition)
   if(CELL_LIST_BOOST)
     {
       for(MKL_LONG k=0; k<N_dimension; k++)
-	{
-	  N_div[k] = (MKL_LONG) box_dimension[k]/cut_off_radius; // floor refine the given divisor
-	  cell_length[k] = (double) box_dimension[k]/(double)N_div[k]; // real length scale of cells in each axis
-      N_cells *= (MKL_LONG)N_div[k];
-	  // N_cells[k] = (MKL_LONG)pow(N_div[k], N_dimension); // N_cells = N_div^N_dimension
-	}
+        {
+          N_div[k] = (MKL_LONG) box_dimension[k]/cut_off_radius; // floor refine the given divisor
+          cell_length[k] = (double) box_dimension[k]/(double)N_div[k]; // real length scale of cells in each axis
+          N_cells *= (MKL_LONG)N_div[k];
+          // N_cells[k] = (MKL_LONG)pow(N_div[k], N_dimension); // N_cells = N_div^N_dimension
+        }
       N_neighbor_cells = (MKL_LONG)pow(3, N_dimension); // 3 means number for shift factor {-1, 0, +1}
     }
   printf("\tdynamic allocating CLIST member variables");

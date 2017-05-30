@@ -25,7 +25,9 @@ box_dimension=10.0
 ## box_dimension::LBx, LBy, LBz => for asymmetric PBC box
 ## for NEMD: x is for shear and y is for shear-gradient directions
 ## without define it, it will be used box_dimension as default value
-LBx=10.0
+LBx=12.0
+LBy=10.0
+LBz=10.0
 
 ## TIME::Time scales and data resolutions
 dt/tauR=0.01
@@ -118,9 +120,9 @@ filename_base=NP0400_LD10P3_C025
 
 ## note that CONTINUATION_STEP should be -1 as default
 ## otherwise, it will inherit with the given number of steps
-CONTINUATION_TRAJ=TRUE
+CONTINUATION_TRAJ=FALSE
 CONTINUATION_STEP=-1
-CONTINUATION_TRAJ_FN=LD10P3/EQ3D_NP0400_LD10P3.traj
+CONTINUATION_TRAJ_FN=FALSE
 
 CONTINUATION_CONNECTION=FALSE
 CONTINUATION_HASH_FN=FALSE
