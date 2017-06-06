@@ -1,6 +1,8 @@
 from numpy import *
 import scipy.linalg as lin
 
+
+
 def get_minimum_distance_k_from_x(x, k, box_dimension):
     kd = asarray([k-box_dimension-x, k-x, k+box_dimension-x])
     return kd[argmin(abs(kd))] + x
@@ -16,7 +18,11 @@ def get_rel_vec(traj, ts, i, j, N_dimension, box_dimension):
     p_i = get_pos(traj, ts, i, N_dimension)
     p_j = get_pos(traj, ts, j, N_dimension)
     for k in range(N_dimension):
-        p_j[k] = get_minimum_distance_k_from_x(p_i[k], p_j[k], box_dimension)
+        if(size(box_dimension)==1):
+            p_j[k] = get_minimum_distance_k_from_x(p_i[k], p_j[k], box_dimension)
+        else:
+            # this will add the symmetric/asymmetric sensitivity of the box.
+            p_j[k] = get_minimum_distance_k_from_x(p_i[k], p_j[k], box_dimension[k])
     return p_j - p_i
 
 def get_ddf(traj, ts, Np, N_dimension, box_dimension, cut_ratio):
@@ -28,6 +34,10 @@ def get_ddf(traj, ts, Np, N_dimension, box_dimension, cut_ratio):
                 if d<cut_ratio*box_dimension:
                     ddf.append(d)
     return ddf
+
+
+
+
 
 def get_ddf_angle(traj, ts, Np, N_dimension, box_dimension, cut_ratio, vec_u):
     ddf = []
@@ -43,6 +53,9 @@ def get_ddf_angle(traj, ts, Np, N_dimension, box_dimension, cut_ratio, vec_u):
                     ddf.append(d)
                     angles.append(arccos(dot(tmp_vec/d, vec_u)))
     return ddf, angles
+
+
+
 
 def get_xy_df(traj, ts, Np, N_dimension, box_dimension, cut_ratio):
     xdf = []
