@@ -17,14 +17,29 @@ if size(sys.argv) < 7:
     print 'argv[4] == spatial dimension'
     print 'argv[5] == number of particles'
     print 'argv[6] == box dimension'
+    print '  note that the following will be used when the arguments are given'
+    print 'argv[7](option) == Lx'
+    print 'argv[8](option) == Ly'
+    print 'argv[9](option) == Lz'
     # print 'argv[7] == df for given trajectory'
 else:    
     dat = loadtxt(sys.argv[1])
     # hash = loadtxt(sys.argv[2])
-    o_path = sys.argv[3]
+    if sys.argv[3]=='.':
+        o_path = ''
+    else:
+        o_path = sys.argv[3]
+
     Nd = long(sys.argv[4])
     Np = long(sys.argv[5])
-    box_dimension = float(sys.argv[6])
+    # box_dimension = float(sys.argv[6])
+    box_dimension = zeros(Nd)
+    for i in range(Nd):
+        if size(sys.argv < 8):
+            box_dimension[i] = float(sys.argv[6])
+        else:
+            box_dimension[i] = float(sys.argv[7+i])
+    
     # df = float(sys.argv[7])
     hash = []
 
@@ -56,8 +71,8 @@ else:
 
     from pylab import rand
 
-    def get_minimum_distance_k_from_x(x, k, box_dimension):
-        kd = asarray([k-box_dimension-x, k-x, k+box_dimension-x])
+    def get_minimum_distance_k_from_x(x, k, axis_dimension):
+        kd = asarray([k-axis_dimension-x, k-x, k+axis_dimension-x])
         return kd[argmin(abs(kd))] + x;
 
     pos = zeros([Np, Nd])
@@ -128,9 +143,9 @@ else:
                 # tr_association['x'] += [pos[i, 0], get_minimum_distance_k_from_x(pos[i, 0], pos[hash[i,j], 0], box_dimension), None]
                 # tr_association['y'] += [pos[i, 1], get_minimum_distance_k_from_x(pos[i, 1], pos[hash[i,j], 1], box_dimension), None]
                 # tr_association['z'] += [pos[i, 2], get_minimum_distance_k_from_x(pos[i, 2], pos[hash[i,j], 2], box_dimension), None]
-                x_pair = [pos[i, 0], get_minimum_distance_k_from_x(pos[i, 0], pos[hash[hash_st + i,j], 0], box_dimension)]
-                y_pair = [pos[i, 1], get_minimum_distance_k_from_x(pos[i, 1], pos[hash[hash_st + i,j], 1], box_dimension)]
-                z_pair = [pos[i, 2], get_minimum_distance_k_from_x(pos[i, 2], pos[hash[hash_st + i,j], 2], box_dimension)]
+                x_pair = [pos[i, 0], get_minimum_distance_k_from_x(pos[i, 0], pos[hash[hash_st + i,j], 0], box_dimension[0])]
+                y_pair = [pos[i, 1], get_minimum_distance_k_from_x(pos[i, 1], pos[hash[hash_st + i,j], 1], box_dimension[1])]
+                z_pair = [pos[i, 2], get_minimum_distance_k_from_x(pos[i, 2], pos[hash[hash_st + i,j], 2], box_dimension[2])]
                 d_pair = distance(x_pair, y_pair, z_pair)
                 # d_dist.append([cnt, d_pair])
                 d_dist.append(d_pair)
@@ -155,6 +170,7 @@ else:
     plot_url = plotly.offline.plot(fig, filename='%s/%s.html'%(o_path, sys.argv[1]), auto_open=False)
 
     d_dist = asarray(d_dist)
+    savetxt('%s/%s.ddist'%(o_path, sys.argv[1]), d_dist)
     t_dist.append(d_dist)
 
 
