@@ -40,10 +40,11 @@ else:
         t_end = shape(traj)[0] 
     # print t_st, t_end
     N_dimension = int(sys.argv[6])
-
+    
 
     Np = int(sys.argv[7])
-
+    # Np = int(fn_traj.split('NP')[1][:4])
+    
     box_dimension = zeros(N_dimension)
     for i in range(N_dimension):
         if size(sys.argv)<10:
@@ -64,6 +65,8 @@ else:
         with open (fn_hash, 'r') as f_hash:
             with open (fn_weight, 'r') as f_weight:
                 for t in range(t_st, t_end, N_stride): #check definition for ts
+                    if t%(int(t_end/10))==0:
+                        print t, 'out of', t_end
                     # hash_st = t*Np # direction for initial position of hash, which is concide with weight.
                     tmp_ddf = [traj[t, 0]]
                     for i in range(Np):

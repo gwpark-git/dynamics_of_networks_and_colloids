@@ -37,8 +37,6 @@ def get_ddf(traj, ts, Np, N_dimension, box_dimension, cut_ratio):
 
 
 
-
-
 def get_ddf_angle(traj, ts, Np, N_dimension, box_dimension, cut_ratio, vec_u):
     ddf = []
     angles = []
