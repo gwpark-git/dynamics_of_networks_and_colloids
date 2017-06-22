@@ -108,7 +108,7 @@ else:
             else:
                 N_cut = int(sys.argv[3])
         stride = 1
-        if size(sys.argv) == 5:
+        if size(sys.argv) >= 5:
             stride = int(sys.argv[4])
         print 'compute stress autocorrelation for number of time steps %ld out of %ld with stride %ld'%(N_cut, Nt, stride)
         if (size(sys.argv) == 7 and sys.argv[6] == 'TEST'):
@@ -122,7 +122,8 @@ else:
             corr_con_rep = tauij_corr_con_rep(ener[N_st:N_st+Nt_block, :])
             corr_rep_con = tauij_corr_rep_con(ener[N_st:N_st+Nt_block, :])
         if size(sys.argv) > 5:
-
+            if stride > 1:
+                print 'Warning: stride is given by %f (>1) is not supported for FFT'%(stride)
             N_div = int(sys.argv[5])
             print 'average over %d blocks'%(N_div)
             Nt_block = (size(ener[:, 0]) - N_cut)/2 # it will the raw data range
