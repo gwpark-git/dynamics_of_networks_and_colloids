@@ -142,7 +142,7 @@ else:
     # this is of important for the following procedure
     N_direction = int((N_dimension - dr/2.)/2.)
     Nr = 1 + 2*N_direction
-
+    print 'initialized with %d-dimensional case with dr=%f (Nr=%d)'%(N_dimension, dr, Nr)
     # making connector vecotr histogram based on Cartesian coordinate
     # the first array index N_dimension refers the related direction, i.e., hist_R[0] is for x-axis since index 0 refers x
     # the second array index Nr is following the description of index_array function
@@ -181,7 +181,7 @@ else:
     # dat[:,0] = tn
     # dat[:, 1:] = RR
     dat = hist_R
-    savetxt(sys.argv[2], dat)
+    savetxt(fn_out, dat)
 
 
     # if N_dimension == 2:
