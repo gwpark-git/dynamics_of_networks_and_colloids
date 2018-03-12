@@ -167,26 +167,26 @@ else:
             with open(fn_weight, 'r') as f_weight:
                 cnt = 0
                 cnt_lines = 0
+                if (cnt_lines < N_cuts):
+                    for tmp_iter in xrange(N_cuts):
+                        f_traj.readline()
+                        cnt_lines += 1
+                        for tmp_iter_2 in xrange(Np):
+                            f_index.readline()
+                            f_weight.readline()
+                
                 while(1):
                     try:
-                        if (cnt_lines < N_cuts):
-                            for tmp_iter in xrange(N_cuts):
-                                next(f_traj)
-                                cnt_lines += 1
-                                for tmp_iter_2 in xrange(Np):
-                                    next(f_index)
-                                    next(f_weight)
-                        else:
-                            pos = read_traj(f_traj, Np, N_dimension)
-                            connectivity = read_connectivity(f_index, f_weight, Np)
-                            # RR_t = RR_over_beads(pos, connectivity, box_dimension)
-                            if(cnt_lines == N_cuts):
-                                print 'line number %d meet the starting condition'%(N_cuts)
-                            if(cnt_lines >= N_cuts):
-                                if ((cnt_lines - N_cuts)%100 == 0):
-                                    print 'currently working with line number %d'%(cnt_lines)
-                                cnt += hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
-                            cnt_lines += 1
+                        pos = read_traj(f_traj, Np, N_dimension)
+                        connectivity = read_connectivity(f_index, f_weight, Np)
+                        # RR_t = RR_over_beads(pos, connectivity, box_dimension)
+                        if(cnt_lines == N_cuts):
+                            print 'line number %d meet the starting condition'%(N_cuts)
+                        if(cnt_lines >= N_cuts):
+                            if ((cnt_lines - N_cuts)%100 == 0):
+                                print 'currently working with line number %d'%(cnt_lines)
+                            cnt += hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
+                        cnt_lines += 1
                         # tn.append(cnt)
                         # RR_hist.append(RR_t.flatten()) # flatten transform 1d from Nd
                         # RR += RR_t
