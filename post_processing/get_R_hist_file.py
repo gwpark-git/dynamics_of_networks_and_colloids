@@ -140,7 +140,7 @@ else:
 
     # get number of arrays for each directions
     # this is of important for the following procedure
-    N_direction = int((box_dimension - dr/2.)/2.)
+    N_direction = int((box_dimension - dr/2.)/dr)
     Nr = 1 + 2*N_direction
     print 'initialized with %d-dimensional case with dr=%f (Nr=%d)'%(N_dimension, dr, Nr)
     # making connector vecotr histogram based on Cartesian coordinate
