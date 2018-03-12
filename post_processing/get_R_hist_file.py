@@ -178,6 +178,7 @@ else:
                             if ((cnt_lines - N_cuts)%100 == 0):
                                 print 'currently working with line number %d'%(cnt_lines)
                             cnt += hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
+                        cnt_lines += 1
                         # tn.append(cnt)
                         # RR_hist.append(RR_t.flatten()) # flatten transform 1d from Nd
                         # RR += RR_t
