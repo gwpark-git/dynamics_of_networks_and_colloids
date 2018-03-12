@@ -172,6 +172,7 @@ else:
                         if (cnt_lines < N_cuts):
                             for tmp_iter in xrange(N_cuts):
                                 next(f_traj)
+                                cnt_lines += 1
                                 for tmp_iter_2 in xrange(Np):
                                     next(f_index)
                                     next(f_weight)
@@ -185,7 +186,7 @@ else:
                                 if ((cnt_lines - N_cuts)%100 == 0):
                                     print 'currently working with line number %d'%(cnt_lines)
                                 cnt += hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
-                        cnt_lines += 1
+                            cnt_lines += 1
                         # tn.append(cnt)
                         # RR_hist.append(RR_t.flatten()) # flatten transform 1d from Nd
                         # RR += RR_t
