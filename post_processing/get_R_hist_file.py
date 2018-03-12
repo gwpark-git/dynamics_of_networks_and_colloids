@@ -99,11 +99,11 @@ def read_connectivity(f_index, f_weight, Np):
         N_cols = size(tmp_arr_index)
         index_i = int(tmp_arr_index[0])
         for j in range(N_cols):
-            index_j = int(tmp_arr_index[i][j])
+            index_j = int(tmp_arr_index[j])
             if index_j == -1:
                 break
             else:
-                connectivity[index_i, index_j] = int(tmp_arr_weight[i][j])
+                connectivity[index_i, index_j] = int(tmp_arr_weight[j])
     # N_cols = shape(str_index_table)[1]
     # for i in range(Np):
     #     index_i = int(str_index_table[i][0])
@@ -168,12 +168,12 @@ else:
                 cnt = 0
                 cnt_lines = 0
                 while(1):
-                    # try:
-                    pos = read_traj(f_traj, Np, N_dimension)
-                    connectivity = read_connectivity(f_index, f_weight, Np)
-                    # RR_t = RR_over_beads(pos, connectivity, box_dimension)
-                    if(cnt_lines >= N_cuts):
-                        cnt += hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
+                    try:
+                        pos = read_traj(f_traj, Np, N_dimension)
+                        connectivity = read_connectivity(f_index, f_weight, Np)
+                        # RR_t = RR_over_beads(pos, connectivity, box_dimension)
+                        if(cnt_lines >= N_cuts):
+                            cnt += hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
                         # tn.append(cnt)
                         # RR_hist.append(RR_t.flatten()) # flatten transform 1d from Nd
                         # RR += RR_t
@@ -183,11 +183,11 @@ else:
                         #         tmp_RR = zeros([N_dimension, N_dimension])                                          for p in range(N_dimension):
                         #             for q in range(N_dimension):
                         #                 tmp_RR[p,q] = 
-                    # except:
-                    #     # RR_hist = asarray(RR_hist)
-                    #     # RR /= float(cnt)
-                    #     # tn = asarray(tn)
-                    #     break
+                    except:
+                        # RR_hist = asarray(RR_hist)
+                        # RR /= float(cnt)
+                        # tn = asarray(tn)
+                        break
     # dat = zeros([size(tn), N_dimension**2.0 + 1])
     # dat[:,0] = tn
     # dat[:, 1:] = RR
