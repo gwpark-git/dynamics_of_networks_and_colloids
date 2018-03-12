@@ -89,20 +89,30 @@ def read_traj(f_traj, Np, N_dimension):
 
 def read_connectivity(f_index, f_weight, Np):
     connectivity = zeros([Np, Np])
-    str_index_table = []
-    str_weight_table = []
+    # str_index_table = []
+    # str_weight_table = []
     for i in range(Np):
-        str_index_table.append(f_index.readline().split('\t')[:-1])
-        str_weight_table.append(f_weight.readline().split('\t')[:-1])
-    N_cols = shape(str_index_table)[1]
-    for i in range(Np):
-        index_i = int(str_index_table[i][0])
+        tmp_arr_index = f_index.readline().split('\t')[:-1]
+        tmp_arr_weight = f_weight.readline().split('\t')[:-1]
+        # str_index_table.append(tmp_arr_index)
+        # str_weight_table.append(tmp_arr_weight)
+        N_cols = size(tmp_arr_index)
+        index_i = int(tmp_arr_index[0])
         for j in range(N_cols):
-            index_j = int(str_index_table[i][j])
+            index_j = int(tmp_arr_index[i][j])
             if index_j == -1:
                 break
             else:
-                connectivity[index_i, index_j] = int(str_weight_table[i][j])
+                connectivity[index_i, index_j] = int(tmp_arr_weight[i][j])
+    # N_cols = shape(str_index_table)[1]
+    # for i in range(Np):
+    #     index_i = int(str_index_table[i][0])
+    #     for j in range(N_cols):
+    #         index_j = int(str_index_table[i][j])
+    #         if index_j == -1:
+    #             break
+    #         else:
+    #             connectivity[index_i, index_j] = int(str_weight_table[i][j])
     return connectivity
     
 # def Np_lines_parsing_index(seq_lines, Np, N_dimension):
