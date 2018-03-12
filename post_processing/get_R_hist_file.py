@@ -65,7 +65,7 @@ def hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
             R_j = map_minimum_image_Rj_from_Ri(pos[i,:], pos[j,:], box_dimension)
             R_ij = rel_vec_Rij(pos[i,:], R_j)
             for k in range(N_dimension):
-                hist_R[k, index_arr(R_ij[k], dr)] += 1
+                hist_R[k, index_array(R_ij[k], dr)] += 1
             count += 1
     return count
 
@@ -172,7 +172,11 @@ else:
                         pos = read_traj(f_traj, Np, N_dimension)
                         connectivity = read_connectivity(f_index, f_weight, Np)
                         # RR_t = RR_over_beads(pos, connectivity, box_dimension)
+                        if(cnt_lines == N_cuts):
+                            print 'line number %d meet the starting condition'%(N_cuts)
                         if(cnt_lines >= N_cuts):
+                            if ((cnt_lines - N_cuts)%100 == 0):
+                                print 'currently working with line number %d'%(cnt_lines)
                             cnt += hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
                         # tn.append(cnt)
                         # RR_hist.append(RR_t.flatten()) # flatten transform 1d from Nd
