@@ -158,12 +158,12 @@ else:
                 cnt = 0
                 cnt_lines = 0
                 while(1):
-                    try:
-                        pos = read_traj(f_traj, Np, N_dimension)
-                        connectivity = read_connectivity(f_index, f_weight, Np)
-                        # RR_t = RR_over_beads(pos, connectivity, box_dimension)
-                        if(cnt_lines >= N_cuts):
-                            cnt += hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
+                    # try:
+                    pos = read_traj(f_traj, Np, N_dimension)
+                    connectivity = read_connectivity(f_index, f_weight, Np)
+                    # RR_t = RR_over_beads(pos, connectivity, box_dimension)
+                    if(cnt_lines >= N_cuts):
+                        cnt += hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
                         # tn.append(cnt)
                         # RR_hist.append(RR_t.flatten()) # flatten transform 1d from Nd
                         # RR += RR_t
@@ -173,11 +173,11 @@ else:
                         #         tmp_RR = zeros([N_dimension, N_dimension])                                          for p in range(N_dimension):
                         #             for q in range(N_dimension):
                         #                 tmp_RR[p,q] = 
-                    except:
-                        # RR_hist = asarray(RR_hist)
-                        # RR /= float(cnt)
-                        # tn = asarray(tn)
-                        break
+                    # except:
+                    #     # RR_hist = asarray(RR_hist)
+                    #     # RR /= float(cnt)
+                    #     # tn = asarray(tn)
+                    #     break
     # dat = zeros([size(tn), N_dimension**2.0 + 1])
     # dat[:,0] = tn
     # dat[:, 1:] = RR
