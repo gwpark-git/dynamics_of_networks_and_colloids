@@ -157,12 +157,13 @@ else:
             with open(fn_weight, 'r') as f_weight:
                 cnt = 0
                 cnt_lines = 0
-                while(cnt_lines >= N_cuts):
+                while(1):
                     try:
                         pos = read_traj(f_traj, Np, N_dimension)
                         connectivity = read_connectivity(f_index, f_weight, Np)
                         # RR_t = RR_over_beads(pos, connectivity, box_dimension)
-                        cnt += hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
+                        if(cnt_lines >= N_cuts):
+                            cnt += hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
                         # tn.append(cnt)
                         # RR_hist.append(RR_t.flatten()) # flatten transform 1d from Nd
                         # RR += RR_t
