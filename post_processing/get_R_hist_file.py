@@ -5,25 +5,27 @@ from numpy import *
 import sys
 from math import ceil
 
-def map_coordinate_from_index(index_arr, dr, N_dimension, Nr):
+def map_coordinate_from_index(index_arr, dr, N_dimension, N_direction):
     # Note that Nr represents number of increments for positive direction
-    # total number of index are 1 + 2*Nr
+    # total number of index are Nr = 1 + 2*N_direction
 
     # the remapping procedure strictly depends on the index handling that is described in index_array function.
     # here, the remapping procedure is way of inversion where the coordinate remap through an average between two incremental limits.
     # for instance, the first index (0) will remap to coordinate zero because (-dx/2 + dx/2)/2 = 0
     # the second index (1) will remap to dx since (dx/2 + (dx/2 + dx))/2 = dx.
 
-    # in the case of negative index, we can identify the negative index through int(index/(Nr + 1))==1 since from 1 to Nr, we have Nr-number of positive index,
-    # then from Nr + 1 to 2 Nr, we have Nr-number of negative index.
+    # in the case of negative index, we can identify the negative index through int(index/(N_direction + 1))==1 since from 1 to N_direction, we have N_direction-number of positive index,
+    # then from N_direction + 1 to 2 N_direction, we have N_direction-number of negative index.
     # note that index for array is always positive while its original mapping (designed from negative to posistive index of array) should be positive integer
     
     dr = float(dr)
     r0 = dr/2.
     r_arr = zeros(N_dimension)
     for k in range(N_dimension):
-        if int(index_arr[k]/(Nr + 1)) == 1:
-            r_arr[k] = -dr*index_arr[k]%(Nr + 1)
+        if int(index_arr[k]/(N_direction + 1)) == 1:
+            tmp_index = index_arr[k] - N_direction
+            r_arr[k] = -dr*(N_direction + 1 - tmp_index)
+            # r_arr[k] = -dr*(index_arr[k]%(N_direction + 1))
         else:
             r_arr[k] = dr*index_arr[k]
     return r_arr
@@ -91,16 +93,21 @@ def hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
         tmp_index = connectivity[i,i:].nonzero()[0] + i
         #note that nonzero returns tuple. So, the [0] indice will return ndarray
         for j in tmp_index:
-            R_j = map_minimum_image_Rj_from_Ri(pos[i,:], pos[j,:], box_dimension)
-            R_ij = rel_vec_Rij(pos[i,:], R_j)
-            for k in range(N_dimension):
-                I_arr[k] = index_array(R_ij[k], dr)
-            if (N_dimension==3):
-                hist_R[I_arr[0], I_arr[1], I_arr[2]] += 1
-            elif (N_dimension==2):
-                hist_R[I_arr[0], I_arr[1]] += 1
-            else:
-                print 'wrong dimensionality'
+            if j <> i:
+                # excluding the roof chains
+                # this explicit excluding will boost the performance of code dramatically since most of chains are in the roof status
+                # in addition, the excluding is of important to distingush the intensity of (0, 0, 0) coordinate is only accounted for the bridge chains
+                # which in generally almost zero because of excluded volume effect
+                R_j = map_minimum_image_Rj_from_Ri(pos[i,:], pos[j,:], box_dimension)
+                R_ij = rel_vec_Rij(pos[i,:], R_j)
+                for k in range(N_dimension):
+                    I_arr[k] = index_array(R_ij[k], dr)
+                if (N_dimension==3):
+                    hist_R[I_arr[0], I_arr[1], I_arr[2]] += 1
+                elif (N_dimension==2):
+                    hist_R[I_arr[0], I_arr[1]] += 1
+                else:
+                    print 'wrong dimensionality'
             
             # tmp_index_set = zeros(N_dimension)
             # for k in range(N_dimension):
@@ -190,7 +197,9 @@ else:
 
     # get number of arrays for each directions
     # this is of important for the following procedure
-    N_direction = int((box_dimension - dr/2.)/dr)
+    # note that box_dimension/2 is the maximum value of directional coordinate
+    # because of cut-off scheme of the core simulation
+    N_direction = int((box_dimension/2. - dr/2.)/dr)
     Nr = 1 + 2*N_direction
     print 'initialized with %d-dimensional case with dr=%f (Nr=%d)'%(N_dimension, dr, Nr)
     # index 0: middle x
@@ -281,7 +290,7 @@ else:
                     # this if phrase to reduce the extracted data
                     # because hist_R will be large-sparse matrix
                     # most of the data can be ignored since the intensity is zero
-                    tmp_arr[:3] = map_coordinate_from_index([i, j, k], dr, N_dimension, Nr)
+                    tmp_arr[:3] = map_coordinate_from_index([i, j, k], dr, N_dimension, N_direction)
                     tmp_arr[3] = hist_R[i, j, k]
                     dat.append(tmp_arr.tolist())
                     # from numpy array to list function is important to prevent the change of data inside arrays
