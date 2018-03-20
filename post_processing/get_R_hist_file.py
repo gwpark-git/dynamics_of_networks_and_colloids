@@ -90,10 +90,11 @@ def hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
     count = 0
     I_arr = [0, 0, 0] # integer array
     for i in range(Np):
-        tmp_index = connectivity[i,i:].nonzero()[0] + i
+        tmp_index = connectivity[i,i:].nonzero()[0] + i # this will have the index array
         #note that nonzero returns tuple. So, the [0] indice will return ndarray
-        for j in tmp_index:
+        for cnt_index, j in enumerate(tmp_index): # (cnt_index + i + 1) is the index for column in connectivity matrix
             if j <> i:
+                index_j_con = cnt_index + i + 1
                 # excluding the roof chains
                 # this explicit excluding will boost the performance of code dramatically since most of chains are in the roof status
                 # in addition, the excluding is of important to distingush the intensity of (0, 0, 0) coordinate is only accounted for the bridge chains
@@ -103,9 +104,9 @@ def hist_R_over_beads(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
                 for k in range(N_dimension):
                     I_arr[k] = index_array(R_ij[k], dr)
                 if (N_dimension==3):
-                    hist_R[I_arr[0], I_arr[1], I_arr[2]] += 1
+                    hist_R[I_arr[0], I_arr[1], I_arr[2]] += connectivity[i, index_j_con]
                 elif (N_dimension==2):
-                    hist_R[I_arr[0], I_arr[1]] += 1
+                    hist_R[I_arr[0], I_arr[1]] += connectivity[i, index_j_con]
                 else:
                     print 'wrong dimensionality'
             
