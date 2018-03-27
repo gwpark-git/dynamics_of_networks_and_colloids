@@ -114,7 +114,14 @@ def measure_average_xy(normalized_f_XYZ):
     return Z
 
 
-
+def gen_hist_R_arr(Np, box_dimension, N_cuts, dx):
+    N_dimension = 3
+    N_cols = 2*N_dimension*Np + 1
+    dr = dx
+    N_direction = int((box_dimension/2. - dr/2.)/dr)
+    Nr = 1 + 2*N_direction
+    hist_R = zeros([Nr, Nr, Nr, N_dimension + 1])
+    return hist_R
 
 def get_intensity_R_from_data(fn_base, hist_R, Np, box_dimension, N_cuts, dx):
     fn_traj = fn_base + '.traj'
