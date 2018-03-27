@@ -177,8 +177,8 @@ def get_intensity_R_from_data(fn_base, hist_R, Np, box_dimension, N_cuts, dx):
                         if(cnt_lines == N_cuts):
                             print 'line number %d meet the starting condition'%(N_cuts)
                         if(cnt_lines >= N_cuts):
-                            if ((cnt_lines - N_cuts)%100 == 0):
-                                print 'currently working with line number %d'%(cnt_lines)
+                            # if ((cnt_lines - N_cuts)%100 == 0):
+                            #     print 'currently working with line number %d'%(cnt_lines)
                             cnt += hist_R_over_beads_modified(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
                         cnt_lines += 1
                     except:
@@ -186,4 +186,4 @@ def get_intensity_R_from_data(fn_base, hist_R, Np, box_dimension, N_cuts, dx):
                         break
         # note that the following codes are only compatible with 3-dimenional space
 
-    return 0
+    return cnt_lines
