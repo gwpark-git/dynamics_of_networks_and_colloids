@@ -187,3 +187,51 @@ def get_intensity_R_from_data(fn_base, hist_R, Np, box_dimension, N_cuts, dx):
         # note that the following codes are only compatible with 3-dimenional space
 
     return cnt_lines
+
+
+def get_hist_R_from_list(fn_list, Np, box_dimension, N_cuts, dx):
+    hist_R = gen_hist_R_arr(Np, box_dimension, N_cuts, dx)
+
+    with open (fn_list, 'r') as f_list:
+        print 'starting with ', fn_list
+        count_samples = 0.
+        time_stamp_long = 0
+        tmp_time_stamp_long = 0
+        tmp_hist_R = copy(hist_R)
+        for line in f_list:
+            fn_base_tmp = line.replace('\n', '').replace('.ener','') # removing end-line deliminater and specific file name
+            print '   currently working with ', fn_base_tmp.split('/')[-1]
+            tmp_time_stamp_long = get_intensity_R_from_data(fn_base_tmp, hist_R, Np, box_dimension, N_cuts, dx)
+            if (count_samples == 0):
+                time_stamp_long = tmp_time_stamp_long
+                count_samples += 1.
+            else:
+                if tmp_time_stamp_long <> time_stamp_long: # when less or more time stamp of a condition is used
+                    hist_R = copy(tmp_hist_R) 
+                    print 'Caution: condition ', fn_base_tmp.split('/')[-1], 'has different length of time stamp. The histogram is excluded.'
+                else: # correct one
+                    count_samples += 1.
+        
+    hist_R[:, :, :, 3] /= float(count_samples)
+    return hist_R
+
+
+if __name__ == "__main__":
+    if size(sys.argv) < 6:
+        print 'USAGE:'
+        print 'argv[1] == filename of list'
+        print 'argv[2] == out filename'
+        print 'argv[3] == number of particles'
+        print 'argv[4] == box dimension'
+        print 'argv[5] == dx'
+        print 'argv[6] == number of initial cuts'
+    else:
+        fn_list = sys.argv[1]
+        fn_out = sys.argv[2]
+        Np = int(sys.argv[3])
+        box_dimension = float(sys.argv[4])
+        dx = float(sys.argv[5])
+        N_cuts = int(sys.argv[6])
+
+        hist_R = get_hist_R_from_list(fn_list, Np, box_dimension, N_cuts, dx)
+        save(fn_out, hist_R)
