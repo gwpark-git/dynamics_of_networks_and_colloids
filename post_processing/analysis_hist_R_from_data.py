@@ -191,20 +191,23 @@ def get_intensity_R_from_data(fn_base, hist_R, Np, box_dimension, N_cuts, dx):
 
 def get_hist_R_from_list(fn_list, Np, box_dimension, N_cuts, dx):
     hist_R = gen_hist_R_arr(Np, box_dimension, N_cuts, dx)
-
+    N_t = 0
     with open (fn_list, 'r') as f_list:
         print 'starting with ', fn_list
         count_samples = 0.
         time_stamp_long = 0
         tmp_time_stamp_long = 0
-        tmp_hist_R = copy(hist_R)
+
         for line in f_list:
+            tmp_hist_R = copy(hist_R)            
             fn_base_tmp = line.replace('\n', '').replace('.ener','') # removing end-line deliminater and specific file name
             print '   currently working with ', fn_base_tmp.split('/')[-1]
             tmp_time_stamp_long = get_intensity_R_from_data(fn_base_tmp, hist_R, Np, box_dimension, N_cuts, dx)
             if (count_samples == 0):
                 time_stamp_long = tmp_time_stamp_long
+                Nt = time_stamp_long
                 count_samples += 1.
+                
             else:
                 if tmp_time_stamp_long <> time_stamp_long: # when less or more time stamp of a condition is used
                     hist_R = copy(tmp_hist_R) 
@@ -212,7 +215,7 @@ def get_hist_R_from_list(fn_list, Np, box_dimension, N_cuts, dx):
                 else: # correct one
                     count_samples += 1.
         
-    hist_R[:, :, :, 3] /= float(count_samples)
+    hist_R[:, :, :, 3] /= float(count_samples)*float(Nt) # correcting intensity with number of samples and number of time
     return hist_R
 
 
