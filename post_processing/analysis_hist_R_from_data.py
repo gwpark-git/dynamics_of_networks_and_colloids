@@ -23,13 +23,18 @@ def hist_R_over_beads_modified(pos, connectivity, box_dimension, hist_R, N_dimen
                 for k in range(N_dimension):
                     I_arr[k] = index_array(R_ij[k], dr)
                 if (N_dimension==3):
-                    hist_R[I_arr[0], I_arr[1], I_arr[2], 3] += connectivity[i, index_j_con]
+                    # hist_R[I_arr[0], I_arr[1], I_arr[2], 3] += connectivity[i, index_j_con]
+                    # count += connectivity[i, index_j_con]
+                    hist_R[I_arr[0], I_arr[1], I_arr[2], 3] += connectivity[i, j]
+                    count += connectivity[i, j]
+                    
                 elif (N_dimension==2):
-                    hist_R[I_arr[0], I_arr[1], 2] += connectivity[i, index_j_con]
+                    # hist_R[I_arr[0], I_arr[1], 2] += connectivity[i, index_j_con]
+                    hist_R[I_arr[0], I_arr[1], 2] += connectivity[i, j]
+                    
                 else:
                     print 'wrong dimensionality'
 
-            count += 1
     return count
 
 
@@ -158,7 +163,6 @@ def get_intensity_R_from_data(fn_base, hist_R, Np, box_dimension, N_cuts, dx):
     with open(fn_traj, 'r') as f_traj:
         with open(fn_index, 'r') as f_index:
             with open(fn_weight, 'r') as f_weight:
-                cnt = 0
                 cnt_lines = 0
                 if (cnt_lines < N_cuts):
                     for tmp_iter in xrange(N_cuts):
@@ -176,10 +180,12 @@ def get_intensity_R_from_data(fn_base, hist_R, Np, box_dimension, N_cuts, dx):
                             # RR_t = RR_over_beads(pos, connectivity, box_dimension)
                         if(cnt_lines == N_cuts):
                             print 'line number %d meet the starting condition'%(N_cuts)
+                            
                         if(cnt_lines >= N_cuts):
                             # if ((cnt_lines - N_cuts)%100 == 0):
                             #     print 'currently working with line number %d'%(cnt_lines)
-                            cnt += hist_R_over_beads_modified(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
+                            cnt = hist_R_over_beads_modified(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
+                            print cnt
                         cnt_lines += 1
                     except:
                         print '[break]ing line number = ', cnt_lines
@@ -205,7 +211,7 @@ def get_hist_R_from_list(fn_list, Np, box_dimension, N_cuts, dx):
             tmp_time_stamp_long = get_intensity_R_from_data(fn_base_tmp, hist_R, Np, box_dimension, N_cuts, dx)
             if (count_samples == 0):
                 time_stamp_long = tmp_time_stamp_long
-                Nt = time_stamp_long
+                Nt = time_stamp_long - N_cuts
                 count_samples += 1.
                 
             else:
