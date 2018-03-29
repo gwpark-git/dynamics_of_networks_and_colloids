@@ -186,24 +186,24 @@ def get_intensity_R_from_data(fn_base, hist_R, Np, box_dimension, N_cuts, dx, Wi
 
                 while(1):
 
-                    # try:
-                    pos = read_traj(f_traj, Np, N_dimension)
-                    connectivity = read_connectivity(f_index, f_weight, Np)
-                        # RR_t = RR_over_beads(pos, connectivity, box_dimension)
-                    if(cnt_lines == N_cuts):
-                        print 'line number %d meet the starting condition'%(N_cuts)
+                    try:
+                        pos = read_traj(f_traj, Np, N_dimension)
+                        connectivity = read_connectivity(f_index, f_weight, Np)
+                            # RR_t = RR_over_beads(pos, connectivity, box_dimension)
+                        if(cnt_lines == N_cuts):
+                            print 'line number %d meet the starting condition'%(N_cuts)
 
-                    if(cnt_lines >= N_cuts):
-                        # if ((cnt_lines - N_cuts)%100 == 0):
-                        #     print 'currently working with line number %d'%(cnt_lines)
-                        time_past_onset_shear = cnt_lines * Delta_t_strider
-                        M0 = cal_M0_simple_shear(Wi_R, box_dimension, time_past_onset_shear)
-                        cnt = hist_R_over_beads_modified(pos, connectivity, box_dimension, hist_R, N_dimension, dr, M0)
-                        # print cnt
-                    cnt_lines += 1
-                    # except:
-                    #     print '[break]ing line number = ', cnt_lines
-                    #     break
+                        if(cnt_lines >= N_cuts):
+                            # if ((cnt_lines - N_cuts)%100 == 0):
+                            #     print 'currently working with line number %d'%(cnt_lines)
+                            time_past_onset_shear = cnt_lines * Delta_t_strider
+                            M0 = cal_M0_simple_shear(Wi_R, box_dimension, time_past_onset_shear)
+                            cnt = hist_R_over_beads_modified(pos, connectivity, box_dimension, hist_R, N_dimension, dr, M0)
+                            # print cnt
+                        cnt_lines += 1
+                    except:
+                        print '[break]ing line number = ', cnt_lines
+                        break
         # note that the following codes are only compatible with 3-dimenional space
 
     return cnt_lines
