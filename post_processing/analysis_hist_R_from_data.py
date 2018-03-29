@@ -1,8 +1,10 @@
 from numpy import *
 
 from get_R_hist_file import *
+from scipy.linalg import norm
 
-def hist_R_over_beads_modified(pos, connectivity, box_dimension, hist_R, N_dimension, dr):
+
+def hist_R_over_beads_modified(pos, connectivity, box_dimension, hist_R, N_dimension, dr, M0):
     # this is a modified version for the histogram analysis
     Np, N_dimension = shape(pos)
     # RR = zeros([N_dimension, N_dimension])
@@ -18,8 +20,14 @@ def hist_R_over_beads_modified(pos, connectivity, box_dimension, hist_R, N_dimen
                 # this explicit excluding will boost the performance of code dramatically since most of chains are in the roof status
                 # in addition, the excluding is of important to distingush the intensity of (0, 0, 0) coordinate is only accounted for the bridge chains
                 # which in generally almost zero because of excluded volume effect
-                R_j = map_minimum_image_Rj_from_Ri(pos[i,:], pos[j,:], box_dimension)
+                # R_j = map_minimum_image_Rj_from_Ri(pos[i,:] , pos[j,:], box_dimension)
+                R_j = map_minimum_image_Rj_from_Ri_simple_shear_3d(pos[i,:], pos[j,:], box_dimension, M0)
                 R_ij = rel_vec_Rij(pos[i,:], R_j)
+                tmp_r = norm(R_ij)
+                if (tmp_r >= 3.0):
+                    print 'Warning: given r is ', tmp_r
+                    print '\t R_i =', pos[i,:], '\t Rj = ', pos[j, :]
+                    print '\t R_ij = ', R_ij, ' new R_j = ', R_j, ', M0 = ', M0
                 for k in range(N_dimension):
                     I_arr[k] = index_array(R_ij[k], dr)
                 if (N_dimension==3):
@@ -128,7 +136,7 @@ def gen_hist_R_arr(Np, box_dimension, N_cuts, dx):
     hist_R = zeros([Nr, Nr, Nr, N_dimension + 1])
     return hist_R
 
-def get_intensity_R_from_data(fn_base, hist_R, Np, box_dimension, N_cuts, dx):
+def get_intensity_R_from_data(fn_base, hist_R, Np, box_dimension, N_cuts, dx, Wi_R, Delta_t_strider):
     fn_traj = fn_base + '.traj'
     fn_index = fn_base + '.hash'
     fn_weight = fn_base + '.weight'
@@ -165,37 +173,43 @@ def get_intensity_R_from_data(fn_base, hist_R, Np, box_dimension, N_cuts, dx):
             with open(fn_weight, 'r') as f_weight:
                 cnt_lines = 0
                 if (cnt_lines < N_cuts):
+                    # if cnt_lines > 0:
                     for tmp_iter in xrange(N_cuts):
                         f_traj.readline()
                         cnt_lines += 1
                         for tmp_iter_2 in xrange(Np):
                             f_index.readline()
                             f_weight.readline()
+                    # else:
+                    #     f_traj.readline()
+                    #     cnt_lines += 1
 
                 while(1):
 
-                    try:
-                        pos = read_traj(f_traj, Np, N_dimension)
-                        connectivity = read_connectivity(f_index, f_weight, Np)
-                            # RR_t = RR_over_beads(pos, connectivity, box_dimension)
-                        if(cnt_lines == N_cuts):
-                            print 'line number %d meet the starting condition'%(N_cuts)
-                            
-                        if(cnt_lines >= N_cuts):
-                            # if ((cnt_lines - N_cuts)%100 == 0):
-                            #     print 'currently working with line number %d'%(cnt_lines)
-                            cnt = hist_R_over_beads_modified(pos, connectivity, box_dimension, hist_R, N_dimension, dr)
-                            print cnt
-                        cnt_lines += 1
-                    except:
-                        print '[break]ing line number = ', cnt_lines
-                        break
+                    # try:
+                    pos = read_traj(f_traj, Np, N_dimension)
+                    connectivity = read_connectivity(f_index, f_weight, Np)
+                        # RR_t = RR_over_beads(pos, connectivity, box_dimension)
+                    if(cnt_lines == N_cuts):
+                        print 'line number %d meet the starting condition'%(N_cuts)
+
+                    if(cnt_lines >= N_cuts):
+                        # if ((cnt_lines - N_cuts)%100 == 0):
+                        #     print 'currently working with line number %d'%(cnt_lines)
+                        time_past_onset_shear = cnt_lines * Delta_t_strider
+                        M0 = cal_M0_simple_shear(Wi_R, box_dimension, time_past_onset_shear)
+                        cnt = hist_R_over_beads_modified(pos, connectivity, box_dimension, hist_R, N_dimension, dr, M0)
+                        # print cnt
+                    cnt_lines += 1
+                    # except:
+                    #     print '[break]ing line number = ', cnt_lines
+                    #     break
         # note that the following codes are only compatible with 3-dimenional space
 
     return cnt_lines
 
 
-def get_hist_R_from_list(fn_list, Np, box_dimension, N_cuts, dx):
+def get_hist_R_from_list(fn_list, Np, box_dimension, N_cuts, dx, Wi_R, Delta_t_strider):
     hist_R = gen_hist_R_arr(Np, box_dimension, N_cuts, dx)
     N_t = 0
     with open (fn_list, 'r') as f_list:
@@ -208,7 +222,7 @@ def get_hist_R_from_list(fn_list, Np, box_dimension, N_cuts, dx):
             tmp_hist_R = copy(hist_R)            
             fn_base_tmp = line.replace('\n', '').replace('.ener','') # removing end-line deliminater and specific file name
             print '   currently working with ', fn_base_tmp.split('/')[-1]
-            tmp_time_stamp_long = get_intensity_R_from_data(fn_base_tmp, hist_R, Np, box_dimension, N_cuts, dx)
+            tmp_time_stamp_long = get_intensity_R_from_data(fn_base_tmp, hist_R, Np, box_dimension, N_cuts, dx, Wi_R, Delta_t_strider)
             if (count_samples == 0):
                 time_stamp_long = tmp_time_stamp_long
                 Nt = time_stamp_long - N_cuts
@@ -234,6 +248,8 @@ if __name__ == "__main__":
         print 'argv[4] == box dimension'
         print 'argv[5] == dx'
         print 'argv[6] == number of initial cuts'
+        print 'argv[7] == Wi_R'
+        print 'argv[8] == delta_t_strider = dt * strider'
     else:
         fn_list = sys.argv[1]
         fn_out = sys.argv[2]
@@ -241,6 +257,7 @@ if __name__ == "__main__":
         box_dimension = float(sys.argv[4])
         dx = float(sys.argv[5])
         N_cuts = int(sys.argv[6])
-
-        hist_R = get_hist_R_from_list(fn_list, Np, box_dimension, N_cuts, dx)
+        Wi_R = float(sys.argv[7])
+        Delta_t_strider = float(sys.argv[8])
+        hist_R = get_hist_R_from_list(fn_list, Np, box_dimension, N_cuts, dx, Wi_R, Delta_t_strider)
         save(fn_out, hist_R)

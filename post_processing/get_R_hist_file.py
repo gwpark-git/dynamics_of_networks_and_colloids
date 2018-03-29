@@ -4,6 +4,7 @@ from numpy import *
 # import matplotlib.pyplot as plt
 import sys
 from math import ceil
+from scipy.linalg import norm
 
 def map_coordinate_from_index(index_arr, dr, N_dimension, N_direction):
     # Note that Nr represents number of increments for positive direction
@@ -66,6 +67,48 @@ def map_minimum_image_Rj_from_Ri(Ri, Rj, box_dimension):
     minimum_image_Rj = zeros(N_dimension)
     for i in range(N_dimension):
         minimum_image_Rj[i] = get_minimum_distance_k_from_x(Ri[i], Rj[i], box_dimension)
+    return minimum_image_Rj
+
+# def get_minimum_distance_k_from_x_shifted(x, k, box_dimension, shift_factor):
+#     kd = asarray([k - box_dimension -x, k - x, k + box_dimension - x])
+#     return kd[argmin(abs(kd))] + x
+
+def cal_M0_simple_shear(Wi_R, box_dimension, time_record):
+    maximum_displacement = Wi_R*box_dimension*time_record
+    shear_PBC_shift = maximum_displacement % box_dimension
+    map_to_central_box_image = shear_PBC_shift % box_dimension
+    central_standard = int(2*map_to_central_box_image/box_dimension)
+    map_to_central_box_image -= box_dimension*float(central_standard)
+    # S0 = ((Wi_R*box_dimension*time_record) % box_dimension) % box_dimension
+    # M0 = S0 + box_dimension*int((2*S0)/box_dimension)
+    return map_to_central_box_image
+
+
+def map_minimum_image_Rj_from_Ri_simple_shear_3d(Ri, Rj, box_dimension, M0):
+    # note that x==shear y== shear gradient directions
+    # in any case, symmetric measuring scheme of get_minimum_distance_k_from_x is NO MORE POSSIBLE
+    N_dimension = 3
+    minimum_image_Rj = copy(Rj)
+    min_r = norm(rel_vec_Rij(Ri, Rj))
+    shift_factor = 0.
+    for i in range(3): # x shift -1, 0, 1
+        x_shift = i - 1
+
+        for j in range(3): # y shift -1, 0, 1
+            y_shift = j-1            
+            y_coord = Rj[1] + y_shift*box_dimension
+
+            x_coord = (Rj[0] + x_shift*box_dimension) + y_shift*M0            
+
+            for k in range(3): # z shift -1, 0, 1
+                z_shift = k-1
+                z_coord = Rj[2] + z_shift*box_dimension
+                rel_r = sqrt((x_coord - Ri[0])**2.0 + (y_coord - Ri[1])**2.0 + (z_coord - Ri[2])**2.0)
+                if rel_r < min_r:
+                    min_r = rel_r
+                    minimum_image_Rj[0] = x_coord
+                    minimum_image_Rj[1] = y_coord
+                    minimum_image_Rj[2] = z_coord
     return minimum_image_Rj
 
 def rel_vec_Rij(Ri, Rj):
@@ -145,6 +188,7 @@ def read_connectivity(f_index, f_weight, Np):
                 connectivity[index_i, index_j] = int(tmp_arr_weight[j])
     return connectivity
     
+
 if __name__ == "__main__":
     if size(sys.argv) < 6:
         print 'USAGE:'
@@ -245,5 +289,6 @@ if __name__ == "__main__":
         # print dat
         print shape(dat)
         savetxt(fn_out, asarray(dat))
+
 
 
