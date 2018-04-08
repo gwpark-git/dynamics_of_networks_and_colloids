@@ -49,12 +49,12 @@ def hist_SPE_over_beads_modified(pos, connectivity, box_dimension, hist_SPE, N_d
                 if (N_dimension==3):
                     # hist_R[I_arr[0], I_arr[1], I_arr[2], 3] += connectivity[i, index_j_con]
                     # count += connectivity[i, index_j_con]
-                    hist_R[I_arr[0], I_arr[1], I_arr[2], 3] += connectivity[i, j]
+                    hist_SPE[I_arr[0], I_arr[1], I_arr[2], 3] += connectivity[i, j]
                     count += connectivity[i, j]
                     
                 elif (N_dimension==2):
                     # hist_R[I_arr[0], I_arr[1], 2] += connectivity[i, index_j_con]
-                    hist_R[I_arr[0], I_arr[1], 2] += connectivity[i, j]
+                    hist_SPE[I_arr[0], I_arr[1], 2] += connectivity[i, j]
                     
                 else:
                     print 'wrong dimensionality'
@@ -70,7 +70,7 @@ def get_intensity_SPE_from_data(fn_base, hist_SPE, Np, box_dimension, N_cuts, N_
     fn_traj = fn_base + '.traj'
     fn_index = fn_base + '.hash'
     fn_weight = fn_base + '.weight'
-    fn_out = fn_base + '_hist_R.dat'
+    fn_out = fn_base + '_hist_SPE.dat'
 
     N_dimension = 3
     tn = []
@@ -168,10 +168,10 @@ def get_hist_SPE_from_list(fn_list, Np, box_dimension, N_cuts, N_div, R_max, Wi_
         tmp_time_stamp_long = 0
 
         for line in f_list:
-            tmp_hist_R = copy(hist_R)            
+            tmp_hist_SPE = copy(hist_SPE)            
             fn_base_tmp = line.replace('\n', '').replace('.ener','') # removing end-line deliminater and specific file name
             print '   currently working with ', fn_base_tmp.split('/')[-1]
-            tmp_time_stamp_long = get_intensity_SPE_from_data(fn_base_tmp, hist_R, Np, box_dimension, N_cuts, N_div, Wi_R, Delta_t_strider)
+            tmp_time_stamp_long = get_intensity_SPE_from_data(fn_base_tmp, hist_SPE, Np, box_dimension, N_cuts, N_div, Wi_R, Delta_t_strider)
             if (count_samples == 0):
                 time_stamp_long = tmp_time_stamp_long
                 Nt = time_stamp_long - N_cuts
@@ -179,13 +179,13 @@ def get_hist_SPE_from_list(fn_list, Np, box_dimension, N_cuts, N_div, R_max, Wi_
                 
             else:
                 if tmp_time_stamp_long <> time_stamp_long: # when less or more time stamp of a condition is used
-                    hist_R = copy(tmp_hist_R) 
+                    hist_SPE = copy(tmp_hist_SPE) 
                     print 'Caution: condition ', fn_base_tmp.split('/')[-1], 'has different length of time stamp. The histogram is excluded.'
                 else: # correct one
                     count_samples += 1.
         
-    hist_R[:, :, :, 3] /= float(count_samples)*float(Nt) # correcting intensity with number of samples and number of time
-    return hist_R
+    hist_SPE[:, :, :, 3] /= float(count_samples)*float(Nt) # correcting intensity with number of samples and number of time
+    return hist_SPE
     
 if __name__ == "__main__":
     if size(sys.argv) < 6:
@@ -210,5 +210,5 @@ if __name__ == "__main__":
         R_max = float(sys.argv[7])
         Wi_R = float(sys.argv[8])
         Delta_t_strider = float(sys.argv[9])
-        hist_R = get_hist_SPE_from_list(fn_list, Np, box_dimension, N_cuts, N_div, R_max, Wi_R, Delta_t_strider)
-        save(fn_out, hist_R)
+        hist_SPE = get_hist_SPE_from_list(fn_list, Np, box_dimension, N_cuts, N_div, R_max, Wi_R, Delta_t_strider)
+        save(fn_out, hist_SPE)
