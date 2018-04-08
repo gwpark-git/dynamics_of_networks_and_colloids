@@ -205,7 +205,7 @@ if __name__ == "__main__":
         Np = int(sys.argv[3])
         box_dimension = float(sys.argv[4])
         # dx = float(sys.argv[5])
-        N_div = float(sys.argv[5])
+        N_div = int(sys.argv[5])
         N_cuts = int(sys.argv[6])
         R_max = float(sys.argv[7])
         Wi_R = float(sys.argv[8])
