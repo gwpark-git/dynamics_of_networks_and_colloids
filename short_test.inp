@@ -1,13 +1,3 @@
-##################################################################################
-#                                                                                #
-# Input file of stochastic simulation for Associating Telechelic Polymers        #
-# Developer: Gun Woo Park (gunwoo.park@unina.it)                                 #
-#                                                                                #
-# Note that single input file runs single computation while sequence of input    #
-# arguments for execution will run all of test following sequence of input files #
-#                                                                                #
-##################################################################################
-
 
 ## METHOD
 ## METHOD::Basic Methodological input
