@@ -1,1 +1,0 @@
-bash automation_submit_recasna.sh equilibrium_detail/C025/NP0375_LD05P3_C025_RT10_alpha100_lc000_NC05.inp $N_runs $init_sample_number ../LD05P3VER/EQ_NP0375_LD05P3/NP0375_LD05P3.traj
