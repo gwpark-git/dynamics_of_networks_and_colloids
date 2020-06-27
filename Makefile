@@ -1,7 +1,7 @@
 
 CC=icpc
 GIT_VERSION := $(shell git describe --dirty --always --tags)
-CFLAGS=-c -Wall -mkl -I/usr/local/include/ -DVERSION=\"$(GIT_VERSION)\"
+CFLAGS=-std=c++11 -c -Wall -mkl -I/usr/local/include/ -DVERSION=\"$(GIT_VERSION)\" 
 LDFLAGS=-Wall -mkl -L/usr/local/lib/ -lgsl 
 SCOPE_FLAGS_I=-I/opt/exp_soft/unina.it/gsl-2.1/include/
 SCOPE_FLAGS_L=-L/opt/exp_soft/unina.it/gsl-2.1/lib/
