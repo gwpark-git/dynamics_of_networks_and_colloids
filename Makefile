@@ -1,11 +1,19 @@
 
 CC=icpc
 GIT_VERSION := $(shell git describe --dirty --always --tags)
-CFLAGS=-std=c++11 -c -Wall -mkl -I/usr/local/include/ -DVERSION=\"$(GIT_VERSION)\" 
-LDFLAGS=-Wall -mkl -L/usr/local/lib/ -lgsl 
+CFLAGS=-c -Wall -DVERSION=\"$(GIT_VERSION)\" 
+# LDFLAGS=-Wall -lmkl_intel_lp64 -lmkl_core  -lgsl
+LDFLAGS=-Wall -lmkl_intel_lp64 -lmkl_core  -lgsl
+ifdef SDKROOT
+        CFLAGS += -isysroot ${SDKROOT}
+        LDFLAGS += -L${SDKROOT}/usr/lib
+endif
+# CFLAGS=-std=c++11 -c -Wall -mkl -I/usr/local/include/ -DVERSION=\"$(GIT_VERSION)\" 
+# LDFLAGS=-Wall -mkl -L/usr/local/lib/ -lgsl 
 SCOPE_FLAGS_I=-I/opt/exp_soft/unina.it/gsl-2.1/include/
 SCOPE_FLAGS_L=-L/opt/exp_soft/unina.it/gsl-2.1/lib/
-OPTFLAGS=-openmp -O2
+OPTFLAGS=-O2 -lmkl_intel_thread -liomp5 -lpthread -qopenmp
+# OPTFLAGS=-openmp -O2
 DEBUGFLAGS=-no_pie -g
 SOURCES=src/stochastic_simulation.cpp src/brownian.cpp src/dumbbell_model.cpp src/repulsive_brownian.cpp src/stochastic_HEUR_flowers.cpp lib/association.cpp lib/connectivity.cpp lib/geometry.cpp lib/handle_association.cpp lib/matrix.cpp lib/parallel.cpp lib/potential.cpp lib/random.cpp lib/file_IO.cpp lib/time_evolution.cpp lib/trajectory.cpp lib/cell_list.cpp 
 OBJECTS=$(SOURCES:.cpp=.o)
