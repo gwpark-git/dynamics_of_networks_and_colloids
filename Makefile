@@ -1,9 +1,9 @@
 
 CC=icpc
 GIT_VERSION := $(shell git describe --dirty --always --tags)
-CFLAGS=-c -Wall -DVERSION=\"$(GIT_VERSION)\" 
+CFLAGS=-c -I/usr/local/include -Wall -DVERSION=\"$(GIT_VERSION)\" 
 # LDFLAGS=-Wall -lmkl_intel_lp64 -lmkl_core  -lgsl
-LDFLAGS=-Wall -lmkl_intel_lp64 -lmkl_core  -lgsl
+LDFLAGS=-Wall -L/usr/local/lib -lmkl_intel_lp64 -lmkl_core  -lgsl -Wl,-rpath,${MKLROOT}/lib
 ifdef SDKROOT
         CFLAGS += -isysroot ${SDKROOT}
         LDFLAGS += -L${SDKROOT}/usr/lib
